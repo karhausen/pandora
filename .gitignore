@@ -1,0 +1,5 @@
+.spyproject/
+classes/image/__pycache__/
+*.pyc
+fromInternet/
+secret/
