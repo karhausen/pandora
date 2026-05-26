@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, UTC
-from pathlib import Path
 from .config import TOOLS_DIR, PROPOSALS_DIR
-from .models import ToolMeta, ToolSpec
+from .models import ToolSpec
 from .security import ToolSecurityValidator
 from .tool_registry import ToolRegistry
 from .tool_validator import ToolValidator

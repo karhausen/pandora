@@ -22,6 +22,16 @@ class ToolStatus(str, Enum):
     FAILED = "FAILED"
 
 
+class SkillStatus(str, Enum):
+    GENERATED = "GENERATED"
+    TESTING = "TESTING"
+    VALIDATED = "VALIDATED"
+    ACTIVE = "ACTIVE"
+    DEPRECATED = "DEPRECATED"
+    DISABLED = "DISABLED"
+    FAILED = "FAILED"
+
+
 class ToolMeta(BaseModel):
     id: str
     name: str
@@ -46,10 +56,42 @@ class ToolResult(BaseModel):
     execution_time: float = 0.0
 
 
+class SkillStep(BaseModel):
+    id: str
+    type: str = "tool"
+    tool_id: str | None = None
+    input_map: dict[str, str] = Field(default_factory=dict)
+    static_input: dict[str, Any] = Field(default_factory=dict)
+    save_as: str | None = None
+
+
+class SkillMeta(BaseModel):
+    id: str
+    name: str
+    description: str
+    version: str = "0.1.0"
+    status: SkillStatus = SkillStatus.ACTIVE
+    security_level: SecurityLevel = SecurityLevel.SAFE
+    required_tools: list[str] = Field(default_factory=list)
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
+    steps: list[SkillStep] = Field(default_factory=list)
+
+
+class SkillResult(BaseModel):
+    success: bool
+    skill: str
+    output: Any = None
+    steps: list[dict[str, Any]] = Field(default_factory=list)
+    error: str | None = None
+    execution_time: float = 0.0
+
+
 class CapabilityAnalysis(BaseModel):
     task: str
     required_capabilities: list[str] = Field(default_factory=list)
     available_tools: list[str] = Field(default_factory=list)
+    available_skills: list[str] = Field(default_factory=list)
     missing_capabilities: list[str] = Field(default_factory=list)
     recommended_action: str = "direct"
 

@@ -9,7 +9,6 @@ from .models import ToolSpec
 
 class ToolTester:
     def run_tests(self, spec: ToolSpec, tools_dir: Path) -> dict:
-        sample_csv = None
         with tempfile.TemporaryDirectory() as tmp:
             sample_csv = Path(tmp) / "sample.csv"
             sample_csv.write_text("name,value\na,1\nb,2\n", encoding="utf-8")

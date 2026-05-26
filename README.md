@@ -1,23 +1,26 @@
-# Pandora Agent MVP 3.0
+# Pandora Agent MVP 4.0
 
-Lokaler modularer Python-Agent mit stabilem Core und kontrollierter Tool-Erzeugung.
+Lokaler modularer Python-Agent mit stabilem Core, kontrollierter Tool-Erzeugung und erstem Skill-System.
 
-## Enthalten
+## Was ist neu in MVP 4?
 
-- Core-CLI
-- Tool Registry
-- Tool Discovery
-- gehärteter Tool Executor
-- Tool Runtime SQLite DB
-- Heartbeat
-- Safe Mode
-- Capability Analyzer
-- Tool Generator
-- Tool Validator
-- Tool Tester
-- Tool Lifecycle Manager
-- Reflection Log
-- Proposal-Verzeichnis für generierte Tools
+MVP 4 ergänzt Skills als wiederverwendbare Workflows über mehrere Tools.
+
+Neu:
+
+- `SkillRegistry`
+- `SkillExecutor`
+- `SkillManager`
+- Skill-Discovery aus `/skills/*.json`
+- Skill-Proposals unter `/proposals/skills`
+- Skill-Runtime-Logging in SQLite
+- CLI:
+  - `skills`
+  - `skill-list`
+  - `run-skill`
+  - `create-demo-skill`
+  - `skill-runs`
+- `--file` für stabile JSON-Payloads ohne PowerShell-Quoting-Stress
 
 ## Start
 
@@ -33,75 +36,104 @@ python main.py status
 ```powershell
 python main.py heartbeat
 python main.py tools
+python main.py skills
 python main.py tool-list
-python main.py run-tool echo --input "Hallo Agent"
-python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
+python main.py skill-list
 python main.py memory
 python main.py safe-mode
 ```
 
-## Neue MVP-3-Befehle
-
-Task analysieren:
+## Tool ausführen
 
 ```powershell
-python main.py analyze "Bitte CSV Datei auswerten"
+python main.py run-tool echo --input "Hallo Agent"
+python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
 ```
 
-Fehlende Fähigkeit erkennen und Tool kontrolliert erzeugen:
+Stabiler mit Datei:
+
+`payload_calc.json`
+
+```json
+{
+  "expression": "2+3*4"
+}
+```
 
 ```powershell
-python main.py ensure-capability "Bitte CSV Datei auswerten" --auto-create
+python main.py run-tool calculator --file payload_calc.json
 ```
 
-Danach:
+## Skill ausführen
+
+Vorinstallierter Demo-Skill:
 
 ```powershell
-python main.py tools
-python main.py tool-stats
-python main.py reflections
+python main.py run-skill echo_then_upper --json '{\"text\":\"Hallo Agent\"}'
 ```
 
-CSV Tool testen:
+Stabiler mit Datei:
+
+`payload_skill.json`
+
+```json
+{
+  "text": "Hallo Agent"
+}
+```
 
 ```powershell
-@"
-name,value
-a,1
-b,2
-c,3
-"@ | Set-Content sample.csv
-
-python main.py run-tool csv_reader --json "{\"path\":\"C:\\GitHub\\pandora\\sample.csv\"}"
+python main.py run-skill echo_then_upper --file payload_skill.json
 ```
 
-## Sicherheitsregeln
+Erwartetes Ergebnis:
 
-Generierte Tools werden nicht direkt blind aktiviert.
+```json
+{
+  "upper": {
+    "text": "HALLO AGENT"
+  }
+}
+```
 
-Ablauf:
+## Skill-Aufbau
 
-1. ToolSpec erzeugen
-2. Proposal speichern
-3. AST-Sicherheitsprüfung
-4. Syntaxprüfung
-5. Tool-Datei schreiben
-6. Import-Test
-7. Smoke-Test
-8. Registrierung per Discovery
+Skills liegen als JSON-Dateien unter:
 
-Blockiert werden u.a.:
+```text
+skills/
+```
 
-- subprocess
-- socket
-- ctypes
-- eval
-- exec
-- os.system
-- shutil.rmtree
-- open
+Beispiel:
 
-Hinweis: Das MVP nutzt noch keine echte Prozess-Sandbox. Vor autonomer Tool-Erzeugung mit fremden LLM-Ausgaben muss eine härtere Sandbox folgen.
+```json
+{
+  "id": "echo_then_upper",
+  "name": "Echo Then Upper",
+  "description": "Echoes input text and converts it to uppercase.",
+  "required_tools": ["echo", "uppercase"],
+  "steps": [
+    {
+      "id": "echo",
+      "type": "tool",
+      "tool_id": "echo",
+      "input_map": {
+        "text": "input.text"
+      },
+      "save_as": "echo"
+    },
+    {
+      "id": "upper",
+      "type": "tool",
+      "tool_id": "uppercase",
+      "input_map": {
+        "text": "context.echo.text"
+      },
+      "save_as": "upper"
+    }
+  ]
+}
+```
 
 ## Tests
 
@@ -111,4 +143,31 @@ pytest
 
 ## Architekturregel
 
-Der aktive Core wird nicht autonom überschrieben. MVP 3 erzeugt nur Tools und Proposals.
+Auch MVP 4 verändert den aktiven Core nicht autonom.
+
+Autonom oder halbautonom erweiterbar sind weiterhin nur:
+
+- Tools
+- Skills
+- Proposals
+- Workflows
+
+Geschützt bleiben:
+
+- Heartbeat
+- Rollback
+- Recovery
+- Security
+- Config
+- aktiver Core
+
+## Nächster Schritt: MVP 5
+
+MVP 5 sollte Reflection und Evolution verbessern:
+
+- aus erfolgreichen Tool-Ketten Skill-Vorschläge erzeugen
+- wiederkehrende Muster erkennen
+- schlechte Tools markieren
+- Skill-Qualität bewerten
+- Verbesserungsvorschläge speichern
+- noch keine direkte Core-Selbstmodifikation

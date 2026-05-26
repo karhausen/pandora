@@ -1,0 +1,42 @@
+{
+  "echo_then_upper": {
+    "id": "echo_then_upper",
+    "name": "Echo Then Upper",
+    "description": "Echoes input text and converts it to uppercase.",
+    "version": "0.1.0",
+    "status": "ACTIVE",
+    "security_level": "SAFE",
+    "required_tools": [
+      "echo",
+      "uppercase"
+    ],
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "upper": "dict"
+    },
+    "steps": [
+      {
+        "id": "echo",
+        "type": "tool",
+        "tool_id": "echo",
+        "input_map": {
+          "text": "input.text"
+        },
+        "static_input": {},
+        "save_as": "echo"
+      },
+      {
+        "id": "upper",
+        "type": "tool",
+        "tool_id": "uppercase",
+        "input_map": {
+          "text": "context.echo.text"
+        },
+        "static_input": {},
+        "save_as": "upper"
+      }
+    ]
+  }
+}

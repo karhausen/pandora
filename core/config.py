@@ -8,6 +8,7 @@ LOGS_DIR = ROOT_DIR / "logs"
 PROPOSALS_DIR = ROOT_DIR / "proposals"
 
 TOOL_REGISTRY_FILE = MEMORY_DIR / "tool_registry.json"
+SKILL_REGISTRY_FILE = MEMORY_DIR / "skill_registry.json"
 TOOL_RUNTIME_DB = MEMORY_DIR / "tool_runtime.sqlite"
 SHORT_TERM_MEMORY = MEMORY_DIR / "short_term.json"
 REFLECTION_LOG = MEMORY_DIR / "reflections.jsonl"

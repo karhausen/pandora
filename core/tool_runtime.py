@@ -16,6 +16,12 @@ class ToolRuntimeDB:
 
     def _init_db(self) -> None:
         with self._connect() as con:
+            cols = [row[1] for row in con.execute("PRAGMA table_info(tool_runs)").fetchall()]
+            if cols and "tool_id" not in cols:
+                con.execute("DROP TABLE IF EXISTS tool_runs")
+                con.execute("DROP TABLE IF EXISTS tool_stats")
+                con.execute("DROP TABLE IF EXISTS skill_runs")
+
             con.execute("""
             CREATE TABLE IF NOT EXISTS tool_runs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,6 +39,16 @@ class ToolRuntimeDB:
                 successes INTEGER NOT NULL,
                 failures INTEGER NOT NULL,
                 avg_execution_time REAL NOT NULL
+            )
+            """)
+            con.execute("""
+            CREATE TABLE IF NOT EXISTS skill_runs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                skill_id TEXT NOT NULL,
+                success INTEGER NOT NULL,
+                execution_time REAL NOT NULL,
+                error TEXT,
+                created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
             """)
 
@@ -63,7 +79,21 @@ class ToolRuntimeDB:
                 (tool_id, runs, successes, failures, avg_time),
             )
 
+    def record_skill_run(self, skill_id: str, success: bool, execution_time: float, error: str | None) -> None:
+        with self._connect() as con:
+            con.execute(
+                "INSERT INTO skill_runs(skill_id, success, execution_time, error) VALUES (?, ?, ?, ?)",
+                (skill_id, int(success), execution_time, error),
+            )
+
     def stats(self) -> list[dict]:
         with self._connect() as con:
             con.row_factory = sqlite3.Row
             return [dict(row) for row in con.execute("SELECT * FROM tool_stats").fetchall()]
+
+    def skill_runs(self, limit: int = 20) -> list[dict]:
+        with self._connect() as con:
+            con.row_factory = sqlite3.Row
+            return [dict(row) for row in con.execute(
+                "SELECT * FROM skill_runs ORDER BY id DESC LIMIT ?", (limit,)
+            ).fetchall()]

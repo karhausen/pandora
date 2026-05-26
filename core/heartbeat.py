@@ -4,6 +4,7 @@ import asyncio
 import time
 from .memory import Memory
 from .tool_registry import ToolRegistry
+from .skill_registry import SkillRegistry
 from .tool_runtime import ToolRuntimeDB
 
 
@@ -11,6 +12,7 @@ class Heartbeat:
     def __init__(self):
         self.memory = Memory()
         self.registry = ToolRegistry()
+        self.skill_registry = SkillRegistry()
         self.runtime = ToolRuntimeDB()
 
     async def check(self) -> dict:
@@ -20,30 +22,23 @@ class Heartbeat:
             "planner": "ok",
             "memory": "unknown",
             "tool_registry": "unknown",
+            "skill_registry": "unknown",
             "tool_runtime_db": "unknown",
             "event_loop": "unknown",
             "response_time": None,
         }
-        try:
-            self.memory.get_all()
-            status["memory"] = "ok"
-        except Exception as exc:
-            status["healthy"] = False
-            status["memory"] = f"error: {exc}"
-
-        try:
-            self.registry.list()
-            status["tool_registry"] = "ok"
-        except Exception as exc:
-            status["healthy"] = False
-            status["tool_registry"] = f"error: {exc}"
-
-        try:
-            self.runtime.stats()
-            status["tool_runtime_db"] = "ok"
-        except Exception as exc:
-            status["healthy"] = False
-            status["tool_runtime_db"] = f"error: {exc}"
+        for name, fn in [
+            ("memory", self.memory.get_all),
+            ("tool_registry", self.registry.list),
+            ("skill_registry", self.skill_registry.list),
+            ("tool_runtime_db", self.runtime.stats),
+        ]:
+            try:
+                fn()
+                status[name] = "ok"
+            except Exception as exc:
+                status["healthy"] = False
+                status[name] = f"error: {exc}"
 
         try:
             await asyncio.sleep(0)

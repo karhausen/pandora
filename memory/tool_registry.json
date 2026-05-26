@@ -1,1 +1,59 @@
-{}
+{
+  "echo": {
+    "id": "echo",
+    "name": "Echo",
+    "description": "Returns the input payload.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "text": "str"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.echo",
+    "function": "run",
+    "success_count": 0,
+    "failure_count": 0,
+    "last_error": null
+  },
+  "uppercase": {
+    "id": "uppercase",
+    "name": "Uppercase",
+    "description": "Converts text to uppercase.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "text": "str"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.uppercase",
+    "function": "run",
+    "success_count": 0,
+    "failure_count": 0,
+    "last_error": null
+  },
+  "calculator": {
+    "id": "calculator",
+    "name": "Calculator",
+    "description": "Safely evaluates simple arithmetic expressions.",
+    "version": "0.1.0",
+    "input_schema": {
+      "expression": "str"
+    },
+    "output_schema": {
+      "result": "number"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.calculator",
+    "function": "run",
+    "success_count": 0,
+    "failure_count": 0,
+    "last_error": null
+  }
+}
