@@ -1,4 +1,4 @@
-# Pandora Agent MVP 8.0
+# Pandora Agent MVP 8.1
 
 MVP 8 macht Pandora betreibbarer: Health Monitoring, Watchdog, Benchmarking, Startup Guard und Deployment Manager.
 
