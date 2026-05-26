@@ -1,23 +1,21 @@
-from __future__ import annotations
-
-from dataclasses import dataclass
 from pathlib import Path
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+TOOLS_DIR = ROOT_DIR / "tools"
+SKILLS_DIR = ROOT_DIR / "skills"
+MEMORY_DIR = ROOT_DIR / "memory"
+LOGS_DIR = ROOT_DIR / "logs"
+PROPOSALS_DIR = ROOT_DIR / "proposals"
 
-@dataclass(frozen=True)
-class CoreConfig:
-    project_root: Path = Path(__file__).resolve().parents[1]
-    tool_dir: Path = project_root / "tools"
-    skill_dir: Path = project_root / "skills"
-    memory_dir: Path = project_root / "memory"
-    log_dir: Path = project_root / "logs"
-    heartbeat_timeout_ms: int = 1500
-    tool_timeout_seconds: int = 10
-    safe_mode: bool = False
-    llm_provider: str = "stub"  # stub | ollama | openai
-    ollama_model_small: str = "llama3.2:3b"
-    ollama_model_strong: str = "qwen2.5-coder:7b"
+TOOL_REGISTRY_FILE = MEMORY_DIR / "tool_registry.json"
+TOOL_RUNTIME_DB = MEMORY_DIR / "tool_runtime.sqlite"
+SHORT_TERM_MEMORY = MEMORY_DIR / "short_term.json"
+REFLECTION_LOG = MEMORY_DIR / "reflections.jsonl"
 
-    def ensure_dirs(self) -> None:
-        for path in [self.tool_dir, self.skill_dir, self.memory_dir, self.log_dir]:
-            path.mkdir(parents=True, exist_ok=True)
+PROTECTED_CORE_FILES = {
+    "heartbeat.py",
+    "rollback.py",
+    "recovery.py",
+    "security.py",
+    "config.py",
+}

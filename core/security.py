@@ -1,36 +1,62 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+import ast
 from pathlib import Path
 
 
-PROTECTED_CORE_FILES = {
-    "heartbeat.py",
-    "rollback.py",
-    "recovery.py",
-    "security.py",
-    "config.py",
+FORBIDDEN_IMPORTS = {
+    "subprocess", "socket", "ctypes", "multiprocessing", "shutil", "requests",
+    "urllib", "httpx", "ftplib", "telnetlib"
+}
+
+FORBIDDEN_CALLS = {
+    "eval", "exec", "compile", "__import__", "open"
+}
+
+FORBIDDEN_ATTR_CALLS = {
+    ("os", "system"),
+    ("os", "popen"),
+    ("shutil", "rmtree"),
 }
 
 
-@dataclass(frozen=True)
-class SecurityDecision:
-    allowed: bool
-    reason: str
+class SecurityViolation(Exception):
+    pass
 
 
-class SecurityPolicy:
-    def __init__(self, project_root: Path):
-        self.project_root = project_root.resolve()
+class ToolSecurityValidator:
+    def validate_code(self, code: str) -> list[str]:
+        errors: list[str] = []
+        try:
+            tree = ast.parse(code)
+        except SyntaxError as exc:
+            return [f"SyntaxError: {exc}"]
 
-    def path_allowed(self, path: Path, allowed_root: Path) -> SecurityDecision:
-        target = path.resolve()
-        root = allowed_root.resolve()
-        if root == target or root in target.parents:
-            return SecurityDecision(True, "path allowed")
-        return SecurityDecision(False, f"path outside allowed root: {target}")
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                for alias in node.names:
+                    root = alias.name.split(".")[0]
+                    if root in FORBIDDEN_IMPORTS:
+                        errors.append(f"Forbidden import: {alias.name}")
 
-    def core_patch_allowed(self, file_name: str, user_approved: bool = False) -> SecurityDecision:
-        if file_name in PROTECTED_CORE_FILES and not user_approved:
-            return SecurityDecision(False, f"protected core file requires explicit approval: {file_name}")
-        return SecurityDecision(True, "core patch allowed")
+            if isinstance(node, ast.ImportFrom):
+                root = (node.module or "").split(".")[0]
+                if root in FORBIDDEN_IMPORTS:
+                    errors.append(f"Forbidden import: {node.module}")
+
+            if isinstance(node, ast.Call):
+                if isinstance(node.func, ast.Name) and node.func.id in FORBIDDEN_CALLS:
+                    errors.append(f"Forbidden call: {node.func.id}")
+
+                if isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+                    pair = (node.func.value.id, node.func.attr)
+                    if pair in FORBIDDEN_ATTR_CALLS:
+                        errors.append(f"Forbidden call: {pair[0]}.{pair[1]}")
+
+        return errors
+
+    def validate_target_path(self, target: Path, allowed_root: Path) -> None:
+        target_resolved = target.resolve()
+        root_resolved = allowed_root.resolve()
+        if root_resolved not in target_resolved.parents and target_resolved != root_resolved:
+            raise SecurityViolation(f"Path outside allowed root: {target}")

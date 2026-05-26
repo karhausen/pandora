@@ -1,21 +1,20 @@
-from __future__ import annotations
-
 import ast
 import operator as op
-from typing import Any
 
-METADATA = {
-    "id": "builtin.calculator",
-    "name": "calculator",
-    "description": "Sicherer Rechner für einfache arithmetische Ausdrücke ohne eval().",
-    "input_schema": {"type": "object", "properties": {"expression": {"type": "string"}}},
-    "output_schema": {"type": "object", "properties": {"result": {"type": "number"}}},
-    "safety_level": "low",
-    "version": "0.2.0",
-    "test_status": "tested",
+TOOL_META = {
+    "id": "calculator",
+    "name": "Calculator",
+    "description": "Safely evaluates simple arithmetic expressions.",
+    "version": "0.1.0",
+    "input_schema": {"expression": "str"},
+    "output_schema": {"result": "number"},
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.calculator",
+    "function": "run"
 }
 
-_ALLOWED = {
+OPS = {
     ast.Add: op.add,
     ast.Sub: op.sub,
     ast.Mult: op.mul,
@@ -24,19 +23,16 @@ _ALLOWED = {
     ast.USub: op.neg,
 }
 
-
 def _eval(node):
     if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
         return node.value
-    if isinstance(node, ast.BinOp) and type(node.op) in _ALLOWED:
-        return _ALLOWED[type(node.op)](_eval(node.left), _eval(node.right))
-    if isinstance(node, ast.UnaryOp) and type(node.op) in _ALLOWED:
-        return _ALLOWED[type(node.op)](_eval(node.operand))
-    raise ValueError("Only basic arithmetic is allowed")
+    if isinstance(node, ast.BinOp) and type(node.op) in OPS:
+        return OPS[type(node.op)](_eval(node.left), _eval(node.right))
+    if isinstance(node, ast.UnaryOp) and type(node.op) in OPS:
+        return OPS[type(node.op)](_eval(node.operand))
+    raise ValueError("Unsupported expression")
 
-
-def run(payload: dict[str, Any]) -> dict[str, Any]:
-    expression = payload.get("expression") or payload.get("task", "")
-    expression = expression.replace("berechne", "").replace("rechne", "").replace("calculate", "").strip()
-    tree = ast.parse(expression, mode="eval")
-    return {"expression": expression, "result": _eval(tree.body)}
+def run(payload: dict) -> dict:
+    expr = payload["expression"]
+    tree = ast.parse(expr, mode="eval")
+    return {"result": _eval(tree.body)}

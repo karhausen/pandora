@@ -1,39 +1,46 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Literal
-
-
-@dataclass(frozen=True)
-class PlanStep:
-    action: str
-    detail: str
-
-
-@dataclass(frozen=True)
-class TaskPlan:
-    task: str
-    complexity: Literal["simple", "medium", "complex"]
-    requires_tool: bool
-    required_tool_name: str | None = None
-    steps: list[PlanStep] = field(default_factory=list)
+from .capability_analyzer import CapabilityAnalyzer
+from .tool_generator import ToolGenerator
+from .tool_lifecycle import ToolLifecycleManager
+from .tool_registry import ToolRegistry
+from .reflection import ReflectionLogger
 
 
 class Planner:
-    def create_plan(self, task: str, available_tools: list[str]) -> TaskPlan:
-        lowered = task.lower()
-        requires_tool = any(word in lowered for word in ["rechne", "berechne", "calculate", "tool:"])
-        required_tool = "calculator" if any(word in lowered for word in ["rechne", "berechne", "calculate"]) else None
-        complexity = "complex" if len(task) > 500 else "medium" if len(task) > 120 else "simple"
-        steps = [
-            PlanStep("analyze", "Aufgabe verstehen und Einschränkungen prüfen"),
-            PlanStep("select_tool", f"Werkzeug wählen: {required_tool or 'keins nötig'}"),
-            PlanStep("execute", "Plan sicher ausführen"),
-            PlanStep("reflect", "Ergebnis und mögliche Verbesserungen speichern"),
-        ]
-        if required_tool and required_tool not in available_tools:
-            steps.insert(2, PlanStep("capability_gap", f"Tool fehlt: {required_tool}"))
-        return TaskPlan(task, complexity, requires_tool, required_tool, steps)
+    def __init__(self, registry: ToolRegistry | None = None):
+        self.registry = registry or ToolRegistry()
+        self.analyzer = CapabilityAnalyzer(self.registry)
+        self.generator = ToolGenerator()
+        self.lifecycle = ToolLifecycleManager(self.registry)
+        self.reflection = ReflectionLogger()
 
-    def healthcheck(self) -> bool:
-        return bool(self.create_plan("ping", []))
+    def analyze_task(self, task: str) -> dict:
+        analysis = self.analyzer.analyze(task)
+        return analysis.model_dump()
+
+    def ensure_capabilities(self, task: str, auto_create: bool = False) -> dict:
+        analysis = self.analyzer.analyze(task)
+        created = []
+        errors = []
+        if analysis.missing_capabilities and auto_create:
+            for capability in analysis.missing_capabilities:
+                spec = self.generator.generate(capability)
+                result = self.lifecycle.propose_and_activate(spec)
+                if result.get("activated"):
+                    created.append(result["tool_id"])
+                else:
+                    errors.append({"capability": capability, "result": result})
+        self.reflection.record({
+            "type": "capability_analysis",
+            "task": task,
+            "missing_capabilities": analysis.missing_capabilities,
+            "auto_create": auto_create,
+            "created_tools": created,
+            "errors": errors,
+        })
+        return {
+            "analysis": analysis.model_dump(),
+            "created_tools": created,
+            "errors": errors,
+        }

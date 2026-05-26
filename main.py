@@ -1,89 +1,133 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
-import sys
 from pathlib import Path
-from typing import Any
+import sys
 
 ROOT = Path(__file__).resolve().parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(ROOT))
 
-from core.agent_core import AgentCore
+from core.heartbeat import Heartbeat
+from core.memory import Memory
+from core.planner import Planner
+from core.reflection import ReflectionLogger
+from core.tool_executor import ToolExecutor
+from core.tool_registry import ToolRegistry
+from core.tool_runtime import ToolRuntimeDB
 
 
-def _print(data: Any) -> None:
-    print(json.dumps(data, indent=2, ensure_ascii=False))
+def _json(data):
+    print(json.dumps(data, indent=2, ensure_ascii=False, default=str))
 
 
-def _load_payload(args: argparse.Namespace) -> dict[str, Any]:
-    if getattr(args, "json_file", None):
+def cmd_status(args):
+    _json({"status": "ok", "version": "mvp-3.0"})
+
+
+def cmd_heartbeat(args):
+    _json(asyncio.run(Heartbeat().check()))
+
+
+def cmd_tools(args):
+    registry = ToolRegistry()
+    discovered = registry.discover()
+    _json({"discovered": discovered, "tools": [t.model_dump(mode="json") for t in registry.list()]})
+
+
+def cmd_run_tool(args):
+    registry = ToolRegistry()
+    registry.discover()
+    payload = {}
+    if args.input is not None:
+        payload = {"input": args.input, "text": args.input}
+    if args.json_payload is not None:
         try:
-            return json.loads(Path(args.json_file).read_text(encoding="utf-8"))
-        except Exception as exc:
-            raise SystemExit(f"Invalid JSON file: {exc}") from exc
-    if getattr(args, "json", ""):
-        try:
-            return json.loads(args.json)
+            payload = json.loads(args.json_payload)
         except json.JSONDecodeError as exc:
-            raise SystemExit(f"Invalid JSON payload: {exc}") from exc
-    return {"task": getattr(args, "input", "")}
+            print(f"Invalid JSON payload: {exc}", file=sys.stderr)
+            raise SystemExit(2)
+    result = asyncio.run(ToolExecutor(registry).run_tool(args.tool_id, payload))
+    _json(result.model_dump())
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Local Autonomous Agent - MVP 2.0")
+def cmd_memory(args):
+    _json(Memory().get_all())
+
+
+def cmd_safe_mode(args):
+    _json({"safe_mode": True, "allowed": ["diagnostics", "heartbeat", "memory-read"], "blocked": ["tool-generation", "core-changes", "external-actions"]})
+
+
+def cmd_analyze(args):
+    planner = Planner()
+    _json(planner.analyze_task(args.task))
+
+
+def cmd_ensure(args):
+    planner = Planner()
+    _json(planner.ensure_capabilities(args.task, auto_create=args.auto_create))
+
+
+def cmd_tool_stats(args):
+    _json({"tool_stats": ToolRuntimeDB().stats()})
+
+
+def cmd_reflections(args):
+    _json({"reflections": ReflectionLogger().tail(args.limit)})
+
+
+def build_parser():
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 3")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p_task = sub.add_parser("task", help="Run a task through the core planner")
-    p_task.add_argument("text", help="Task text")
+    p = sub.add_parser("status")
+    p.set_defaults(func=cmd_status)
 
-    sub.add_parser("status", help="Show full core status")
-    sub.add_parser("heartbeat", help="Run one heartbeat check")
+    p = sub.add_parser("heartbeat")
+    p.set_defaults(func=cmd_heartbeat)
 
-    sub.add_parser("tools", help="List registered tools")
-    sub.add_parser("tool-list", help="Alias for tools")
-    sub.add_parser("tool-discover", help="Auto-discover Python tools in /tools")
-    sub.add_parser("tool-stats", help="Show persistent runtime stats for tools")
+    p = sub.add_parser("tools")
+    p.set_defaults(func=cmd_tools)
 
-    p_run_tool = sub.add_parser("run-tool", help="Run a registered tool")
-    p_run_tool.add_argument("name", help="Tool name, e.g. calculator or echo")
-    p_run_tool.add_argument("--input", default="", help="Plain input text passed as task")
-    p_run_tool.add_argument("--json", default="", help="JSON payload. Overrides --input when provided")
-    p_run_tool.add_argument("--json-file", default="", help="Read JSON payload from file")
+    p = sub.add_parser("tool-list")
+    p.set_defaults(func=cmd_tools)
 
-    p_memory = sub.add_parser("memory", help="Show memory content")
-    p_memory.add_argument("scope", choices=["short"], nargs="?", default="short")
+    p = sub.add_parser("run-tool")
+    p.add_argument("tool_id")
+    p.add_argument("--input")
+    p.add_argument("--json", dest="json_payload")
+    p.set_defaults(func=cmd_run_tool)
 
-    sub.add_parser("safe-mode", help="Show whether safe mode is recommended")
+    p = sub.add_parser("memory")
+    p.set_defaults(func=cmd_memory)
+
+    p = sub.add_parser("safe-mode")
+    p.set_defaults(func=cmd_safe_mode)
+
+    p = sub.add_parser("analyze")
+    p.add_argument("task")
+    p.set_defaults(func=cmd_analyze)
+
+    p = sub.add_parser("ensure-capability")
+    p.add_argument("task")
+    p.add_argument("--auto-create", action="store_true")
+    p.set_defaults(func=cmd_ensure)
+
+    p = sub.add_parser("tool-stats")
+    p.set_defaults(func=cmd_tool_stats)
+
+    p = sub.add_parser("reflections")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_reflections)
+
     return parser
 
 
-def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
-
-    core = AgentCore()
-    core.initialize()
-
-    if args.cmd == "task":
-        _print(core.run_task(args.text))
-    elif args.cmd == "status":
-        _print(core.status())
-    elif args.cmd == "heartbeat":
-        _print(core.heartbeat_status())
-    elif args.cmd in {"tools", "tool-list"}:
-        _print(core.list_tools())
-    elif args.cmd == "tool-discover":
-        _print(core.discover_tools())
-    elif args.cmd == "tool-stats":
-        _print(core.tool_stats())
-    elif args.cmd == "run-tool":
-        _print(core.run_tool(args.name, _load_payload(args)))
-    elif args.cmd == "memory":
-        _print(core.memory.get_short_term_all())
-    elif args.cmd == "safe-mode":
-        _print(core.safe_mode_status())
+def main():
+    args = build_parser().parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":

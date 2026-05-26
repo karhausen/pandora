@@ -1,109 +1,114 @@
-# Pandora Agent — MVP 2.0
+# Pandora Agent MVP 3.0
 
-Lokaler, modularer Python-Agent mit stabilem Core, CLI, Heartbeat, Memory und professionalisiertem Tool-System.
+Lokaler modularer Python-Agent mit stabilem Core und kontrollierter Tool-Erzeugung.
 
-## Status
+## Enthalten
 
-MVP 2.0 erweitert MVP 1.5 um:
+- Core-CLI
+- Tool Registry
+- Tool Discovery
+- gehärteter Tool Executor
+- Tool Runtime SQLite DB
+- Heartbeat
+- Safe Mode
+- Capability Analyzer
+- Tool Generator
+- Tool Validator
+- Tool Tester
+- Tool Lifecycle Manager
+- Reflection Log
+- Proposal-Verzeichnis für generierte Tools
 
-- automatische Tool-Discovery aus `tools/*.py`
-- persistente Tool-Runtime-Datenbank `memory/tool_runtime.sqlite`
-- gehärteten Tool-Executor mit Timeout, Fehlererfassung und Sicherheitslevel-Prüfung
-- Tool-Telemetrie: Runs, Erfolge, Fehler, Laufzeit, Input-/Output-Größe
-- erweiterten Heartbeat inklusive Runtime-DB-Check
-- CLI-Befehle für Tool-Discovery und Tool-Statistiken
-- JSON-Datei-Payloads für stabile Tool-Aufrufe unter PowerShell
-- Tests für Discovery, Runtime-Stats und Fehlererfassung
-
-## Installation
+## Start
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+python main.py status
 ```
 
-## Wichtige CLI-Befehle
+## Basisbefehle
 
 ```powershell
-python main.py status
 python main.py heartbeat
 python main.py tools
 python main.py tool-list
-python main.py tool-discover
-python main.py tool-stats
+python main.py run-tool echo --input "Hallo Agent"
+python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
 python main.py memory
 python main.py safe-mode
 ```
 
-Tool ausführen:
+## Neue MVP-3-Befehle
+
+Task analysieren:
 
 ```powershell
-python main.py run-tool echo --input "Hallo Agent"
-python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
+python main.py analyze "Bitte CSV Datei auswerten"
 ```
 
-Stabiler unter PowerShell: JSON-Datei nutzen.
+Fehlende Fähigkeit erkennen und Tool kontrolliert erzeugen:
 
 ```powershell
-@'{
-  "expression": "2+3*4"
-}'@ | Set-Content payload.json
-
-python main.py run-tool calculator --json-file payload.json
-```
-
-## Tool-Format
-
-Ein Tool liegt als Python-Datei in `tools/` und braucht mindestens:
-
-```python
-from typing import Any
-
-METADATA = {
-    "name": "example",
-    "description": "Kurzbeschreibung",
-    "input_schema": {"type": "object"},
-    "output_schema": {"type": "object"},
-    "safety_level": "low",
-}
-
-
-def run(payload: dict[str, Any]) -> dict[str, Any]:
-    return {"ok": True}
+python main.py ensure-capability "Bitte CSV Datei auswerten" --auto-create
 ```
 
 Danach:
 
 ```powershell
-python main.py tool-discover
 python main.py tools
+python main.py tool-stats
+python main.py reflections
 ```
 
-## Tool-Runtime-Datenbank
+CSV Tool testen:
 
-Datei:
+```powershell
+@"
+name,value
+a,1
+b,2
+c,3
+"@ | Set-Content sample.csv
 
-```text
-memory/tool_runtime.sqlite
+python main.py run-tool csv_reader --json "{\"path\":\"C:\\GitHub\\pandora\\sample.csv\"}"
 ```
 
-Tabellen:
+## Sicherheitsregeln
 
-- `tool_runs`
-- `tool_failures`
-- `tool_stats`
+Generierte Tools werden nicht direkt blind aktiviert.
 
-Diese Daten sind die Grundlage für spätere Reflection, Tool-Bewertung, Skill-Lernen und kontrollierte Evolution.
+Ablauf:
+
+1. ToolSpec erzeugen
+2. Proposal speichern
+3. AST-Sicherheitsprüfung
+4. Syntaxprüfung
+5. Tool-Datei schreiben
+6. Import-Test
+7. Smoke-Test
+8. Registrierung per Discovery
+
+Blockiert werden u.a.:
+
+- subprocess
+- socket
+- ctypes
+- eval
+- exec
+- os.system
+- shutil.rmtree
+- open
+
+Hinweis: Das MVP nutzt noch keine echte Prozess-Sandbox. Vor autonomer Tool-Erzeugung mit fremden LLM-Ausgaben muss eine härtere Sandbox folgen.
 
 ## Tests
 
 ```powershell
-python -m pytest
+pytest
 ```
-
-Aktueller Stand: `7 passed`.
 
 ## Architekturregel
 
-Der aktive Core wird weiterhin nicht autonom überschrieben. MVP 2 verbessert nur das Tool-System und die Telemetrie. Autonome Tool-Erzeugung kommt erst in MVP 3.
+Der aktive Core wird nicht autonom überschrieben. MVP 3 erzeugt nur Tools und Proposals.

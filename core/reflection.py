@@ -1,20 +1,23 @@
 from __future__ import annotations
 
-from typing import Any
+import json
+from datetime import datetime, UTC
+from .config import REFLECTION_LOG
 
-from .memory import MemoryStore
 
+class ReflectionLogger:
+    def __init__(self, path=REFLECTION_LOG):
+        self.path = path
+        self.path.parent.mkdir(parents=True, exist_ok=True)
 
-class ReflectionSystem:
-    def __init__(self, memory: MemoryStore):
-        self.memory = memory
+    def record(self, event: dict) -> None:
+        event = dict(event)
+        event["created_at"] = datetime.now(UTC).isoformat()
+        with self.path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(event, ensure_ascii=False) + "\n")
 
-    def reflect_task(self, task: str, result: dict[str, Any]) -> dict[str, Any]:
-        reflection = {
-            "task": task,
-            "ok": result.get("ok", False),
-            "missing_capabilities": result.get("missing_capabilities", []),
-            "improvement_hint": result.get("improvement_hint"),
-        }
-        self.memory.add_episode("task_reflection", reflection)
-        return reflection
+    def tail(self, limit: int = 20) -> list[dict]:
+        if not self.path.exists():
+            return []
+        lines = self.path.read_text(encoding="utf-8").splitlines()[-limit:]
+        return [json.loads(line) for line in lines if line.strip()]

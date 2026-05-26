@@ -1,18 +1,15 @@
-from __future__ import annotations
-
-from typing import Any
-
-METADATA = {
-    "id": "builtin.echo",
-    "name": "echo",
-    "description": "Gibt den Payload unverändert zurück. Nützlich für Executor-, CLI- und Pipeline-Tests.",
-    "input_schema": {"type": "object"},
-    "output_schema": {"type": "object", "properties": {"echo": {"type": "object"}}},
-    "safety_level": "low",
-    "version": "0.2.0",
-    "test_status": "tested",
+TOOL_META = {
+    "id": "echo",
+    "name": "Echo",
+    "description": "Returns the input payload.",
+    "version": "0.1.0",
+    "input_schema": {"text": "str"},
+    "output_schema": {"text": "str"},
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.echo",
+    "function": "run"
 }
 
-
-def run(payload: dict[str, Any]) -> dict[str, Any]:
-    return {"echo": payload}
+def run(payload: dict) -> dict:
+    return {"text": payload.get("text") or payload.get("input") or ""}

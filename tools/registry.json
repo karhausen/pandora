@@ -2,50 +2,64 @@
   "calculator": {
     "id": "builtin.calculator",
     "name": "calculator",
-    "description": "Safe calculator for basic arithmetic expressions.",
+    "description": "Sicherer Rechner für einfache arithmetische Ausdrücke ohne eval().",
     "input_schema": {
-      "expression": "str"
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string"
+        }
+      }
     },
     "output_schema": {
-      "expression": "str",
-      "result": "number"
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "number"
+        }
+      }
     },
     "safety_level": "low",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "dependencies": [],
     "success_rate": 1.0,
     "test_status": "passed",
-    "last_used": null,
+    "last_used": 1779792358.0647185,
     "error_history": [],
-    "module": "/mnt/data/agent_mvp15/agent/tools/calculator.py",
-    "run_count": 0,
-    "success_count": 0,
+    "module": "C:\\GitHub\\pandora\\tools\\calculator.py",
+    "run_count": 2,
+    "success_count": 2,
     "failure_count": 0,
-    "avg_runtime_ms": 0.0,
+    "avg_runtime_ms": 3.0,
     "enabled": true
   },
   "echo": {
     "id": "builtin.echo",
     "name": "echo",
-    "description": "Returns the provided payload for smoke tests and debugging.",
+    "description": "Gibt den Payload unverändert zurück. Nützlich für Executor-, CLI- und Pipeline-Tests.",
     "input_schema": {
-      "task": "str"
+      "type": "object"
     },
     "output_schema": {
-      "echo": "any"
+      "type": "object",
+      "properties": {
+        "echo": {
+          "type": "object"
+        }
+      }
     },
     "safety_level": "low",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "dependencies": [],
     "success_rate": 1.0,
     "test_status": "passed",
-    "last_used": null,
+    "last_used": 1779792150.8318436,
     "error_history": [],
-    "module": "/mnt/data/agent_mvp15/agent/tools/echo.py",
-    "run_count": 0,
-    "success_count": 0,
+    "module": "C:\\GitHub\\pandora\\tools\\echo.py",
+    "run_count": 1,
+    "success_count": 1,
     "failure_count": 0,
-    "avg_runtime_ms": 0.0,
+    "avg_runtime_ms": 2.0,
     "enabled": true
   }
 }

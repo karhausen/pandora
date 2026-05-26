@@ -2,52 +2,38 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+from .heartbeat import Heartbeat
+from .planner import Planner
+from .tool_registry import ToolRegistry
+from .tool_executor import ToolExecutor
 
-from .agent_core import AgentCore
+
+app = FastAPI(title="Pandora Agent MVP 3")
 
 
 class TaskRequest(BaseModel):
     task: str
+    auto_create_tools: bool = False
 
 
-def create_app() -> FastAPI:
-    app = FastAPI(title="Local Autonomous Agent", version="0.1.0")
-    core = AgentCore()
-    core.initialize()
-
-    @app.get("/status")
-    def status() -> dict:
-        return core.status()
-
-    @app.get("/heartbeat")
-    def heartbeat() -> dict:
-        return core.heartbeat.as_dict()
-
-    @app.post("/task")
-    def task(req: TaskRequest) -> dict:
-        return core.run_task(req.task)
-
-    @app.get("/tools")
-    def tools() -> dict:
-        return {"tools": core.registry.list_names()}
-
-    @app.get("/skills")
-    def skills() -> dict:
-        return {"skills": []}
-
-    @app.get("/memory/short-term")
-    def short_term() -> dict:
-        return core.memory.get_short_term_all()
-
-    @app.get("/core-versions")
-    def core_versions() -> dict:
-        return {"active": "0.1.0", "versions": [], "note": "MVP7 erweitert dies."}
-
-    @app.get("/improvement-proposals")
-    def improvement_proposals() -> dict:
-        return {"proposals": [], "note": "MVP5 erweitert dies."}
-
-    return app
+@app.get("/status")
+def status():
+    return {"status": "ok", "version": "mvp-3.0"}
 
 
-app = create_app()
+@app.get("/tools")
+def tools():
+    registry = ToolRegistry()
+    registry.discover()
+    return [t.model_dump(mode="json") for t in registry.list()]
+
+
+@app.post("/task/analyze")
+def analyze_task(req: TaskRequest):
+    planner = Planner()
+    return planner.ensure_capabilities(req.task, auto_create=req.auto_create_tools)
+
+
+@app.get("/heartbeat")
+async def heartbeat():
+    return await Heartbeat().check()
