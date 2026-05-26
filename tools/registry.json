@@ -1,0 +1,51 @@
+{
+  "calculator": {
+    "id": "builtin.calculator",
+    "name": "calculator",
+    "description": "Safe calculator for basic arithmetic expressions.",
+    "input_schema": {
+      "expression": "str"
+    },
+    "output_schema": {
+      "expression": "str",
+      "result": "number"
+    },
+    "safety_level": "low",
+    "version": "0.1.0",
+    "dependencies": [],
+    "success_rate": 1.0,
+    "test_status": "passed",
+    "last_used": null,
+    "error_history": [],
+    "module": "/mnt/data/agent_mvp15/agent/tools/calculator.py",
+    "run_count": 0,
+    "success_count": 0,
+    "failure_count": 0,
+    "avg_runtime_ms": 0.0,
+    "enabled": true
+  },
+  "echo": {
+    "id": "builtin.echo",
+    "name": "echo",
+    "description": "Returns the provided payload for smoke tests and debugging.",
+    "input_schema": {
+      "task": "str"
+    },
+    "output_schema": {
+      "echo": "any"
+    },
+    "safety_level": "low",
+    "version": "0.1.0",
+    "dependencies": [],
+    "success_rate": 1.0,
+    "test_status": "passed",
+    "last_used": null,
+    "error_history": [],
+    "module": "/mnt/data/agent_mvp15/agent/tools/echo.py",
+    "run_count": 0,
+    "success_count": 0,
+    "failure_count": 0,
+    "avg_runtime_ms": 0.0,
+    "enabled": true
+  }
+}
