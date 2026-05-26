@@ -55,6 +55,16 @@ class TaskKind(str, Enum):
     ENSURE_CAPABILITY = "ensure_capability"
 
 
+class CoreVersionStatus(str, Enum):
+    CREATED = "CREATED"
+    TESTING = "TESTING"
+    VALIDATED = "VALIDATED"
+    ACTIVE = "ACTIVE"
+    STABLE = "STABLE"
+    FAILED = "FAILED"
+    ROLLED_BACK = "ROLLED_BACK"
+
+
 class ToolMeta(BaseModel):
     id: str
     name: str
@@ -66,9 +76,6 @@ class ToolMeta(BaseModel):
     status: ToolStatus = ToolStatus.ACTIVE
     module: str
     function: str = "run"
-    success_count: int = 0
-    failure_count: int = 0
-    last_error: str | None = None
 
 
 class ToolResult(BaseModel):
@@ -119,17 +126,6 @@ class CapabilityAnalysis(BaseModel):
     recommended_action: str = "direct"
 
 
-class ToolSpec(BaseModel):
-    id: str
-    name: str
-    description: str
-    capability: str
-    input_schema: dict[str, Any]
-    output_schema: dict[str, Any]
-    code: str
-    tests: list[dict[str, Any]] = Field(default_factory=list)
-
-
 class Episode(BaseModel):
     id: str
     task: str
@@ -141,24 +137,6 @@ class Episode(BaseModel):
     error: str | None = None
     summary: str | None = None
     created_at: str
-
-
-class ReflectionInsight(BaseModel):
-    kind: str
-    severity: str = "info"
-    message: str
-    suggested_action: str | None = None
-    data: dict[str, Any] = Field(default_factory=dict)
-
-
-class SkillProposal(BaseModel):
-    id: str
-    name: str
-    description: str
-    status: ProposalStatus = ProposalStatus.PROPOSED
-    reason: str
-    skill: SkillMeta
-    evidence: dict[str, Any] = Field(default_factory=dict)
 
 
 class RuntimeTask(BaseModel):
@@ -175,3 +153,17 @@ class RuntimeTask(BaseModel):
     created_at: str
     started_at: str | None = None
     finished_at: str | None = None
+
+
+class CoreVersionMeta(BaseModel):
+    version_id: str
+    build_id: str
+    created_at: str
+    status: CoreVersionStatus = CoreVersionStatus.CREATED
+    source: str = "snapshot"
+    path: str
+    tests_passed: bool | None = None
+    heartbeat_passed: bool | None = None
+    smoke_tests_passed: bool | None = None
+    error: str | None = None
+    rollback_target: str | None = None

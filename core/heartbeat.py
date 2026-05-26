@@ -7,18 +7,21 @@ from .skill_registry import SkillRegistry
 from .task_runtime import TaskStore
 from .tool_registry import ToolRegistry
 from .tool_runtime import ToolRuntimeDB
+from .version_manager import VersionManager
 
 class Heartbeat:
     def __init__(self):
-        self.memory=Memory(); self.registry=ToolRegistry(); self.skill_registry=SkillRegistry(); self.runtime=ToolRuntimeDB(); self.episodic=EpisodicMemory(); self.skill_quality=SkillQualityDB(); self.task_store=TaskStore()
-    async def check(self)->dict:
+        self.memory=Memory(); self.registry=ToolRegistry(); self.skill_registry=SkillRegistry(); self.runtime=ToolRuntimeDB(); self.episodic=EpisodicMemory(); self.skill_quality=SkillQualityDB(); self.task_store=TaskStore(); self.version_manager=VersionManager()
+    async def check(self):
         start=time.perf_counter()
-        status={"healthy":True,"planner":"ok","memory":"unknown","tool_registry":"unknown","skill_registry":"unknown","tool_runtime_db":"unknown","episodic_memory":"unknown","skill_quality_db":"unknown","task_runtime_db":"unknown","event_loop":"unknown","response_time":None}
-        checks=[("memory",self.memory.get_all),("tool_registry",self.registry.list),("skill_registry",self.skill_registry.list),("tool_runtime_db",self.runtime.stats),("episodic_memory",lambda:self.episodic.list_recent(1)),("skill_quality_db",self.skill_quality.list),("task_runtime_db",lambda:self.task_store.list(1))]
+        status={"healthy":True,"planner":"ok","memory":"unknown","tool_registry":"unknown","skill_registry":"unknown","tool_runtime_db":"unknown","episodic_memory":"unknown","skill_quality_db":"unknown","task_runtime_db":"unknown","version_manager":"unknown","event_loop":"unknown","response_time":None}
+        checks=[("memory",self.memory.get_all),("tool_registry",self.registry.list),("skill_registry",self.skill_registry.list),("tool_runtime_db",self.runtime.stats),("episodic_memory",lambda:self.episodic.list_recent(1)),("skill_quality_db",self.skill_quality.list),("task_runtime_db",lambda:self.task_store.list(1)),("version_manager",self.version_manager.manifest)]
         for name,fn in checks:
             try: fn(); status[name]="ok"
             except Exception as exc: status["healthy"]=False; status[name]=f"error: {exc}"
         try: await asyncio.sleep(0); status["event_loop"]="ok"
         except Exception as exc: status["healthy"]=False; status["event_loop"]=f"error: {exc}"
+        status["active_version"]=self.version_manager.get_active_version()
+        status["stable_version"]=self.version_manager.get_stable_version()
         status["response_time"]=round(time.perf_counter()-start,6)
         return status

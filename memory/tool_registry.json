@@ -13,10 +13,7 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.echo",
-    "function": "run",
-    "success_count": 0,
-    "failure_count": 0,
-    "last_error": null
+    "function": "run"
   },
   "uppercase": {
     "id": "uppercase",
@@ -32,10 +29,7 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.uppercase",
-    "function": "run",
-    "success_count": 0,
-    "failure_count": 0,
-    "last_error": null
+    "function": "run"
   },
   "calculator": {
     "id": "calculator",
@@ -51,9 +45,6 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.calculator",
-    "function": "run",
-    "success_count": 0,
-    "failure_count": 0,
-    "last_error": null
+    "function": "run"
   }
 }

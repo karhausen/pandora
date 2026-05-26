@@ -11,7 +11,7 @@ class SecurityViolation(Exception):
 
 class ToolSecurityValidator:
     def validate_code(self, code: str) -> list[str]:
-        errors: list[str] = []
+        errors = []
         try:
             tree = ast.parse(code)
         except SyntaxError as exc:
@@ -33,6 +33,7 @@ class ToolSecurityValidator:
                     if pair in FORBIDDEN_ATTR_CALLS:
                         errors.append(f"Forbidden call: {pair[0]}.{pair[1]}")
         return errors
+
     def validate_target_path(self, target: Path, allowed_root: Path) -> None:
         target_resolved = target.resolve()
         root_resolved = allowed_root.resolve()
