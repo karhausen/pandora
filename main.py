@@ -9,12 +9,15 @@ import sys
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+from core.episodic_memory import EpisodicMemory
 from core.heartbeat import Heartbeat
 from core.memory import Memory
 from core.planner import Planner
 from core.reflection import ReflectionLogger
 from core.skill_executor import SkillExecutor
+from core.skill_learning import SkillLearningEngine
 from core.skill_manager import SkillManager
+from core.skill_quality import SkillQualityDB
 from core.skill_registry import SkillRegistry
 from core.tool_executor import ToolExecutor
 from core.tool_registry import ToolRegistry
@@ -40,7 +43,7 @@ def _load_payload(args) -> dict:
 
 
 def cmd_status(args):
-    _json({"status": "ok", "version": "mvp-4.0"})
+    _json({"status": "ok", "version": "mvp-5.0"})
 
 
 def cmd_heartbeat(args):
@@ -63,7 +66,7 @@ def cmd_run_tool(args):
     registry = ToolRegistry()
     registry.discover()
     payload = _load_payload(args)
-    result = asyncio.run(ToolExecutor(registry).run_tool(args.tool_id, payload))
+    result = asyncio.run(ToolExecutor(registry).run_tool(args.tool_id, payload, task=args.task))
     _json(result.model_dump())
 
 
@@ -73,7 +76,7 @@ def cmd_run_skill(args):
     skill_registry = SkillRegistry()
     skill_registry.discover()
     payload = _load_payload(args)
-    result = asyncio.run(SkillExecutor(skill_registry, tool_registry).run_skill(args.skill_id, payload))
+    result = asyncio.run(SkillExecutor(skill_registry, tool_registry).run_skill(args.skill_id, payload, task=args.task))
     _json(result.model_dump())
 
 
@@ -87,6 +90,10 @@ def cmd_create_demo_skill(args):
 
 def cmd_memory(args):
     _json(Memory().get_all())
+
+
+def cmd_episodes(args):
+    _json({"episodes": [e.model_dump(mode="json") for e in EpisodicMemory().list_recent(args.limit)]})
 
 
 def cmd_safe_mode(args):
@@ -111,12 +118,24 @@ def cmd_skill_runs(args):
     _json({"skill_runs": ToolRuntimeDB().skill_runs(args.limit)})
 
 
+def cmd_skill_quality(args):
+    _json({"skill_quality": SkillQualityDB().list()})
+
+
 def cmd_reflections(args):
     _json({"reflections": ReflectionLogger().tail(args.limit)})
 
 
+def cmd_learn_patterns(args):
+    _json({"patterns": SkillLearningEngine().find_repeated_tool_sequences(min_count=args.min_count)})
+
+
+def cmd_propose_skills(args):
+    _json({"proposals": SkillLearningEngine().propose_skills_from_patterns(min_count=args.min_count)})
+
+
 def build_parser():
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 4")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 5")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -142,6 +161,7 @@ def build_parser():
     p.add_argument("--input")
     p.add_argument("--json", dest="json_payload")
     p.add_argument("--file")
+    p.add_argument("--task")
     p.set_defaults(func=cmd_run_tool)
 
     p = sub.add_parser("run-skill")
@@ -149,6 +169,7 @@ def build_parser():
     p.add_argument("--input")
     p.add_argument("--json", dest="json_payload")
     p.add_argument("--file")
+    p.add_argument("--task")
     p.set_defaults(func=cmd_run_skill)
 
     p = sub.add_parser("create-demo-skill")
@@ -156,6 +177,10 @@ def build_parser():
 
     p = sub.add_parser("memory")
     p.set_defaults(func=cmd_memory)
+
+    p = sub.add_parser("episodes")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_episodes)
 
     p = sub.add_parser("safe-mode")
     p.set_defaults(func=cmd_safe_mode)
@@ -176,9 +201,20 @@ def build_parser():
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=cmd_skill_runs)
 
+    p = sub.add_parser("skill-quality")
+    p.set_defaults(func=cmd_skill_quality)
+
     p = sub.add_parser("reflections")
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=cmd_reflections)
+
+    p = sub.add_parser("learn-patterns")
+    p.add_argument("--min-count", type=int, default=2)
+    p.set_defaults(func=cmd_learn_patterns)
+
+    p = sub.add_parser("propose-skills")
+    p.add_argument("--min-count", type=int, default=2)
+    p.set_defaults(func=cmd_propose_skills)
 
     return parser
 

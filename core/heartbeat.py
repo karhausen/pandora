@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import asyncio
 import time
+from .episodic_memory import EpisodicMemory
 from .memory import Memory
-from .tool_registry import ToolRegistry
+from .skill_quality import SkillQualityDB
 from .skill_registry import SkillRegistry
+from .tool_registry import ToolRegistry
 from .tool_runtime import ToolRuntimeDB
 
 
@@ -14,6 +16,8 @@ class Heartbeat:
         self.registry = ToolRegistry()
         self.skill_registry = SkillRegistry()
         self.runtime = ToolRuntimeDB()
+        self.episodic = EpisodicMemory()
+        self.skill_quality = SkillQualityDB()
 
     async def check(self) -> dict:
         start = time.perf_counter()
@@ -24,15 +28,20 @@ class Heartbeat:
             "tool_registry": "unknown",
             "skill_registry": "unknown",
             "tool_runtime_db": "unknown",
+            "episodic_memory": "unknown",
+            "skill_quality_db": "unknown",
             "event_loop": "unknown",
             "response_time": None,
         }
-        for name, fn in [
+        checks = [
             ("memory", self.memory.get_all),
             ("tool_registry", self.registry.list),
             ("skill_registry", self.skill_registry.list),
             ("tool_runtime_db", self.runtime.stats),
-        ]:
+            ("episodic_memory", lambda: self.episodic.list_recent(1)),
+            ("skill_quality_db", self.skill_quality.list),
+        ]
+        for name, fn in checks:
             try:
                 fn()
                 status[name] = "ok"

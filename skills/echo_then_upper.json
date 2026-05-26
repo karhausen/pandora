@@ -23,7 +23,6 @@
       "input_map": {
         "text": "input.text"
       },
-      "static_input": {},
       "save_as": "echo"
     },
     {
@@ -33,7 +32,6 @@
       "input_map": {
         "text": "context.echo.text"
       },
-      "static_input": {},
       "save_as": "upper"
     }
   ]

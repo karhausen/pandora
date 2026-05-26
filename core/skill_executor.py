@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import asyncio
 import time
 from typing import Any
 
+from .episodic_memory import EpisodicMemory
 from .models import SkillResult, SkillStatus, SecurityLevel
+from .reflection import ReflectionEngine
+from .skill_quality import SkillQualityDB
 from .skill_registry import SkillRegistry
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
@@ -17,11 +19,17 @@ class SkillExecutor:
         skill_registry: SkillRegistry,
         tool_registry: ToolRegistry,
         runtime_db: ToolRuntimeDB | None = None,
+        episodic_memory: EpisodicMemory | None = None,
+        reflection: ReflectionEngine | None = None,
+        quality_db: SkillQualityDB | None = None,
     ):
         self.skill_registry = skill_registry
         self.tool_registry = tool_registry
         self.runtime_db = runtime_db or ToolRuntimeDB()
-        self.tool_executor = ToolExecutor(tool_registry, self.runtime_db)
+        self.episodic_memory = episodic_memory or EpisodicMemory()
+        self.reflection = reflection or ReflectionEngine()
+        self.quality_db = quality_db or SkillQualityDB()
+        self.tool_executor = ToolExecutor(tool_registry, self.runtime_db, self.episodic_memory, self.reflection)
 
     def _resolve_path(self, source: dict[str, Any], path: str) -> Any:
         current: Any = source
@@ -39,7 +47,7 @@ class SkillExecutor:
             payload[target_key] = self._resolve_path(source, source_path)
         return payload
 
-    async def run_skill(self, skill_id: str, payload: dict, timeout_per_step: float = 5.0) -> SkillResult:
+    async def run_skill(self, skill_id: str, payload: dict, timeout_per_step: float = 5.0, task: str | None = None) -> SkillResult:
         skill = self.skill_registry.get(skill_id)
         if not skill:
             return SkillResult(success=False, skill=skill_id, error="Skill not found")
@@ -55,20 +63,24 @@ class SkillExecutor:
         start = time.perf_counter()
         context: dict[str, Any] = {}
         step_results: list[dict[str, Any]] = []
+        used_tools: list[str] = []
 
         for step in skill.steps:
             if step.type != "tool":
                 err = f"Unsupported step type: {step.type}"
-                self.runtime_db.record_skill_run(skill_id, False, time.perf_counter() - start, err)
+                elapsed = time.perf_counter() - start
+                self._record_skill(skill_id, False, elapsed, err, used_tools, task)
                 return SkillResult(success=False, skill=skill_id, error=err, steps=step_results)
 
             if not step.tool_id:
                 err = f"Missing tool_id in step {step.id}"
-                self.runtime_db.record_skill_run(skill_id, False, time.perf_counter() - start, err)
+                elapsed = time.perf_counter() - start
+                self._record_skill(skill_id, False, elapsed, err, used_tools, task)
                 return SkillResult(success=False, skill=skill_id, error=err, steps=step_results)
 
             tool_payload = self._build_payload(payload, context, step.input_map, step.static_input)
-            result = await self.tool_executor.run_tool(step.tool_id, tool_payload, timeout=timeout_per_step)
+            result = await self.tool_executor.run_tool(step.tool_id, tool_payload, timeout=timeout_per_step, task=f"{skill_id}:{step.id}")
+            used_tools.append(step.tool_id)
             step_record = {
                 "step_id": step.id,
                 "tool_id": step.tool_id,
@@ -81,13 +93,27 @@ class SkillExecutor:
 
             if not result.success:
                 elapsed = time.perf_counter() - start
-                self.runtime_db.record_skill_run(skill_id, False, elapsed, result.error)
+                self._record_skill(skill_id, False, elapsed, result.error, used_tools, task)
                 return SkillResult(success=False, skill=skill_id, error=result.error, steps=step_results, execution_time=elapsed)
 
             if step.save_as:
                 context[step.save_as] = result.output
 
         elapsed = time.perf_counter() - start
-        output = context if context else {"result": None}
-        self.runtime_db.record_skill_run(skill_id, True, elapsed, None)
-        return SkillResult(success=True, skill=skill_id, output=output, steps=step_results, execution_time=elapsed)
+        self._record_skill(skill_id, True, elapsed, None, used_tools, task)
+        return SkillResult(success=True, skill=skill_id, output=context if context else {"result": None}, steps=step_results, execution_time=elapsed)
+
+    def _record_skill(self, skill_id: str, success: bool, elapsed: float, error: str | None, used_tools: list[str], task: str | None) -> None:
+        self.runtime_db.record_skill_run(skill_id, success, elapsed, error)
+        self.quality_db.record(skill_id, success, elapsed)
+        self.episodic_memory.record(
+            task=task or f"run-skill:{skill_id}",
+            kind="skill",
+            success=success,
+            used_tools=used_tools,
+            used_skills=[skill_id],
+            execution_time=elapsed,
+            error=error,
+            summary=f"Skill {skill_id} {'completed successfully' if success else 'failed'}.",
+        )
+        self.reflection.reflect_skill_result(skill_id, success, elapsed, error)

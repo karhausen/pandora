@@ -12,6 +12,8 @@ SKILL_REGISTRY_FILE = MEMORY_DIR / "skill_registry.json"
 TOOL_RUNTIME_DB = MEMORY_DIR / "tool_runtime.sqlite"
 SHORT_TERM_MEMORY = MEMORY_DIR / "short_term.json"
 REFLECTION_LOG = MEMORY_DIR / "reflections.jsonl"
+EPISODIC_DB = MEMORY_DIR / "episodic.sqlite"
+SKILL_QUALITY_DB = MEMORY_DIR / "skill_quality.sqlite"
 
 PROTECTED_CORE_FILES = {
     "heartbeat.py",

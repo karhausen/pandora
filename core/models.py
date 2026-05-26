@@ -32,6 +32,14 @@ class SkillStatus(str, Enum):
     FAILED = "FAILED"
 
 
+class ProposalStatus(str, Enum):
+    DRAFT = "DRAFT"
+    PROPOSED = "PROPOSED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    ACTIVATED = "ACTIVATED"
+
+
 class ToolMeta(BaseModel):
     id: str
     name: str
@@ -105,3 +113,34 @@ class ToolSpec(BaseModel):
     output_schema: dict[str, Any]
     code: str
     tests: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class Episode(BaseModel):
+    id: str
+    task: str
+    kind: str
+    success: bool
+    used_tools: list[str] = Field(default_factory=list)
+    used_skills: list[str] = Field(default_factory=list)
+    execution_time: float = 0.0
+    error: str | None = None
+    summary: str | None = None
+    created_at: str
+
+
+class ReflectionInsight(BaseModel):
+    kind: str
+    severity: str = "info"
+    message: str
+    suggested_action: str | None = None
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
+class SkillProposal(BaseModel):
+    id: str
+    name: str
+    description: str
+    status: ProposalStatus = ProposalStatus.PROPOSED
+    reason: str
+    skill: SkillMeta
+    evidence: dict[str, Any] = Field(default_factory=dict)

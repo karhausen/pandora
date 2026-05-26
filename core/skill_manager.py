@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, UTC
-from pathlib import Path
 
 from .config import SKILLS_DIR, PROPOSALS_DIR
 from .models import SkillMeta
@@ -68,20 +67,8 @@ class SkillManager:
             "input_schema": {"text": "str"},
             "output_schema": {"upper": "dict"},
             "steps": [
-                {
-                    "id": "echo",
-                    "type": "tool",
-                    "tool_id": "echo",
-                    "input_map": {"text": "input.text"},
-                    "save_as": "echo"
-                },
-                {
-                    "id": "upper",
-                    "type": "tool",
-                    "tool_id": "uppercase",
-                    "input_map": {"text": "context.echo.text"},
-                    "save_as": "upper"
-                }
+                {"id": "echo", "type": "tool", "tool_id": "echo", "input_map": {"text": "input.text"}, "save_as": "echo"},
+                {"id": "upper", "type": "tool", "tool_id": "uppercase", "input_map": {"text": "context.echo.text"}, "save_as": "upper"}
             ]
         })
         return self.save_skill(skill)

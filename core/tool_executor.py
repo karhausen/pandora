@@ -4,17 +4,27 @@ import asyncio
 import importlib
 import time
 import traceback
+from .episodic_memory import EpisodicMemory
 from .models import ToolResult, ToolStatus, SecurityLevel
+from .reflection import ReflectionEngine
 from .tool_registry import ToolRegistry
 from .tool_runtime import ToolRuntimeDB
 
 
 class ToolExecutor:
-    def __init__(self, registry: ToolRegistry, runtime_db: ToolRuntimeDB | None = None):
+    def __init__(
+        self,
+        registry: ToolRegistry,
+        runtime_db: ToolRuntimeDB | None = None,
+        episodic_memory: EpisodicMemory | None = None,
+        reflection: ReflectionEngine | None = None,
+    ):
         self.registry = registry
         self.runtime_db = runtime_db or ToolRuntimeDB()
+        self.episodic_memory = episodic_memory or EpisodicMemory()
+        self.reflection = reflection or ReflectionEngine()
 
-    async def run_tool(self, tool_id: str, payload: dict, timeout: float = 5.0) -> ToolResult:
+    async def run_tool(self, tool_id: str, payload: dict, timeout: float = 5.0, task: str | None = None) -> ToolResult:
         meta = self.registry.get(tool_id)
         if not meta:
             return ToolResult(success=False, tool=tool_id, error="Tool not found")
@@ -33,9 +43,28 @@ class ToolExecutor:
                 output = await asyncio.wait_for(asyncio.to_thread(fn, payload), timeout=timeout)
             elapsed = time.perf_counter() - start
             self.runtime_db.record_run(tool_id, True, elapsed, None)
+            self.episodic_memory.record(
+                task=task or f"run-tool:{tool_id}",
+                kind="tool",
+                success=True,
+                used_tools=[tool_id],
+                execution_time=elapsed,
+                summary=f"Tool {tool_id} completed successfully.",
+            )
+            self.reflection.reflect_tool_result(tool_id, True, elapsed)
             return ToolResult(success=True, tool=tool_id, output=output, execution_time=elapsed)
         except Exception as exc:
             elapsed = time.perf_counter() - start
             err = f"{type(exc).__name__}: {exc}\n{traceback.format_exc()}"
             self.runtime_db.record_run(tool_id, False, elapsed, err)
+            self.episodic_memory.record(
+                task=task or f"run-tool:{tool_id}",
+                kind="tool",
+                success=False,
+                used_tools=[tool_id],
+                execution_time=elapsed,
+                error=err,
+                summary=f"Tool {tool_id} failed.",
+            )
+            self.reflection.reflect_tool_result(tool_id, False, elapsed, err)
             return ToolResult(success=False, tool=tool_id, error=err, execution_time=elapsed)

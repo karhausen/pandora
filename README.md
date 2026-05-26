@@ -1,26 +1,14 @@
-# Pandora Agent MVP 4.0
+# Pandora Agent MVP 5.0
 
-Lokaler modularer Python-Agent mit stabilem Core, kontrollierter Tool-Erzeugung und erstem Skill-System.
+MVP 5 ergänzt die erste echte Evolutionsschicht:
 
-## Was ist neu in MVP 4?
+- Episodic Memory
+- Reflection Engine
+- Skill Quality Scoring
+- Pattern Detection
+- automatische Skill-Proposals aus wiederkehrenden erfolgreichen Tool-Ketten
 
-MVP 4 ergänzt Skills als wiederverwendbare Workflows über mehrere Tools.
-
-Neu:
-
-- `SkillRegistry`
-- `SkillExecutor`
-- `SkillManager`
-- Skill-Discovery aus `/skills/*.json`
-- Skill-Proposals unter `/proposals/skills`
-- Skill-Runtime-Logging in SQLite
-- CLI:
-  - `skills`
-  - `skill-list`
-  - `run-skill`
-  - `create-demo-skill`
-  - `skill-runs`
-- `--file` für stabile JSON-Payloads ohne PowerShell-Quoting-Stress
+Der Core wird weiterhin nicht autonom verändert.
 
 ## Start
 
@@ -37,44 +25,45 @@ python main.py status
 python main.py heartbeat
 python main.py tools
 python main.py skills
-python main.py tool-list
-python main.py skill-list
-python main.py memory
-python main.py safe-mode
-```
-
-## Tool ausführen
-
-```powershell
 python main.py run-tool echo --input "Hallo Agent"
-python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
+python main.py run-skill echo_then_upper --file payload_skill.json
 ```
 
-Stabiler mit Datei:
+## Neue MVP-5-Befehle
 
-`payload_calc.json`
-
-```json
-{
-  "expression": "2+3*4"
-}
-```
+Episoden anzeigen:
 
 ```powershell
-python main.py run-tool calculator --file payload_calc.json
+python main.py episodes
 ```
 
-## Skill ausführen
-
-Vorinstallierter Demo-Skill:
+Skill-Qualität anzeigen:
 
 ```powershell
-python main.py run-skill echo_then_upper --json '{\"text\":\"Hallo Agent\"}'
+python main.py skill-quality
 ```
 
-Stabiler mit Datei:
+Wiederkehrende Tool-Sequenzen erkennen:
 
-`payload_skill.json`
+```powershell
+python main.py learn-patterns --min-count 2
+```
+
+Skill-Vorschläge aus Mustern erzeugen:
+
+```powershell
+python main.py propose-skills --min-count 2
+```
+
+Reflection anzeigen:
+
+```powershell
+python main.py reflections
+```
+
+## Beispielablauf für Pattern Learning
+
+Payload-Datei `payload_skill.json`:
 
 ```json
 {
@@ -82,58 +71,57 @@ Stabiler mit Datei:
 }
 ```
 
+Skill mehrfach ausführen:
+
 ```powershell
+python main.py run-skill echo_then_upper --file payload_skill.json
 python main.py run-skill echo_then_upper --file payload_skill.json
 ```
 
-Erwartetes Ergebnis:
+Dann Muster erkennen:
 
-```json
-{
-  "upper": {
-    "text": "HALLO AGENT"
-  }
-}
+```powershell
+python main.py learn-patterns --min-count 2
 ```
 
-## Skill-Aufbau
+Dann Vorschlag erzeugen:
 
-Skills liegen als JSON-Dateien unter:
+```powershell
+python main.py propose-skills --min-count 2
+```
+
+Der Vorschlag landet unter:
 
 ```text
-skills/
+proposals/skills/
 ```
 
-Beispiel:
+## Architekturregel
 
-```json
-{
-  "id": "echo_then_upper",
-  "name": "Echo Then Upper",
-  "description": "Echoes input text and converts it to uppercase.",
-  "required_tools": ["echo", "uppercase"],
-  "steps": [
-    {
-      "id": "echo",
-      "type": "tool",
-      "tool_id": "echo",
-      "input_map": {
-        "text": "input.text"
-      },
-      "save_as": "echo"
-    },
-    {
-      "id": "upper",
-      "type": "tool",
-      "tool_id": "uppercase",
-      "input_map": {
-        "text": "context.echo.text"
-      },
-      "save_as": "upper"
-    }
-  ]
-}
+MVP 5 erzeugt nur Vorschläge.
+
+Nicht automatisch verändert werden:
+
+- aktiver Core
+- Heartbeat
+- Rollback
+- Recovery
+- Security
+- Config
+
+## Was jetzt möglich ist
+
+Der Agent kann jetzt aus erfolgreichem Verhalten lernen:
+
+```text
+Ausführung
+→ Episode
+→ Reflection
+→ Pattern Detection
+→ Skill Proposal
 ```
+
+Das ist die Grundlage für kontrollierte Evolution.
 
 ## Tests
 
@@ -141,33 +129,15 @@ Beispiel:
 pytest
 ```
 
-## Architekturregel
+## Nächster Schritt: MVP 6
 
-Auch MVP 4 verändert den aktiven Core nicht autonom.
+MVP 6 sollte die REST API ausbauen:
 
-Autonom oder halbautonom erweiterbar sind weiterhin nur:
-
-- Tools
-- Skills
-- Proposals
-- Workflows
-
-Geschützt bleiben:
-
-- Heartbeat
-- Rollback
-- Recovery
-- Security
-- Config
-- aktiver Core
-
-## Nächster Schritt: MVP 5
-
-MVP 5 sollte Reflection und Evolution verbessern:
-
-- aus erfolgreichen Tool-Ketten Skill-Vorschläge erzeugen
-- wiederkehrende Muster erkennen
-- schlechte Tools markieren
-- Skill-Qualität bewerten
-- Verbesserungsvorschläge speichern
-- noch keine direkte Core-Selbstmodifikation
+- Task Endpoint
+- Tool Endpoint
+- Skill Endpoint
+- Memory Endpoint
+- Status Endpoint
+- Heartbeat Endpoint
+- Proposal Endpoint
+- einfache Web/CLI-kompatible JSON-Schnittstelle

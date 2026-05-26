@@ -1,0 +1,40 @@
+{
+  "id": "skill_echo_then_uppercase",
+  "name": "Learned echo Then uppercase",
+  "description": "Learned workflow from repeated successful sequence: echo -> uppercase.",
+  "version": "0.1.0",
+  "status": "GENERATED",
+  "security_level": "SAFE",
+  "required_tools": [
+    "echo",
+    "uppercase"
+  ],
+  "input_schema": {
+    "text": "str"
+  },
+  "output_schema": {
+    "context": "dict"
+  },
+  "steps": [
+    {
+      "id": "step_1_echo",
+      "type": "tool",
+      "tool_id": "echo",
+      "input_map": {
+        "text": "input.text"
+      },
+      "static_input": {},
+      "save_as": "echo_1"
+    },
+    {
+      "id": "step_2_uppercase",
+      "type": "tool",
+      "tool_id": "uppercase",
+      "input_map": {
+        "text": "context.echo_1.text"
+      },
+      "static_input": {},
+      "save_as": "uppercase_2"
+    }
+  ]
+}

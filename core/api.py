@@ -2,14 +2,17 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from pydantic import BaseModel
+from .episodic_memory import EpisodicMemory
 from .heartbeat import Heartbeat
 from .planner import Planner
 from .skill_executor import SkillExecutor
+from .skill_learning import SkillLearningEngine
+from .skill_quality import SkillQualityDB
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
 
-app = FastAPI(title="Pandora Agent MVP 4")
+app = FastAPI(title="Pandora Agent MVP 5")
 
 
 class TaskRequest(BaseModel):
@@ -23,7 +26,7 @@ class SkillRunRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-4.0"}
+    return {"status": "ok", "version": "mvp-5.0"}
 
 
 @app.get("/tools")
@@ -53,6 +56,21 @@ async def run_skill(skill_id: str, req: SkillRunRequest):
     skill_registry = SkillRegistry()
     skill_registry.discover()
     return (await SkillExecutor(skill_registry, tool_registry).run_skill(skill_id, req.payload)).model_dump()
+
+
+@app.get("/memory/episodes")
+def episodes(limit: int = 20):
+    return [e.model_dump(mode="json") for e in EpisodicMemory().list_recent(limit)]
+
+
+@app.get("/skills/quality")
+def skill_quality():
+    return SkillQualityDB().list()
+
+
+@app.post("/skills/propose-from-patterns")
+def propose_from_patterns(min_count: int = 2):
+    return SkillLearningEngine().propose_skills_from_patterns(min_count=min_count)
 
 
 @app.get("/heartbeat")
