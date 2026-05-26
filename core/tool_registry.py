@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import time
 from dataclasses import asdict, dataclass, field
@@ -40,15 +41,84 @@ class ToolRegistry:
         if self.registry_path.exists():
             raw = json.loads(self.registry_path.read_text(encoding="utf-8") or "{}")
             self.tools = {k: ToolMeta(**self._migrate(v)) for k, v in raw.items()}
-        else:
-            self.save()
+        self.discover_tools(save=False)
+        self.save()
 
     def _migrate(self, data: dict[str, Any]) -> dict[str, Any]:
-        defaults = {f.name: f.default for f in ToolMeta.__dataclass_fields__.values() if f.default is not None}
+        defaults: dict[str, Any] = {
+            "safety_level": "low",
+            "version": "0.1.0",
+            "success_rate": 1.0,
+            "test_status": "untested",
+            "last_used": None,
+            "module": "",
+            "run_count": 0,
+            "success_count": 0,
+            "failure_count": 0,
+            "avg_runtime_ms": 0.0,
+            "enabled": True,
+            "dependencies": [],
+            "error_history": [],
+        }
         defaults.update(data)
-        for list_field in ["dependencies", "error_history"]:
-            defaults.setdefault(list_field, [])
         return defaults
+
+    def discover_tools(self, save: bool = True) -> list[str]:
+        """Findet Python-Tools in /tools automatisch.
+
+        Ein Tool ist gueltig, wenn es eine run(payload)-Funktion besitzt.
+        Optional kann es METADATA bereitstellen.
+        """
+        discovered: list[str] = []
+        for path in sorted(self.tool_dir.glob("*.py")):
+            if path.name.startswith("__") or path.name == "register_builtin_tools.py":
+                continue
+            meta = self._metadata_from_module(path)
+            if meta is None:
+                continue
+            existing = self.tools.get(meta.name)
+            if existing:
+                meta.run_count = existing.run_count
+                meta.success_count = existing.success_count
+                meta.failure_count = existing.failure_count
+                meta.success_rate = existing.success_rate
+                meta.avg_runtime_ms = existing.avg_runtime_ms
+                meta.last_used = existing.last_used
+                meta.error_history = existing.error_history
+                meta.enabled = existing.enabled
+                if existing.test_status != "untested":
+                    meta.test_status = existing.test_status
+            self.tools[meta.name] = meta
+            discovered.append(meta.name)
+        if save:
+            self.save()
+        return discovered
+
+    def _metadata_from_module(self, path: Path) -> ToolMeta | None:
+        try:
+            spec = importlib.util.spec_from_file_location(f"discover_tool_{path.stem}", path)
+            if spec is None or spec.loader is None:
+                return None
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            if not hasattr(module, "run"):
+                return None
+            raw = getattr(module, "METADATA", {}) or {}
+            name = raw.get("name", path.stem)
+            return ToolMeta(
+                id=raw.get("id", name),
+                name=name,
+                description=raw.get("description", f"Auto-discovered tool: {name}"),
+                input_schema=raw.get("input_schema", {"type": "object"}),
+                output_schema=raw.get("output_schema", {"type": "object"}),
+                safety_level=raw.get("safety_level", "low"),
+                version=raw.get("version", "0.1.0"),
+                dependencies=raw.get("dependencies", []),
+                test_status=raw.get("test_status", "discovered"),
+                module=str(path.resolve()),
+            )
+        except Exception:
+            return None
 
     def register(self, meta: ToolMeta) -> None:
         self.tools[meta.name] = meta
@@ -90,4 +160,4 @@ class ToolRegistry:
 
     def healthcheck(self) -> bool:
         self.initialize()
-        return self.registry_path.exists()
+        return self.registry_path.exists() and all(Path(t.module).exists() for t in self.tools.values() if t.enabled)

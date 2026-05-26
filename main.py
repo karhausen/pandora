@@ -17,8 +17,22 @@ def _print(data: Any) -> None:
     print(json.dumps(data, indent=2, ensure_ascii=False))
 
 
+def _load_payload(args: argparse.Namespace) -> dict[str, Any]:
+    if getattr(args, "json_file", None):
+        try:
+            return json.loads(Path(args.json_file).read_text(encoding="utf-8"))
+        except Exception as exc:
+            raise SystemExit(f"Invalid JSON file: {exc}") from exc
+    if getattr(args, "json", ""):
+        try:
+            return json.loads(args.json)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"Invalid JSON payload: {exc}") from exc
+    return {"task": getattr(args, "input", "")}
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Local Autonomous Agent - MVP 1.5")
+    parser = argparse.ArgumentParser(description="Pandora Local Autonomous Agent - MVP 2.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_task = sub.add_parser("task", help="Run a task through the core planner")
@@ -29,11 +43,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("tools", help="List registered tools")
     sub.add_parser("tool-list", help="Alias for tools")
+    sub.add_parser("tool-discover", help="Auto-discover Python tools in /tools")
+    sub.add_parser("tool-stats", help="Show persistent runtime stats for tools")
 
     p_run_tool = sub.add_parser("run-tool", help="Run a registered tool")
     p_run_tool.add_argument("name", help="Tool name, e.g. calculator or echo")
     p_run_tool.add_argument("--input", default="", help="Plain input text passed as task")
     p_run_tool.add_argument("--json", default="", help="JSON payload. Overrides --input when provided")
+    p_run_tool.add_argument("--json-file", default="", help="Read JSON payload from file")
 
     p_memory = sub.add_parser("memory", help="Show memory content")
     p_memory.add_argument("scope", choices=["short"], nargs="?", default="short")
@@ -57,14 +74,12 @@ def main() -> None:
         _print(core.heartbeat_status())
     elif args.cmd in {"tools", "tool-list"}:
         _print(core.list_tools())
+    elif args.cmd == "tool-discover":
+        _print(core.discover_tools())
+    elif args.cmd == "tool-stats":
+        _print(core.tool_stats())
     elif args.cmd == "run-tool":
-        payload = {"task": args.input}
-        if args.json:
-            try:
-                payload = json.loads(args.json)
-            except json.JSONDecodeError as exc:
-                raise SystemExit(f"Invalid JSON payload: {exc}") from exc
-        _print(core.run_tool(args.name, payload))
+        _print(core.run_tool(args.name, _load_payload(args)))
     elif args.cmd == "memory":
         _print(core.memory.get_short_term_all())
     elif args.cmd == "safe-mode":

@@ -13,6 +13,8 @@ from .recovery import RecoveryManager
 from .reflection import ReflectionSystem
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
+from .tool_runtime import ToolRuntimeStore
+from .security import SecurityPolicy
 
 
 class AgentCore:
@@ -22,11 +24,13 @@ class AgentCore:
         self._setup_logging()
         self.memory = MemoryStore(self.config.memory_dir)
         self.registry = ToolRegistry(self.config.tool_dir)
+        self.tool_runtime = ToolRuntimeStore(self.config.memory_dir / "tool_runtime.sqlite")
+        self.security = SecurityPolicy(self.config.project_root)
         self.planner = Planner()
         self.llm = LLMClient(self.config.llm_provider)
-        self.executor = ToolExecutor(self.registry, self.config.tool_timeout_seconds)
+        self.executor = ToolExecutor(self.registry, self.tool_runtime, self.config.tool_timeout_seconds, self.security)
         self.heartbeat = Heartbeat(
-            self.planner, self.memory, self.registry, self.executor, self.llm, self.config.heartbeat_timeout_ms
+            self.planner, self.memory, self.registry, self.executor, self.llm, self.config.heartbeat_timeout_ms, self.tool_runtime
         )
         self.recovery = RecoveryManager()
         self.reflection = ReflectionSystem(self.memory)
@@ -43,6 +47,7 @@ class AgentCore:
     def initialize(self) -> None:
         self.memory.initialize()
         self.registry.initialize()
+        self.tool_runtime.initialize()
 
     def heartbeat_status(self) -> dict:
         return asdict(self.heartbeat.check())
@@ -58,15 +63,25 @@ class AgentCore:
         recovery = self.recovery.decide(health.ok)
         return {
             "core": "pandora-agent-core",
-            "mvp": "1.5",
+            "mvp": "2.0",
             "health": asdict(health),
             "recovery": asdict(recovery),
             "tools": self.registry.list_names(),
+            "tool_stats": self.tool_runtime.all_stats(),
         }
 
     def list_tools(self) -> dict:
         self.initialize()
         return {"tools": self.registry.list_metadata()}
+
+    def discover_tools(self) -> dict:
+        self.initialize()
+        names = self.registry.discover_tools(save=True)
+        return {"discovered": names, "tools": self.registry.list_metadata()}
+
+    def tool_stats(self) -> dict:
+        self.initialize()
+        return {"tool_stats": self.tool_runtime.all_stats()}
 
     def run_tool(self, tool_name: str, payload: dict) -> dict:
         self.initialize()

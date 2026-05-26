@@ -4,6 +4,17 @@ import ast
 import operator as op
 from typing import Any
 
+METADATA = {
+    "id": "builtin.calculator",
+    "name": "calculator",
+    "description": "Sicherer Rechner für einfache arithmetische Ausdrücke ohne eval().",
+    "input_schema": {"type": "object", "properties": {"expression": {"type": "string"}}},
+    "output_schema": {"type": "object", "properties": {"result": {"type": "number"}}},
+    "safety_level": "low",
+    "version": "0.2.0",
+    "test_status": "tested",
+}
+
 _ALLOWED = {
     ast.Add: op.add,
     ast.Sub: op.sub,
