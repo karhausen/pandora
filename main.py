@@ -5,6 +5,11 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from core.activation_manager import ActivationManager
+from core.benchmark_manager import BenchmarkManager
+from core.deployment_manager import DeploymentManager
+from core.health_monitor import HealthMonitor
+from core.startup_guard import StartupGuard
+from core.watchdog import Watchdog
 from core.heartbeat import Heartbeat
 from core.models import TaskKind
 from core.recovery import RecoveryManager
@@ -49,6 +54,34 @@ def cmd_recovery(args): _json(RecoveryManager().safe_mode_status())
 def cmd_recover(args): _json(RecoveryManager().recover(args.reason))
 def cmd_safe(args): _json(RecoveryManager().safe_mode_status())
 
+
+def cmd_health(args):
+    _json(asyncio.run(HealthMonitor().check()))
+
+def cmd_health_log(args):
+    _json({"health_log": HealthMonitor().tail(args.limit)})
+
+def cmd_watchdog_once(args):
+    _json(asyncio.run(Watchdog().check_once(auto_rollback=args.auto_rollback)))
+
+def cmd_watchdog_log(args):
+    _json({"watchdog_log": Watchdog().tail(args.limit)})
+
+def cmd_benchmark(args):
+    _json(asyncio.run(BenchmarkManager().run_basic_benchmark()))
+
+def cmd_benchmark_list(args):
+    _json({"benchmarks": BenchmarkManager().list_results()})
+
+def cmd_startup_check(args):
+    _json(asyncio.run(StartupGuard().check(auto_recover=args.auto_recover)))
+
+def cmd_deploy_version(args):
+    _json(asyncio.run(DeploymentManager().deploy_version(args.version_id, promote_if_healthy=args.promote_if_healthy)))
+
+def cmd_deployment_log(args):
+    _json({"deployment_log": DeploymentManager().tail(args.limit)})
+
 def build_parser():
     p=argparse.ArgumentParser(description="Pandora Agent MVP 7")
     sub=p.add_subparsers(dest="cmd", required=True)
@@ -73,6 +106,16 @@ def build_parser():
     x=sub.add_parser("recovery"); x.set_defaults(func=cmd_recovery)
     x=sub.add_parser("recover"); x.add_argument("--reason",default="manual cli recovery"); x.set_defaults(func=cmd_recover)
     x=sub.add_parser("safe-mode"); x.set_defaults(func=cmd_safe)
+
+x=sub.add_parser("health"); x.set_defaults(func=cmd_health)
+x=sub.add_parser("health-log"); x.add_argument("--limit",type=int,default=20); x.set_defaults(func=cmd_health_log)
+x=sub.add_parser("watchdog-once"); x.add_argument("--auto-rollback",action="store_true"); x.set_defaults(func=cmd_watchdog_once)
+x=sub.add_parser("watchdog-log"); x.add_argument("--limit",type=int,default=20); x.set_defaults(func=cmd_watchdog_log)
+x=sub.add_parser("benchmark"); x.set_defaults(func=cmd_benchmark)
+x=sub.add_parser("benchmark-list"); x.set_defaults(func=cmd_benchmark_list)
+x=sub.add_parser("startup-check"); x.add_argument("--auto-recover",action="store_true"); x.set_defaults(func=cmd_startup_check)
+x=sub.add_parser("deploy-version"); x.add_argument("version_id"); x.add_argument("--promote-if-healthy",action="store_true"); x.set_defaults(func=cmd_deploy_version)
+x=sub.add_parser("deployment-log"); x.add_argument("--limit",type=int,default=20); x.set_defaults(func=cmd_deployment_log)
     return p
 
 def main():

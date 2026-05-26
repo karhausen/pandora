@@ -1,0 +1,46 @@
+{
+  "created_at": "2026-05-26T12:36:49.066230+00:00",
+  "success": true,
+  "total_time": 0.01947529700009909,
+  "results": [
+    {
+      "name": "heartbeat",
+      "success": true,
+      "execution_time": 0.0029773189999104943,
+      "output": {
+        "healthy": true,
+        "planner": "ok",
+        "memory": "ok",
+        "tool_registry": "ok",
+        "skill_registry": "ok",
+        "tool_runtime_db": "ok",
+        "episodic_memory": "ok",
+        "skill_quality_db": "ok",
+        "task_runtime_db": "ok",
+        "version_manager": "ok",
+        "event_loop": "ok",
+        "response_time": 0.001356,
+        "active_version": null,
+        "stable_version": null
+      }
+    },
+    {
+      "name": "tool_echo",
+      "success": true,
+      "execution_time": 0.008641178999823751,
+      "output": "success=True tool='echo' output={'text': 'benchmark'} error=None execution_time=0.0008010250003280817"
+    },
+    {
+      "name": "tool_calculator",
+      "success": true,
+      "execution_time": 0.0022802500006946502,
+      "output": "success=True tool='calculator' output={'result': 14} error=None execution_time=0.000496585000291816"
+    },
+    {
+      "name": "skill_echo_then_upper",
+      "success": true,
+      "execution_time": 0.005563234000874218,
+      "output": "success=True skill='echo_then_upper' output={'echo': {'text': 'benchmark'}, 'upper': {'text': 'BENCHMARK'}} steps=[{'step_id': 'echo', 'tool_id': 'echo', 'success': True, 'output': {'text': 'benchmark'}, 'error': None, 'execution_time': 0.00021487600133696105}, {'step_id': 'upper', 'tool_id': 'uppercase', 'success': True, 'output': {'text': 'BENCHMARK'}, 'error': None, 'execution_time': 0.00022757200167689007}] error=None execution_time=0.0028321720001258655"
+    }
+  ]
+}

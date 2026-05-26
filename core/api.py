@@ -3,6 +3,11 @@ from __future__ import annotations
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from .activation_manager import ActivationManager
+from .benchmark_manager import BenchmarkManager
+from .deployment_manager import DeploymentManager
+from .health_monitor import HealthMonitor
+from .startup_guard import StartupGuard
+from .watchdog import Watchdog
 from .heartbeat import Heartbeat
 from .proposal_manager import ProposalManager
 from .recovery import RecoveryManager
@@ -144,3 +149,48 @@ def recovery_status():
 @app.post("/recovery/recover")
 def recover(reason: str = "api recovery"):
     return RecoveryManager().recover(reason)
+
+
+@app.get("/health")
+async def health():
+    return await HealthMonitor().check()
+
+
+@app.get("/health/log")
+def health_log(limit: int = 20):
+    return {"health_log": HealthMonitor().tail(limit)}
+
+
+@app.post("/watchdog/check")
+async def watchdog_check(auto_rollback: bool = False):
+    return await Watchdog().check_once(auto_rollback=auto_rollback)
+
+
+@app.get("/watchdog/log")
+def watchdog_log(limit: int = 20):
+    return {"watchdog_log": Watchdog().tail(limit)}
+
+
+@app.post("/benchmark")
+async def benchmark():
+    return await BenchmarkManager().run_basic_benchmark()
+
+
+@app.get("/benchmark")
+def benchmark_results():
+    return {"benchmarks": BenchmarkManager().list_results()}
+
+
+@app.post("/deployment/{version_id}")
+async def deploy_version(version_id: str, promote_if_healthy: bool = False):
+    return await DeploymentManager().deploy_version(version_id, promote_if_healthy=promote_if_healthy)
+
+
+@app.get("/deployment/log")
+def deployment_log(limit: int = 20):
+    return {"deployment_log": DeploymentManager().tail(limit)}
+
+
+@app.get("/startup-check")
+async def startup_check(auto_recover: bool = False):
+    return await StartupGuard().check(auto_recover=auto_recover)

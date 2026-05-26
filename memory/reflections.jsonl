@@ -1,0 +1,10 @@
+{"type": "tool_result", "tool_id": "echo", "success": true, "execution_time": 0.0010466580006323056, "error": null, "created_at": "2026-05-26T12:36:40.868871+00:00"}
+{"type": "tool_result", "tool_id": "calculator", "success": true, "execution_time": 0.0008485950002068421, "error": null, "created_at": "2026-05-26T12:36:40.874639+00:00"}
+{"type": "tool_result", "tool_id": "echo", "success": true, "execution_time": 0.0002303260007465724, "error": null, "created_at": "2026-05-26T12:36:40.879227+00:00"}
+{"type": "tool_result", "tool_id": "uppercase", "success": true, "execution_time": 0.00031727699933981057, "error": null, "created_at": "2026-05-26T12:36:40.881709+00:00"}
+{"type": "skill_result", "skill_id": "echo_then_upper", "success": true, "execution_time": 0.004724496999187977, "error": null, "created_at": "2026-05-26T12:36:40.885683+00:00"}
+{"type": "tool_result", "tool_id": "echo", "success": true, "execution_time": 0.0008010250003280817, "error": null, "created_at": "2026-05-26T12:36:49.058233+00:00"}
+{"type": "tool_result", "tool_id": "calculator", "success": true, "execution_time": 0.000496585000291816, "error": null, "created_at": "2026-05-26T12:36:49.060543+00:00"}
+{"type": "tool_result", "tool_id": "echo", "success": true, "execution_time": 0.00021487600133696105, "error": null, "created_at": "2026-05-26T12:36:49.062620+00:00"}
+{"type": "tool_result", "tool_id": "uppercase", "success": true, "execution_time": 0.00022757200167689007, "error": null, "created_at": "2026-05-26T12:36:49.064013+00:00"}
+{"type": "skill_result", "skill_id": "echo_then_upper", "success": true, "execution_time": 0.0028321720001258655, "error": null, "created_at": "2026-05-26T12:36:49.065918+00:00"}

@@ -167,3 +167,17 @@ class CoreVersionMeta(BaseModel):
     smoke_tests_passed: bool | None = None
     error: str | None = None
     rollback_target: str | None = None
+
+
+class HealthLevel(str, Enum):
+    OK = "OK"
+    WARN = "WARN"
+    CRITICAL = "CRITICAL"
+
+
+class DeploymentStatus(str, Enum):
+    STAGED = "STAGED"
+    MONITORING = "MONITORING"
+    PROMOTED = "PROMOTED"
+    FAILED = "FAILED"
+    ROLLED_BACK = "ROLLED_BACK"

@@ -1,20 +1,8 @@
-# Pandora Agent MVP 7.0
+# Pandora Agent MVP 8.0
 
-MVP 7 ergänzt kontrollierte Core-Evolution:
+MVP 8 macht Pandora betreibbarer: Health Monitoring, Watchdog, Benchmarking, Startup Guard und Deployment Manager.
 
-- Core Version Manager
-- Core Snapshots
-- Version Manifest
-- Active/Stable Version Tracking
-- Sandbox Runner
-- Smoke Tests
-- Activation Manager
-- Rollback Manager
-- Recovery Manager
-- Safe Mode Status
-- REST API für Core-Versionen
-
-Der aktive Core wird weiterhin nicht direkt überschrieben. MVP 7 verwaltet Versionen und Aktivierungsentscheidungen, ersetzt aber nicht automatisch Dateien im laufenden Projekt.
+Der aktive Quellcode wird weiterhin nicht automatisch überschrieben. Deployments sind logische Aktivierungen über das Core-Version-System aus MVP 7.
 
 ## Installation
 
@@ -29,71 +17,69 @@ pip install -r requirements.txt
 ```powershell
 python main.py status
 python main.py heartbeat
-python main.py tools
-python main.py skills
+python main.py health
+python main.py startup-check
 ```
 
-## Core Snapshot erzeugen
+## Watchdog
+
+Einmalige Prüfung:
 
 ```powershell
-python main.py core-snapshot --version-id core_v0_7_0
+python main.py watchdog-once
 ```
 
-## Versionen anzeigen
+Mit automatischem Rollback bei kritischem Zustand:
 
 ```powershell
-python main.py core-versions
-python main.py core-active
+python main.py watchdog-once --auto-rollback
 ```
 
-## Version validieren
+Logs:
 
 ```powershell
-python main.py core-validate core_v0_7_0
+python main.py watchdog-log
+python main.py health-log
 ```
 
-Dabei werden isoliert ausgeführt:
-
-```text
-python main.py status
-python main.py heartbeat
-python main.py tools
-python main.py skills
-python main.py run-tool echo --input sandbox
-```
-
-Ergebnisse landen in:
-
-```text
-core_versions/versions/<VERSION_ID>/heartbeat_results.json
-core_versions/versions/<VERSION_ID>/smoke_tests.json
-```
-
-## Version aktivieren
+## Benchmark
 
 ```powershell
-python main.py core-activate core_v0_7_0 --mark-stable
+python main.py benchmark
+python main.py benchmark-list
 ```
 
-Das aktualisiert:
+Gemessen werden aktuell:
 
-```text
-core_versions/active_version.txt
-core_versions/stable_version.txt
-```
+- Heartbeat
+- Echo Tool
+- Calculator Tool
+- Echo-Upper Skill
 
-## Rollback
+## Deployment
+
+Snapshot erzeugen:
 
 ```powershell
-python main.py rollback --reason "Heartbeat failed"
+python main.py core-snapshot --version-id core_v0_8_0
 ```
 
-## Recovery / Safe Mode
+Version deployen:
 
 ```powershell
-python main.py recovery
-python main.py recover --reason "manual recovery"
-python main.py safe-mode
+python main.py deploy-version core_v0_8_0
+```
+
+Deployen und bei guter Gesundheit als stable markieren:
+
+```powershell
+python main.py deploy-version core_v0_8_0 --promote-if-healthy
+```
+
+Deployment-Log:
+
+```powershell
+python main.py deployment-log
 ```
 
 ## API starten
@@ -102,23 +88,24 @@ python main.py safe-mode
 python main.py api
 ```
 
-Swagger UI:
+Swagger:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-## Neue API-Endpunkte
+Neue Endpunkte:
 
 ```text
-POST /core-versions/snapshot
-GET  /core-versions
-GET  /core-versions/active
-POST /core-versions/{version_id}/validate
-POST /core-versions/{version_id}/activate
-POST /rollback
-GET  /recovery/status
-POST /recovery/recover
+GET  /health
+GET  /health/log
+POST /watchdog/check
+GET  /watchdog/log
+POST /benchmark
+GET  /benchmark
+POST /deployment/{version_id}
+GET  /deployment/log
+GET  /startup-check
 ```
 
 ## Tests
@@ -127,34 +114,25 @@ POST /recovery/recover
 pytest
 ```
 
-## Wichtige Architekturregel
+## Architekturstatus
 
-MVP 7 aktiviert Versionen logisch über Manifest-Dateien. Es überschreibt nicht automatisch den aktiven Quellcode.
-
-Das ist Absicht.
-
-Der nächste Schritt wäre ein kontrollierter Deployment-Schritt:
+MVP 8 ergänzt Betriebsfähigkeit:
 
 ```text
-validated snapshot
-→ staged deployment
-→ atomic switch
-→ heartbeat watch
-→ automatic rollback
+Heartbeat → Health Monitor → Watchdog → Rollback
+Snapshot → Validation → Deployment → Health Check → optional Stable Promotion
+Startup → Startup Guard → Recovery falls nötig
 ```
 
-## Protected Core
+## Wichtig
 
-Diese Dateien gelten als besonders geschützt:
+Noch kein echtes atomisches File-Switching im aktiven Quellcode. Das ist Absicht.
 
-```text
-heartbeat.py
-rollback_manager.py
-recovery.py
-security.py
-activation_manager.py
-version_manager.py
-config.py
-```
+Der nächste sinnvolle Schritt wäre MVP 9:
 
-Änderungen daran brauchen explizite Freigabe.
+- kontrollierte Patch-Proposals
+- Diff-Review
+- Regression-Test-Pipeline
+- Staging Deployment
+- atomischer Switch
+- automatische Rollback-Beobachtungsphase
