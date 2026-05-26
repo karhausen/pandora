@@ -84,6 +84,6 @@ def test_tool_failure_is_recorded(tmp_path: Path):
 
 
 def test_json_file_payload_shape(tmp_path: Path):
-    payload = tmp_path / "payload.json"
+    payload = tmp_path / "payload_calc.json"
     payload.write_text(json.dumps({"expression": "1+2"}), encoding="utf-8")
     assert json.loads(payload.read_text(encoding="utf-8"))["expression"] == "1+2"
