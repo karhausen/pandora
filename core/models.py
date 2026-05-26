@@ -40,6 +40,21 @@ class ProposalStatus(str, Enum):
     ACTIVATED = "ACTIVATED"
 
 
+class TaskStatus(str, Enum):
+    QUEUED = "QUEUED"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
+class TaskKind(str, Enum):
+    ANALYZE = "analyze"
+    TOOL = "tool"
+    SKILL = "skill"
+    ENSURE_CAPABILITY = "ensure_capability"
+
+
 class ToolMeta(BaseModel):
     id: str
     name: str
@@ -144,3 +159,19 @@ class SkillProposal(BaseModel):
     reason: str
     skill: SkillMeta
     evidence: dict[str, Any] = Field(default_factory=dict)
+
+
+class RuntimeTask(BaseModel):
+    id: str
+    kind: TaskKind
+    status: TaskStatus = TaskStatus.QUEUED
+    task: str | None = None
+    target: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    auto_create: bool = False
+    priority: int = 5
+    result: Any = None
+    error: str | None = None
+    created_at: str
+    started_at: str | None = None
+    finished_at: str | None = None

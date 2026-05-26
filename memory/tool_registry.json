@@ -55,44 +55,5 @@
     "success_count": 0,
     "failure_count": 0,
     "last_error": null
-  },
-  "csv_reader": {
-    "id": "csv_reader",
-    "name": "CSV Reader",
-    "description": "Reads a CSV file from an allowed path and returns rows plus basic numeric summaries.",
-    "version": "0.1.0",
-    "input_schema": {
-      "path": "str"
-    },
-    "output_schema": {
-      "rows": "list",
-      "summary": "dict"
-    },
-    "security_level": "SAFE",
-    "status": "ACTIVE",
-    "module": "tools.csv_reader",
-    "function": "run",
-    "success_count": 0,
-    "failure_count": 0,
-    "last_error": null
-  },
-  "file_processing_tool": {
-    "id": "file_processing_tool",
-    "name": "file_processing Tool",
-    "description": "Generated placeholder tool for capability: file_processing",
-    "version": "0.1.0",
-    "input_schema": {
-      "text": "str"
-    },
-    "output_schema": {
-      "result": "str"
-    },
-    "security_level": "SAFE",
-    "status": "ACTIVE",
-    "module": "tools.file_processing_tool",
-    "function": "run",
-    "success_count": 0,
-    "failure_count": 0,
-    "last_error": null
   }
 }

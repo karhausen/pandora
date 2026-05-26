@@ -1,69 +1,58 @@
-# Pandora Agent MVP 5.0
+# Pandora Agent MVP 6.0
 
-MVP 5 ergänzt die erste echte Evolutionsschicht:
+MVP 6 macht aus dem lokalen CLI-Agenten einen lokalen Agent-Service.
 
-- Episodic Memory
-- Reflection Engine
-- Skill Quality Scoring
-- Pattern Detection
-- automatische Skill-Proposals aus wiederkehrenden erfolgreichen Tool-Ketten
+Neu:
 
-Der Core wird weiterhin nicht autonom verändert.
+- FastAPI REST API
+- Task Runtime System
+- persistente Task-DB
+- interne Async-Queue
+- Task-Status: QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED
+- Task-Ausführung über CLI oder API
+- Tool-, Skill-, Memory-, Proposal- und Heartbeat-Endpunkte
 
-## Start
+Der Core wird weiterhin nicht autonom überschrieben.
+
+## Installation
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python main.py status
 ```
 
-## Basisbefehle
+## CLI prüfen
 
 ```powershell
+python main.py status
 python main.py heartbeat
 python main.py tools
 python main.py skills
+```
+
+## API starten
+
+```powershell
+python main.py api
+```
+
+Dann öffnen:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## Tool direkt per CLI
+
+```powershell
 python main.py run-tool echo --input "Hallo Agent"
-python main.py run-skill echo_then_upper --file payload_skill.json
+python main.py run-tool calculator --json '{\"expression\":\"2+3*4\"}'
 ```
 
-## Neue MVP-5-Befehle
+## Skill direkt per CLI
 
-Episoden anzeigen:
-
-```powershell
-python main.py episodes
-```
-
-Skill-Qualität anzeigen:
-
-```powershell
-python main.py skill-quality
-```
-
-Wiederkehrende Tool-Sequenzen erkennen:
-
-```powershell
-python main.py learn-patterns --min-count 2
-```
-
-Skill-Vorschläge aus Mustern erzeugen:
-
-```powershell
-python main.py propose-skills --min-count 2
-```
-
-Reflection anzeigen:
-
-```powershell
-python main.py reflections
-```
-
-## Beispielablauf für Pattern Learning
-
-Payload-Datei `payload_skill.json`:
+`payload_skill.json`
 
 ```json
 {
@@ -71,57 +60,96 @@ Payload-Datei `payload_skill.json`:
 }
 ```
 
-Skill mehrfach ausführen:
-
 ```powershell
 python main.py run-skill echo_then_upper --file payload_skill.json
-python main.py run-skill echo_then_upper --file payload_skill.json
 ```
 
-Dann Muster erkennen:
+## Task Runtime per CLI
+
+Task einreichen:
 
 ```powershell
-python main.py learn-patterns --min-count 2
+python main.py submit-task tool --target echo --input "Hallo Task"
 ```
 
-Dann Vorschlag erzeugen:
+Task-Liste:
 
 ```powershell
-python main.py propose-skills --min-count 2
+python main.py tasks
 ```
 
-Der Vorschlag landet unter:
+Task manuell ausführen:
+
+```powershell
+python main.py task-run <TASK_ID>
+```
+
+Task lesen:
+
+```powershell
+python main.py task-get <TASK_ID>
+```
+
+Task abbrechen:
+
+```powershell
+python main.py task-cancel <TASK_ID>
+```
+
+## REST API Beispiele
+
+Status:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/status
+```
+
+Tool ausführen:
+
+```powershell
+Invoke-RestMethod `
+  -Method POST `
+  -Uri http://127.0.0.1:8000/tools/echo/run `
+  -ContentType "application/json" `
+  -Body '{"payload":{"text":"Hallo API"}}'
+```
+
+Task einreichen:
+
+```powershell
+Invoke-RestMethod `
+  -Method POST `
+  -Uri http://127.0.0.1:8000/tasks `
+  -ContentType "application/json" `
+  -Body '{"kind":"tool","target":"echo","payload":{"text":"Hallo Queue"}}'
+```
+
+Tasks anzeigen:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/tasks
+```
+
+## Wichtige API-Endpunkte
 
 ```text
-proposals/skills/
+GET  /status
+GET  /heartbeat
+GET  /tools
+POST /tools/{tool_id}/run
+GET  /skills
+POST /skills/{skill_id}/run
+POST /task/analyze
+POST /tasks
+GET  /tasks
+GET  /tasks/{task_id}
+POST /tasks/{task_id}/execute-now
+POST /tasks/{task_id}/cancel
+GET  /memory/episodes
+GET  /memory/reflections
+GET  /proposals
+POST /proposals/skills/from-patterns
 ```
-
-## Architekturregel
-
-MVP 5 erzeugt nur Vorschläge.
-
-Nicht automatisch verändert werden:
-
-- aktiver Core
-- Heartbeat
-- Rollback
-- Recovery
-- Security
-- Config
-
-## Was jetzt möglich ist
-
-Der Agent kann jetzt aus erfolgreichem Verhalten lernen:
-
-```text
-Ausführung
-→ Episode
-→ Reflection
-→ Pattern Detection
-→ Skill Proposal
-```
-
-Das ist die Grundlage für kontrollierte Evolution.
 
 ## Tests
 
@@ -129,15 +157,29 @@ Das ist die Grundlage für kontrollierte Evolution.
 pytest
 ```
 
-## Nächster Schritt: MVP 6
+## Architekturregel
 
-MVP 6 sollte die REST API ausbauen:
+MVP 6 ist Runtime-Infrastruktur.
 
-- Task Endpoint
-- Tool Endpoint
-- Skill Endpoint
-- Memory Endpoint
-- Status Endpoint
-- Heartbeat Endpoint
-- Proposal Endpoint
-- einfache Web/CLI-kompatible JSON-Schnittstelle
+Es gibt weiterhin keine direkte autonome Core-Modifikation.
+
+Geschützt bleiben:
+
+- Heartbeat
+- Rollback
+- Recovery
+- Security
+- Config
+- aktiver Core
+
+## Nächster Schritt: MVP 7
+
+MVP 7 sollte Core-Versionierung und Rollback vorbereiten:
+
+- Core-Version-Snapshots
+- Version Manifest
+- Smoke Tests für neue Versionen
+- isolierte Testaktivierung
+- Heartbeat-Prüfung neuer Version
+- automatischer Rollback
+- Safe Mode Recovery

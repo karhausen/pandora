@@ -1,11 +1,8 @@
 from __future__ import annotations
-
-import importlib
-import json
+import importlib, json
 from pathlib import Path
 from .models import ToolMeta
 from .config import TOOL_REGISTRY_FILE, TOOLS_DIR
-
 
 class ToolRegistry:
     def __init__(self, registry_file: Path = TOOL_REGISTRY_FILE):
@@ -13,42 +10,31 @@ class ToolRegistry:
         self.tools: dict[str, ToolMeta] = {}
         self.registry_file.parent.mkdir(parents=True, exist_ok=True)
         self.load()
-
     def load(self) -> None:
         if not self.registry_file.exists():
             self.tools = {}
             return
-        data = json.loads(self.registry_file.read_text(encoding="utf-8"))
-        self.tools = {k: ToolMeta.model_validate(v) for k, v in data.items()}
-
+        self.tools = {k: ToolMeta.model_validate(v) for k, v in json.loads(self.registry_file.read_text(encoding="utf-8")).items()}
     def save(self) -> None:
-        data = {k: v.model_dump(mode="json") for k, v in self.tools.items()}
-        self.registry_file.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-
+        self.registry_file.write_text(json.dumps({k:v.model_dump(mode="json") for k,v in self.tools.items()}, indent=2, ensure_ascii=False), encoding="utf-8")
     def register(self, meta: ToolMeta) -> None:
         self.tools[meta.id] = meta
         self.save()
-
     def get(self, tool_id: str) -> ToolMeta | None:
         return self.tools.get(tool_id)
-
     def list(self) -> list[ToolMeta]:
         return list(self.tools.values())
-
     def discover(self) -> int:
         count = 0
         for path in TOOLS_DIR.glob("*.py"):
             if path.name.startswith("__"):
                 continue
-            module_name = f"tools.{path.stem}"
             try:
-                module = importlib.import_module(module_name)
+                module = importlib.import_module(f"tools.{path.stem}")
+                meta_data = getattr(module, "TOOL_META", None)
+                if meta_data:
+                    self.register(ToolMeta.model_validate(meta_data))
+                    count += 1
             except Exception:
                 continue
-            meta_data = getattr(module, "TOOL_META", None)
-            if not meta_data:
-                continue
-            meta = ToolMeta.model_validate(meta_data)
-            self.register(meta)
-            count += 1
         return count
