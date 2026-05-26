@@ -1,7 +1,0 @@
-{
-  "id": "csv_reader",
-  "capability": "csv_processing",
-  "description": "Reads CSV files and creates simple summaries.",
-  "created_at": "2026-05-26T11:03:18.426231+00:00",
-  "status": "generated"
-}

@@ -1,9 +1,0 @@
-{
-  "id": "echo_then_upper",
-  "created_at": "2026-05-26T11:53:12.492666+00:00",
-  "description": "Echoes input text and converts it to uppercase.",
-  "validation": {
-    "valid": true,
-    "errors": []
-  }
-}
