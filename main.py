@@ -42,7 +42,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-8.1"})
+    _json({"status": "ok", "version": "mvp-8.2"})
 
 
 def cmd_api(args) -> None:

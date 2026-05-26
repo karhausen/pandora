@@ -54,7 +54,7 @@ def test_benchmark_smoke():
 
 def test_api_status_health_tools():
     client = TestClient(app)
-    assert client.get("/status").json()["version"] == "mvp-8.1"
+    assert client.get("/status").json()["version"] == "mvp-8.2"
     assert "score" in client.get("/health").json()
     tools = client.get("/tools").json()
     assert "tools" in tools

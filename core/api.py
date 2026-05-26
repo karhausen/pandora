@@ -54,7 +54,7 @@ async def shutdown():
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-8.1"}
+    return {"status": "ok", "version": "mvp-8.2"}
 
 
 @app.get("/heartbeat")
