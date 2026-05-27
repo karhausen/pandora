@@ -37,9 +37,9 @@ class ToolRegistry:
                 continue
             try:
                 module = importlib.import_module(f"tools.{path.stem}")
-                meta_data = getattr(module, "TOOL_META", None)
-                if meta_data:
-                    self.register(ToolMeta.model_validate(meta_data))
+                meta = getattr(module, "TOOL_META", None)
+                if meta:
+                    self.register(ToolMeta.model_validate(meta))
                     count += 1
             except Exception:
                 continue

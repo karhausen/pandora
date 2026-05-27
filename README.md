@@ -1,45 +1,80 @@
-# Pandora Agent MVP 9A.0
+# Pandora Agent MVP 9A.1
 
-MVP 9A integriert die erste echte LLM-Schicht.
+MVP 9A.1 ergänzt einen generischen OpenAI-kompatiblen Provider.
 
-Neu:
-- LLM Runtime
-- Provider-Abstraktion
-- Mock Provider für stabile Offline-Tests
-- Ollama Provider
-- OpenAI Provider
-- Modellrouting nach Task-Typ
-- Prompt Manager
-- Prompt-Verzeichnis
-- strukturierte JSON-Ausgaben
-- Pydantic-Validierung
-- LLM-gestützte Task-Analyse
-- LLM-Governance-Grundregeln
+Damit kann Pandora lokal mit LM Studio, vLLM, LocalAI, OpenRouter, LiteLLM oder anderen OpenAI-kompatiblen Servern sprechen.
 
-Wichtig: Das LLM führt weiterhin nichts direkt aus. Es erzeugt Vorschläge und strukturierte Analysen. Der Core entscheidet.
+## Standard für Thomas
+
+`memory/llm_config.json` ist vorbereitet für LM Studio:
+
+```json
+{
+  "local_fast": {
+    "type": "openai_compatible",
+    "base_url": "http://localhost:1234/v1",
+    "api_key": "lm-studio",
+    "default_model": "qwen/qwen3-1.7b"
+  }
+}
+```
+
+Standardrouting:
+
+- chat → local_fast
+- planning → local_fast
+- tool_selection → local_fast
+- reflection → local_fast
+- tool_generation → openai, fallback mock
+- core_review → openai, fallback mock
+
+Wenn LM Studio nicht läuft, fällt Pandora automatisch auf `mock` zurück.
+
+## LM Studio starten
+
+In LM Studio:
+
+```text
+Developer → Local Server → Start Server
+```
+
+Dann Modell laden:
+
+```text
+qwen/qwen3-1.7b
+```
+
+Server:
+
+```text
+http://localhost:1234/v1
+```
 
 ## Befehle
 
 ```powershell
 python main.py status
 python main.py heartbeat
-python main.py tools
 python main.py llm-config
 python main.py llm-analyze "Bitte rechne 2+3*4"
-python main.py llm-complete "Hallo Pandora"
 ```
 
-## Ollama
+Explizit LM Studio:
 
 ```powershell
-python main.py llm-analyze "Plane diese Aufgabe" --provider ollama --model llama3.1:8b
+python main.py llm-analyze "Bitte analysiere diese Aufgabe" --provider local_fast
 ```
 
-## OpenAI
+Explizit Mock:
 
 ```powershell
-$env:OPENAI_API_KEY="..."
-python main.py llm-analyze "Plane diese Aufgabe" --provider openai --model gpt-4.1-mini
+python main.py llm-analyze "Bitte rechne 2+3*4" --provider mock
+```
+
+Freier Call:
+
+```powershell
+python main.py llm-complete "Hallo Pandora" --provider local_fast
 ```
 
 ## API
@@ -48,10 +83,13 @@ python main.py llm-analyze "Plane diese Aufgabe" --provider openai --model gpt-4
 python main.py api
 ```
 
-Neue Endpunkte:
-- GET /llm/config
-- POST /llm/analyze
-- POST /llm/complete
+Endpunkte:
+
+```text
+GET  /llm/config
+POST /llm/analyze
+POST /llm/complete
+```
 
 ## Tests
 
@@ -59,6 +97,23 @@ Neue Endpunkte:
 pytest
 ```
 
-## Nächster Schritt
+## Wichtig
 
-MVP 9B: Controlled Self-Improvement mit Patch-Proposals, Diff Manager, Code Review, Regression Runner und Approval Pipeline.
+Das LLM führt weiterhin nichts direkt aus.
+
+LLM:
+- analysiert
+- schlägt Tools vor
+- schlägt Skills vor
+- erzeugt strukturierte JSON-Ausgaben
+
+Core:
+- validiert
+- entscheidet
+- führt aus
+- schützt Heartbeat, Rollback, Recovery und Security
+
+
+## Fallback-Verhalten
+
+Wenn `local_fast` / LM Studio nicht erreichbar ist, fällt Pandora automatisch auf `mock` zurück. Der lokale Provider hat einen kurzen Timeout, damit die CLI nicht lange blockiert.

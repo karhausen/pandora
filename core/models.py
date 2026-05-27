@@ -30,6 +30,7 @@ class LLMProvider(str, Enum):
     MOCK = "mock"
     OLLAMA = "ollama"
     OPENAI = "openai"
+    OPENAI_COMPATIBLE = "openai_compatible"
 
 
 class LLMTaskType(str, Enum):
@@ -84,15 +85,6 @@ class SkillMeta(BaseModel):
     steps: list[SkillStep] = Field(default_factory=list)
 
 
-class SkillResult(BaseModel):
-    success: bool
-    skill: str
-    output: Any = None
-    steps: list[dict[str, Any]] = Field(default_factory=list)
-    error: str | None = None
-    execution_time: float = 0.0
-
-
 class LLMRequest(BaseModel):
     task_type: LLMTaskType = LLMTaskType.CHAT
     prompt: str
@@ -100,13 +92,15 @@ class LLMRequest(BaseModel):
     context: dict[str, Any] = Field(default_factory=dict)
     model: str | None = None
     provider: LLMProvider | None = None
+    provider_name: str | None = None
     expect_json: bool = False
-    timeout: float = 30.0
+    timeout: float = 3.0
 
 
 class LLMResponse(BaseModel):
     success: bool
     provider: LLMProvider
+    provider_name: str | None = None
     model: str
     content: str
     parsed_json: Any = None
@@ -117,6 +111,7 @@ class LLMResponse(BaseModel):
 class LLMRouteDecision(BaseModel):
     task_type: LLMTaskType
     provider: LLMProvider
+    provider_name: str
     model: str
     reason: str
 

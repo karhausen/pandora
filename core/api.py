@@ -5,25 +5,25 @@ from pydantic import BaseModel
 from .heartbeat import Heartbeat
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
-from .models import LLMProvider, LLMRequest, LLMTaskType
+from .models import LLMRequest, LLMTaskType
 from .skill_registry import SkillRegistry
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
 
 
-app = FastAPI(title="Pandora Agent MVP 9A", version="9A.0")
+app = FastAPI(title="Pandora Agent MVP 9A.1", version="9A.1")
 
 
 class LLMAnalyzeRequest(BaseModel):
     task: str
-    provider: str | None = None
+    provider_name: str | None = None
     model: str | None = None
 
 
 class LLMCompleteRequest(BaseModel):
     prompt: str
     task_type: str = "chat"
-    provider: str | None = None
+    provider_name: str | None = None
     model: str | None = None
     expect_json: bool = False
 
@@ -35,7 +35,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-9a.0"}
+    return {"status": "ok", "version": "mvp-9a.1"}
 
 
 @app.get("/heartbeat")
@@ -71,17 +71,15 @@ def llm_config():
 
 @app.post("/llm/analyze")
 def llm_analyze(req: LLMAnalyzeRequest):
-    provider = LLMProvider(req.provider) if req.provider else None
-    return LLMRuntime().analyze_task(req.task, provider=provider, model=req.model).model_dump(mode="json")
+    return LLMRuntime().analyze_task(req.task, provider_name=req.provider_name, model=req.model).model_dump(mode="json")
 
 
 @app.post("/llm/complete")
 def llm_complete(req: LLMCompleteRequest):
-    provider = LLMProvider(req.provider) if req.provider else None
     request = LLMRequest(
         task_type=LLMTaskType(req.task_type),
         prompt=req.prompt,
-        provider=provider,
+        provider_name=req.provider_name,
         model=req.model,
         expect_json=req.expect_json,
     )

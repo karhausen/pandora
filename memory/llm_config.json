@@ -1,42 +1,52 @@
 {
-  "default_provider": "mock",
+  "default_provider": "local_fast",
   "providers": {
     "mock": {
+      "type": "mock",
       "default_model": "mock-smart"
     },
+    "local_fast": {
+      "type": "openai_compatible",
+      "base_url": "http://localhost:1234/v1",
+      "api_key": "lm-studio",
+      "default_model": "qwen/qwen3-1.7b"
+    },
     "ollama": {
+      "type": "ollama",
       "base_url": "http://localhost:11434",
       "default_model": "llama3.1:8b"
     },
     "openai": {
-      "default_model": "gpt-4.1-mini",
-      "api_key_env": "OPENAI_API_KEY"
+      "type": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "default_model": "gpt-4.1-mini"
     }
   },
   "routing": {
     "chat": {
-      "provider": "mock",
-      "model": "mock-fast"
+      "provider": "local_fast",
+      "fallback_provider": "mock"
     },
     "planning": {
-      "provider": "mock",
-      "model": "mock-smart"
+      "provider": "local_fast",
+      "fallback_provider": "mock"
     },
     "tool_selection": {
-      "provider": "mock",
-      "model": "mock-smart"
+      "provider": "local_fast",
+      "fallback_provider": "mock"
     },
     "tool_generation": {
-      "provider": "mock",
-      "model": "mock-code"
+      "provider": "openai",
+      "fallback_provider": "mock"
     },
     "reflection": {
-      "provider": "mock",
-      "model": "mock-smart"
+      "provider": "local_fast",
+      "fallback_provider": "mock"
     },
     "core_review": {
-      "provider": "mock",
-      "model": "mock-strong"
+      "provider": "openai",
+      "fallback_provider": "mock"
     }
   }
 }

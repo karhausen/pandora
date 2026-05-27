@@ -17,7 +17,4 @@ class PromptManager:
     def list_prompts(self) -> list[dict]:
         if not self.root.exists():
             return []
-        return [
-            {"category": p.parent.name, "name": p.stem, "path": str(p)}
-            for p in self.root.rglob("*.md")
-        ]
+        return [{"category": p.parent.name, "name": p.stem, "path": str(p)} for p in self.root.rglob("*.md")]

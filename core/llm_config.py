@@ -15,3 +15,12 @@ class LLMConfig:
 
     def update(self, data: dict) -> None:
         self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    def provider_config(self, name: str) -> dict:
+        cfg = self.get()
+        providers = cfg.get("providers", {})
+        if name not in providers:
+            raise KeyError(f"Unknown LLM provider: {name}")
+        result = dict(providers[name])
+        result["name"] = name
+        return result
