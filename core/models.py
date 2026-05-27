@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from enum import Enum
-from pydantic import BaseModel, Field
 from typing import Any
+from pydantic import BaseModel, Field
 
 
 class SecurityLevel(str, Enum):
@@ -13,56 +13,32 @@ class SecurityLevel(str, Enum):
 
 
 class ToolStatus(str, Enum):
-    GENERATED = "GENERATED"
-    TESTING = "TESTING"
-    VALIDATED = "VALIDATED"
     ACTIVE = "ACTIVE"
-    DEPRECATED = "DEPRECATED"
+    VALIDATED = "VALIDATED"
     DISABLED = "DISABLED"
     FAILED = "FAILED"
 
 
 class SkillStatus(str, Enum):
-    GENERATED = "GENERATED"
-    TESTING = "TESTING"
-    VALIDATED = "VALIDATED"
     ACTIVE = "ACTIVE"
-    DEPRECATED = "DEPRECATED"
+    VALIDATED = "VALIDATED"
     DISABLED = "DISABLED"
     FAILED = "FAILED"
 
 
-class ProposalStatus(str, Enum):
-    DRAFT = "DRAFT"
-    PROPOSED = "PROPOSED"
-    APPROVED = "APPROVED"
-    REJECTED = "REJECTED"
-    ACTIVATED = "ACTIVATED"
+class LLMProvider(str, Enum):
+    MOCK = "mock"
+    OLLAMA = "ollama"
+    OPENAI = "openai"
 
 
-class TaskStatus(str, Enum):
-    QUEUED = "QUEUED"
-    RUNNING = "RUNNING"
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-    CANCELLED = "CANCELLED"
-
-
-class TaskKind(str, Enum):
-    ANALYZE = "analyze"
-    TOOL = "tool"
-    SKILL = "skill"
-    ENSURE_CAPABILITY = "ensure_capability"
-
-
-class CoreVersionStatus(str, Enum):
-    CREATED = "CREATED"
-    TESTING = "TESTING"
-    VALIDATED = "VALIDATED"
-    ACTIVE = "ACTIVE"
-    STABLE = "STABLE"
-    FAILED = "FAILED"
-    ROLLED_BACK = "ROLLED_BACK"
+class LLMTaskType(str, Enum):
+    CHAT = "chat"
+    PLANNING = "planning"
+    TOOL_SELECTION = "tool_selection"
+    TOOL_GENERATION = "tool_generation"
+    REFLECTION = "reflection"
+    CORE_REVIEW = "core_review"
 
 
 class ToolMeta(BaseModel):
@@ -117,67 +93,42 @@ class SkillResult(BaseModel):
     execution_time: float = 0.0
 
 
-class CapabilityAnalysis(BaseModel):
-    task: str
-    required_capabilities: list[str] = Field(default_factory=list)
-    available_tools: list[str] = Field(default_factory=list)
-    available_skills: list[str] = Field(default_factory=list)
-    missing_capabilities: list[str] = Field(default_factory=list)
-    recommended_action: str = "direct"
+class LLMRequest(BaseModel):
+    task_type: LLMTaskType = LLMTaskType.CHAT
+    prompt: str
+    system_prompt: str | None = None
+    context: dict[str, Any] = Field(default_factory=dict)
+    model: str | None = None
+    provider: LLMProvider | None = None
+    expect_json: bool = False
+    timeout: float = 30.0
 
 
-class Episode(BaseModel):
-    id: str
-    task: str
-    kind: str
+class LLMResponse(BaseModel):
     success: bool
-    used_tools: list[str] = Field(default_factory=list)
-    used_skills: list[str] = Field(default_factory=list)
-    execution_time: float = 0.0
+    provider: LLMProvider
+    model: str
+    content: str
+    parsed_json: Any = None
     error: str | None = None
-    summary: str | None = None
-    created_at: str
+    raw: Any = None
 
 
-class RuntimeTask(BaseModel):
-    id: str
-    kind: TaskKind
-    status: TaskStatus = TaskStatus.QUEUED
-    task: str | None = None
-    target: str | None = None
-    payload: dict[str, Any] = Field(default_factory=dict)
-    auto_create: bool = False
-    priority: int = 5
-    result: Any = None
-    error: str | None = None
-    created_at: str
-    started_at: str | None = None
-    finished_at: str | None = None
+class LLMRouteDecision(BaseModel):
+    task_type: LLMTaskType
+    provider: LLMProvider
+    model: str
+    reason: str
 
 
-class CoreVersionMeta(BaseModel):
-    version_id: str
-    build_id: str
-    created_at: str
-    status: CoreVersionStatus = CoreVersionStatus.CREATED
-    source: str = "snapshot"
-    path: str
-    tests_passed: bool | None = None
-    heartbeat_passed: bool | None = None
-    smoke_tests_passed: bool | None = None
-    error: str | None = None
-    rollback_target: str | None = None
-
-
-class HealthLevel(str, Enum):
-    OK = "OK"
-    WARN = "WARN"
-    CRITICAL = "CRITICAL"
-
-
-class DeploymentStatus(str, Enum):
-    STAGED = "STAGED"
-    MONITORING = "MONITORING"
-    PROMOTED = "PROMOTED"
-    FAILED = "FAILED"
-    ROLLED_BACK = "ROLLED_BACK"
+class LLMTaskAnalysis(BaseModel):
+    task: str
+    summary: str
+    intent: str
+    complexity: str = "low"
+    required_capabilities: list[str] = Field(default_factory=list)
+    suggested_tools: list[str] = Field(default_factory=list)
+    suggested_skills: list[str] = Field(default_factory=list)
+    missing_capabilities: list[str] = Field(default_factory=list)
+    risk_level: str = "LOW"
+    next_action: str = "answer"

@@ -1,60 +1,41 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, Field
-from .activation_manager import ActivationManager
-from .benchmark_manager import BenchmarkManager
-from .deployment_manager import DeploymentManager
-from .health_monitor import HealthMonitor
-from .startup_guard import StartupGuard
-from .watchdog import Watchdog
+from fastapi import FastAPI
+from pydantic import BaseModel
 from .heartbeat import Heartbeat
-from .proposal_manager import ProposalManager
-from .recovery import RecoveryManager
-from .rollback_manager import RollbackManager
-from .skill_executor import SkillExecutor
+from .llm_config import LLMConfig
+from .llm_runtime import LLMRuntime
+from .models import LLMProvider, LLMRequest, LLMTaskType
 from .skill_registry import SkillRegistry
-from .task_runtime import TaskRuntime, TaskStore
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
-from .version_manager import VersionManager
-from .models import TaskKind
 
-app = FastAPI(title="Pandora Agent MVP 7", version="7.0")
 
-task_store = TaskStore()
-task_runtime = TaskRuntime(task_store)
+app = FastAPI(title="Pandora Agent MVP 9A", version="9A.0")
+
+
+class LLMAnalyzeRequest(BaseModel):
+    task: str
+    provider: str | None = None
+    model: str | None = None
+
+
+class LLMCompleteRequest(BaseModel):
+    prompt: str
+    task_type: str = "chat"
+    provider: str | None = None
+    model: str | None = None
+    expect_json: bool = False
+
 
 class RunToolRequest(BaseModel):
-    payload: dict = Field(default_factory=dict)
+    payload: dict = {}
     task: str | None = None
-
-class RunSkillRequest(BaseModel):
-    payload: dict = Field(default_factory=dict)
-    task: str | None = None
-
-class SubmitTaskRequest(BaseModel):
-    kind: TaskKind
-    task: str | None = None
-    target: str | None = None
-    payload: dict = Field(default_factory=dict)
-    auto_create: bool = False
-    priority: int = 5
-
-
-@app.on_event("startup")
-async def startup():
-    await task_runtime.start()
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    await task_runtime.stop()
 
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-8.2"}
+    return {"status": "ok", "version": "mvp-9a.0"}
 
 
 @app.get("/heartbeat")
@@ -64,133 +45,44 @@ async def heartbeat():
 
 @app.get("/tools")
 def tools():
-    r = ToolRegistry(); d = r.discover()
-    return {"discovered": d, "tools": [t.model_dump(mode="json") for t in r.list()]}
+    registry = ToolRegistry()
+    discovered = registry.discover()
+    return {"discovered": discovered, "tools": [t.model_dump(mode="json") for t in registry.list()]}
 
 
 @app.post("/tools/{tool_id}/run")
 async def run_tool(tool_id: str, req: RunToolRequest):
-    r = ToolRegistry(); r.discover()
-    return (await ToolExecutor(r).run_tool(tool_id, req.payload, task=req.task)).model_dump()
+    registry = ToolRegistry()
+    registry.discover()
+    return (await ToolExecutor(registry).run_tool(tool_id, req.payload, task=req.task)).model_dump()
 
 
 @app.get("/skills")
 def skills():
-    r = SkillRegistry(); d = r.discover()
-    return {"discovered": d, "skills": [s.model_dump(mode="json") for s in r.list()]}
+    registry = SkillRegistry()
+    discovered = registry.discover()
+    return {"discovered": discovered, "skills": [s.model_dump(mode="json") for s in registry.list()]}
 
 
-@app.post("/skills/{skill_id}/run")
-async def run_skill(skill_id: str, req: RunSkillRequest):
-    tr = ToolRegistry(); tr.discover()
-    sr = SkillRegistry(); sr.discover()
-    return (await SkillExecutor(sr, tr).run_skill(skill_id, req.payload, task=req.task)).model_dump()
+@app.get("/llm/config")
+def llm_config():
+    return LLMConfig().get()
 
 
-@app.post("/tasks")
-def submit_task(req: SubmitTaskRequest):
-    return task_store.create(req.kind, req.task, req.target, req.payload, req.auto_create, req.priority).model_dump(mode="json")
+@app.post("/llm/analyze")
+def llm_analyze(req: LLMAnalyzeRequest):
+    provider = LLMProvider(req.provider) if req.provider else None
+    return LLMRuntime().analyze_task(req.task, provider=provider, model=req.model).model_dump(mode="json")
 
 
-@app.get("/tasks")
-def list_tasks(limit: int = 50):
-    return {"tasks": [t.model_dump(mode="json") for t in task_store.list(limit)]}
-
-
-@app.post("/tasks/{task_id}/execute-now")
-async def execute_now(task_id: str):
-    task = task_store.get(task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return (await task_runtime.execute_task(task_id)).model_dump(mode="json")
-
-
-@app.get("/proposals")
-def proposals():
-    return {"proposals": ProposalManager().list_proposals()}
-
-
-@app.post("/core-versions/snapshot")
-def create_snapshot(version_id: str | None = None):
-    return VersionManager().create_snapshot(version_id).model_dump(mode="json")
-
-
-@app.get("/core-versions")
-def list_versions():
-    return {"versions": [v.model_dump(mode="json") for v in VersionManager().list_versions()]}
-
-
-@app.get("/core-versions/active")
-def active_version():
-    vm = VersionManager()
-    return {"active_version": vm.get_active_version(), "stable_version": vm.get_stable_version()}
-
-
-@app.post("/core-versions/{version_id}/validate")
-def validate_version(version_id: str):
-    return ActivationManager().validate_version(version_id)
-
-
-@app.post("/core-versions/{version_id}/activate")
-def activate_version(version_id: str, mark_stable: bool = False):
-    return ActivationManager().activate_version(version_id, mark_stable=mark_stable)
-
-
-@app.post("/rollback")
-def rollback(reason: str = "manual api rollback"):
-    return RollbackManager().rollback_to_stable(reason)
-
-
-@app.get("/recovery/status")
-def recovery_status():
-    return RecoveryManager().safe_mode_status()
-
-
-@app.post("/recovery/recover")
-def recover(reason: str = "api recovery"):
-    return RecoveryManager().recover(reason)
-
-
-@app.get("/health")
-async def health():
-    return await HealthMonitor().check()
-
-
-@app.get("/health/log")
-def health_log(limit: int = 20):
-    return {"health_log": HealthMonitor().tail(limit)}
-
-
-@app.post("/watchdog/check")
-async def watchdog_check(auto_rollback: bool = False):
-    return await Watchdog().check_once(auto_rollback=auto_rollback)
-
-
-@app.get("/watchdog/log")
-def watchdog_log(limit: int = 20):
-    return {"watchdog_log": Watchdog().tail(limit)}
-
-
-@app.post("/benchmark")
-async def benchmark():
-    return await BenchmarkManager().run_basic_benchmark()
-
-
-@app.get("/benchmark")
-def benchmark_results():
-    return {"benchmarks": BenchmarkManager().list_results()}
-
-
-@app.post("/deployment/{version_id}")
-async def deploy_version(version_id: str, promote_if_healthy: bool = False):
-    return await DeploymentManager().deploy_version(version_id, promote_if_healthy=promote_if_healthy)
-
-
-@app.get("/deployment/log")
-def deployment_log(limit: int = 20):
-    return {"deployment_log": DeploymentManager().tail(limit)}
-
-
-@app.get("/startup-check")
-async def startup_check(auto_recover: bool = False):
-    return await StartupGuard().check(auto_recover=auto_recover)
+@app.post("/llm/complete")
+def llm_complete(req: LLMCompleteRequest):
+    provider = LLMProvider(req.provider) if req.provider else None
+    request = LLMRequest(
+        task_type=LLMTaskType(req.task_type),
+        prompt=req.prompt,
+        provider=provider,
+        model=req.model,
+        expect_json=req.expect_json,
+    )
+    return LLMRuntime().complete(request).model_dump(mode="json")

@@ -1,0 +1,42 @@
+{
+  "default_provider": "mock",
+  "providers": {
+    "mock": {
+      "default_model": "mock-smart"
+    },
+    "ollama": {
+      "base_url": "http://localhost:11434",
+      "default_model": "llama3.1:8b"
+    },
+    "openai": {
+      "default_model": "gpt-4.1-mini",
+      "api_key_env": "OPENAI_API_KEY"
+    }
+  },
+  "routing": {
+    "chat": {
+      "provider": "mock",
+      "model": "mock-fast"
+    },
+    "planning": {
+      "provider": "mock",
+      "model": "mock-smart"
+    },
+    "tool_selection": {
+      "provider": "mock",
+      "model": "mock-smart"
+    },
+    "tool_generation": {
+      "provider": "mock",
+      "model": "mock-code"
+    },
+    "reflection": {
+      "provider": "mock",
+      "model": "mock-smart"
+    },
+    "core_review": {
+      "provider": "mock",
+      "model": "mock-strong"
+    }
+  }
+}

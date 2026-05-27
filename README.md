@@ -1,112 +1,57 @@
-# Pandora Agent MVP 8.2
+# Pandora Agent MVP 9A.0
 
-MVP 8 macht Pandora betreibbarer: Health Monitoring, Watchdog, Benchmarking, Startup Guard und Deployment Manager.
+MVP 9A integriert die erste echte LLM-Schicht.
 
-Der aktive Quellcode wird weiterhin nicht automatisch überschrieben. Deployments sind logische Aktivierungen über das Core-Version-System aus MVP 7.
+Neu:
+- LLM Runtime
+- Provider-Abstraktion
+- Mock Provider für stabile Offline-Tests
+- Ollama Provider
+- OpenAI Provider
+- Modellrouting nach Task-Typ
+- Prompt Manager
+- Prompt-Verzeichnis
+- strukturierte JSON-Ausgaben
+- Pydantic-Validierung
+- LLM-gestützte Task-Analyse
+- LLM-Governance-Grundregeln
 
-## Installation
+Wichtig: Das LLM führt weiterhin nichts direkt aus. Es erzeugt Vorschläge und strukturierte Analysen. Der Core entscheidet.
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-## Basisprüfung
+## Befehle
 
 ```powershell
 python main.py status
 python main.py heartbeat
-python main.py health
-python main.py startup-check
+python main.py tools
+python main.py llm-config
+python main.py llm-analyze "Bitte rechne 2+3*4"
+python main.py llm-complete "Hallo Pandora"
 ```
 
-## Watchdog
-
-Einmalige Prüfung:
+## Ollama
 
 ```powershell
-python main.py watchdog-once
+python main.py llm-analyze "Plane diese Aufgabe" --provider ollama --model llama3.1:8b
 ```
 
-Mit automatischem Rollback bei kritischem Zustand:
+## OpenAI
 
 ```powershell
-python main.py watchdog-once --auto-rollback
+$env:OPENAI_API_KEY="..."
+python main.py llm-analyze "Plane diese Aufgabe" --provider openai --model gpt-4.1-mini
 ```
 
-Logs:
-
-```powershell
-python main.py watchdog-log
-python main.py health-log
-```
-
-## Benchmark
-
-```powershell
-python main.py benchmark
-python main.py benchmark-list
-```
-
-Gemessen werden aktuell:
-
-- Heartbeat
-- Echo Tool
-- Calculator Tool
-- Echo-Upper Skill
-
-## Deployment
-
-Snapshot erzeugen:
-
-```powershell
-python main.py core-snapshot --version-id core_v0_8_0
-```
-
-Version deployen:
-
-```powershell
-python main.py deploy-version core_v0_8_0
-```
-
-Deployen und bei guter Gesundheit als stable markieren:
-
-```powershell
-python main.py deploy-version core_v0_8_0 --promote-if-healthy
-```
-
-Deployment-Log:
-
-```powershell
-python main.py deployment-log
-```
-
-## API starten
+## API
 
 ```powershell
 python main.py api
 ```
 
-Swagger:
-
-```text
-http://127.0.0.1:8000/docs
-```
-
 Neue Endpunkte:
-
-```text
-GET  /health
-GET  /health/log
-POST /watchdog/check
-GET  /watchdog/log
-POST /benchmark
-GET  /benchmark
-POST /deployment/{version_id}
-GET  /deployment/log
-GET  /startup-check
-```
+- GET /llm/config
+- POST /llm/analyze
+- POST /llm/complete
 
 ## Tests
 
@@ -114,25 +59,6 @@ GET  /startup-check
 pytest
 ```
 
-## Architekturstatus
+## Nächster Schritt
 
-MVP 8 ergänzt Betriebsfähigkeit:
-
-```text
-Heartbeat → Health Monitor → Watchdog → Rollback
-Snapshot → Validation → Deployment → Health Check → optional Stable Promotion
-Startup → Startup Guard → Recovery falls nötig
-```
-
-## Wichtig
-
-Noch kein echtes atomisches File-Switching im aktiven Quellcode. Das ist Absicht.
-
-Der nächste sinnvolle Schritt wäre MVP 9:
-
-- kontrollierte Patch-Proposals
-- Diff-Review
-- Regression-Test-Pipeline
-- Staging Deployment
-- atomischer Switch
-- automatische Rollback-Beobachtungsphase
+MVP 9B: Controlled Self-Improvement mit Patch-Proposals, Diff Manager, Code Review, Regression Runner und Approval Pipeline.
