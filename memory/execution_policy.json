@@ -1,0 +1,44 @@
+{
+  "default_policy": "restricted",
+  "policies": {
+    "trusted": {
+      "timeout": 10.0,
+      "allow_network": false,
+      "allow_shell": false,
+      "allow_write": true,
+      "allowed_paths": [
+        "memory",
+        "logs",
+        "sandbox"
+      ]
+    },
+    "restricted": {
+      "timeout": 10.0,
+      "allow_network": false,
+      "allow_shell": false,
+      "allow_write": false,
+      "allowed_paths": [
+        "sandbox/tmp"
+      ]
+    },
+    "isolated": {
+      "timeout": 15.0,
+      "allow_network": false,
+      "allow_shell": false,
+      "allow_write": false,
+      "allowed_paths": []
+    },
+    "dangerous": {
+      "timeout": 1.0,
+      "allow_network": false,
+      "allow_shell": false,
+      "allow_write": false,
+      "allowed_paths": []
+    }
+  },
+  "tool_overrides": {
+    "echo": "trusted",
+    "calculator": "isolated",
+    "uppercase": "isolated"
+  }
+}

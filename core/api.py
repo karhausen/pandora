@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .sandbox import Sandbox
 from .documentation_generator import DocumentationGenerator
 from .governance import Governance
 from .changelog_manager import ChangelogManager
@@ -96,7 +97,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-14.1"}
+    return {"status": "ok", "version": "mvp-15.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -296,3 +297,18 @@ def governance_check():
 @app.get("/changelog")
 def changelog():
     return {"content": ChangelogManager().read()}
+
+
+@app.post("/sandbox/tools/{tool_id}/run")
+def sandbox_run_tool(tool_id: str, req: RunToolRequest):
+    return Sandbox().run_tool(tool_id, req.payload)
+
+
+@app.get("/sandbox/policies")
+def sandbox_policies():
+    return Sandbox().policy_report()
+
+
+@app.get("/sandbox/logs")
+def sandbox_logs(limit: int = 20):
+    return {"logs": Sandbox().logs(limit)}

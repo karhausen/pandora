@@ -21,7 +21,6 @@ PROTECTED_CORE_FILES = {
 
 GENERATED_TOOLS_DIR = ROOT_DIR / "generated_tools"
 TOOL_PROPOSALS_DIR = ROOT_DIR / "tool_proposals"
-TOOL_SANDBOX_DIR = ROOT_DIR / "sandbox" / "tool_generation"
 TOOL_ACTIVATION_LOG = MEMORY_DIR / "tool_activation_log.jsonl"
 
 CAPABILITY_EVENT_LOG = MEMORY_DIR / "capability_events.jsonl"
@@ -39,3 +38,9 @@ DOCS_DIR = ROOT_DIR / "docs"
 CHANGELOG_FILE = DOCS_DIR / "changelog.md"
 GOVERNANCE_REPORT_FILE = MEMORY_DIR / "governance_report.json"
 ARCHITECTURE_REPORT_FILE = MEMORY_DIR / "architecture_report.json"
+
+SANDBOX_DIR = ROOT_DIR / "sandbox"
+SANDBOX_RUNS_DIR = SANDBOX_DIR / "runs"
+SANDBOX_TMP_DIR = SANDBOX_DIR / "tmp"
+SANDBOX_LOG_FILE = MEMORY_DIR / "sandbox_log.jsonl"
+EXECUTION_POLICY_FILE = MEMORY_DIR / "execution_policy.json"

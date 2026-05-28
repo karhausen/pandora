@@ -4,13 +4,26 @@ from .models import ToolResult
 from .tool_registry import ToolRegistry
 
 class ToolExecutor:
-    def __init__(self, registry: ToolRegistry):
+    def __init__(self, registry: ToolRegistry, use_sandbox: bool = True):
         self.registry = registry
+        self.use_sandbox = use_sandbox
 
     async def run_tool(self, tool_id: str, payload: dict, timeout: float = 5.0, task: str | None = None) -> ToolResult:
         meta = self.registry.get(tool_id)
         if not meta:
             return ToolResult(success=False, tool=tool_id, error="Tool not found")
+
+        if self.use_sandbox:
+            from .sandbox import Sandbox
+            result = await asyncio.to_thread(Sandbox().run_tool, tool_id, payload)
+            return ToolResult(
+                success=bool(result.get("success")),
+                tool=tool_id,
+                output=result.get("output"),
+                error=result.get("error"),
+                execution_time=float(result.get("execution_time") or 0.0),
+            )
+
         start = time.perf_counter()
         try:
             module = importlib.import_module(meta.module)

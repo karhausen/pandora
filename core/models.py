@@ -268,3 +268,30 @@ class LearningSummary(BaseModel):
     failures: dict[str, Any] = Field(default_factory=dict)
     recommendations: list[dict[str, Any]] = Field(default_factory=list)
     strategies: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExecutionPolicyName(str, Enum):
+    TRUSTED = "trusted"
+    RESTRICTED = "restricted"
+    ISOLATED = "isolated"
+    DANGEROUS = "dangerous"
+
+
+class ExecutionPolicy(BaseModel):
+    name: ExecutionPolicyName
+    timeout: float = 5.0
+    allow_network: bool = False
+    allow_shell: bool = False
+    allow_write: bool = False
+    allowed_paths: list[str] = Field(default_factory=list)
+
+
+class SandboxResult(BaseModel):
+    success: bool
+    tool_id: str
+    output: Any = None
+    error: str | None = None
+    execution_time: float = 0.0
+    policy: str = "restricted"
+    isolated: bool = True
+    returncode: int | None = None

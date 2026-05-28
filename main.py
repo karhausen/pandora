@@ -20,6 +20,7 @@ from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
+from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
 from core.skill_proposal_manager import SkillProposalManager
 from core.skill_registry import SkillRegistry
@@ -44,80 +45,56 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-14.1"})
-
+def cmd_status(args): _json({"status": "ok", "version": "mvp-15.0"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
-
 def cmd_heartbeat(args): _json(asyncio.run(Heartbeat().check()))
-
 def cmd_tools(args):
-    r = ToolRegistry(); d = r.discover()
-    _json({"discovered": d, "tools": [t.model_dump(mode="json") for t in r.list()]})
-
+    r = ToolRegistry(); d = r.discover(); _json({"discovered": d, "tools": [t.model_dump(mode="json") for t in r.list()]})
 def cmd_skills(args):
-    r = SkillRegistry(); d = r.discover()
-    _json({"discovered": d, "skills": [s.model_dump(mode="json") for s in r.list()]})
-
+    r = SkillRegistry(); d = r.discover(); _json({"discovered": d, "skills": [s.model_dump(mode="json") for s in r.list()]})
 def cmd_run_tool(args):
-    r = ToolRegistry(); r.discover()
-    _json(asyncio.run(ToolExecutor(r).run_tool(args.tool_id, _payload(args), task=args.task)).model_dump())
-
+    r = ToolRegistry(); r.discover(); _json(asyncio.run(ToolExecutor(r).run_tool(args.tool_id, _payload(args), task=args.task)).model_dump())
+def cmd_sandbox_run_tool(args): _json(Sandbox().run_tool(args.tool_id, _payload(args)))
+def cmd_sandbox_policies(args): _json(Sandbox().policy_report())
+def cmd_sandbox_logs(args): _json({"logs": Sandbox().logs(args.limit)})
 def cmd_llm_config(args): _json(LLMConfig().get())
-
-def cmd_llm_analyze(args):
-    _json(LLMRuntime().analyze_task(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
-
+def cmd_llm_analyze(args): _json(LLMRuntime().analyze_task(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_llm_complete(args):
     req = LLMRequest(task_type=LLMTaskType(args.task_type), prompt=args.prompt, provider_name=args.provider, model=args.model, expect_json=args.expect_json, timeout=args.timeout)
     _json(LLMRuntime().complete(req).model_dump(mode="json"))
-
-def cmd_agent_run(args):
-    _json(asyncio.run(AgentLoop().run(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout)).model_dump(mode="json"))
-
+def cmd_agent_run(args): _json(asyncio.run(AgentLoop().run(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout)).model_dump(mode="json"))
 def cmd_agent_journal(args): _json({"journal": TaskJournal().list(args.limit)})
 def cmd_agent_last(args): _json(TaskJournal().last())
-
 def cmd_capability_evaluate(args): _json(CapabilityExpansionManager().evaluate_task(args.task, auto_propose=args.auto_propose))
 def cmd_capability_events(args): _json({"events": CapabilityExpansionManager().list_events(args.limit)})
 def cmd_capability_last(args): _json(CapabilityExpansionManager().last_event())
-
-def cmd_capability_workflow(args):
-    _json(asyncio.run(CapabilityWorkflow().run(args.task, activate=args.activate, retry=args.retry, mode="cli")).model_dump(mode="json"))
-
+def cmd_capability_workflow(args): _json(asyncio.run(CapabilityWorkflow().run(args.task, activate=args.activate, retry=args.retry, mode="cli")).model_dump(mode="json"))
 def cmd_capability_workflows(args): _json({"workflows": CapabilityWorkflow().list(args.limit)})
 def cmd_capability_workflow_last(args): _json(CapabilityWorkflow().last())
-
 def cmd_tool_propose_task(args): _json(ToolProposalManager().propose_from_task(args.task))
 def cmd_tool_propose_capability(args): _json(ToolProposalManager().propose_for_capability(args.capability))
 def cmd_tool_proposal_list(args): _json({"tool_proposals": ToolProposalManager().list()})
 def cmd_tool_proposal_show(args): _json(ToolProposalManager().show(args.proposal_id))
 def cmd_tool_proposal_prepare(args): _json(ToolProposalManager().prepare_activation_copy(args.proposal_id))
-
 def cmd_tool_proposal_activate(args):
     payload = json.loads(args.test_json) if args.test_json else None
     _json(asyncio.run(ToolActivationManager().activate(args.proposal_id, test_payload=payload)).model_dump(mode="json"))
-
 def cmd_tool_activation_log(args): _json({"activations": ToolActivationManager().list_log(args.limit)})
-
 def cmd_skill_propose_from_journal(args): _json(SkillProposalManager().propose_from_journal(name=args.name))
 def cmd_skill_proposal_list(args): _json({"skill_proposals": SkillProposalManager().list()})
 def cmd_skill_proposal_show(args): _json(SkillProposalManager().show(args.proposal_id))
-
 def cmd_skill_proposal_activate(args):
     payload = json.loads(args.test_json) if args.test_json else None
     _json(asyncio.run(SkillActivationManager().activate(args.proposal_id, test_payload=payload)).model_dump(mode="json"))
-
 def cmd_skill_activation_log(args): _json({"activations": SkillActivationManager().list_log(args.limit)})
-
 def cmd_learn_from_journal(args): _json(LearningEngine().learn_from_journal(limit=args.limit).model_dump(mode="json"))
 def cmd_rankings(args): _json(LearningEngine().rankings())
 def cmd_failures(args): _json(LearningEngine().failures())
 def cmd_recommendations(args): _json(LearningEngine().recommendations())
 def cmd_strategies(args): _json(LearningEngine().strategies())
 def cmd_learning_events(args): _json({"events": LearningEngine().learning_events(args.limit)})
-
 def cmd_docs_generate(args): _json(DocumentationGenerator().generate())
 def cmd_architecture_report(args): _json(DocumentationGenerator().architecture_report())
 def cmd_governance_check(args): _json(Governance().check())
@@ -125,7 +102,7 @@ def cmd_changelog(args): print(ChangelogManager().read())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 14.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 15.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -135,6 +112,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("skills"); p.set_defaults(func=cmd_skills)
 
     p = sub.add_parser("run-tool"); p.add_argument("tool_id"); p.add_argument("--input"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--task"); p.set_defaults(func=cmd_run_tool)
+    p = sub.add_parser("sandbox-run-tool"); p.add_argument("tool_id"); p.add_argument("--input"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_sandbox_run_tool)
+    p = sub.add_parser("sandbox-policies"); p.set_defaults(func=cmd_sandbox_policies)
+    p = sub.add_parser("sandbox-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_sandbox_logs)
+
     p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
     p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
     p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)

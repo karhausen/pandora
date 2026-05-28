@@ -64,3 +64,28 @@ Siehe `docs/roadmap.md`.
 - Dashboard vollständig wiederhergestellt
 - Agent Run, Heartbeat, Tools, Skills, Journal, Proposals, Learning und Governance sichtbar
 - JavaScript nutzt korrekt `provider_name` für `/agent/run`
+
+
+## MVP 15.0 – Sandbox & Isolation System
+
+Neu:
+
+- ExecutionPolicyManager
+- PermissionManager
+- ProcessGuard
+- ResourceMonitor
+- IsolationRunner
+- Sandbox
+- SandboxLog
+- ToolExecutor nutzt standardmäßig Sandbox-Ausführung
+- CLI/API für Sandbox-Policies, Sandbox-Logs und isolierte Tool-Ausführung
+
+Beispiele:
+
+```powershell
+python main.py sandbox-run-tool calculator --json "{\"expression\":\"2+3*4\"}"
+python main.py sandbox-policies
+python main.py sandbox-logs
+```
+
+Hinweis: MVP 15 bietet Prozess-Isolation und Timeouts. Harte OS-Level CPU/RAM-Limits sind für eine spätere Stufe vorgesehen.
