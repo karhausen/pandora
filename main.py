@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from core.agent_loop import AgentLoop
+from core.capability_expansion_manager import CapabilityExpansionManager
 from core.heartbeat import Heartbeat
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
@@ -37,7 +38,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-11.2"})
+    _json({"status": "ok", "version": "mvp-11.3"})
 
 
 def cmd_api(args) -> None:
@@ -102,6 +103,18 @@ def cmd_agent_last(args) -> None:
     _json(TaskJournal().last())
 
 
+def cmd_capability_evaluate(args) -> None:
+    _json(CapabilityExpansionManager().evaluate_task(args.task, auto_propose=args.auto_propose))
+
+
+def cmd_capability_events(args) -> None:
+    _json({"events": CapabilityExpansionManager().list_events(args.limit)})
+
+
+def cmd_capability_last(args) -> None:
+    _json(CapabilityExpansionManager().last_event())
+
+
 def cmd_tool_propose_task(args) -> None:
     _json(ToolProposalManager().propose_from_task(args.task))
 
@@ -133,7 +146,7 @@ def cmd_tool_activation_log(args) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.3")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -194,6 +207,18 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("agent-last")
     p.set_defaults(func=cmd_agent_last)
+
+    p = sub.add_parser("capability-evaluate")
+    p.add_argument("task")
+    p.add_argument("--no-auto-propose", dest="auto_propose", action="store_false")
+    p.set_defaults(func=cmd_capability_evaluate, auto_propose=True)
+
+    p = sub.add_parser("capability-events")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_capability_events)
+
+    p = sub.add_parser("capability-last")
+    p.set_defaults(func=cmd_capability_last)
 
     p = sub.add_parser("tool-propose-task")
     p.add_argument("task")

@@ -204,3 +204,14 @@ class ToolActivationResult(BaseModel):
     registered: bool = False
     tested: bool = False
     error: str | None = None
+
+
+class CapabilityEvent(BaseModel):
+    event_id: str
+    task: str
+    gap_detected: bool
+    capability: str | None = None
+    action: str
+    proposal_id: str | None = None
+    created_at: str
+    details: dict[str, Any] = Field(default_factory=dict)

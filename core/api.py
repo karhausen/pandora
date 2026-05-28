@@ -2,6 +2,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
+from .capability_expansion_manager import CapabilityExpansionManager
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
@@ -30,6 +31,13 @@ class ToolProposalCapabilityRequest(BaseModel):
     capability: str
 
 
+
+class CapabilityEvaluateRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+    auto_propose: bool = True
+
+
 class AgentRunRequest(BaseModel):
     task: str
     provider_name: str | None = None
@@ -56,7 +64,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-11.2"}
+    return {"status": "ok", "version": "mvp-11.3"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -137,3 +145,18 @@ async def tool_proposal_activate(proposal_id: str, req: ToolActivationRequest | 
 @app.get("/tool-activations")
 def tool_activation_log(limit: int = 20):
     return {"activations": ToolActivationManager().list_log(limit)}
+
+
+@app.post("/capabilities/evaluate")
+def capability_evaluate(req: CapabilityEvaluateRequest):
+    return CapabilityExpansionManager().evaluate_task(req.task, analysis=req.analysis, auto_propose=req.auto_propose)
+
+
+@app.get("/capabilities/events")
+def capability_events(limit: int = 20):
+    return {"events": CapabilityExpansionManager().list_events(limit)}
+
+
+@app.get("/capabilities/last")
+def capability_last():
+    return CapabilityExpansionManager().last_event()

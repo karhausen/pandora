@@ -1,4 +1,4 @@
-# Pandora Agent MVP 11.2
+# Pandora Agent MVP 11.3
 
 MVP 10 ist der erste echte Agent-Loop.
 
@@ -44,7 +44,7 @@ python main.py agent-run "Bitte rechne 2+3*4" --provider mock
 ```
 
 
-# MVP 11.2 – Controlled Tool Proposal System
+# MVP 11.3 – Controlled Tool Proposal System
 
 Neu:
 
@@ -84,7 +84,7 @@ POST /tool-proposals/{proposal_id}/prepare-activation
 Neue Tools entstehen zuerst nur als Proposal mit Code, Test und Validierung. Keine automatische Übernahme in die aktive Tool Registry.
 
 
-# MVP 11.2 – Controlled Tool Activation
+# MVP 11.3 – Controlled Tool Activation
 
 Neu:
 
@@ -106,3 +106,31 @@ python main.py tool-activation-log
 ```
 
 Wichtig: Aktivierung ist jetzt kontrolliert möglich, aber nur nach erfolgreicher Proposal-Validierung und Testausführung.
+
+
+# MVP 11.3 – Agent Capability Expansion
+
+Neu:
+
+- CapabilityExpansionManager
+- CapabilityEventLog
+- AgentLoop erkennt fehlende Tool-Fähigkeiten
+- AgentLoop erzeugt Tool-Proposals automatisch
+- keine automatische Aktivierung
+- nach Aktivierung kann der Agent das neue Tool nutzen
+
+## Beispiele
+
+```powershell
+python main.py agent-run "word count --text eins zwei drei" --provider mock
+python main.py capability-events
+python main.py tool-proposal-list
+python main.py tool-proposal-activate <ID>
+python main.py agent-run "word count --text eins zwei drei" --provider mock
+```
+
+Erwartung:
+
+1. erster Lauf erzeugt ein Tool-Proposal
+2. User aktiviert kontrolliert
+3. zweiter Lauf nutzt das neue Generated-Tool

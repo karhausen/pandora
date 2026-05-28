@@ -23,3 +23,5 @@ GENERATED_TOOLS_DIR = ROOT_DIR / "generated_tools"
 TOOL_PROPOSALS_DIR = ROOT_DIR / "tool_proposals"
 TOOL_SANDBOX_DIR = ROOT_DIR / "sandbox" / "tool_generation"
 TOOL_ACTIVATION_LOG = MEMORY_DIR / "tool_activation_log.jsonl"
+
+CAPABILITY_EVENT_LOG = MEMORY_DIR / "capability_events.jsonl"
