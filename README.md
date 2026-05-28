@@ -1,4 +1,4 @@
-# Pandora Agent MVP 11.4
+# Pandora Agent MVP 12.0
 
 MVP 10 ist der erste echte Agent-Loop.
 
@@ -44,7 +44,7 @@ python main.py agent-run "Bitte rechne 2+3*4" --provider mock
 ```
 
 
-# MVP 11.4 – Controlled Tool Proposal System
+# MVP 12.0 – Controlled Tool Proposal System
 
 Neu:
 
@@ -84,7 +84,7 @@ POST /tool-proposals/{proposal_id}/prepare-activation
 Neue Tools entstehen zuerst nur als Proposal mit Code, Test und Validierung. Keine automatische Übernahme in die aktive Tool Registry.
 
 
-# MVP 11.4 – Controlled Tool Activation
+# MVP 12.0 – Controlled Tool Activation
 
 Neu:
 
@@ -108,7 +108,7 @@ python main.py tool-activation-log
 Wichtig: Aktivierung ist jetzt kontrolliert möglich, aber nur nach erfolgreicher Proposal-Validierung und Testausführung.
 
 
-# MVP 11.4 – Agent Capability Expansion
+# MVP 12.0 – Agent Capability Expansion
 
 Neu:
 
@@ -136,7 +136,7 @@ Erwartung:
 3. zweiter Lauf nutzt das neue Generated-Tool
 
 
-# MVP 11.4 – Capability Workflow
+# MVP 12.0 – Capability Workflow
 
 Neu:
 
@@ -169,3 +169,28 @@ python main.py capability-workflow-last
 ```
 
 Wichtig: Auch hier bleibt Aktivierung explizit. Der Agent aktiviert nicht still im normalen `agent-run`.
+
+
+# MVP 12.0 – Skill Evolution
+
+Neu:
+
+- SkillPatternDetector
+- SkillGenerator
+- SkillValidator
+- SkillProposalManager
+- SkillActivationManager
+- generische Skill-Step-Ausführung
+- CLI/API für Skill-Proposals und Aktivierung
+
+## Beispiele
+
+```powershell
+python main.py skill-propose-from-journal
+python main.py skill-proposal-list
+python main.py skill-proposal-show <ID>
+python main.py skill-proposal-activate <ID>
+python main.py agent-run "workflow --text hallo agent" --provider mock
+```
+
+MVP 12 aktiviert Skills nur explizit. Der Agent erzeugt und nutzt Routinen erst nach kontrollierter Freigabe.

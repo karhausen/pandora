@@ -229,3 +229,31 @@ class CapabilityWorkflowResult(BaseModel):
     retry_result: dict[str, Any] | None = None
     error: str | None = None
     created_at: str
+
+
+class SkillProposalStatus(str, Enum):
+    PROPOSED = "PROPOSED"
+    VALIDATED = "VALIDATED"
+    FAILED = "FAILED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class SkillProposal(BaseModel):
+    id: str
+    status: SkillProposalStatus = SkillProposalStatus.PROPOSED
+    skill: SkillMeta
+    created_at: str
+    proposal_dir: str
+    validation: dict[str, Any] = Field(default_factory=dict)
+    source: str = "journal"
+
+
+class SkillActivationResult(BaseModel):
+    activated: bool
+    proposal_id: str
+    skill_id: str | None = None
+    copied_to: str | None = None
+    registered: bool = False
+    tested: bool = False
+    error: str | None = None

@@ -27,7 +27,7 @@ class MockLLMClient:
             required.append("timestamp")
             tools.append("timestamp")
         if "workflow" in prompt_l or "skill" in prompt_l:
-            skills.append("echo_then_upper")
+            skills.append("echo_then_upper_auto")
         complexity = "high" if any(w in prompt_l for w in ["core", "patch", "architecture", "self-improvement"]) else "low"
         action = "use_skill" if skills else ("use_tool" if tools else "answer")
         data = {

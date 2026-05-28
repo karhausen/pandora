@@ -16,6 +16,8 @@ from core.heartbeat import Heartbeat
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
+from core.skill_activation_manager import SkillActivationManager
+from core.skill_proposal_manager import SkillProposalManager
 from core.skill_registry import SkillRegistry
 from core.task_journal import TaskJournal
 from core.tool_activation_manager import ToolActivationManager
@@ -39,7 +41,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-11.4"})
+    _json({"status": "ok", "version": "mvp-12.0"})
 
 
 def cmd_api(args) -> None:
@@ -159,8 +161,30 @@ def cmd_tool_activation_log(args) -> None:
     _json({"activations": ToolActivationManager().list_log(args.limit)})
 
 
+def cmd_skill_propose_from_journal(args) -> None:
+    _json(SkillProposalManager().propose_from_journal(name=args.name))
+
+
+def cmd_skill_proposal_list(args) -> None:
+    _json({"skill_proposals": SkillProposalManager().list()})
+
+
+def cmd_skill_proposal_show(args) -> None:
+    _json(SkillProposalManager().show(args.proposal_id))
+
+
+def cmd_skill_proposal_activate(args) -> None:
+    payload = json.loads(args.test_json) if args.test_json else None
+    result = asyncio.run(SkillActivationManager().activate(args.proposal_id, test_payload=payload))
+    _json(result.model_dump(mode="json"))
+
+
+def cmd_skill_activation_log(args) -> None:
+    _json({"activations": SkillActivationManager().list_log(args.limit)})
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.4")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 12.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -274,6 +298,26 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("tool-activation-log")
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=cmd_tool_activation_log)
+
+    p = sub.add_parser("skill-propose-from-journal")
+    p.add_argument("--name")
+    p.set_defaults(func=cmd_skill_propose_from_journal)
+
+    p = sub.add_parser("skill-proposal-list")
+    p.set_defaults(func=cmd_skill_proposal_list)
+
+    p = sub.add_parser("skill-proposal-show")
+    p.add_argument("proposal_id")
+    p.set_defaults(func=cmd_skill_proposal_show)
+
+    p = sub.add_parser("skill-proposal-activate")
+    p.add_argument("proposal_id")
+    p.add_argument("--test-json")
+    p.set_defaults(func=cmd_skill_proposal_activate)
+
+    p = sub.add_parser("skill-activation-log")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_skill_activation_log)
 
     return parser
 

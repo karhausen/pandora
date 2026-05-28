@@ -14,6 +14,8 @@ from .task_journal import TaskJournal
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
 from .skill_registry import SkillRegistry
+from .skill_proposal_manager import SkillProposalManager
+from .skill_activation_manager import SkillActivationManager
 
 app = FastAPI(title="Pandora Agent MVP 10", version="10.0")
 
@@ -66,13 +68,22 @@ class LLMCompleteRequest(BaseModel):
     expect_json: bool = False
     timeout: float = 20.0
 
+
+class SkillProposalJournalRequest(BaseModel):
+    name: str | None = None
+
+
+class SkillActivationRequest(BaseModel):
+    test_payload: dict | None = None
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-11.4"}
+    return {"status": "ok", "version": "mvp-12.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -183,3 +194,29 @@ def capability_workflows(limit: int = 20):
 @app.get("/capabilities/workflows/last")
 def capability_workflow_last():
     return CapabilityWorkflow().last()
+
+
+@app.post("/skill-proposals/from-journal")
+def skill_proposal_from_journal(req: SkillProposalJournalRequest):
+    return SkillProposalManager().propose_from_journal(name=req.name)
+
+
+@app.get("/skill-proposals")
+def skill_proposal_list():
+    return {"skill_proposals": SkillProposalManager().list()}
+
+
+@app.get("/skill-proposals/{proposal_id}")
+def skill_proposal_show(proposal_id: str):
+    return SkillProposalManager().show(proposal_id)
+
+
+@app.post("/skill-proposals/{proposal_id}/activate")
+async def skill_proposal_activate(proposal_id: str, req: SkillActivationRequest | None = None):
+    payload = req.test_payload if req else None
+    return (await SkillActivationManager().activate(proposal_id, test_payload=payload)).model_dump(mode="json")
+
+
+@app.get("/skill-activations")
+def skill_activation_log(limit: int = 20):
+    return {"activations": SkillActivationManager().list_log(limit)}
