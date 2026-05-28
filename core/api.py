@@ -11,6 +11,9 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .documentation_generator import DocumentationGenerator
+from .governance import Governance
+from .changelog_manager import ChangelogManager
 from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
@@ -93,7 +96,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-13.0"}
+    return {"status": "ok", "version": "mvp-14.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -273,3 +276,23 @@ def learning_strategies():
 @app.get("/learning/events")
 def learning_events(limit: int = 20):
     return {"events": LearningEngine().learning_events(limit)}
+
+
+@app.post("/docs/generate")
+def docs_generate():
+    return DocumentationGenerator().generate()
+
+
+@app.get("/docs/architecture-report")
+def docs_architecture_report():
+    return DocumentationGenerator().architecture_report()
+
+
+@app.get("/governance/check")
+def governance_check():
+    return Governance().check()
+
+
+@app.get("/changelog")
+def changelog():
+    return {"content": ChangelogManager().read()}
