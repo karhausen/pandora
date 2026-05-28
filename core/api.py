@@ -96,7 +96,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-14.0"}
+    return {"status": "ok", "version": "mvp-14.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():

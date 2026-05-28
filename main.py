@@ -44,7 +44,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-14.0"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-14.1"})
 
 def cmd_api(args):
     import uvicorn

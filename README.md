@@ -57,3 +57,10 @@ Weitere Dokumentation befindet sich unter `docs/`.
 ## Roadmap
 
 Siehe `docs/roadmap.md`.
+
+
+## MVP 14.1 – Web GUI Fix
+
+- Dashboard vollständig wiederhergestellt
+- Agent Run, Heartbeat, Tools, Skills, Journal, Proposals, Learning und Governance sichtbar
+- JavaScript nutzt korrekt `provider_name` für `/agent/run`

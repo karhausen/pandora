@@ -1,1 +1,59 @@
-<html><body><h1>Pandora Agent Dashboard</h1><script src='/web/app.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Agent Dashboard</title>
+  <link rel="stylesheet" href="/web/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Agent Dashboard</h1>
+      <p>Lokale Steuerzentrale für Agent, Tools, Skills, Learning und Governance.</p>
+    </div>
+    <div id="statusBadge" class="badge">Lade Status...</div>
+  </header>
+
+  <main class="grid">
+    <section class="card wide">
+      <h2>Agent Run</h2>
+      <div class="row">
+        <input id="taskInput" value="Bitte rechne 2+3*4" />
+        <select id="providerSelect">
+          <option value="mock">mock</option>
+          <option value="local_fast">local_fast</option>
+        </select>
+        <button onclick="runAgent()">Ausführen</button>
+      </div>
+      <pre id="agentResult">Noch kein Lauf.</pre>
+    </section>
+
+    <section class="card"><h2>Heartbeat</h2><button onclick="loadHeartbeat()">Aktualisieren</button><pre id="heartbeatBox"></pre></section>
+    <section class="card"><h2>Tools</h2><button onclick="loadTools()">Aktualisieren</button><pre id="toolsBox"></pre></section>
+    <section class="card"><h2>Skills</h2><button onclick="loadSkills()">Aktualisieren</button><pre id="skillsBox"></pre></section>
+    <section class="card"><h2>Journal</h2><button onclick="loadJournal()">Aktualisieren</button><pre id="journalBox"></pre></section>
+    <section class="card"><h2>Tool-Proposals</h2><button onclick="loadToolProposals()">Aktualisieren</button><pre id="toolProposalsBox"></pre></section>
+    <section class="card"><h2>Skill-Proposals</h2><button onclick="loadSkillProposals()">Aktualisieren</button><pre id="skillProposalsBox"></pre></section>
+    <section class="card"><h2>Capability Workflows</h2><button onclick="loadCapabilityWorkflows()">Aktualisieren</button><pre id="capabilityWorkflowsBox"></pre></section>
+    <section class="card">
+      <h2>Learning</h2>
+      <div class="row">
+        <button onclick="runLearning()">Learn</button>
+        <button onclick="loadRecommendations()">Empfehlungen</button>
+        <button onclick="loadRankings()">Rankings</button>
+      </div>
+      <pre id="learningBox"></pre>
+    </section>
+    <section class="card">
+      <h2>Governance</h2>
+      <div class="row">
+        <button onclick="loadGovernance()">Check</button>
+        <button onclick="loadChangelog()">Changelog</button>
+      </div>
+      <pre id="governanceBox"></pre>
+    </section>
+  </main>
+  <script src="/web/app.js"></script>
+</body>
+</html>
