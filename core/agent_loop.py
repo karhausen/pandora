@@ -1,7 +1,7 @@
 from __future__ import annotations
 import time, uuid
 from datetime import datetime, UTC
-from .action_planner import ActionPlanner
+from .adaptive_planner import AdaptivePlanner
 from .capability_expansion_manager import CapabilityExpansionManager
 from .llm_runtime import LLMRuntime
 from .models import AgentActionType, AgentRunResult
@@ -15,7 +15,7 @@ from .tool_registry import ToolRegistry
 class AgentLoop:
     def __init__(self):
         self.llm = LLMRuntime()
-        self.action_planner = ActionPlanner()
+        self.action_planner = AdaptivePlanner()
         self.evaluator = ResultEvaluator()
         self.journal = TaskJournal()
         self.capability_expansion = CapabilityExpansionManager()

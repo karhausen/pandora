@@ -257,3 +257,14 @@ class SkillActivationResult(BaseModel):
     registered: bool = False
     tested: bool = False
     error: str | None = None
+
+
+class LearningSummary(BaseModel):
+    learned: bool
+    entries_analyzed: int = 0
+    successful_runs: int = 0
+    failed_runs: int = 0
+    rankings: dict[str, Any] = Field(default_factory=dict)
+    failures: dict[str, Any] = Field(default_factory=dict)
+    recommendations: list[dict[str, Any]] = Field(default_factory=list)
+    strategies: dict[str, Any] = Field(default_factory=dict)

@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType
@@ -81,13 +82,18 @@ class SkillActivationRequest(BaseModel):
     test_payload: dict | None = None
 
 
+
+class LearnRequest(BaseModel):
+    limit: int = 200
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-12.1"}
+    return {"status": "ok", "version": "mvp-13.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -237,3 +243,33 @@ def web_js():
 @app.get("/web/style.css")
 def web_css():
     return FileResponse(WEB_DIR / "style.css")
+
+
+@app.post("/learning/run")
+def learning_run(req: LearnRequest):
+    return LearningEngine().learn_from_journal(limit=req.limit).model_dump(mode="json")
+
+
+@app.get("/learning/rankings")
+def learning_rankings():
+    return LearningEngine().rankings()
+
+
+@app.get("/learning/failures")
+def learning_failures():
+    return LearningEngine().failures()
+
+
+@app.get("/learning/recommendations")
+def learning_recommendations():
+    return LearningEngine().recommendations()
+
+
+@app.get("/learning/strategies")
+def learning_strategies():
+    return LearningEngine().strategies()
+
+
+@app.get("/learning/events")
+def learning_events(limit: int = 20):
+    return {"events": LearningEngine().learning_events(limit)}

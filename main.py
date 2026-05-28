@@ -13,6 +13,7 @@ from core.agent_loop import AgentLoop
 from core.capability_expansion_manager import CapabilityExpansionManager
 from core.capability_workflow import CapabilityWorkflow
 from core.heartbeat import Heartbeat
+from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
@@ -41,7 +42,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-12.1"})
+    _json({"status": "ok", "version": "mvp-13.0"})
 
 
 def cmd_api(args) -> None:
@@ -183,141 +184,76 @@ def cmd_skill_activation_log(args) -> None:
     _json({"activations": SkillActivationManager().list_log(args.limit)})
 
 
+def cmd_learn_from_journal(args) -> None:
+    _json(LearningEngine().learn_from_journal(limit=args.limit).model_dump(mode="json"))
+
+
+def cmd_rankings(args) -> None:
+    _json(LearningEngine().rankings())
+
+
+def cmd_failures(args) -> None:
+    _json(LearningEngine().failures())
+
+
+def cmd_recommendations(args) -> None:
+    _json(LearningEngine().recommendations())
+
+
+def cmd_strategies(args) -> None:
+    _json(LearningEngine().strategies())
+
+
+def cmd_learning_events(args) -> None:
+    _json({"events": LearningEngine().learning_events(args.limit)})
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 12.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 13.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p = sub.add_parser("status")
-    p.set_defaults(func=cmd_status)
+    p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
+    p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
+    p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
+    p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
+    p = sub.add_parser("skills"); p.set_defaults(func=cmd_skills)
 
-    p = sub.add_parser("api")
-    p.add_argument("--host", default="127.0.0.1")
-    p.add_argument("--port", type=int, default=8000)
-    p.add_argument("--reload", action="store_true")
-    p.set_defaults(func=cmd_api)
+    p = sub.add_parser("run-tool"); p.add_argument("tool_id"); p.add_argument("--input"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--task"); p.set_defaults(func=cmd_run_tool)
+    p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
+    p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
+    p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
 
-    p = sub.add_parser("heartbeat")
-    p.set_defaults(func=cmd_heartbeat)
+    p = sub.add_parser("agent-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_agent_run)
+    p = sub.add_parser("agent-journal"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_agent_journal)
+    p = sub.add_parser("agent-last"); p.set_defaults(func=cmd_agent_last)
 
-    p = sub.add_parser("tools")
-    p.set_defaults(func=cmd_tools)
+    p = sub.add_parser("capability-evaluate"); p.add_argument("task"); p.add_argument("--no-auto-propose", dest="auto_propose", action="store_false"); p.set_defaults(func=cmd_capability_evaluate, auto_propose=True)
+    p = sub.add_parser("capability-events"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_capability_events)
+    p = sub.add_parser("capability-last"); p.set_defaults(func=cmd_capability_last)
+    p = sub.add_parser("capability-workflow"); p.add_argument("task"); p.add_argument("--activate", action="store_true"); p.add_argument("--retry", action="store_true"); p.set_defaults(func=cmd_capability_workflow)
+    p = sub.add_parser("capability-workflows"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_capability_workflows)
+    p = sub.add_parser("capability-workflow-last"); p.set_defaults(func=cmd_capability_workflow_last)
 
-    p = sub.add_parser("skills")
-    p.set_defaults(func=cmd_skills)
+    p = sub.add_parser("tool-propose-task"); p.add_argument("task"); p.set_defaults(func=cmd_tool_propose_task)
+    p = sub.add_parser("tool-propose-capability"); p.add_argument("capability"); p.set_defaults(func=cmd_tool_propose_capability)
+    p = sub.add_parser("tool-proposal-list"); p.set_defaults(func=cmd_tool_proposal_list)
+    p = sub.add_parser("tool-proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_show)
+    p = sub.add_parser("tool-proposal-prepare"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_prepare)
+    p = sub.add_parser("tool-proposal-activate"); p.add_argument("proposal_id"); p.add_argument("--test-json"); p.set_defaults(func=cmd_tool_proposal_activate)
+    p = sub.add_parser("tool-activation-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_activation_log)
 
-    p = sub.add_parser("run-tool")
-    p.add_argument("tool_id")
-    p.add_argument("--input")
-    p.add_argument("--json", dest="json_payload")
-    p.add_argument("--file")
-    p.add_argument("--task")
-    p.set_defaults(func=cmd_run_tool)
+    p = sub.add_parser("skill-propose-from-journal"); p.add_argument("--name"); p.set_defaults(func=cmd_skill_propose_from_journal)
+    p = sub.add_parser("skill-proposal-list"); p.set_defaults(func=cmd_skill_proposal_list)
+    p = sub.add_parser("skill-proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_skill_proposal_show)
+    p = sub.add_parser("skill-proposal-activate"); p.add_argument("proposal_id"); p.add_argument("--test-json"); p.set_defaults(func=cmd_skill_proposal_activate)
+    p = sub.add_parser("skill-activation-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_skill_activation_log)
 
-    p = sub.add_parser("llm-config")
-    p.set_defaults(func=cmd_llm_config)
-
-    p = sub.add_parser("llm-analyze")
-    p.add_argument("task")
-    p.add_argument("--provider")
-    p.add_argument("--model")
-    p.add_argument("--timeout", type=float, default=None)
-    p.set_defaults(func=cmd_llm_analyze)
-
-    p = sub.add_parser("llm-complete")
-    p.add_argument("prompt")
-    p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"])
-    p.add_argument("--provider")
-    p.add_argument("--model")
-    p.add_argument("--expect-json", action="store_true")
-    p.add_argument("--timeout", type=float, default=20.0)
-    p.set_defaults(func=cmd_llm_complete)
-
-    p = sub.add_parser("agent-run")
-    p.add_argument("task")
-    p.add_argument("--provider")
-    p.add_argument("--model")
-    p.add_argument("--timeout", type=float, default=None)
-    p.set_defaults(func=cmd_agent_run)
-
-    p = sub.add_parser("agent-journal")
-    p.add_argument("--limit", type=int, default=20)
-    p.set_defaults(func=cmd_agent_journal)
-
-    p = sub.add_parser("agent-last")
-    p.set_defaults(func=cmd_agent_last)
-
-    p = sub.add_parser("capability-evaluate")
-    p.add_argument("task")
-    p.add_argument("--no-auto-propose", dest="auto_propose", action="store_false")
-    p.set_defaults(func=cmd_capability_evaluate, auto_propose=True)
-
-    p = sub.add_parser("capability-events")
-    p.add_argument("--limit", type=int, default=20)
-    p.set_defaults(func=cmd_capability_events)
-
-    p = sub.add_parser("capability-last")
-    p.set_defaults(func=cmd_capability_last)
-
-    p = sub.add_parser("capability-workflow")
-    p.add_argument("task")
-    p.add_argument("--activate", action="store_true")
-    p.add_argument("--retry", action="store_true")
-    p.set_defaults(func=cmd_capability_workflow)
-
-    p = sub.add_parser("capability-workflows")
-    p.add_argument("--limit", type=int, default=20)
-    p.set_defaults(func=cmd_capability_workflows)
-
-    p = sub.add_parser("capability-workflow-last")
-    p.set_defaults(func=cmd_capability_workflow_last)
-
-    p = sub.add_parser("tool-propose-task")
-    p.add_argument("task")
-    p.set_defaults(func=cmd_tool_propose_task)
-
-    p = sub.add_parser("tool-propose-capability")
-    p.add_argument("capability")
-    p.set_defaults(func=cmd_tool_propose_capability)
-
-    p = sub.add_parser("tool-proposal-list")
-    p.set_defaults(func=cmd_tool_proposal_list)
-
-    p = sub.add_parser("tool-proposal-show")
-    p.add_argument("proposal_id")
-    p.set_defaults(func=cmd_tool_proposal_show)
-
-    p = sub.add_parser("tool-proposal-prepare")
-    p.add_argument("proposal_id")
-    p.set_defaults(func=cmd_tool_proposal_prepare)
-
-    p = sub.add_parser("tool-proposal-activate")
-    p.add_argument("proposal_id")
-    p.add_argument("--test-json")
-    p.set_defaults(func=cmd_tool_proposal_activate)
-
-    p = sub.add_parser("tool-activation-log")
-    p.add_argument("--limit", type=int, default=20)
-    p.set_defaults(func=cmd_tool_activation_log)
-
-    p = sub.add_parser("skill-propose-from-journal")
-    p.add_argument("--name")
-    p.set_defaults(func=cmd_skill_propose_from_journal)
-
-    p = sub.add_parser("skill-proposal-list")
-    p.set_defaults(func=cmd_skill_proposal_list)
-
-    p = sub.add_parser("skill-proposal-show")
-    p.add_argument("proposal_id")
-    p.set_defaults(func=cmd_skill_proposal_show)
-
-    p = sub.add_parser("skill-proposal-activate")
-    p.add_argument("proposal_id")
-    p.add_argument("--test-json")
-    p.set_defaults(func=cmd_skill_proposal_activate)
-
-    p = sub.add_parser("skill-activation-log")
-    p.add_argument("--limit", type=int, default=20)
-    p.set_defaults(func=cmd_skill_activation_log)
+    p = sub.add_parser("learn-from-journal"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_learn_from_journal)
+    p = sub.add_parser("rankings"); p.set_defaults(func=cmd_rankings)
+    p = sub.add_parser("failures"); p.set_defaults(func=cmd_failures)
+    p = sub.add_parser("recommendations"); p.set_defaults(func=cmd_recommendations)
+    p = sub.add_parser("strategies"); p.set_defaults(func=cmd_strategies)
+    p = sub.add_parser("learning-events"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_learning_events)
 
     return parser
 

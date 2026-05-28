@@ -30,3 +30,8 @@ CAPABILITY_WORKFLOW_LOG = MEMORY_DIR / "capability_workflow_log.jsonl"
 
 SKILL_PROPOSALS_DIR = ROOT_DIR / "skill_proposals"
 SKILL_ACTIVATION_LOG = MEMORY_DIR / "skill_activation_log.jsonl"
+LEARNING_EVENTS_FILE = MEMORY_DIR / "learning_events.jsonl"
+STRATEGY_MEMORY_FILE = MEMORY_DIR / "strategy_memory.json"
+RANKINGS_FILE = MEMORY_DIR / "tool_skill_rankings.json"
+FAILURE_ANALYSIS_FILE = MEMORY_DIR / "failure_analysis.json"
+RECOMMENDATIONS_FILE = MEMORY_DIR / "recommendations.json"

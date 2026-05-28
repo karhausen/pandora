@@ -194,3 +194,30 @@ python main.py agent-run "workflow --text hallo agent" --provider mock
 ```
 
 MVP 12 aktiviert Skills nur explizit. Der Agent erzeugt und nutzt Routinen erst nach kontrollierter Freigabe.
+
+
+# MVP 13.0 – Learning & Adaptive Strategy
+
+Neu:
+
+- LearningEngine
+- StrategyMemory
+- ToolSkillRanker
+- FailureAnalyzer
+- RecommendationEngine
+- AdaptivePlanner
+- CLI/API für Rankings, Empfehlungen, Fehler und Strategien
+
+## Beispiele
+
+```powershell
+python main.py agent-run "Bitte rechne 2+3*4" --provider mock
+python main.py agent-run "Bitte rechne 2+3*4" --provider mock
+python main.py learn-from-journal
+python main.py rankings
+python main.py recommendations
+python main.py strategies
+python main.py failures
+```
+
+MVP 13 lernt konservativ: Strategien werden gespeichert, aber überschreiben noch keine Sicherheitsregeln.
