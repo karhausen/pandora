@@ -7,21 +7,14 @@ MEMORY_DIR = ROOT_DIR / "memory"
 LOGS_DIR = ROOT_DIR / "logs"
 PROMPTS_DIR = ROOT_DIR / "prompts"
 PROPOSALS_DIR = ROOT_DIR / "proposals"
-CORE_VERSIONS_DIR = ROOT_DIR / "core_versions"
 
 TOOL_REGISTRY_FILE = MEMORY_DIR / "tool_registry.json"
 SKILL_REGISTRY_FILE = MEMORY_DIR / "skill_registry.json"
-SHORT_TERM_MEMORY = MEMORY_DIR / "short_term.json"
 LLM_CONFIG_FILE = MEMORY_DIR / "llm_config.json"
+AGENT_JOURNAL_FILE = MEMORY_DIR / "agent_journal.jsonl"
+IMPROVEMENTS_DIR = PROPOSALS_DIR / "improvements"
 
 PROTECTED_CORE_FILES = {
-    "heartbeat.py",
-    "rollback_manager.py",
-    "recovery.py",
-    "security.py",
-    "activation_manager.py",
-    "version_manager.py",
-    "config.py",
+    "heartbeat.py", "rollback_manager.py", "recovery.py", "security.py",
+    "activation_manager.py", "version_manager.py", "config.py",
 }
-
-IMPROVEMENTS_DIR = PROPOSALS_DIR / "improvements"

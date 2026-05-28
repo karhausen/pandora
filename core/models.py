@@ -85,13 +85,21 @@ class SkillMeta(BaseModel):
     steps: list[SkillStep] = Field(default_factory=list)
 
 
+class SkillResult(BaseModel):
+    success: bool
+    skill: str
+    output: Any = None
+    steps: list[dict[str, Any]] = Field(default_factory=list)
+    error: str | None = None
+    execution_time: float = 0.0
+
+
 class LLMRequest(BaseModel):
     task_type: LLMTaskType = LLMTaskType.CHAT
     prompt: str
     system_prompt: str | None = None
     context: dict[str, Any] = Field(default_factory=dict)
     model: str | None = None
-    provider: LLMProvider | None = None
     provider_name: str | None = None
     expect_json: bool = False
     timeout: float = 20.0
@@ -129,31 +137,29 @@ class LLMTaskAnalysis(BaseModel):
     next_action: str = "answer"
 
 
-class ImprovementStatus(str, Enum):
-    DRAFT = "DRAFT"
-    PROPOSED = "PROPOSED"
-    VALIDATED = "VALIDATED"
-    APPROVED = "APPROVED"
-    REJECTED = "REJECTED"
-    APPLIED_TO_SNAPSHOT = "APPLIED_TO_SNAPSHOT"
-    FAILED = "FAILED"
+class AgentActionType(str, Enum):
+    ANSWER = "answer"
+    TOOL = "tool"
+    SKILL = "skill"
+    REJECT = "reject"
 
 
-class ImprovementRisk(str, Enum):
-    LOW = "LOW"
-    MEDIUM = "MEDIUM"
-    HIGH = "HIGH"
+class AgentAction(BaseModel):
+    type: AgentActionType
+    tool_id: str | None = None
+    skill_id: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    reason: str = ""
 
 
-class ImprovementProposal(BaseModel):
-    id: str
-    title: str
-    description: str
-    status: ImprovementStatus = ImprovementStatus.PROPOSED
-    risk: ImprovementRisk = ImprovementRisk.LOW
-    target_files: list[str] = Field(default_factory=list)
+class AgentRunResult(BaseModel):
+    run_id: str
+    task: str
+    success: bool
+    analysis: dict[str, Any] = Field(default_factory=dict)
+    action: dict[str, Any] = Field(default_factory=dict)
+    result: Any = None
+    evaluation: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
     created_at: str
-    updated_at: str | None = None
-    rationale: str | None = None
-    tests: list[str] = Field(default_factory=list)
-    validation: dict[str, Any] = Field(default_factory=dict)
+    execution_time: float = 0.0

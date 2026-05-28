@@ -1,9 +1,7 @@
 from __future__ import annotations
-
 import json
 from pathlib import Path
 from .config import LLM_CONFIG_FILE
-
 
 class LLMConfig:
     def __init__(self, path: Path = LLM_CONFIG_FILE):
@@ -13,14 +11,11 @@ class LLMConfig:
     def get(self) -> dict:
         return json.loads(self.path.read_text(encoding="utf-8"))
 
-    def update(self, data: dict) -> None:
-        self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-
     def provider_config(self, name: str) -> dict:
         cfg = self.get()
         providers = cfg.get("providers", {})
         if name not in providers:
             raise KeyError(f"Unknown LLM provider: {name}")
-        result = dict(providers[name])
-        result["name"] = name
-        return result
+        data = dict(providers[name])
+        data["name"] = name
+        return data

@@ -16,6 +16,6 @@ class ToolExecutor:
             module = importlib.import_module(meta.module)
             fn = getattr(module, meta.function)
             output = await asyncio.wait_for(asyncio.to_thread(fn, payload), timeout=timeout)
-            return ToolResult(success=True, tool=tool_id, output=output, execution_time=time.perf_counter() - start)
+            return ToolResult(success=True, tool=tool_id, output=output, execution_time=time.perf_counter()-start)
         except Exception as exc:
-            return ToolResult(success=False, tool=tool_id, error=f"{type(exc).__name__}: {exc}", execution_time=time.perf_counter() - start)
+            return ToolResult(success=False, tool=tool_id, error=f"{type(exc).__name__}: {exc}", execution_time=time.perf_counter()-start)

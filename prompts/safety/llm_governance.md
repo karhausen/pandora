@@ -1,1 +1,1 @@
-LLM never executes actions directly. Core validates all outputs.
+LLM never executes directly. Core validates all outputs.
