@@ -94,7 +94,7 @@ class LLMRequest(BaseModel):
     provider: LLMProvider | None = None
     provider_name: str | None = None
     expect_json: bool = False
-    timeout: float = 3.0
+    timeout: float = 20.0
 
 
 class LLMResponse(BaseModel):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import urllib.request
 
 from core.models import LLMProvider, LLMRequest, LLMResponse
@@ -13,14 +14,18 @@ class OpenAICompatibleClient:
     def complete(self, request: LLMRequest, model: str, provider_name: str, provider_config: dict) -> LLMResponse:
         base_url = provider_config.get("base_url", "http://localhost:1234/v1").rstrip("/")
         api_key = provider_config.get("api_key") or os.environ.get(provider_config.get("api_key_env", ""), "lm-studio")
+        timeout = float(request.timeout or provider_config.get("timeout", 20.0))
 
         messages = []
-        if request.system_prompt:
-            messages.append({"role": "system", "content": request.system_prompt})
-        else:
-            messages.append({"role": "system", "content": "You are Pandora's structured LLM runtime. Return valid JSON when requested."})
+        messages.append({
+            "role": "system",
+            "content": request.system_prompt or "You are Pandora's structured LLM runtime. Return valid JSON when requested.",
+        })
         if request.context:
-            messages.append({"role": "system", "content": "Context JSON: " + json.dumps(request.context, ensure_ascii=False)})
+            messages.append({
+                "role": "system",
+                "content": "Context JSON: " + json.dumps(request.context, ensure_ascii=False),
+            })
         messages.append({"role": "user", "content": request.prompt})
 
         payload = {
@@ -39,12 +44,36 @@ class OpenAICompatibleClient:
                 headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
                 method="POST",
             )
-            with urllib.request.urlopen(req, timeout=request.timeout) as resp:
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
                 raw = json.loads(resp.read().decode("utf-8"))
+
             content = raw["choices"][0]["message"]["content"]
-            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, raw=raw)
+            return LLMResponse(
+                success=True,
+                provider=self.provider,
+                provider_name=provider_name,
+                model=model,
+                content=content,
+                raw=raw,
+            )
+        except socket.timeout:
+            return LLMResponse(
+                success=False,
+                provider=self.provider,
+                provider_name=provider_name,
+                model=model,
+                content="",
+                error=f"Timeout after {timeout}s talking to {base_url}",
+            )
         except Exception as exc:
-            return LLMResponse(success=False, provider=self.provider, provider_name=provider_name, model=model, content="", error=f"{type(exc).__name__}: {exc}")
+            return LLMResponse(
+                success=False,
+                provider=self.provider,
+                provider_name=provider_name,
+                model=model,
+                content="",
+                error=f"{type(exc).__name__}: {exc}",
+            )
 
 
 class OpenAIClient(OpenAICompatibleClient):
@@ -56,7 +85,14 @@ class OpenAIClient(OpenAICompatibleClient):
         api_key_env = provider_config.get("api_key_env", "OPENAI_API_KEY")
         provider_config["api_key"] = os.environ.get(api_key_env)
         if not provider_config["api_key"]:
-            return LLMResponse(success=False, provider=self.provider, provider_name=provider_name, model=model, content="", error=f"{api_key_env} not set")
+            return LLMResponse(
+                success=False,
+                provider=self.provider,
+                provider_name=provider_name,
+                model=model,
+                content="",
+                error=f"{api_key_env} not set",
+            )
         response = super().complete(request, model, provider_name, provider_config)
         response.provider = self.provider
         return response

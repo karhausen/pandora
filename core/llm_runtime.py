@@ -30,16 +30,27 @@ class LLMRuntime:
     def complete(self, request: LLMRequest) -> LLMResponse:
         route = self.router.route(request.task_type, request.provider_name, request.model)
         provider_cfg = self.config.provider_config(route.provider_name)
-        client = self._client_for(route.provider)
 
+        if request.timeout == 20.0 and "timeout" in provider_cfg:
+            request.timeout = float(provider_cfg["timeout"])
+
+        client = self._client_for(route.provider)
         response = client.complete(request, route.model, route.provider_name, provider_cfg)
+
         if not response.success:
             fallback_name = self.router.fallback_provider_name(request.task_type)
             if fallback_name and fallback_name != route.provider_name:
                 fallback_route = self.router.route(request.task_type, fallback_name, request.model)
                 fallback_cfg = self.config.provider_config(fallback_route.provider_name)
+                fallback_request = request.model_copy()
+                fallback_request.timeout = float(fallback_cfg.get("timeout", 1.0))
                 fallback_client = self._client_for(fallback_route.provider)
-                fallback_response = fallback_client.complete(request, fallback_route.model, fallback_route.provider_name, fallback_cfg)
+                fallback_response = fallback_client.complete(
+                    fallback_request,
+                    fallback_route.model,
+                    fallback_route.provider_name,
+                    fallback_cfg,
+                )
                 fallback_response.raw = {
                     "fallback_used": True,
                     "primary_provider": route.provider_name,
@@ -57,7 +68,7 @@ class LLMRuntime:
 
         return response
 
-    def analyze_task(self, task: str, provider_name: str | None = None, model: str | None = None) -> LLMTaskAnalysis:
+    def analyze_task(self, task: str, provider_name: str | None = None, model: str | None = None, timeout: float | None = None) -> LLMTaskAnalysis:
         request = LLMRequest(
             task_type=LLMTaskType.PLANNING,
             prompt=task,
@@ -66,6 +77,9 @@ class LLMRuntime:
             model=model,
             expect_json=True,
         )
+        if timeout is not None:
+            request.timeout = timeout
+
         response = self.complete(request)
         if not response.success:
             raise RuntimeError(response.error or "LLM task analysis failed")

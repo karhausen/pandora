@@ -15,6 +15,7 @@ def test_llm_config_has_lmstudio_provider():
     assert cfg["default_provider"] == "local_fast"
     assert cfg["providers"]["local_fast"]["base_url"] == "http://localhost:1234/v1"
     assert cfg["providers"]["local_fast"]["default_model"] == "qwen/qwen3-1.7b"
+    assert cfg["providers"]["local_fast"]["timeout"] == 20.0
 
 
 def test_prompt_manager_lists_prompts():
@@ -23,7 +24,7 @@ def test_prompt_manager_lists_prompts():
 
 
 def test_mock_fallback_analysis_when_lmstudio_unavailable():
-    analysis = LLMRuntime().analyze_task("Bitte rechne 2+3*4")
+    analysis = LLMRuntime().analyze_task("Bitte rechne 2+3*4", timeout=0.2)
     assert "calculator" in analysis.suggested_tools
 
 

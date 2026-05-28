@@ -1,6 +1,6 @@
-# Pandora Agent MVP 9A.1
+# Pandora Agent MVP 9A.2
 
-MVP 9A.1 ergänzt einen generischen OpenAI-kompatiblen Provider.
+MVP 9A.2 ergänzt einen generischen OpenAI-kompatiblen Provider.
 
 Damit kann Pandora lokal mit LM Studio, vLLM, LocalAI, OpenRouter, LiteLLM oder anderen OpenAI-kompatiblen Servern sprechen.
 
@@ -117,3 +117,28 @@ Core:
 ## Fallback-Verhalten
 
 Wenn `local_fast` / LM Studio nicht erreichbar ist, fällt Pandora automatisch auf `mock` zurück. Der lokale Provider hat einen kurzen Timeout, damit die CLI nicht lange blockiert.
+
+
+## Timeout-Konfiguration
+
+LM Studio braucht beim ersten Request oft länger als 2 Sekunden. Deshalb ist `local_fast` jetzt auf 20 Sekunden gesetzt:
+
+```json
+"local_fast": {
+  "timeout": 20.0,
+  "connect_timeout": 3.0,
+  "read_timeout": 20.0
+}
+```
+
+CLI-Override:
+
+```powershell
+python main.py llm-analyze "Bitte rechne 2+3*4" --provider local_fast --timeout 30
+```
+
+Für schnelle Offline-Tests:
+
+```powershell
+python main.py llm-analyze "Bitte rechne 2+3*4" --provider mock
+```

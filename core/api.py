@@ -11,13 +11,14 @@ from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
 
 
-app = FastAPI(title="Pandora Agent MVP 9A.1", version="9A.1")
+app = FastAPI(title="Pandora Agent MVP 9A.2", version="9A.1")
 
 
 class LLMAnalyzeRequest(BaseModel):
     task: str
     provider_name: str | None = None
     model: str | None = None
+    timeout: float | None = None
 
 
 class LLMCompleteRequest(BaseModel):
@@ -26,6 +27,7 @@ class LLMCompleteRequest(BaseModel):
     provider_name: str | None = None
     model: str | None = None
     expect_json: bool = False
+    timeout: float = 20.0
 
 
 class RunToolRequest(BaseModel):
@@ -35,7 +37,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-9a.1"}
+    return {"status": "ok", "version": "mvp-9a.2"}
 
 
 @app.get("/heartbeat")
@@ -71,7 +73,7 @@ def llm_config():
 
 @app.post("/llm/analyze")
 def llm_analyze(req: LLMAnalyzeRequest):
-    return LLMRuntime().analyze_task(req.task, provider_name=req.provider_name, model=req.model).model_dump(mode="json")
+    return LLMRuntime().analyze_task(req.task, provider_name=req.provider_name, model=req.model, timeout=req.timeout).model_dump(mode="json")
 
 
 @app.post("/llm/complete")
@@ -82,5 +84,6 @@ def llm_complete(req: LLMCompleteRequest):
         provider_name=req.provider_name,
         model=req.model,
         expect_json=req.expect_json,
+        timeout=req.timeout,
     )
     return LLMRuntime().complete(request).model_dump(mode="json")
