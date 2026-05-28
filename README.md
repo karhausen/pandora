@@ -1,6 +1,6 @@
-# Pandora Agent MVP 9A.2
+# Pandora Agent MVP 9B.0
 
-MVP 9A.2 ergänzt einen generischen OpenAI-kompatiblen Provider.
+MVP 9B.0 ergänzt einen generischen OpenAI-kompatiblen Provider.
 
 Damit kann Pandora lokal mit LM Studio, vLLM, LocalAI, OpenRouter, LiteLLM oder anderen OpenAI-kompatiblen Servern sprechen.
 
@@ -141,4 +141,30 @@ Für schnelle Offline-Tests:
 
 ```powershell
 python main.py llm-analyze "Bitte rechne 2+3*4" --provider mock
+```
+
+
+# MVP 9B.0 – Controlled Self-Improvement
+
+Neu:
+- Patch Proposal Store
+- Diff Manager
+- Code Review
+- Regression Runner
+- Approval Manager
+- Improvement Manager
+- Sandbox-Validation
+- Approved Snapshot Preparation
+
+Wichtig: Auch MVP 9B überschreibt den aktiven Core nicht direkt.
+
+## Beispiel
+
+```powershell
+python main.py propose-readme-improvement --title "Demo" --note "Kontrollierte Verbesserung."
+python main.py improvement-list
+python main.py improvement-show <ID>
+python main.py improvement-validate <ID>
+python main.py improvement-approve <ID>
+python main.py improvement-prepare-snapshot <ID>
 ```

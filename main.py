@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 from core.heartbeat import Heartbeat
+from core.improvement_manager import ImprovementManager
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
@@ -33,7 +34,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-9a.2"})
+    _json({"status": "ok", "version": "mvp-9b.0"})
 
 
 def cmd_api(args) -> None:
@@ -74,19 +75,40 @@ def cmd_llm_analyze(args) -> None:
 
 
 def cmd_llm_complete(args) -> None:
-    request = LLMRequest(
-        task_type=LLMTaskType(args.task_type),
-        prompt=args.prompt,
-        provider_name=args.provider,
-        model=args.model,
-        expect_json=args.expect_json,
-        timeout=args.timeout,
-    )
+    request = LLMRequest(task_type=LLMTaskType(args.task_type), prompt=args.prompt, provider_name=args.provider, model=args.model, expect_json=args.expect_json, timeout=args.timeout)
     _json(LLMRuntime().complete(request).model_dump(mode="json"))
 
 
+def cmd_propose_readme(args) -> None:
+    _json(ImprovementManager().propose_readme_note(args.title, args.note))
+
+
+def cmd_improvement_list(args) -> None:
+    _json({"improvements": ImprovementManager().list()})
+
+
+def cmd_improvement_show(args) -> None:
+    _json(ImprovementManager().show(args.proposal_id))
+
+
+def cmd_improvement_validate(args) -> None:
+    _json(ImprovementManager().validate(args.proposal_id))
+
+
+def cmd_improvement_approve(args) -> None:
+    _json(ImprovementManager().approve(args.proposal_id, reviewer=args.reviewer))
+
+
+def cmd_improvement_reject(args) -> None:
+    _json(ImprovementManager().reject(args.proposal_id, args.reason, reviewer=args.reviewer))
+
+
+def cmd_improvement_prepare_snapshot(args) -> None:
+    _json(ImprovementManager().prepare_snapshot(args.proposal_id))
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 9A.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 9B")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -120,7 +142,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("llm-analyze")
     p.add_argument("task")
-    p.add_argument("--provider", help="Provider name from memory/llm_config.json, e.g. local_fast, mock, openai, ollama")
+    p.add_argument("--provider")
     p.add_argument("--model")
     p.add_argument("--timeout", type=float, default=None)
     p.set_defaults(func=cmd_llm_analyze)
@@ -128,11 +150,42 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-complete")
     p.add_argument("prompt")
     p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"])
-    p.add_argument("--provider", help="Provider name from memory/llm_config.json")
+    p.add_argument("--provider")
     p.add_argument("--model")
     p.add_argument("--expect-json", action="store_true")
     p.add_argument("--timeout", type=float, default=20.0)
     p.set_defaults(func=cmd_llm_complete)
+
+    p = sub.add_parser("propose-readme-improvement")
+    p.add_argument("--title", required=True)
+    p.add_argument("--note", required=True)
+    p.set_defaults(func=cmd_propose_readme)
+
+    p = sub.add_parser("improvement-list")
+    p.set_defaults(func=cmd_improvement_list)
+
+    p = sub.add_parser("improvement-show")
+    p.add_argument("proposal_id")
+    p.set_defaults(func=cmd_improvement_show)
+
+    p = sub.add_parser("improvement-validate")
+    p.add_argument("proposal_id")
+    p.set_defaults(func=cmd_improvement_validate)
+
+    p = sub.add_parser("improvement-approve")
+    p.add_argument("proposal_id")
+    p.add_argument("--reviewer", default="user")
+    p.set_defaults(func=cmd_improvement_approve)
+
+    p = sub.add_parser("improvement-reject")
+    p.add_argument("proposal_id")
+    p.add_argument("--reason", required=True)
+    p.add_argument("--reviewer", default="user")
+    p.set_defaults(func=cmd_improvement_reject)
+
+    p = sub.add_parser("improvement-prepare-snapshot")
+    p.add_argument("proposal_id")
+    p.set_defaults(func=cmd_improvement_prepare_snapshot)
 
     return parser
 

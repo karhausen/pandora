@@ -23,3 +23,5 @@ PROTECTED_CORE_FILES = {
     "version_manager.py",
     "config.py",
 }
+
+IMPROVEMENTS_DIR = PROPOSALS_DIR / "improvements"

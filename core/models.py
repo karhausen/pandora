@@ -127,3 +127,33 @@ class LLMTaskAnalysis(BaseModel):
     missing_capabilities: list[str] = Field(default_factory=list)
     risk_level: str = "LOW"
     next_action: str = "answer"
+
+
+class ImprovementStatus(str, Enum):
+    DRAFT = "DRAFT"
+    PROPOSED = "PROPOSED"
+    VALIDATED = "VALIDATED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    APPLIED_TO_SNAPSHOT = "APPLIED_TO_SNAPSHOT"
+    FAILED = "FAILED"
+
+
+class ImprovementRisk(str, Enum):
+    LOW = "LOW"
+    MEDIUM = "MEDIUM"
+    HIGH = "HIGH"
+
+
+class ImprovementProposal(BaseModel):
+    id: str
+    title: str
+    description: str
+    status: ImprovementStatus = ImprovementStatus.PROPOSED
+    risk: ImprovementRisk = ImprovementRisk.LOW
+    target_files: list[str] = Field(default_factory=list)
+    created_at: str
+    updated_at: str | None = None
+    rationale: str | None = None
+    tests: list[str] = Field(default_factory=list)
+    validation: dict[str, Any] = Field(default_factory=dict)

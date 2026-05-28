@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .heartbeat import Heartbeat
+from .improvement_manager import ImprovementManager
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType
@@ -30,6 +31,25 @@ class LLMCompleteRequest(BaseModel):
     timeout: float = 20.0
 
 
+
+class ImprovementReadmeRequest(BaseModel):
+    title: str
+    note: str
+
+
+class ImprovementFileRequest(BaseModel):
+    title: str
+    description: str
+    file_path: str
+    new_content: str
+    rationale: str | None = None
+
+
+class ImprovementRejectRequest(BaseModel):
+    reason: str
+    reviewer: str = "user"
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
@@ -37,7 +57,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-9a.2"}
+    return {"status": "ok", "version": "mvp-9b.0"}
 
 
 @app.get("/heartbeat")
@@ -87,3 +107,43 @@ def llm_complete(req: LLMCompleteRequest):
         timeout=req.timeout,
     )
     return LLMRuntime().complete(request).model_dump(mode="json")
+
+
+@app.post("/improvements/propose-readme")
+def improvement_propose_readme(req: ImprovementReadmeRequest):
+    return ImprovementManager().propose_readme_note(req.title, req.note)
+
+
+@app.post("/improvements/propose-file")
+def improvement_propose_file(req: ImprovementFileRequest):
+    return ImprovementManager().propose_text_file_change(req.title, req.description, req.file_path, req.new_content, rationale=req.rationale)
+
+
+@app.get("/improvements")
+def improvement_list():
+    return {"improvements": ImprovementManager().list()}
+
+
+@app.get("/improvements/{proposal_id}")
+def improvement_show(proposal_id: str):
+    return ImprovementManager().show(proposal_id)
+
+
+@app.post("/improvements/{proposal_id}/validate")
+def improvement_validate(proposal_id: str):
+    return ImprovementManager().validate(proposal_id)
+
+
+@app.post("/improvements/{proposal_id}/approve")
+def improvement_approve(proposal_id: str, reviewer: str = "user"):
+    return ImprovementManager().approve(proposal_id, reviewer=reviewer)
+
+
+@app.post("/improvements/{proposal_id}/reject")
+def improvement_reject(proposal_id: str, req: ImprovementRejectRequest):
+    return ImprovementManager().reject(proposal_id, req.reason, reviewer=req.reviewer)
+
+
+@app.post("/improvements/{proposal_id}/prepare-snapshot")
+def improvement_prepare_snapshot(proposal_id: str):
+    return ImprovementManager().prepare_snapshot(proposal_id)
