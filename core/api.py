@@ -2,6 +2,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
+from .tool_proposal_manager import ToolProposalManager
 from .heartbeat import Heartbeat
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
@@ -12,6 +13,16 @@ from .tool_registry import ToolRegistry
 from .skill_registry import SkillRegistry
 
 app = FastAPI(title="Pandora Agent MVP 10", version="10.0")
+
+
+class ToolProposalTaskRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+
+
+class ToolProposalCapabilityRequest(BaseModel):
+    capability: str
+
 
 class AgentRunRequest(BaseModel):
     task: str
@@ -39,7 +50,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-10.0"}
+    return {"status": "ok", "version": "mvp-11.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -84,3 +95,28 @@ def agent_journal(limit: int = 20):
 @app.get("/agent/last")
 def agent_last():
     return TaskJournal().last()
+
+
+@app.post("/tool-proposals/from-task")
+def tool_proposal_from_task(req: ToolProposalTaskRequest):
+    return ToolProposalManager().propose_from_task(req.task, analysis=req.analysis)
+
+
+@app.post("/tool-proposals/for-capability")
+def tool_proposal_for_capability(req: ToolProposalCapabilityRequest):
+    return ToolProposalManager().propose_for_capability(req.capability)
+
+
+@app.get("/tool-proposals")
+def tool_proposal_list():
+    return {"tool_proposals": ToolProposalManager().list()}
+
+
+@app.get("/tool-proposals/{proposal_id}")
+def tool_proposal_show(proposal_id: str):
+    return ToolProposalManager().show(proposal_id)
+
+
+@app.post("/tool-proposals/{proposal_id}/prepare-activation")
+def tool_proposal_prepare_activation(proposal_id: str):
+    return ToolProposalManager().prepare_activation_copy(proposal_id)

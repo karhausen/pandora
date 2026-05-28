@@ -163,3 +163,34 @@ class AgentRunResult(BaseModel):
     error: str | None = None
     created_at: str
     execution_time: float = 0.0
+
+
+class ToolProposalStatus(str, Enum):
+    PROPOSED = "PROPOSED"
+    VALIDATED = "VALIDATED"
+    FAILED = "FAILED"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class ToolSpec(BaseModel):
+    id: str
+    name: str
+    description: str
+    capability: str
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
+    security_level: SecurityLevel = SecurityLevel.SAFE
+
+
+class ToolProposal(BaseModel):
+    id: str
+    status: ToolProposalStatus = ToolProposalStatus.PROPOSED
+    capability: str
+    spec: ToolSpec
+    created_at: str
+    proposal_dir: str
+    code_file: str
+    test_file: str
+    validation: dict[str, Any] = Field(default_factory=dict)
+    risk: str = "LOW"

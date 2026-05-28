@@ -18,3 +18,7 @@ PROTECTED_CORE_FILES = {
     "heartbeat.py", "rollback_manager.py", "recovery.py", "security.py",
     "activation_manager.py", "version_manager.py", "config.py",
 }
+
+GENERATED_TOOLS_DIR = ROOT_DIR / "generated_tools"
+TOOL_PROPOSALS_DIR = ROOT_DIR / "tool_proposals"
+TOOL_SANDBOX_DIR = ROOT_DIR / "sandbox" / "tool_generation"
