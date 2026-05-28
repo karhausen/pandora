@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
 from .capability_expansion_manager import CapabilityExpansionManager
+from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
@@ -30,6 +31,13 @@ class ToolActivationRequest(BaseModel):
 class ToolProposalCapabilityRequest(BaseModel):
     capability: str
 
+
+
+
+class CapabilityWorkflowRequest(BaseModel):
+    task: str
+    activate: bool = False
+    retry: bool = False
 
 
 class CapabilityEvaluateRequest(BaseModel):
@@ -64,7 +72,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-11.3"}
+    return {"status": "ok", "version": "mvp-11.4"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -160,3 +168,18 @@ def capability_events(limit: int = 20):
 @app.get("/capabilities/last")
 def capability_last():
     return CapabilityExpansionManager().last_event()
+
+
+@app.post("/capabilities/workflow")
+async def capability_workflow(req: CapabilityWorkflowRequest):
+    return (await CapabilityWorkflow().run(req.task, activate=req.activate, retry=req.retry, mode="api")).model_dump(mode="json")
+
+
+@app.get("/capabilities/workflows")
+def capability_workflows(limit: int = 20):
+    return {"workflows": CapabilityWorkflow().list(limit)}
+
+
+@app.get("/capabilities/workflows/last")
+def capability_workflow_last():
+    return CapabilityWorkflow().last()

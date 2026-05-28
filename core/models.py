@@ -215,3 +215,17 @@ class CapabilityEvent(BaseModel):
     proposal_id: str | None = None
     created_at: str
     details: dict[str, Any] = Field(default_factory=dict)
+
+
+class CapabilityWorkflowResult(BaseModel):
+    workflow_id: str
+    task: str
+    success: bool
+    mode: str
+    proposal_created: bool = False
+    proposal_id: str | None = None
+    activated: bool = False
+    activation: dict[str, Any] | None = None
+    retry_result: dict[str, Any] | None = None
+    error: str | None = None
+    created_at: str

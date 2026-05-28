@@ -1,4 +1,4 @@
-# Pandora Agent MVP 11.3
+# Pandora Agent MVP 11.4
 
 MVP 10 ist der erste echte Agent-Loop.
 
@@ -44,7 +44,7 @@ python main.py agent-run "Bitte rechne 2+3*4" --provider mock
 ```
 
 
-# MVP 11.3 – Controlled Tool Proposal System
+# MVP 11.4 – Controlled Tool Proposal System
 
 Neu:
 
@@ -84,7 +84,7 @@ POST /tool-proposals/{proposal_id}/prepare-activation
 Neue Tools entstehen zuerst nur als Proposal mit Code, Test und Validierung. Keine automatische Übernahme in die aktive Tool Registry.
 
 
-# MVP 11.3 – Controlled Tool Activation
+# MVP 11.4 – Controlled Tool Activation
 
 Neu:
 
@@ -108,7 +108,7 @@ python main.py tool-activation-log
 Wichtig: Aktivierung ist jetzt kontrolliert möglich, aber nur nach erfolgreicher Proposal-Validierung und Testausführung.
 
 
-# MVP 11.3 – Agent Capability Expansion
+# MVP 11.4 – Agent Capability Expansion
 
 Neu:
 
@@ -134,3 +134,38 @@ Erwartung:
 1. erster Lauf erzeugt ein Tool-Proposal
 2. User aktiviert kontrolliert
 3. zweiter Lauf nutzt das neue Generated-Tool
+
+
+# MVP 11.4 – Capability Workflow
+
+Neu:
+
+- CapabilityWorkflow
+- CapabilityWorkflowLog
+- Workflow: Propose only
+- Workflow: Propose → Activate
+- Workflow: Propose → Activate → Retry
+- CLI/API für Capability Workflows
+
+## Beispiele
+
+Nur Proposal:
+
+```powershell
+python main.py capability-workflow "reverse text --text abc"
+```
+
+Proposal + Aktivierung + erneuter Agent-Lauf:
+
+```powershell
+python main.py capability-workflow "word count --text eins zwei drei" --activate --retry
+```
+
+Logs:
+
+```powershell
+python main.py capability-workflows
+python main.py capability-workflow-last
+```
+
+Wichtig: Auch hier bleibt Aktivierung explizit. Der Agent aktiviert nicht still im normalen `agent-run`.

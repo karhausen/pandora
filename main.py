@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT))
 
 from core.agent_loop import AgentLoop
 from core.capability_expansion_manager import CapabilityExpansionManager
+from core.capability_workflow import CapabilityWorkflow
 from core.heartbeat import Heartbeat
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
@@ -38,7 +39,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-11.3"})
+    _json({"status": "ok", "version": "mvp-11.4"})
 
 
 def cmd_api(args) -> None:
@@ -115,6 +116,19 @@ def cmd_capability_last(args) -> None:
     _json(CapabilityExpansionManager().last_event())
 
 
+def cmd_capability_workflow(args) -> None:
+    result = asyncio.run(CapabilityWorkflow().run(args.task, activate=args.activate, retry=args.retry, mode="cli"))
+    _json(result.model_dump(mode="json"))
+
+
+def cmd_capability_workflows(args) -> None:
+    _json({"workflows": CapabilityWorkflow().list(args.limit)})
+
+
+def cmd_capability_workflow_last(args) -> None:
+    _json(CapabilityWorkflow().last())
+
+
 def cmd_tool_propose_task(args) -> None:
     _json(ToolProposalManager().propose_from_task(args.task))
 
@@ -146,7 +160,7 @@ def cmd_tool_activation_log(args) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.3")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.4")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -219,6 +233,19 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("capability-last")
     p.set_defaults(func=cmd_capability_last)
+
+    p = sub.add_parser("capability-workflow")
+    p.add_argument("task")
+    p.add_argument("--activate", action="store_true")
+    p.add_argument("--retry", action="store_true")
+    p.set_defaults(func=cmd_capability_workflow)
+
+    p = sub.add_parser("capability-workflows")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_capability_workflows)
+
+    p = sub.add_parser("capability-workflow-last")
+    p.set_defaults(func=cmd_capability_workflow_last)
 
     p = sub.add_parser("tool-propose-task")
     p.add_argument("task")

@@ -25,3 +25,5 @@ TOOL_SANDBOX_DIR = ROOT_DIR / "sandbox" / "tool_generation"
 TOOL_ACTIVATION_LOG = MEMORY_DIR / "tool_activation_log.jsonl"
 
 CAPABILITY_EVENT_LOG = MEMORY_DIR / "capability_events.jsonl"
+
+CAPABILITY_WORKFLOW_LOG = MEMORY_DIR / "capability_workflow_log.jsonl"
