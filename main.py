@@ -16,6 +16,7 @@ from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
 from core.skill_registry import SkillRegistry
 from core.task_journal import TaskJournal
+from core.tool_activation_manager import ToolActivationManager
 from core.tool_executor import ToolExecutor
 from core.tool_proposal_manager import ToolProposalManager
 from core.tool_registry import ToolRegistry
@@ -36,7 +37,7 @@ def _payload(args) -> dict:
 
 
 def cmd_status(args) -> None:
-    _json({"status": "ok", "version": "mvp-11.1"})
+    _json({"status": "ok", "version": "mvp-11.2"})
 
 
 def cmd_api(args) -> None:
@@ -121,8 +122,18 @@ def cmd_tool_proposal_prepare(args) -> None:
     _json(ToolProposalManager().prepare_activation_copy(args.proposal_id))
 
 
+def cmd_tool_proposal_activate(args) -> None:
+    payload = json.loads(args.test_json) if args.test_json else None
+    result = asyncio.run(ToolActivationManager().activate(args.proposal_id, test_payload=payload))
+    _json(result.model_dump(mode="json"))
+
+
+def cmd_tool_activation_log(args) -> None:
+    _json({"activations": ToolActivationManager().list_log(args.limit)})
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.1")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 11.2")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status")
@@ -202,6 +213,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("tool-proposal-prepare")
     p.add_argument("proposal_id")
     p.set_defaults(func=cmd_tool_proposal_prepare)
+
+    p = sub.add_parser("tool-proposal-activate")
+    p.add_argument("proposal_id")
+    p.add_argument("--test-json")
+    p.set_defaults(func=cmd_tool_proposal_activate)
+
+    p = sub.add_parser("tool-activation-log")
+    p.add_argument("--limit", type=int, default=20)
+    p.set_defaults(func=cmd_tool_activation_log)
 
     return parser
 

@@ -194,3 +194,13 @@ class ToolProposal(BaseModel):
     test_file: str
     validation: dict[str, Any] = Field(default_factory=dict)
     risk: str = "LOW"
+
+
+class ToolActivationResult(BaseModel):
+    activated: bool
+    proposal_id: str
+    tool_id: str | None = None
+    copied_to: str | None = None
+    registered: bool = False
+    tested: bool = False
+    error: str | None = None

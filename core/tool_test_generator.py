@@ -6,13 +6,13 @@ from .models import ToolSpec
 class ToolTestGenerator:
     def generate_test(self, spec: ToolSpec) -> str:
         if spec.id == "json_pretty":
-            return '''from generated_tools.json_pretty import run
+            return """from generated_tools.json_pretty import run
 
 def test_json_pretty():
-    result = run({"text": "{\"b\":2,\"a\":1}"})
-    assert result["text"].startswith("{")
-    assert "\n" in result["text"]
-'''
+    result = run({\"text\": '{\"b\":2,\"a\":1}'})
+    assert result[\"text\"].startswith(\"{\")
+    assert "\\n" in result[\"text\"]
+"""
         if spec.id == "text_reverse":
             return '''from generated_tools.text_reverse import run
 

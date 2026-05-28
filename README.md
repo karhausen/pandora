@@ -1,4 +1,4 @@
-# Pandora Agent MVP 11.1
+# Pandora Agent MVP 11.2
 
 MVP 10 ist der erste echte Agent-Loop.
 
@@ -44,7 +44,7 @@ python main.py agent-run "Bitte rechne 2+3*4" --provider mock
 ```
 
 
-# MVP 11.1 – Controlled Tool Proposal System
+# MVP 11.2 – Controlled Tool Proposal System
 
 Neu:
 
@@ -82,3 +82,27 @@ POST /tool-proposals/{proposal_id}/prepare-activation
 ## Sicherheitsregel
 
 Neue Tools entstehen zuerst nur als Proposal mit Code, Test und Validierung. Keine automatische Übernahme in die aktive Tool Registry.
+
+
+# MVP 11.2 – Controlled Tool Activation
+
+Neu:
+
+- ToolActivationManager
+- Aktivierung nur für VALIDATED Tool-Proposals
+- Kopieren nach `generated_tools/`
+- Registrierung in Tool Registry
+- Aktivierungs-Testlauf
+- Aktivierungs-Log
+
+## Beispiel
+
+```powershell
+python main.py tool-propose-capability word_count
+python main.py tool-proposal-list
+python main.py tool-proposal-activate <ID>
+python main.py agent-run "word count --text eins zwei drei" --provider mock
+python main.py tool-activation-log
+```
+
+Wichtig: Aktivierung ist jetzt kontrolliert möglich, aber nur nach erfolgreicher Proposal-Validierung und Testausführung.

@@ -2,7 +2,7 @@ from __future__ import annotations
 import importlib, json
 from pathlib import Path
 from .models import ToolMeta
-from .config import TOOL_REGISTRY_FILE, TOOLS_DIR
+from .config import TOOL_REGISTRY_FILE, TOOLS_DIR, GENERATED_TOOLS_DIR
 
 class ToolRegistry:
     def __init__(self, registry_file: Path = TOOL_REGISTRY_FILE):
@@ -32,15 +32,22 @@ class ToolRegistry:
 
     def discover(self):
         count = 0
-        for path in TOOLS_DIR.glob("*.py"):
-            if path.name.startswith("__"):
+        locations = [
+            (TOOLS_DIR, "tools"),
+            (GENERATED_TOOLS_DIR, "generated_tools"),
+        ]
+        for folder, package in locations:
+            if not folder.exists():
                 continue
-            try:
-                module = importlib.import_module(f"tools.{path.stem}")
-                meta = getattr(module, "TOOL_META", None)
-                if meta:
-                    self.register(ToolMeta.model_validate(meta))
-                    count += 1
-            except Exception:
-                continue
+            for path in folder.glob("*.py"):
+                if path.name.startswith("__"):
+                    continue
+                try:
+                    module = importlib.import_module(f"{package}.{path.stem}")
+                    meta = getattr(module, "TOOL_META", None)
+                    if meta:
+                        self.register(ToolMeta.model_validate(meta))
+                        count += 1
+                except Exception:
+                    continue
         return count

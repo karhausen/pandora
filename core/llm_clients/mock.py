@@ -14,6 +14,18 @@ class MockLLMClient:
             required.append("calculation"); tools.append("calculator")
         if "uppercase" in prompt_l or "groß" in prompt_l:
             required.append("text_transform"); tools.append("uppercase")
+        if "json format" in prompt_l or "pretty json" in prompt_l or "json formatieren" in prompt_l:
+            required.append("json_pretty")
+            tools.append("json_pretty")
+        if "word count" in prompt_l or "wörter zählen" in prompt_l or "wortanzahl" in prompt_l:
+            required.append("word_count")
+            tools.append("word_count")
+        if "reverse text" in prompt_l or "text umdrehen" in prompt_l or "rückwärts" in prompt_l:
+            required.append("text_reverse")
+            tools.append("text_reverse")
+        if "timestamp" in prompt_l or "zeitstempel" in prompt_l:
+            required.append("timestamp")
+            tools.append("timestamp")
         if "workflow" in prompt_l or "skill" in prompt_l:
             skills.append("echo_then_upper")
         complexity = "high" if any(w in prompt_l for w in ["core", "patch", "architecture", "self-improvement"]) else "low"
