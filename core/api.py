@@ -1,5 +1,9 @@
 from __future__ import annotations
+
+from pathlib import Path
+WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
 from .capability_expansion_manager import CapabilityExpansionManager
@@ -83,7 +87,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-12.0"}
+    return {"status": "ok", "version": "mvp-12.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -220,3 +224,16 @@ async def skill_proposal_activate(proposal_id: str, req: SkillActivationRequest 
 @app.get("/skill-activations")
 def skill_activation_log(limit: int = 20):
     return {"activations": SkillActivationManager().list_log(limit)}
+
+
+@app.get("/")
+def web_index():
+    return FileResponse(WEB_DIR / "index.html")
+
+@app.get("/web/app.js")
+def web_js():
+    return FileResponse(WEB_DIR / "app.js")
+
+@app.get("/web/style.css")
+def web_css():
+    return FileResponse(WEB_DIR / "style.css")
