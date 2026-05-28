@@ -89,3 +89,27 @@ python main.py sandbox-logs
 ```
 
 Hinweis: MVP 15 bietet Prozess-Isolation und Timeouts. Harte OS-Level CPU/RAM-Limits sind für eine spätere Stufe vorgesehen.
+
+
+## MVP 16.0 – Real Autonomous Tool Generation
+
+Neu:
+
+- LLMToolGenerator
+- ToolCodePrompt
+- ToolGenerationRunner
+- ToolRepairManager
+- ToolGenerationLog
+- ToolProposalManager.generate_with_llm()
+- CLI/API für LLM-gestützte Tool-Erzeugung
+
+Beispiele:
+
+```powershell
+python main.py tool-generate word_count --provider mock
+python main.py tool-generation-logs
+python main.py tool-proposal-list
+python main.py tool-proposal-activate <ID>
+```
+
+Sicherheitsregel: Auch MVP 16 aktiviert generierte Tools nicht automatisch. Es erzeugt validierte Proposals.

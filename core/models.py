@@ -295,3 +295,20 @@ class SandboxResult(BaseModel):
     policy: str = "restricted"
     isolated: bool = True
     returncode: int | None = None
+
+
+class ToolGenerationAttempt(BaseModel):
+    attempt: int
+    success: bool
+    code_review: dict[str, Any] = Field(default_factory=dict)
+    test_result: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
+
+
+class ToolGenerationResult(BaseModel):
+    success: bool
+    capability: str
+    proposal_created: bool = False
+    proposal_id: str | None = None
+    attempts: list[ToolGenerationAttempt] = Field(default_factory=list)
+    error: str | None = None

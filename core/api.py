@@ -39,6 +39,14 @@ class ToolActivationRequest(BaseModel):
     test_payload: dict | None = None
 
 
+
+class ToolGenerateRequest(BaseModel):
+    capability: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    max_attempts: int = 2
+
+
 class ToolProposalCapabilityRequest(BaseModel):
     capability: str
 
@@ -97,7 +105,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-15.0"}
+    return {"status": "ok", "version": "mvp-16.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -312,3 +320,19 @@ def sandbox_policies():
 @app.get("/sandbox/logs")
 def sandbox_logs(limit: int = 20):
     return {"logs": Sandbox().logs(limit)}
+
+
+@app.post("/tool-generation/generate")
+def tool_generation_generate(req: ToolGenerateRequest):
+    return ToolProposalManager().generate_with_llm(
+        req.capability,
+        provider_name=req.provider_name,
+        model=req.model,
+        max_attempts=req.max_attempts,
+    )
+
+
+@app.get("/tool-generation/logs")
+def tool_generation_logs(limit: int = 20):
+    from .tool_generation_log import ToolGenerationLog
+    return {"logs": ToolGenerationLog().list(limit)}
