@@ -321,3 +321,13 @@ Bitte rechne 2+3*4
 ```
 
 läuft über Planner/Worker/Tool.
+
+
+## MVP 18.3.3 – Stale Chat Session Fix
+
+Fix:
+
+- Alte `session_id` im Browser-`localStorage` führt nicht mehr zu `500 Internal Server Error`.
+- Wenn eine Session serverseitig fehlt, erzeugt `ChatService` automatisch eine neue Session.
+- `GET /chat/sessions/{session_id}` liefert jetzt sauber `404`.
+- User-GUI entfernt ungültige Session-IDs automatisch aus `localStorage`.

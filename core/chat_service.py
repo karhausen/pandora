@@ -25,7 +25,10 @@ class ChatService:
         save: bool = True,
     ) -> ChatRunResult:
         if session_id:
-            session = self.store.get(session_id)
+            try:
+                session = self.store.get(session_id)
+            except FileNotFoundError:
+                session = self.store.create(title=task[:60])
         else:
             session = self.store.create(title=task[:60])
 

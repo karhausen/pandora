@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
@@ -165,7 +165,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.3.2"}
+    return {"status": "ok", "version": "mvp-18.3.3"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -551,7 +551,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.3.2.1"}
+    return {"ready": True, "version": "mvp-18.3.3.1"}
 
 
 @app.post("/chat/run")
@@ -577,7 +577,10 @@ def chat_sessions():
 
 @app.get("/chat/sessions/{session_id}")
 def chat_get_session(session_id: str):
-    return ChatService().get_session(session_id)
+    try:
+        return ChatService().get_session(session_id)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Chat session not found")
 
 
 @app.delete("/chat/sessions/{session_id}")

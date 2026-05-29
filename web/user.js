@@ -90,6 +90,15 @@ async function switchSession() {
 async function loadCurrentSession() {
   if (!currentSessionId) return;
   const session = await api(`/chat/sessions/${currentSessionId}`);
+
+  if (session.error || session.success === false || !session.session_id) {
+    localStorage.removeItem("pandora_session_id");
+    currentSessionId = null;
+    clearChat();
+    await loadSessions();
+    return;
+  }
+
   clearChat();
   const messages = [...(session.messages || [])].reverse();
   for (const message of messages) {
