@@ -11,6 +11,8 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .worker_agent import WorkerAgent
+from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
 from .reality_check import RealityCheck
 from .core_version_manager import CoreVersionManager
@@ -114,6 +116,19 @@ class RealityCheckRequest(BaseModel):
 
 
 
+
+class WorkerExecutePlanRequest(BaseModel):
+    plan_id: str
+    save: bool = True
+
+
+class PlannerWorkerRunRequest(BaseModel):
+    task: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
 class PlannerAgentRequest(BaseModel):
     task: str
     provider_name: str | None = "mock"
@@ -127,7 +142,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.0"}
+    return {"status": "ok", "version": "mvp-18.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -434,3 +449,28 @@ def planner_get_plan(plan_id: str):
 @app.get("/planner/logs")
 def planner_logs(limit: int = 20):
     return {"logs": PlannerAgent().logs(limit)}
+
+
+@app.post("/worker/execute-plan")
+async def worker_execute_plan(req: WorkerExecutePlanRequest):
+    return (await WorkerAgent().execute_plan_id(req.plan_id, save=req.save)).model_dump(mode="json")
+
+
+@app.get("/worker/executions")
+def worker_executions():
+    return {"executions": WorkerAgent().list_executions()}
+
+
+@app.get("/worker/executions/{execution_id}")
+def worker_get_execution(execution_id: str):
+    return WorkerAgent().get_execution(execution_id)
+
+
+@app.get("/worker/logs")
+def worker_logs(limit: int = 20):
+    return {"logs": WorkerAgent().logs(limit)}
+
+
+@app.post("/planner-worker/run")
+async def planner_worker_run(req: PlannerWorkerRunRequest):
+    return await PlannerWorkerOrchestrator().run(req.task, provider_name=req.provider_name, model=req.model, save=req.save)

@@ -115,3 +115,18 @@ async function runPlanner() {
 async function loadPlannerPlans() {
   show("plannerBox", await api("/planner/plans"));
 }
+
+
+async function runPlannerWorker() {
+  const task = document.getElementById("workerTaskInput").value;
+  show("workerBox", {running: true, task});
+  show("workerBox", await api("/planner-worker/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({task, provider_name: "mock", save: true})
+  }));
+}
+
+async function loadWorkerExecutions() {
+  show("workerBox", await api("/worker/executions"));
+}

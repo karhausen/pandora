@@ -393,3 +393,26 @@ class TaskPlan(BaseModel):
     risks: list[str] = Field(default_factory=list)
     ready_for_execution: bool = True
     raw_analysis: dict[str, Any] = Field(default_factory=dict)
+
+
+class WorkerStepResult(BaseModel):
+    step_id: str
+    success: bool
+    action_type: str
+    tool_id: str | None = None
+    skill_id: str | None = None
+    output: Any = None
+    error: str | None = None
+    execution_time: float = 0.0
+
+
+class TaskExecutionResult(BaseModel):
+    execution_id: str
+    plan_id: str | None = None
+    task: str
+    success: bool
+    created_at: str
+    steps: list[WorkerStepResult] = Field(default_factory=list)
+    final_output: Any = None
+    error: str | None = None
+    execution_time: float = 0.0

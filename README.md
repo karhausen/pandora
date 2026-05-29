@@ -212,3 +212,27 @@ python main.py planner-logs
 ```
 
 MVP 18 trennt Planung und Ausführung konzeptionell. Der PlannerAgent erzeugt zunächst nur strukturierte Pläne; die Worker-Ausführung folgt in MVP 18.1.
+
+
+## MVP 18.1 – Worker Agent
+
+Neu:
+
+- WorkerAgent
+- WorkerStepResult / TaskExecutionResult Modelle
+- TaskExecutionStore
+- WorkerAgentLog
+- PlannerWorkerOrchestrator
+- CLI/API/Dashboard für Plan-Ausführung
+
+Beispiele:
+
+```powershell
+python main.py planner-plan "Bitte rechne 2+3*4" --provider mock
+python main.py planner-plans
+python main.py worker-execute-plan <PLAN_ID>
+python main.py planner-worker-run "Bitte rechne 2+3*4" --provider mock
+python main.py worker-executions
+```
+
+Hinweis: In der Build-Notebook-Umgebung kann der CLI-Smoke mit Sandbox-Subprozessen hängen. Die Unit-/API-Tests prüfen die Worker-Funktionalität erfolgreich.
