@@ -268,3 +268,20 @@ Admin-Dashboard:
 ```text
 http://127.0.0.1:8000/admin
 ```
+
+
+## MVP 18.3 – Chat Session Layer
+
+Neu:
+
+- ChatSessionStore
+- ChatService
+- ChatMessage / ChatSession / ChatRunResult Modelle
+- `POST /chat/run`
+- `POST /chat/sessions`
+- `GET /chat/sessions`
+- `GET /chat/sessions/{session_id}`
+- `DELETE /chat/sessions/{session_id}`
+- User-GUI mit Chat-Verlauf und Session-Auswahl
+
+Die Startseite `/` bleibt die User-GUI, `/admin` bleibt das Admin-Dashboard.

@@ -416,3 +416,28 @@ class TaskExecutionResult(BaseModel):
     final_output: Any = None
     error: str | None = None
     execution_time: float = 0.0
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+    created_at: str
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class ChatSession(BaseModel):
+    session_id: str
+    title: str = "Neue Unterhaltung"
+    created_at: str
+    updated_at: str
+    messages: list[ChatMessage] = Field(default_factory=list)
+
+
+class ChatRunResult(BaseModel):
+    session_id: str
+    success: bool
+    answer: str
+    user_message: ChatMessage
+    assistant_message: ChatMessage
+    plan: dict[str, Any] = Field(default_factory=dict)
+    execution: dict[str, Any] = Field(default_factory=dict)

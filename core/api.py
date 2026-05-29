@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .chat_service import ChatService
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -137,6 +138,19 @@ class PlannerAgentRequest(BaseModel):
 
 
 
+
+class ChatRunRequest(BaseModel):
+    task: str
+    session_id: str | None = None
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
+class ChatSessionCreateRequest(BaseModel):
+    title: str | None = None
+
+
 class UserRunRequest(BaseModel):
     task: str
     provider_name: str | None = "mock"
@@ -150,7 +164,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.2"}
+    return {"status": "ok", "version": "mvp-18.3"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -518,23 +532,53 @@ def _user_answer_from_execution(execution: dict) -> str:
 
 @app.post("/user/run")
 async def user_run(req: UserRunRequest):
-    result = await PlannerWorkerOrchestrator().run(
+    chat = await ChatService().run(
         req.task,
         provider_name=req.provider_name,
         model=req.model,
         save=req.save,
     )
-    execution = result.get("execution", {})
     return {
-        "success": bool(result.get("success")),
-        "answer": _user_answer_from_execution(execution),
-        "plan_id": result.get("plan", {}).get("plan_id"),
-        "execution_id": execution.get("execution_id"),
-        "plan": result.get("plan"),
-        "execution": execution,
+        "success": chat.success,
+        "answer": chat.answer,
+        "session_id": chat.session_id,
+        "plan_id": chat.plan.get("plan_id"),
+        "execution_id": chat.execution.get("execution_id"),
+        "plan": chat.plan,
+        "execution": chat.execution,
     }
-
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.2"}
+    return {"ready": True, "version": "mvp-18.3"}
+
+
+@app.post("/chat/run")
+async def chat_run(req: ChatRunRequest):
+    return (await ChatService().run(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )).model_dump(mode="json")
+
+
+@app.post("/chat/sessions")
+def chat_create_session(req: ChatSessionCreateRequest):
+    return ChatService().create_session(req.title)
+
+
+@app.get("/chat/sessions")
+def chat_sessions():
+    return {"sessions": ChatService().list_sessions()}
+
+
+@app.get("/chat/sessions/{session_id}")
+def chat_get_session(session_id: str):
+    return ChatService().get_session(session_id)
+
+
+@app.delete("/chat/sessions/{session_id}")
+def chat_delete_session(session_id: str):
+    return ChatService().delete_session(session_id)

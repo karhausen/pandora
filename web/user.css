@@ -145,3 +145,24 @@ pre {
   max-height: 420px;
   white-space: pre-wrap;
 }
+
+
+.session-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(17, 24, 39, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.session-bar select {
+  flex: 1;
+  background: #020617;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
