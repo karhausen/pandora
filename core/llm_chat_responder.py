@@ -1,0 +1,72 @@
+from __future__ import annotations
+
+from .llm_runtime import LLMRuntime
+from .models import LLMRequest, LLMTaskType
+
+
+class LLMChatResponder:
+    def __init__(self):
+        self.llm = LLMRuntime()
+
+    def respond(
+        self,
+        task: str,
+        history: list[dict] | None = None,
+        provider_name: str | None = "mock",
+        model: str | None = None,
+    ) -> dict:
+        if provider_name == "mock":
+            return {
+                "success": True,
+                "answer": self._mock_answer(task),
+                "provider_name": "mock",
+                "model": model,
+            }
+
+        prompt = self._build_prompt(task, history or [])
+        response = self.llm.complete(LLMRequest(
+            task_type=LLMTaskType.CHAT,
+            prompt=prompt,
+            provider_name=provider_name,
+            model=model,
+            expect_json=False,
+            timeout=30.0,
+        ))
+
+        if response.success:
+            return {
+                "success": True,
+                "answer": response.content.strip() or "Ich habe verstanden.",
+                "provider_name": response.provider_name,
+                "model": response.model,
+            }
+
+        return {
+            "success": False,
+            "answer": "Ich konnte gerade keine LLM-Antwort erzeugen.",
+            "error": response.error,
+            "provider_name": response.provider_name,
+            "model": response.model,
+        }
+
+    def _build_prompt(self, task: str, history: list[dict]) -> str:
+        last_messages = history[-10:]
+        history_text = "\n".join(
+            f"{m.get('role', 'unknown')}: {m.get('content', '')}" for m in last_messages
+        )
+        return (
+            "Du bist Pandora, ein lokaler hilfreicher KI-Agent. "
+            "Antworte freundlich, kurz und praktisch. "
+            "Wenn der Nutzer nur grüßt, grüße zurück und frage, wobei du helfen kannst.\n\n"
+            f"Bisheriger Verlauf:\n{history_text}\n\n"
+            f"Nutzer: {task}\n"
+            "Pandora:"
+        )
+
+    def _mock_answer(self, task: str) -> str:
+        text = task.strip().lower()
+        if any(text.startswith(g) for g in ["hallo", "hi", "hey", "guten morgen", "guten tag", "guten abend", "servus", "moin"]):
+            return "Hallo! Ich bin Pandora. Was möchtest du als Nächstes tun?"
+        if "was kannst" in text or "hilfe" in text:
+            return "Ich kann Aufgaben planen, Tools ausführen, Skills nutzen, einfache Berechnungen erledigen und dir bei lokalen Agenten-Workflows helfen."
+        return "Ich habe dich verstanden. Für diese freie Antwort habe ich den Chat-Modus verwendet."

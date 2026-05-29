@@ -20,8 +20,8 @@ function addMessage(role, text) {
   item.className = `message ${role}`;
   item.innerHTML = `<div class="role">${role === "user" ? "Du" : "Pandora"}</div><div class="answer"></div>`;
   item.querySelector(".answer").textContent = text;
-  chat.appendChild(item);
-  chat.scrollTop = chat.scrollHeight;
+  chat.prepend(item);
+  chat.scrollTop = 0;
 }
 
 function clearChat() {
@@ -91,7 +91,8 @@ async function loadCurrentSession() {
   if (!currentSessionId) return;
   const session = await api(`/chat/sessions/${currentSessionId}`);
   clearChat();
-  for (const message of session.messages || []) {
+  const messages = [...(session.messages || [])].reverse();
+  for (const message of messages) {
     addMessage(message.role, message.content);
   }
 }

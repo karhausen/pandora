@@ -294,3 +294,30 @@ Fix:
 - Begrüßungen wie `Hallo Pandora` liefern jetzt eine freundliche Antwort.
 - Technischer Fallback `No suitable tool or skill needed.` wird in der User-GUI nicht mehr direkt angezeigt.
 - Neue Komponente: `UserResponseFormatter`.
+
+
+## MVP 18.3.2 – LLM Chat Response
+
+Neu/Fix:
+
+- Freie Texte und normale Chat-Nachrichten gehen jetzt an den LLM-Chat-Modus.
+- Tool-nahe Aufgaben wie Berechnungen laufen weiter über PlannerAgent + WorkerAgent.
+- Neue Komponenten:
+  - `ChatResponseRouter`
+  - `LLMChatResponder`
+- User-GUI zeigt neueste Frage/Antwort oben.
+- Chat-Verlauf bleibt in Sessions gespeichert.
+
+Beispiele:
+
+```text
+Hallo Pandora
+```
+
+läuft über Chat-Modus.
+
+```text
+Bitte rechne 2+3*4
+```
+
+läuft über Planner/Worker/Tool.

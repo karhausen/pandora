@@ -165,7 +165,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.3.1"}
+    return {"status": "ok", "version": "mvp-18.3.2"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -551,7 +551,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.3.1.1"}
+    return {"ready": True, "version": "mvp-18.3.2.1"}
 
 
 @app.post("/chat/run")
