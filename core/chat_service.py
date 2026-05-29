@@ -3,12 +3,14 @@ from __future__ import annotations
 from .chat_session_store import ChatSessionStore
 from .models import ChatRunResult
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
+from .user_response import UserResponseFormatter
 
 
 class ChatService:
     def __init__(self):
         self.store = ChatSessionStore()
         self.orchestrator = PlannerWorkerOrchestrator()
+        self.formatter = UserResponseFormatter()
 
     async def run(
         self,
@@ -27,7 +29,7 @@ class ChatService:
 
         result = await self.orchestrator.run(task, provider_name=provider_name, model=model, save=save)
         execution = result.get("execution", {})
-        answer = self._answer_from_execution(execution)
+        answer = self.formatter.format_answer(task, execution)
 
         assistant_message = self.store.add_message(
             session.session_id,

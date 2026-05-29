@@ -285,3 +285,12 @@ Neu:
 - User-GUI mit Chat-Verlauf und Session-Auswahl
 
 Die Startseite `/` bleibt die User-GUI, `/admin` bleibt das Admin-Dashboard.
+
+
+## MVP 18.3.1 – User Response Fix
+
+Fix:
+
+- Begrüßungen wie `Hallo Pandora` liefern jetzt eine freundliche Antwort.
+- Technischer Fallback `No suitable tool or skill needed.` wird in der User-GUI nicht mehr direkt angezeigt.
+- Neue Komponente: `UserResponseFormatter`.

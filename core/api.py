@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
@@ -164,7 +165,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.3"}
+    return {"status": "ok", "version": "mvp-18.3.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -550,7 +551,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.3"}
+    return {"ready": True, "version": "mvp-18.3.1.1"}
 
 
 @app.post("/chat/run")
