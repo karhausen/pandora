@@ -164,3 +164,30 @@ python main.py core-rollback
 ```
 
 Hinweis: MVP 17 markiert Rollbacks und verwaltet Snapshots. Das automatische physische Ersetzen des aktiven Core bleibt bewusst noch manuell, damit der aktive Core nicht unkontrolliert überschrieben wird.
+
+
+## MVP 17.1 – Reality Check
+
+Neu:
+
+- RealityCheck
+- StabilityReporter
+- RealityCheckLog
+- Dauerlauf-artige Stabilitätsprüfung
+- Snapshot-/Memory-Größenreport
+- Empfehlungen nach Diagnose
+- CLI/API/Dashboard für Reality Checks
+
+Beispiele:
+
+```powershell
+python main.py reality-check --iterations 5 --delay 1
+python main.py stability-report
+python main.py reality-logs
+```
+
+Optional mit pytest pro Iteration:
+
+```powershell
+python main.py reality-check --iterations 1 --pytest
+```

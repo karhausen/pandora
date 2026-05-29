@@ -82,3 +82,21 @@ async function createCoreSnapshot() {
   show("coreStatusBox", {running: true, action: "core-snapshot"});
   show("coreStatusBox", await api("/core/snapshot", {method: "POST"}));
 }
+
+
+async function runRealityCheck() {
+  show("realityCheckBox", {running: true, iterations: 3});
+  show("realityCheckBox", await api("/reality-check/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({iterations: 3, delay: 0, run_pytest: false})
+  }));
+}
+
+async function loadRealityReport() {
+  show("realityCheckBox", await api("/reality-check/report"));
+}
+
+async function loadRealityLogs() {
+  show("realityCheckBox", await api("/reality-check/logs"));
+}

@@ -348,3 +348,20 @@ class CoreStatus(BaseModel):
     rollback_available: bool = False
     last_smoke: dict[str, Any] = Field(default_factory=dict)
     last_heartbeat: dict[str, Any] = Field(default_factory=dict)
+
+
+class RealityCheckIteration(BaseModel):
+    iteration: int
+    heartbeat: dict[str, Any] = Field(default_factory=dict)
+    smoke: dict[str, Any] = Field(default_factory=dict)
+    success: bool = False
+
+
+class RealityCheckResult(BaseModel):
+    success: bool
+    iterations: int
+    passed: int
+    failed: int
+    results: list[RealityCheckIteration] = Field(default_factory=list)
+    snapshot_summary: dict[str, Any] = Field(default_factory=dict)
+    recommendations: list[str] = Field(default_factory=list)

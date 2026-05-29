@@ -22,6 +22,7 @@ from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
+from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -50,7 +51,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-17.0"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-17.1"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -114,10 +115,13 @@ def cmd_core_activate(args): _json(asyncio.run(ActivationManager().activate(args
 def cmd_core_rollback(args): _json(RollbackManager().rollback(args.version_id))
 def cmd_core_rollback_log(args): _json({"log": RollbackManager().log(args.limit)})
 def cmd_core_stability(args): _json(asyncio.run(StabilityMonitor().check()))
+def cmd_reality_check(args): _json(asyncio.run(RealityCheck().run(iterations=args.iterations, delay=args.delay, run_pytest=args.pytest)).model_dump(mode="json"))
+def cmd_reality_logs(args): _json({"logs": RealityCheck().logs(args.limit)})
+def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 17.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 17.1")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -182,6 +186,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("core-rollback"); p.add_argument("version_id", nargs="?"); p.set_defaults(func=cmd_core_rollback)
     p = sub.add_parser("core-rollback-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_core_rollback_log)
     p = sub.add_parser("core-stability"); p.set_defaults(func=cmd_core_stability)
+
+    p = sub.add_parser("reality-check"); p.add_argument("--iterations", type=int, default=3); p.add_argument("--delay", type=float, default=0.0); p.add_argument("--pytest", action="store_true"); p.set_defaults(func=cmd_reality_check)
+    p = sub.add_parser("reality-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_reality_logs)
+    p = sub.add_parser("stability-report"); p.set_defaults(func=cmd_stability_report)
 
     return parser
 

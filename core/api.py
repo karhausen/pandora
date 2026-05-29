@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .reality_check import RealityCheck
 from .core_version_manager import CoreVersionManager
 from .activation_manager import ActivationManager
 from .rollback_manager import RollbackManager
@@ -104,13 +105,20 @@ class LearnRequest(BaseModel):
     limit: int = 200
 
 
+
+class RealityCheckRequest(BaseModel):
+    iterations: int = 3
+    delay: float = 0.0
+    run_pytest: bool = False
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-17.0"}
+    return {"status": "ok", "version": "mvp-17.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -382,3 +390,18 @@ def core_rollback_log(limit: int = 20):
 @app.get("/core/stability")
 async def core_stability():
     return await StabilityMonitor().check()
+
+
+@app.post("/reality-check/run")
+async def reality_check_run(req: RealityCheckRequest):
+    return (await RealityCheck().run(iterations=req.iterations, delay=req.delay, run_pytest=req.run_pytest)).model_dump(mode="json")
+
+
+@app.get("/reality-check/logs")
+def reality_check_logs(limit: int = 20):
+    return {"logs": RealityCheck().logs(limit)}
+
+
+@app.get("/reality-check/report")
+def reality_check_report():
+    return RealityCheck().report()
