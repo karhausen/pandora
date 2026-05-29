@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .conversation_memory import ConversationMemory
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .worker_agent import WorkerAgent
@@ -165,7 +166,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.3.4"}
+    return {"status": "ok", "version": "mvp-18.4"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -551,7 +552,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.3.4", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-18.4", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")
@@ -586,3 +587,18 @@ def chat_get_session(session_id: str):
 @app.delete("/chat/sessions/{session_id}")
 def chat_delete_session(session_id: str):
     return ChatService().delete_session(session_id)
+
+
+@app.get("/memory/conversation")
+def conversation_memory_get():
+    return {"facts": [fact.model_dump(mode="json") for fact in ConversationMemory().facts()]}
+
+
+@app.delete("/memory/conversation/{key}")
+def conversation_memory_forget(key: str):
+    return ConversationMemory().forget_fact(key)
+
+
+@app.get("/memory/conversation/logs")
+def conversation_memory_logs(limit: int = 20):
+    return {"logs": ConversationMemory().log.list(limit)}

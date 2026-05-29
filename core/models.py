@@ -441,3 +441,18 @@ class ChatRunResult(BaseModel):
     assistant_message: ChatMessage
     plan: dict[str, Any] = Field(default_factory=dict)
     execution: dict[str, Any] = Field(default_factory=dict)
+
+
+class ConversationMemoryFact(BaseModel):
+    key: str
+    value: str
+    source_session_id: str | None = None
+    created_at: str
+    updated_at: str
+
+
+class ConversationContext(BaseModel):
+    session_id: str
+    recent_messages: list[ChatMessage] = Field(default_factory=list)
+    facts: list[ConversationMemoryFact] = Field(default_factory=list)
+    summary: str = ""

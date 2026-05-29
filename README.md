@@ -344,3 +344,31 @@ Neu:
 - `/user/status` liefert verfügbare Provider
 
 Damit kann LM Studio direkt aus der User-GUI getestet werden, z.B. mit `local_fast` oder `lmstudio`.
+
+
+## MVP 18.4 – Conversation Memory
+
+Neu:
+
+- ConversationMemory
+- ConversationMemoryLog
+- ConversationContext
+- einfache Faktenextraktion aus Gesprächen
+- Chat-Antworten erhalten Gesprächskontext
+- Memory-Fragen wie `Wie heiße ich?` können aus gespeicherten Fakten beantwortet werden
+- API:
+  - `GET /memory/conversation`
+  - `DELETE /memory/conversation/{key}`
+  - `GET /memory/conversation/logs`
+- CLI:
+  - `python main.py conversation-memory`
+  - `python main.py conversation-forget name`
+
+Beispiel:
+
+```text
+Ich heiße Thomas.
+Wie heiße ich?
+```
+
+Pandora antwortet dann aus dem Conversation Memory.
