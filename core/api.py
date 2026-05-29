@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
 from .capability_expansion_manager import CapabilityExpansionManager
@@ -136,13 +136,21 @@ class PlannerAgentRequest(BaseModel):
     save: bool = True
 
 
+
+class UserRunRequest(BaseModel):
+    task: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.1"}
+    return {"status": "ok", "version": "mvp-18.2"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -474,3 +482,59 @@ def worker_logs(limit: int = 20):
 @app.post("/planner-worker/run")
 async def planner_worker_run(req: PlannerWorkerRunRequest):
     return await PlannerWorkerOrchestrator().run(req.task, provider_name=req.provider_name, model=req.model, save=req.save)
+
+
+@app.get("/admin")
+def web_admin():
+    return FileResponse(WEB_DIR / "admin.html")
+
+
+@app.get("/web/user.js")
+def web_user_js():
+    return FileResponse(WEB_DIR / "user.js")
+
+
+@app.get("/web/user.css")
+def web_user_css():
+    return FileResponse(WEB_DIR / "user.css")
+
+
+def _user_answer_from_execution(execution: dict) -> str:
+    if not execution.get("success"):
+        return execution.get("error") or "Die Aufgabe konnte nicht erfolgreich ausgeführt werden."
+
+    output = execution.get("final_output")
+    if isinstance(output, dict):
+        if "result" in output:
+            return str(output["result"])
+        if "text" in output:
+            return str(output["text"])
+        if "message" in output:
+            return str(output["message"])
+    if output is None:
+        return "Erledigt."
+    return str(output)
+
+
+@app.post("/user/run")
+async def user_run(req: UserRunRequest):
+    result = await PlannerWorkerOrchestrator().run(
+        req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )
+    execution = result.get("execution", {})
+    return {
+        "success": bool(result.get("success")),
+        "answer": _user_answer_from_execution(execution),
+        "plan_id": result.get("plan", {}).get("plan_id"),
+        "execution_id": execution.get("execution_id"),
+        "plan": result.get("plan"),
+        "execution": execution,
+    }
+
+
+@app.get("/user/status")
+def user_status():
+    return {"ready": True, "version": "mvp-18.2"}

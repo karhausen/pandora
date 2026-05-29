@@ -236,3 +236,35 @@ python main.py worker-executions
 ```
 
 Hinweis: In der Build-Notebook-Umgebung kann der CLI-Smoke mit Sandbox-Subprozessen hängen. Die Unit-/API-Tests prüfen die Worker-Funktionalität erfolgreich.
+
+
+## MVP 18.2 – User GUI
+
+Neu:
+
+- `/` ist jetzt die einfache User-GUI
+- `/admin` ist das bisherige Admin-Dashboard
+- `web/user.js`
+- `web/user.css`
+- `POST /user/run`
+- `GET /user/status`
+- kompakte Antwort für normale Nutzer
+- Plan und Ausführung einklappbar sichtbar
+
+Start:
+
+```powershell
+python main.py api
+```
+
+User-GUI:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Admin-Dashboard:
+
+```text
+http://127.0.0.1:8000/admin
+```

@@ -3,117 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandora Agent Dashboard</title>
-  <link rel="stylesheet" href="/web/style.css" />
+  <title>Pandora</title>
+  <link rel="stylesheet" href="/web/user.css" />
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <h1>Pandora Agent Dashboard</h1>
-      <p>Lokale Steuerzentrale für Agent, Tools, Skills, Learning und Governance.</p>
-    </div>
-    <div id="statusBadge" class="badge">Lade Status...</div>
-  </header>
-
-  <main class="grid">
-    <section class="card wide">
-      <h2>Agent Run</h2>
-      <div class="row">
-        <input id="taskInput" value="Bitte rechne 2+3*4" />
-        <select id="providerSelect">
-          <option value="mock">mock</option>
-          <option value="local_fast">local_fast</option>
-        </select>
-        <button onclick="runAgent()">Ausführen</button>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Pandora</h1>
+        <p>Dein lokaler KI-Agent.</p>
       </div>
-      <pre id="agentResult">Noch kein Lauf.</pre>
+      <a class="admin-link" href="/admin">Admin</a>
+    </header>
+
+    <section class="composer">
+      <textarea id="taskInput" placeholder="Was soll Pandora tun?">Bitte rechne 2+3*4</textarea>
+      <div class="actions">
+        <button id="runButton" onclick="runPandora()">Ausführen</button>
+        <span id="statusText">Bereit</span>
+      </div>
     </section>
 
-    <section class="card"><h2>Heartbeat</h2><button onclick="loadHeartbeat()">Aktualisieren</button><pre id="heartbeatBox"></pre></section>
-    <section class="card"><h2>Tools</h2><button onclick="loadTools()">Aktualisieren</button><pre id="toolsBox"></pre></section>
-    <section class="card"><h2>Skills</h2><button onclick="loadSkills()">Aktualisieren</button><pre id="skillsBox"></pre></section>
-    <section class="card"><h2>Journal</h2><button onclick="loadJournal()">Aktualisieren</button><pre id="journalBox"></pre></section>
-    <section class="card"><h2>Tool-Proposals</h2><button onclick="loadToolProposals()">Aktualisieren</button><pre id="toolProposalsBox"></pre></section>
-    <section class="card"><h2>Skill-Proposals</h2><button onclick="loadSkillProposals()">Aktualisieren</button><pre id="skillProposalsBox"></pre></section>
-    <section class="card"><h2>Capability Workflows</h2><button onclick="loadCapabilityWorkflows()">Aktualisieren</button><pre id="capabilityWorkflowsBox"></pre></section>
-    <section class="card">
-      <h2>Learning</h2>
-      <div class="row">
-        <button onclick="runLearning()">Learn</button>
-        <button onclick="loadRecommendations()">Empfehlungen</button>
-        <button onclick="loadRankings()">Rankings</button>
-      </div>
-      <pre id="learningBox"></pre>
-    </section>
-    <section class="card">
-      <h2>Governance</h2>
-      <div class="row">
-        <button onclick="loadGovernance()">Check</button>
-        <button onclick="loadChangelog()">Changelog</button>
-      </div>
-      <pre id="governanceBox"></pre>
-    </section>
-  
-    <section class="card">
-      <h2>Tool Generation</h2>
-      <div class="row">
-        <input id="toolCapabilityInput" value="text_reverse" />
-        <select id="toolGenerationProvider">
-          <option value="mock">mock</option>
-          <option value="local_fast">local_fast</option>
-        </select>
-        <label><input type="checkbox" id="toolGenerationNoTests" checked /> no-tests</label>
-        <button onclick="generateTool()">Generieren</button>
-      </div>
-      <button onclick="loadToolGenerationLogs()">Logs</button>
-      <pre id="toolGenerationBox"></pre>
-    </section>
+    <section id="chat" class="chat"></section>
 
-  
-    <section class="card">
-      <h2>Core Status</h2>
-      <div class="row">
-        <button onclick="loadCoreStatus()">Status</button>
-        <button onclick="runCoreSmoke()">Smoke</button>
-        <button onclick="createCoreSnapshot()">Snapshot</button>
-      </div>
-      <pre id="coreStatusBox"></pre>
+    <section id="details" class="details hidden">
+      <details>
+        <summary>Plan anzeigen</summary>
+        <pre id="planBox"></pre>
+      </details>
+      <details>
+        <summary>Ausführung anzeigen</summary>
+        <pre id="executionBox"></pre>
+      </details>
     </section>
-
-  
-    <section class="card">
-      <h2>Reality Check</h2>
-      <div class="row">
-        <button onclick="runRealityCheck()">Run</button>
-        <button onclick="loadRealityReport()">Report</button>
-        <button onclick="loadRealityLogs()">Logs</button>
-      </div>
-      <pre id="realityCheckBox"></pre>
-    </section>
-
-  
-    <section class="card">
-      <h2>Planner Agent</h2>
-      <div class="row">
-        <input id="plannerTaskInput" value="Bitte rechne 2+3*4" />
-        <button onclick="runPlanner()">Plan</button>
-        <button onclick="loadPlannerPlans()">Plans</button>
-      </div>
-      <pre id="plannerBox"></pre>
-    </section>
-
-  
-    <section class="card">
-      <h2>Worker Agent</h2>
-      <div class="row">
-        <input id="workerTaskInput" value="Bitte rechne 2+3*4" />
-        <button onclick="runPlannerWorker()">Plan + Execute</button>
-        <button onclick="loadWorkerExecutions()">Executions</button>
-      </div>
-      <pre id="workerBox"></pre>
-    </section>
-
   </main>
-  <script src="/web/app.js"></script>
+
+  <script src="/web/user.js"></script>
 </body>
 </html>
