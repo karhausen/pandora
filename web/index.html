@@ -53,6 +53,22 @@
       </div>
       <pre id="governanceBox"></pre>
     </section>
+  
+    <section class="card">
+      <h2>Tool Generation</h2>
+      <div class="row">
+        <input id="toolCapabilityInput" value="text_reverse" />
+        <select id="toolGenerationProvider">
+          <option value="mock">mock</option>
+          <option value="local_fast">local_fast</option>
+        </select>
+        <label><input type="checkbox" id="toolGenerationNoTests" checked /> no-tests</label>
+        <button onclick="generateTool()">Generieren</button>
+      </div>
+      <button onclick="loadToolGenerationLogs()">Logs</button>
+      <pre id="toolGenerationBox"></pre>
+    </section>
+
   </main>
   <script src="/web/app.js"></script>
 </body>

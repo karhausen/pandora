@@ -75,6 +75,7 @@ class ToolProposalManager:
         provider_name: str | None = "mock",
         model: str | None = None,
         max_attempts: int = 2,
+        run_tests: bool = True,
     ) -> dict:
         spec = self.generator.build_spec(capability)
         proposal_id = self._new_id()
@@ -99,8 +100,10 @@ class ToolProposalManager:
             code_file.write_text(code, encoding="utf-8")
 
             static = self.validator.static_review(code)
-            if static["ok"]:
+            if static["ok"] and run_tests:
                 test_result = self.generation_runner.run_pytest(proposal_dir)
+            elif static["ok"] and not run_tests:
+                test_result = {"success": True, "skipped": True, "reason": "Tests skipped by caller."}
             else:
                 test_result = {"success": False, "skipped": True, "stderr": "\n".join(static["issues"])}
 

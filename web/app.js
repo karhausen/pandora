@@ -40,3 +40,30 @@ async function boot(){
   await Promise.all([loadHeartbeat(), loadTools(), loadSkills(), loadJournal(), loadToolProposals(), loadSkillProposals(), loadCapabilityWorkflows(), loadRecommendations()]);
 }
 boot();
+
+
+async function generateTool() {
+  const capability = document.getElementById("toolCapabilityInput").value;
+  const provider_name = document.getElementById("toolGenerationProvider").value;
+  const run_tests = !document.getElementById("toolGenerationNoTests").checked;
+
+  show("toolGenerationBox", {running: true, capability, provider_name, run_tests});
+
+  const result = await api("/tool-generation/generate", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      capability,
+      provider_name,
+      max_attempts: 2,
+      run_tests
+    })
+  });
+
+  show("toolGenerationBox", result);
+  await loadToolProposals();
+}
+
+async function loadToolGenerationLogs() {
+  show("toolGenerationBox", await api("/tool-generation/logs"));
+}

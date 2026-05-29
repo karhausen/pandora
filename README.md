@@ -113,3 +113,27 @@ python main.py tool-proposal-activate <ID>
 ```
 
 Sicherheitsregel: Auch MVP 16 aktiviert generierte Tools nicht automatisch. Es erzeugt validierte Proposals.
+
+
+## MVP 16.1 – Tool Generation Stabilisierung
+
+Neu:
+
+- `tool-generate --no-tests` für schnelle lokale Smoke-Checks
+- API-Parameter `run_tests`
+- Web-GUI-Panel für Tool Generation
+- Tool-Generation-Logs direkt sichtbar
+- README/Dashboard nachgezogen
+
+Beispiele:
+
+```powershell
+python main.py tool-generate text_reverse --provider mock --no-tests
+python main.py tool-generation-logs
+```
+
+Für vollständige Validierung ohne `--no-tests`:
+
+```powershell
+python main.py tool-generate text_reverse --provider mock
+```

@@ -45,6 +45,7 @@ class ToolGenerateRequest(BaseModel):
     provider_name: str | None = "mock"
     model: str | None = None
     max_attempts: int = 2
+    run_tests: bool = True
 
 
 class ToolProposalCapabilityRequest(BaseModel):
@@ -105,7 +106,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-16.0"}
+    return {"status": "ok", "version": "mvp-16.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -329,6 +330,7 @@ def tool_generation_generate(req: ToolGenerateRequest):
         provider_name=req.provider_name,
         model=req.model,
         max_attempts=req.max_attempts,
+        run_tests=req.run_tests,
     )
 
 
