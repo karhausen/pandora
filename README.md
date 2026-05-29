@@ -331,3 +331,16 @@ Fix:
 - Wenn eine Session serverseitig fehlt, erzeugt `ChatService` automatisch eine neue Session.
 - `GET /chat/sessions/{session_id}` liefert jetzt sauber `404`.
 - User-GUI entfernt ungültige Session-IDs automatisch aus `localStorage`.
+
+
+## MVP 18.3.4 – User-GUI Provider Auswahl
+
+Neu:
+
+- Provider-Auswahl in der User-GUI
+- optionales Modellfeld
+- Provider/Modell werden im Browser gespeichert
+- `/chat/run` erhält `provider_name` und `model` aus der GUI
+- `/user/status` liefert verfügbare Provider
+
+Damit kann LM Studio direkt aus der User-GUI getestet werden, z.B. mit `local_fast` oder `lmstudio`.

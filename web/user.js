@@ -1,4 +1,6 @@
 let currentSessionId = localStorage.getItem("pandora_session_id") || null;
+let currentProvider = localStorage.getItem("pandora_provider") || "mock";
+let currentModel = localStorage.getItem("pandora_model") || "";
 
 async function api(path, options = {}) {
   const response = await fetch(path, options);
@@ -118,7 +120,13 @@ async function runPandora() {
   const result = await api("/chat/run", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({task, session_id: currentSessionId, provider_name: "mock", save: true})
+    body: JSON.stringify({
+      task,
+      session_id: currentSessionId,
+      provider_name: currentProvider,
+      model: currentModel || null,
+      save: true
+    })
   });
 
   if (result.success) {
@@ -140,7 +148,30 @@ async function loadUserStatus() {
   document.getElementById("statusText").textContent = status.ready ? "Bereit" : "Nicht bereit";
 }
 
+
+function setupProviderControls() {
+  const providerSelect = document.getElementById("providerSelect");
+  const modelInput = document.getElementById("modelInput");
+
+  if (providerSelect) {
+    providerSelect.value = currentProvider;
+    providerSelect.addEventListener("change", () => {
+      currentProvider = providerSelect.value;
+      localStorage.setItem("pandora_provider", currentProvider);
+    });
+  }
+
+  if (modelInput) {
+    modelInput.value = currentModel;
+    modelInput.addEventListener("input", () => {
+      currentModel = modelInput.value.trim();
+      localStorage.setItem("pandora_model", currentModel);
+    });
+  }
+}
+
 async function boot() {
+  setupProviderControls();
   await loadUserStatus();
   await loadSessions();
   if (currentSessionId) {

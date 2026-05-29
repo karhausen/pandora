@@ -166,3 +166,34 @@ pre {
   border-radius: 10px;
   padding: 10px;
 }
+
+
+.provider-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.provider-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.provider-row select,
+.provider-row input {
+  background: #020617;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+@media (max-width: 650px) {
+  .provider-row {
+    grid-template-columns: 1fr;
+  }
+}

@@ -20,7 +20,25 @@
 
     <section class="composer">
       <textarea id="taskInput" placeholder="Was soll Pandora tun?">Bitte rechne 2+3*4</textarea>
-      <div class="actions">
+      
+<div class="provider-row">
+  <label>
+    Provider
+    <select id="providerSelect">
+      <option value="mock">mock</option>
+      <option value="local_fast">local_fast</option>
+      <option value="lmstudio">lmstudio</option>
+      <option value="ollama">ollama</option>
+      <option value="openai">openai</option>
+    </select>
+  </label>
+  <label>
+    Modell optional
+    <input id="modelInput" placeholder="z.B. qwen/qwen3-1.7b" />
+  </label>
+</div>
+
+<div class="actions">
         <button id="runButton" onclick="runPandora()">Ausführen</button>
         <span id="statusText">Bereit</span>
       </div>
