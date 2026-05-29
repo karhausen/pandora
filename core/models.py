@@ -365,3 +365,31 @@ class RealityCheckResult(BaseModel):
     results: list[RealityCheckIteration] = Field(default_factory=list)
     snapshot_summary: dict[str, Any] = Field(default_factory=dict)
     recommendations: list[str] = Field(default_factory=list)
+
+
+class PlanStep(BaseModel):
+    step_id: str
+    title: str
+    action_type: str = "answer"
+    tool_id: str | None = None
+    skill_id: str | None = None
+    capability: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
+    reason: str | None = None
+
+
+class TaskPlan(BaseModel):
+    plan_id: str
+    task: str
+    created_at: str
+    provider_name: str | None = None
+    model: str | None = None
+    complexity: str = "simple"
+    summary: str
+    steps: list[PlanStep] = Field(default_factory=list)
+    required_tools: list[str] = Field(default_factory=list)
+    required_skills: list[str] = Field(default_factory=list)
+    missing_capabilities: list[str] = Field(default_factory=list)
+    risks: list[str] = Field(default_factory=list)
+    ready_for_execution: bool = True
+    raw_analysis: dict[str, Any] = Field(default_factory=dict)

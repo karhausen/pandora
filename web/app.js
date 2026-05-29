@@ -100,3 +100,18 @@ async function loadRealityReport() {
 async function loadRealityLogs() {
   show("realityCheckBox", await api("/reality-check/logs"));
 }
+
+
+async function runPlanner() {
+  const task = document.getElementById("plannerTaskInput").value;
+  show("plannerBox", {running: true, task});
+  show("plannerBox", await api("/planner/plan", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({task, provider_name: "mock", save: true})
+  }));
+}
+
+async function loadPlannerPlans() {
+  show("plannerBox", await api("/planner/plans"));
+}

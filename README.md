@@ -191,3 +191,24 @@ Optional mit pytest pro Iteration:
 ```powershell
 python main.py reality-check --iterations 1 --pytest
 ```
+
+
+## MVP 18.0 – Planner Agent
+
+Neu:
+
+- PlannerAgent
+- TaskPlan / PlanStep Modelle
+- TaskPlanStore
+- PlannerAgentLog
+- CLI/API/Dashboard für strukturierte Planung
+
+Beispiele:
+
+```powershell
+python main.py planner-plan "Bitte rechne 2+3*4" --provider mock
+python main.py planner-plans
+python main.py planner-logs
+```
+
+MVP 18 trennt Planung und Ausführung konzeptionell. Der PlannerAgent erzeugt zunächst nur strukturierte Pläne; die Worker-Ausführung folgt in MVP 18.1.

@@ -22,6 +22,7 @@ from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
+from core.planner_agent import PlannerAgent
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -51,7 +52,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-17.1"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-18.0"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -73,6 +74,10 @@ def cmd_llm_complete(args):
 def cmd_agent_run(args): _json(asyncio.run(AgentLoop().run(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout)).model_dump(mode="json"))
 def cmd_agent_journal(args): _json({"journal": TaskJournal().list(args.limit)})
 def cmd_agent_last(args): _json(TaskJournal().last())
+def cmd_planner_plan(args): _json(PlannerAgent().plan(args.task, provider_name=args.provider, model=args.model, save=not args.no_save).model_dump(mode="json"))
+def cmd_planner_plans(args): _json({"plans": PlannerAgent().list_plans()})
+def cmd_planner_show(args): _json(PlannerAgent().get_plan(args.plan_id))
+def cmd_planner_logs(args): _json({"logs": PlannerAgent().logs(args.limit)})
 def cmd_capability_evaluate(args): _json(CapabilityExpansionManager().evaluate_task(args.task, auto_propose=args.auto_propose))
 def cmd_capability_events(args): _json({"events": CapabilityExpansionManager().list_events(args.limit)})
 def cmd_capability_last(args): _json(CapabilityExpansionManager().last_event())
@@ -121,7 +126,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 17.1")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 18.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -142,6 +147,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("agent-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_agent_run)
     p = sub.add_parser("agent-journal"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_agent_journal)
     p = sub.add_parser("agent-last"); p.set_defaults(func=cmd_agent_last)
+
+    p = sub.add_parser("planner-plan"); p.add_argument("task"); p.add_argument("--provider", default="mock"); p.add_argument("--model"); p.add_argument("--no-save", action="store_true"); p.set_defaults(func=cmd_planner_plan)
+    p = sub.add_parser("planner-plans"); p.set_defaults(func=cmd_planner_plans)
+    p = sub.add_parser("planner-show"); p.add_argument("plan_id"); p.set_defaults(func=cmd_planner_show)
+    p = sub.add_parser("planner-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_planner_logs)
 
     p = sub.add_parser("capability-evaluate"); p.add_argument("task"); p.add_argument("--no-auto-propose", dest="auto_propose", action="store_false"); p.set_defaults(func=cmd_capability_evaluate, auto_propose=True)
     p = sub.add_parser("capability-events"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_capability_events)

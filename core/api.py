@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .planner_agent import PlannerAgent
 from .reality_check import RealityCheck
 from .core_version_manager import CoreVersionManager
 from .activation_manager import ActivationManager
@@ -112,13 +113,21 @@ class RealityCheckRequest(BaseModel):
     run_pytest: bool = False
 
 
+
+class PlannerAgentRequest(BaseModel):
+    task: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-17.1"}
+    return {"status": "ok", "version": "mvp-18.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -405,3 +414,23 @@ def reality_check_logs(limit: int = 20):
 @app.get("/reality-check/report")
 def reality_check_report():
     return RealityCheck().report()
+
+
+@app.post("/planner/plan")
+def planner_plan(req: PlannerAgentRequest):
+    return PlannerAgent().plan(req.task, provider_name=req.provider_name, model=req.model, save=req.save).model_dump(mode="json")
+
+
+@app.get("/planner/plans")
+def planner_plans():
+    return {"plans": PlannerAgent().list_plans()}
+
+
+@app.get("/planner/plans/{plan_id}")
+def planner_get_plan(plan_id: str):
+    return PlannerAgent().get_plan(plan_id)
+
+
+@app.get("/planner/logs")
+def planner_logs(limit: int = 20):
+    return {"logs": PlannerAgent().logs(limit)}
