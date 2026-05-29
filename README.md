@@ -137,3 +137,30 @@ Für vollständige Validierung ohne `--no-tests`:
 ```powershell
 python main.py tool-generate text_reverse --provider mock
 ```
+
+
+## MVP 17.0 – Core Governance & Survival Layer
+
+Neu:
+
+- CoreVersionManager
+- CoreSnapshot
+- CoreSmokeRunner
+- ActivationManager
+- RollbackManager
+- StabilityMonitor
+- Core-Versionen unter `core_versions/`
+- CLI/API für Snapshots, Smoke-Tests, Aktivierung und Rollback
+- Dashboard-Kachel `Core Status`
+
+Beispiele:
+
+```powershell
+python main.py core-status
+python main.py core-smoke
+python main.py core-snapshot --notes "stable after MVP 17"
+python main.py core-versions
+python main.py core-rollback
+```
+
+Hinweis: MVP 17 markiert Rollbacks und verwaltet Snapshots. Das automatische physische Ersetzen des aktiven Core bleibt bewusst noch manuell, damit der aktive Core nicht unkontrolliert überschrieben wird.

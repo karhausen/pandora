@@ -67,3 +67,18 @@ async function generateTool() {
 async function loadToolGenerationLogs() {
   show("toolGenerationBox", await api("/tool-generation/logs"));
 }
+
+
+async function loadCoreStatus() {
+  show("coreStatusBox", await api("/core/status"));
+}
+
+async function runCoreSmoke() {
+  show("coreStatusBox", {running: true, action: "core-smoke"});
+  show("coreStatusBox", await api("/core/smoke", {method: "POST"}));
+}
+
+async function createCoreSnapshot() {
+  show("coreStatusBox", {running: true, action: "core-snapshot"});
+  show("coreStatusBox", await api("/core/snapshot", {method: "POST"}));
+}

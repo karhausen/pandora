@@ -11,6 +11,10 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .core_version_manager import CoreVersionManager
+from .activation_manager import ActivationManager
+from .rollback_manager import RollbackManager
+from .stability_monitor import StabilityMonitor
 from .sandbox import Sandbox
 from .documentation_generator import DocumentationGenerator
 from .governance import Governance
@@ -106,7 +110,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-16.1"}
+    return {"status": "ok", "version": "mvp-17.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -338,3 +342,43 @@ def tool_generation_generate(req: ToolGenerateRequest):
 def tool_generation_logs(limit: int = 20):
     from .tool_generation_log import ToolGenerationLog
     return {"logs": ToolGenerationLog().list(limit)}
+
+
+@app.get("/core/status")
+def core_status():
+    return CoreVersionManager().status()
+
+
+@app.get("/core/versions")
+def core_versions():
+    return CoreVersionManager().list_versions()
+
+
+@app.post("/core/snapshot")
+async def core_snapshot(notes: str | None = None):
+    return await CoreVersionManager().snapshot(notes=notes)
+
+
+@app.post("/core/smoke")
+async def core_smoke(run_pytest: bool = False):
+    return await CoreVersionManager().smoke(run_pytest=run_pytest)
+
+
+@app.post("/core/activate/{version_id}")
+async def core_activate(version_id: str):
+    return await ActivationManager().activate(version_id)
+
+
+@app.post("/core/rollback")
+def core_rollback(version_id: str | None = None):
+    return RollbackManager().rollback(version_id)
+
+
+@app.get("/core/rollback-log")
+def core_rollback_log(limit: int = 20):
+    return {"log": RollbackManager().log(limit)}
+
+
+@app.get("/core/stability")
+async def core_stability():
+    return await StabilityMonitor().check()

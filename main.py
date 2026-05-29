@@ -9,10 +9,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+from core.activation_manager import ActivationManager
 from core.agent_loop import AgentLoop
 from core.capability_expansion_manager import CapabilityExpansionManager
 from core.capability_workflow import CapabilityWorkflow
 from core.changelog_manager import ChangelogManager
+from core.core_version_manager import CoreVersionManager
 from core.documentation_generator import DocumentationGenerator
 from core.governance import Governance
 from core.heartbeat import Heartbeat
@@ -20,10 +22,12 @@ from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.models import LLMRequest, LLMTaskType
+from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
 from core.skill_proposal_manager import SkillProposalManager
 from core.skill_registry import SkillRegistry
+from core.stability_monitor import StabilityMonitor
 from core.task_journal import TaskJournal
 from core.tool_activation_manager import ToolActivationManager
 from core.tool_executor import ToolExecutor
@@ -46,7 +50,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-16.1"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-17.0"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -76,8 +80,7 @@ def cmd_capability_workflows(args): _json({"workflows": CapabilityWorkflow().lis
 def cmd_capability_workflow_last(args): _json(CapabilityWorkflow().last())
 def cmd_tool_propose_task(args): _json(ToolProposalManager().propose_from_task(args.task))
 def cmd_tool_propose_capability(args): _json(ToolProposalManager().propose_for_capability(args.capability))
-def cmd_tool_generate(args):
-    _json(ToolProposalManager().generate_with_llm(args.capability, provider_name=args.provider, model=args.model, max_attempts=args.max_attempts, run_tests=not args.no_tests))
+def cmd_tool_generate(args): _json(ToolProposalManager().generate_with_llm(args.capability, provider_name=args.provider, model=args.model, max_attempts=args.max_attempts, run_tests=not args.no_tests))
 def cmd_tool_generation_logs(args): _json({"logs": ToolGenerationLog().list(args.limit)})
 def cmd_tool_proposal_list(args): _json({"tool_proposals": ToolProposalManager().list()})
 def cmd_tool_proposal_show(args): _json(ToolProposalManager().show(args.proposal_id))
@@ -103,10 +106,18 @@ def cmd_docs_generate(args): _json(DocumentationGenerator().generate())
 def cmd_architecture_report(args): _json(DocumentationGenerator().architecture_report())
 def cmd_governance_check(args): _json(Governance().check())
 def cmd_changelog(args): print(ChangelogManager().read())
+def cmd_core_status(args): _json(CoreVersionManager().status())
+def cmd_core_versions(args): _json(CoreVersionManager().list_versions())
+def cmd_core_snapshot(args): _json(asyncio.run(CoreVersionManager().snapshot(notes=args.notes)))
+def cmd_core_smoke(args): _json(asyncio.run(CoreVersionManager().smoke(run_pytest=args.pytest)))
+def cmd_core_activate(args): _json(asyncio.run(ActivationManager().activate(args.version_id)))
+def cmd_core_rollback(args): _json(RollbackManager().rollback(args.version_id))
+def cmd_core_rollback_log(args): _json({"log": RollbackManager().log(args.limit)})
+def cmd_core_stability(args): _json(asyncio.run(StabilityMonitor().check()))
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 16.1")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 17.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -162,6 +173,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("architecture-report"); p.set_defaults(func=cmd_architecture_report)
     p = sub.add_parser("governance-check"); p.set_defaults(func=cmd_governance_check)
     p = sub.add_parser("changelog"); p.set_defaults(func=cmd_changelog)
+
+    p = sub.add_parser("core-status"); p.set_defaults(func=cmd_core_status)
+    p = sub.add_parser("core-versions"); p.set_defaults(func=cmd_core_versions)
+    p = sub.add_parser("core-snapshot"); p.add_argument("--notes"); p.set_defaults(func=cmd_core_snapshot)
+    p = sub.add_parser("core-smoke"); p.add_argument("--pytest", action="store_true"); p.set_defaults(func=cmd_core_smoke)
+    p = sub.add_parser("core-activate"); p.add_argument("version_id"); p.set_defaults(func=cmd_core_activate)
+    p = sub.add_parser("core-rollback"); p.add_argument("version_id", nargs="?"); p.set_defaults(func=cmd_core_rollback)
+    p = sub.add_parser("core-rollback-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_core_rollback_log)
+    p = sub.add_parser("core-stability"); p.set_defaults(func=cmd_core_stability)
 
     return parser
 

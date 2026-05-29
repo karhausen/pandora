@@ -312,3 +312,39 @@ class ToolGenerationResult(BaseModel):
     proposal_id: str | None = None
     attempts: list[ToolGenerationAttempt] = Field(default_factory=list)
     error: str | None = None
+
+
+class CoreVersionStatus(str, Enum):
+    ACTIVE = "ACTIVE"
+    CANDIDATE = "CANDIDATE"
+    STABLE = "STABLE"
+    FAILED = "FAILED"
+    ROLLBACK = "ROLLBACK"
+    SAFE_MODE = "SAFE_MODE"
+
+
+class CoreVersion(BaseModel):
+    version_id: str
+    created_at: str
+    status: CoreVersionStatus = CoreVersionStatus.CANDIDATE
+    path: str
+    heartbeat_passed: bool = False
+    smoke_passed: bool = False
+    activated_at: str | None = None
+    notes: str | None = None
+
+
+class CoreSmokeResult(BaseModel):
+    success: bool
+    tests: int
+    passed: int
+    failed: int
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class CoreStatus(BaseModel):
+    active_version: str | None = None
+    safe_mode: bool = False
+    rollback_available: bool = False
+    last_smoke: dict[str, Any] = Field(default_factory=dict)
+    last_heartbeat: dict[str, Any] = Field(default_factory=dict)

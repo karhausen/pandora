@@ -46,3 +46,8 @@ SANDBOX_LOG_FILE = MEMORY_DIR / "sandbox_log.jsonl"
 EXECUTION_POLICY_FILE = MEMORY_DIR / "execution_policy.json"
 TOOL_GENERATION_LOG_FILE = MEMORY_DIR / "tool_generation_log.jsonl"
 TOOL_REPAIR_LOG_FILE = MEMORY_DIR / "tool_repair_log.jsonl"
+
+CORE_VERSIONS_DIR = ROOT_DIR / "core_versions"
+CORE_VERSION_INDEX_FILE = MEMORY_DIR / "core_versions.json"
+CORE_STATUS_FILE = MEMORY_DIR / "core_status.json"
+CORE_ROLLBACK_LOG_FILE = MEMORY_DIR / "core_rollback_log.jsonl"
