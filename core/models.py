@@ -40,6 +40,7 @@ class LLMTaskType(str, Enum):
     TOOL_GENERATION = "tool_generation"
     REFLECTION = "reflection"
     CORE_REVIEW = "core_review"
+    CODE_REVIEW = "code_review"
 
 
 class ToolMeta(BaseModel):

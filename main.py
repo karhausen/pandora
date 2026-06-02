@@ -14,6 +14,7 @@ from core.agent_loop import AgentLoop
 from core.capability_expansion_manager import CapabilityExpansionManager
 from core.capability_workflow import CapabilityWorkflow
 from core.changelog_manager import ChangelogManager
+from core.cloud_expert import CloudExpert
 from core.core_version_manager import CoreVersionManager
 from core.documentation_generator import DocumentationGenerator
 from core.governance import Governance
@@ -55,7 +56,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.4"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -72,6 +73,8 @@ def cmd_sandbox_logs(args): _json({"logs": Sandbox().logs(args.limit)})
 def cmd_llm_config(args): _json(LLMConfig().get())
 def cmd_model_routes(args): _json({"routes": ModelRouter().all_routes()})
 def cmd_model_route(args): _json(ModelRouter().route(args.purpose, provider_name_override=args.provider, model_override=args.model).model_dump(mode="json"))
+def cmd_cloud_expert_status(args): _json(CloudExpert().status())
+def cmd_cloud_expert_smoke(args): _json(CloudExpert().smoke(prompt=args.prompt, live=args.live, timeout=args.timeout))
 def cmd_llm_analyze(args): _json(LLMRuntime().analyze_task(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_llm_complete(args):
     req = LLMRequest(task_type=LLMTaskType(args.task_type), prompt=args.prompt, provider_name=args.provider, model=args.model, expect_json=args.expect_json, timeout=args.timeout)
@@ -156,8 +159,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
     p = sub.add_parser("model-routes"); p.set_defaults(func=cmd_model_routes)
     p = sub.add_parser("model-route"); p.add_argument("purpose"); p.add_argument("--provider"); p.add_argument("--model"); p.set_defaults(func=cmd_model_route)
+    p = sub.add_parser("cloud-expert-status"); p.set_defaults(func=cmd_cloud_expert_status)
+    p = sub.add_parser("cloud-expert-smoke"); p.add_argument("--prompt"); p.add_argument("--live", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_cloud_expert_smoke)
     p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
-    p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
+    p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review", "code_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
 
     p = sub.add_parser("agent-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_agent_run)
     p = sub.add_parser("agent-journal"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_agent_journal)

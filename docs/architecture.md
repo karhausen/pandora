@@ -117,3 +117,34 @@ Code-Erzeugung / Tool-Erzeugung / Review -> cloud_expert
 `LLMRouter` bleibt als Runtime-kompatible Fassade bestehen, delegiert aber an `ModelRouter`. Dadurch bleiben bestehende Aufrufe stabil, während die Modellstrategie zentral konfigurierbar wird.
 
 Sicherheitsregel bleibt unverändert: Cloud-Modelle dürfen Code nur als Proposal erzeugen. Lokale Validierung, Sandbox, Tests und manuelle Aktivierung bleiben Pflicht.
+
+## MVP 19.5 – Cloud Expert Provider
+
+MVP 19.5 führt die Cloud-Expert-Schicht operativ ein. Der Model Router bleibt die zentrale Instanz für die Entscheidung lokal vs. Cloud.
+
+```text
+Agent / Tool Development
+↓
+ModelRouter
+↓
+CloudExpert / OpenAI Provider
+↓
+Tool Proposal Manager
+↓
+Validator / Sandbox / Tests
+↓
+Manual Activation
+```
+
+Routen:
+
+- `chat` → `local_fast`
+- `planning` → `local_fast`
+- `tool_selection` → `local_fast`
+- `tool_generation` → `cloud_expert`
+- `code_review` → `cloud_expert`
+- `core_review` → `cloud_expert`
+
+Cloud Expert Status prüft nur Konfiguration und Environment. Live-Aufrufe sind explizit (`--live`) und werden nicht in Tests ausgeführt.
+
+Wichtig: Für Tool-Code-Generierung ist der generische Mock-Fallback deaktiviert. Wenn der Cloud-Key fehlt, wird transparent auf deterministische lokale Gerüste zurückgefallen, statt eine Mock-LLM-Antwort als Cloud-Code auszugeben.

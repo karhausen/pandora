@@ -4,6 +4,7 @@ import re
 
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType, ToolSpec
+from .model_router import ModelRouter
 from .tool_code_prompt import ToolCodePrompt
 from .tool_generator import ToolGenerator
 
@@ -29,6 +30,7 @@ class LLMToolGenerator:
                 "llm_used": False,
             }
 
+        route = ModelRouter().route(LLMTaskType.TOOL_GENERATION, provider_name_override=provider_name, model_override=model)
         request = LLMRequest(
             task_type=LLMTaskType.TOOL_GENERATION,
             prompt=self.prompt_builder.build(spec, previous_error=previous_error),
@@ -36,6 +38,7 @@ class LLMToolGenerator:
             model=model,
             expect_json=False,
             timeout=30.0,
+            allow_provider_fallback=False,
         )
         response = self.llm.complete(request)
         if not response.success:
@@ -44,6 +47,7 @@ class LLMToolGenerator:
                 "code": self.fallback.generate_code(spec),
                 "llm_used": False,
                 "llm_error": response.error,
+                "route": route.model_dump(mode="json"),
             }
 
         code = self._strip_fences(response.content)
@@ -51,6 +55,7 @@ class LLMToolGenerator:
             "source": response.provider_name or "llm",
             "code": code,
             "llm_used": True,
+            "route": route.model_dump(mode="json"),
         }
 
     def _strip_fences(self, text: str) -> str:

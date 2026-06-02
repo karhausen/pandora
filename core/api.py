@@ -28,6 +28,7 @@ from .sandbox import Sandbox
 from .documentation_generator import DocumentationGenerator
 from .governance import Governance
 from .changelog_manager import ChangelogManager
+from .cloud_expert import CloudExpert
 from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
@@ -40,7 +41,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent MVP 19.3.1", version="19.3.1")
+app = FastAPI(title="Pandora Agent", version="19.5")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -72,6 +73,12 @@ class ToolGenerateRequest(BaseModel):
     model: str | None = None
     max_attempts: int = 2
     run_tests: bool = True
+
+
+class CloudExpertSmokeRequest(BaseModel):
+    prompt: str | None = None
+    live: bool = False
+    timeout: float = 20.0
 
 
 class ToolProposalCapabilityRequest(BaseModel):
@@ -223,6 +230,18 @@ def model_router_routes():
 @app.get("/model-router/route/{purpose}")
 def model_router_route(purpose: str, provider_name: str | None = None, model: str | None = None):
     return ModelRouter().route(purpose, provider_name_override=provider_name, model_override=model).model_dump(mode="json")
+
+
+
+
+@app.get("/cloud-expert/status")
+def cloud_expert_status():
+    return CloudExpert().status()
+
+
+@app.post("/cloud-expert/smoke")
+def cloud_expert_smoke(req: CloudExpertSmokeRequest):
+    return CloudExpert().smoke(prompt=req.prompt, live=req.live, timeout=req.timeout)
 
 
 @app.post("/llm/analyze")
@@ -610,7 +629,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.4", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.5", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

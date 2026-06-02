@@ -649,3 +649,66 @@ python -m compileall .
 ```
 
 Ergebnis: 25 Tests erfolgreich, compileall erfolgreich.
+
+## MVP 19.5 – Cloud Expert Provider
+
+Ziel:
+
+- Alltagsgeschäft bleibt lokal und schnell.
+- Aufwendige Aufgaben wie Tool-Erzeugung, Code Review und Core Review werden zentral auf ein Cloud-Expert-Modell geroutet.
+- Cloud-Ausgaben werden weiterhin nur als Proposal verarbeitet und nie automatisch aktiviert.
+
+Neu:
+
+- `CloudExpert`
+- Provider-/ENV-Status für OpenAI-kompatible Cloud Expert Nutzung
+- API:
+  - `GET /cloud-expert/status`
+  - `POST /cloud-expert/smoke`
+- CLI:
+  - `python main.py cloud-expert-status`
+  - `python main.py cloud-expert-smoke`
+  - `python main.py cloud-expert-smoke --live --prompt "Sag kurz OK"`
+- `LLMTaskType.CODE_REVIEW`
+- `code_review` Routing
+- Tool-Code-Generierung deaktiviert stillen Mock-Fallback. Wenn `OPENAI_API_KEY` fehlt, fällt Pandora kontrolliert auf deterministische Proposal-Gerüste zurück.
+
+Konfiguration:
+
+```json
+{
+  "providers": {
+    "openai": {
+      "type": "openai",
+      "base_url": "https://api.openai.com/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "default_model": "gpt-4.1-mini"
+    }
+  },
+  "model_routes": {
+    "tool_generation": {"provider": "cloud_expert"},
+    "core_review": {"provider": "cloud_expert"},
+    "code_review": {"provider": "cloud_expert"}
+  }
+}
+```
+
+Windows PowerShell:
+
+```powershell
+setx OPENAI_API_KEY "<dein_api_key>"
+```
+
+Danach ein neues Terminal öffnen.
+
+Prüfung:
+
+```powershell
+python main.py cloud-expert-status
+python main.py model-route tool_generation
+python main.py tool-generate weather_lookup --no-tests
+```
+
+Sicherheitsregel:
+
+Cloud Expert darf Code vorschlagen. Pandora validiert lokal. Aktivierung bleibt manuell.

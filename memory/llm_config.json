@@ -51,6 +51,10 @@
     "core_review": {
       "provider": "openai",
       "fallback_provider": "mock"
+    },
+    "code_review": {
+      "provider": "openai",
+      "fallback_provider": "mock"
     }
   },
   "provider_aliases": {
@@ -60,7 +64,9 @@
     "local": "local_fast",
     "cloud": "openai",
     "cloud_expert": "openai",
-    "chatgpt": "openai"
+    "chatgpt": "openai",
+    "gpt": "openai",
+    "openai_cloud": "openai"
   },
   "model_routes": {
     "chat": {
