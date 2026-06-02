@@ -405,3 +405,12 @@ Wie heiße ich?
 Bitte rechne 2+3*4
 → route: planner_worker
 ```
+
+
+## MVP 19.0.1 – Coordinator Details GUI Fix
+
+Fix:
+
+- User-GUI zeigt Coordinator-Details jetzt zuverlässig an.
+- `showDetails()` schreibt Route und Decision in `decisionBox`.
+- User-GUI nutzt `/coordinator/run`.

@@ -37,8 +37,25 @@ function setBusy(isBusy) {
 
 function showDetails(result) {
   document.getElementById("details").classList.remove("hidden");
-  document.getElementById("planBox").textContent = JSON.stringify(result.plan || {}, null, 2);
-  document.getElementById("executionBox").textContent = JSON.stringify(result.execution || {}, null, 2);\n  const decisionBox = document.getElementById("decisionBox");\n  if (decisionBox) decisionBox.textContent = JSON.stringify(result.decision || {}, null, 2);
+
+  const decisionBox = document.getElementById("decisionBox");
+  const planBox = document.getElementById("planBox");
+  const executionBox = document.getElementById("executionBox");
+
+  if (decisionBox) {
+    decisionBox.textContent = JSON.stringify({
+      route: result.route || null,
+      decision: result.decision || null
+    }, null, 2);
+  }
+
+  if (planBox) {
+    planBox.textContent = JSON.stringify(result.plan || {}, null, 2);
+  }
+
+  if (executionBox) {
+    executionBox.textContent = JSON.stringify(result.execution || {}, null, 2);
+  }
 }
 
 async function ensureSession() {
