@@ -38,7 +38,7 @@ function setBusy(isBusy) {
 function showDetails(result) {
   document.getElementById("details").classList.remove("hidden");
   document.getElementById("planBox").textContent = JSON.stringify(result.plan || {}, null, 2);
-  document.getElementById("executionBox").textContent = JSON.stringify(result.execution || {}, null, 2);
+  document.getElementById("executionBox").textContent = JSON.stringify(result.execution || {}, null, 2);\n  const decisionBox = document.getElementById("decisionBox");\n  if (decisionBox) decisionBox.textContent = JSON.stringify(result.decision || {}, null, 2);
 }
 
 async function ensureSession() {
@@ -117,7 +117,7 @@ async function runPandora() {
   addMessage("user", task);
   setBusy(true);
 
-  const result = await api("/chat/run", {
+  const result = await api("/coordinator/run", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({

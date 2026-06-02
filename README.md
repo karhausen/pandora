@@ -372,3 +372,36 @@ Wie heiße ich?
 ```
 
 Pandora antwortet dann aus dem Conversation Memory.
+
+
+## MVP 19.0 – Coordinator Agent
+
+Neu:
+
+- CoordinatorAgent
+- CoordinatorDecision / CoordinatorResult
+- CoordinatorLog
+- zentrale Routing-Entscheidung:
+  - `memory`
+  - `chat`
+  - `planner_worker`
+- `/user/run` nutzt jetzt den Coordinator
+- API:
+  - `POST /coordinator/run`
+  - `POST /coordinator/decide`
+  - `GET /coordinator/logs`
+- User-GUI zeigt Coordinator-Entscheidung in den Details
+
+Beispiele:
+
+```text
+Hallo
+→ route: chat
+
+Ich heiße Thomas.
+Wie heiße ich?
+→ route: memory
+
+Bitte rechne 2+3*4
+→ route: planner_worker
+```

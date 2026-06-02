@@ -456,3 +456,24 @@ class ConversationContext(BaseModel):
     recent_messages: list[ChatMessage] = Field(default_factory=list)
     facts: list[ConversationMemoryFact] = Field(default_factory=list)
     summary: str = ""
+
+
+class CoordinatorDecision(BaseModel):
+    route: str
+    reason: str
+    confidence: float = 0.5
+    task: str
+    session_id: str | None = None
+    provider_name: str | None = None
+    model: str | None = None
+
+
+class CoordinatorResult(BaseModel):
+    success: bool
+    route: str
+    answer: str
+    decision: CoordinatorDecision
+    session_id: str | None = None
+    plan: dict[str, Any] = Field(default_factory=dict)
+    execution: dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None

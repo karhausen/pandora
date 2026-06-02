@@ -11,6 +11,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .coordinator_agent import CoordinatorAgent
 from .conversation_memory import ConversationMemory
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
@@ -141,6 +142,15 @@ class PlannerAgentRequest(BaseModel):
 
 
 
+
+class CoordinatorRunRequest(BaseModel):
+    task: str
+    session_id: str | None = None
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
 class ChatRunRequest(BaseModel):
     task: str
     session_id: str | None = None
@@ -166,7 +176,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-18.4"}
+    return {"status": "ok", "version": "mvp-19.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -534,25 +544,28 @@ def _user_answer_from_execution(execution: dict) -> str:
 
 @app.post("/user/run")
 async def user_run(req: UserRunRequest):
-    chat = await ChatService().run(
+    result = await CoordinatorAgent().run(
         req.task,
         provider_name=req.provider_name,
         model=req.model,
         save=req.save,
     )
     return {
-        "success": chat.success,
-        "answer": chat.answer,
-        "session_id": chat.session_id,
-        "plan_id": chat.plan.get("plan_id"),
-        "execution_id": chat.execution.get("execution_id"),
-        "plan": chat.plan,
-        "execution": chat.execution,
+        "success": result.success,
+        "answer": result.answer,
+        "session_id": result.session_id,
+        "route": result.route,
+        "decision": result.decision.model_dump(mode="json"),
+        "plan_id": result.plan.get("plan_id"),
+        "execution_id": result.execution.get("execution_id"),
+        "plan": result.plan,
+        "execution": result.execution,
+        "error": result.error,
     }
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-18.4", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.0", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")
@@ -602,3 +615,29 @@ def conversation_memory_forget(key: str):
 @app.get("/memory/conversation/logs")
 def conversation_memory_logs(limit: int = 20):
     return {"logs": ConversationMemory().log.list(limit)}
+
+
+@app.post("/coordinator/run")
+async def coordinator_run(req: CoordinatorRunRequest):
+    return (await CoordinatorAgent().run(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )).model_dump(mode="json")
+
+
+@app.post("/coordinator/decide")
+def coordinator_decide(req: CoordinatorRunRequest):
+    return CoordinatorAgent().decide(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+    ).model_dump(mode="json")
+
+
+@app.get("/coordinator/logs")
+def coordinator_logs(limit: int = 20):
+    return {"logs": CoordinatorAgent().logs(limit)}
