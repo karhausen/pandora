@@ -233,6 +233,15 @@ class CapabilityWorkflowResult(BaseModel):
 
 
 
+class ToolDevelopmentAnalysis(BaseModel):
+    needs_tool_development: bool = False
+    capability: str | None = None
+    reason: str = ""
+    confidence: float = 0.0
+    existing_tool_sufficient: bool = False
+    suggested_existing_tool: str | None = None
+
+
 class ToolDevelopmentResult(BaseModel):
     handled: bool
     task: str

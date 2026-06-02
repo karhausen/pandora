@@ -40,7 +40,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.2")
+app = FastAPI(title="Pandora Agent", version="19.2.2")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -52,6 +52,9 @@ class ToolDevelopmentRequest(BaseModel):
     task: str
     analysis: dict | None = None
     auto_create: bool = True
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float | None = 8.0
 
 
 class ToolDevelopmentCapabilityRequest(BaseModel):
@@ -245,6 +248,9 @@ def tool_development_analyze(req: ToolDevelopmentRequest):
         req.task,
         analysis=req.analysis,
         auto_create=req.auto_create,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
     ).model_dump(mode="json")
 
 

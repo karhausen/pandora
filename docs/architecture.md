@@ -43,3 +43,35 @@ Verantwortlichkeiten:
 Sicherheitsprinzip:
 
 Tool-Erzeugung bleibt ein Proposal-Prozess. Der Agent darf Vorschläge erzeugen, aber keine neuen Tools ungeprüft aktivieren.
+
+
+
+## MVP 19.2.3 – Release Hygiene
+
+Runtime-Zustand ist nicht Bestandteil eines Release-ZIPs.
+Pandora liefert statische Konfiguration mit, startet aber ohne Chatverläufe, gelernte Fakten, Test-Logs, Task-Pläne, Executions oder generierte Proposal-Artefakte.
+
+Die Bereinigung erfolgt über `scripts/clean_runtime_artifacts.py`.
+
+## MVP 19.2.2 – LLM-assisted Tool Development Routing
+
+Der Tool Development Agent nutzt jetzt eine zweistufige Entscheidung:
+
+```text
+LLM-Analyse
+↓
+regelbasierter Fallback
+```
+
+Die LLM-Analyse liefert ein strukturiertes `ToolDevelopmentAnalysis`-Objekt mit:
+
+- `needs_tool_development`
+- `capability`
+- `reason`
+- `confidence`
+- `existing_tool_sufficient`
+- `suggested_existing_tool`
+
+Der Coordinator fragt weiterhin nur den `ToolDevelopmentAgent`. Dadurch bleibt die Routing-Logik gekapselt. Neue Formulierungen wie „Anzahl der Begriffe in einem Text ermitteln“ können erkannt werden, ohne für jede Variante ein neues Keyword einzubauen.
+
+Wenn das LLM nicht erreichbar ist oder ungültiges JSON liefert, fällt Pandora kontrolliert auf `CapabilityDetector` und einfache Trigger-Hinweise zurück.

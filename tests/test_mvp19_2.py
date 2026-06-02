@@ -41,6 +41,14 @@ def test_coordinator_routes_missing_tool_to_tool_development():
     assert decision.confidence >= 0.9
 
 
+def test_coordinator_routes_natural_word_count_tool_request_to_tool_development():
+    coordinator = CoordinatorAgent()
+    decision = coordinator.decide("Pandora, ich brauche ein Tool das Wörter zählt.")
+
+    assert decision.route == "tool_development"
+    assert decision.reason
+
+
 def test_coordinator_runs_tool_development_route():
     result = asyncio.run(
         CoordinatorAgent().run(
@@ -53,3 +61,40 @@ def test_coordinator_runs_tool_development_route():
     assert result.execution["mode"] == "tool_development"
     assert result.execution["tool_development"]["proposal_created"] is True
     assert "Proposal-ID" in result.answer
+
+
+def test_tool_development_agent_uses_llm_for_alternative_word_count_wording():
+    result = ToolDevelopmentAgent().analyze(
+        "Bitte baue mir eine Fähigkeit, die die Anzahl der Begriffe in einem Text ermittelt.",
+        auto_create=False,
+        provider_name="mock",
+    )
+
+    assert result.handled is True
+    assert result.status == "gap_detected"
+    assert result.gap["capability"] == "word_count"
+    assert result.gap["source"] == "llm"
+    assert result.gap["confidence"] >= 0.6
+
+
+def test_tool_development_agent_does_not_route_normal_chat_to_tool_development():
+    result = ToolDevelopmentAgent().analyze(
+        "Wie ist das Wetter auf dem Mars?",
+        auto_create=False,
+        provider_name="mock",
+    )
+
+    assert result.handled is False
+    assert result.status == "no_gap"
+    assert result.gap["gap_detected"] is False
+
+
+def test_coordinator_routes_semantic_tool_request_with_llm_assistance():
+    coordinator = CoordinatorAgent()
+    decision = coordinator.decide(
+        "Pandora, entwickle bitte eine Funktion, die die Anzahl der Begriffe in einem Text ermittelt.",
+        provider_name="mock",
+    )
+
+    assert decision.route == "tool_development"
+    assert "word-count" in decision.reason.lower() or "word" in decision.reason.lower() or "begriffe" in decision.reason.lower()

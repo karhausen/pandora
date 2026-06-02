@@ -480,6 +480,105 @@ python -m compileall core tools generated_tools main.py
 Hinweis: MVP 19.1 bleibt bewusst ohne Vektor-Datenbank und ohne zusätzliche Abhängigkeiten. Semantische Suche über mehr Faktentypen ist ein sinnvoller nächster Schritt.
 
 
+
+## MVP 19.2.3 – Clean Release Package
+
+Ziel:
+
+- Release-ZIP ohne Test-Artefakte, Chatverläufe, gelernte Fakten, Logs oder generierte Tool-Proposals.
+- Pandora startet nach dem Entpacken mit leerem Wissen, aber mit statischer Grundkonfiguration.
+
+Bereinigung vor Release:
+
+```bash
+python scripts/clean_runtime_artifacts.py
+```
+
+Bereinigt werden unter anderem:
+
+- `logs/`
+- `memory/chat_sessions/`
+- `memory/task_plans/`
+- `memory/task_executions/`
+- `memory/conversation_memory.json`
+- `memory/*.jsonl`
+- `sandbox/runs/`
+- `sandbox/tmp/`
+- `sandbox/tool_generation/`
+- `tool_proposals/`
+- `skill_proposals/`
+- `proposals/improvements/`
+
+Erhalten bleiben:
+
+- `memory/tool_registry.json`
+- `memory/skill_registry.json`
+- `memory/llm_config.json`
+- `memory/execution_policy.json`
+- Sourcecode, Tests, Doku, statische Tools und Skills
+
+## MVP 19.2.2 – LLM-assisted Tool Development Routing
+
+Ziel:
+
+- Tool-Development-Routing wird nicht mehr primär über feste Keywords entschieden.
+- Das lokale LLM bewertet zuerst strukturiert, ob ein neues Tool gebraucht wird.
+- Keyword-/Capability-Regeln bleiben nur noch als robuster Fallback erhalten.
+
+Neu:
+
+- `ToolDevelopmentAnalysis` Modell
+- LLM-Routing im `ToolDevelopmentAgent`
+- JSON-Prompt `TOOL_DEVELOPMENT_ROUTING`
+- Fallback bei LLM-Fehlern, ungültigem JSON oder zu niedriger Confidence
+- API/CLI-Parameter für Provider, Modell und Timeout
+
+Ablauf:
+
+```text
+User-Anfrage
+↓
+ToolDevelopmentAgent
+↓
+LLM-Analyse
+↓
+Fallback-Regeln, falls nötig
+↓
+Tool Proposal Manager
+```
+
+Beispiel:
+
+```text
+Pandora, entwickle bitte eine Funktion, die die Anzahl der Begriffe in einem Text ermittelt.
+→ LLM erkennt: word_count
+→ route: tool_development
+```
+
+Wichtig:
+
+- Die LLM-Analyse ist entscheidend für neue Formulierungen.
+- Der Fallback verhindert Abstürze, wenn LM Studio nicht erreichbar ist.
+- Neue Tools werden weiterhin nur vorgeschlagen, nicht automatisch aktiviert.
+
+Prüfung:
+
+- `pytest`: 16 passed
+- `compileall`: erfolgreich
+
+## MVP 19.2.1 – Tool Development Agent Hotfix
+
+Bugfix:
+
+- Natürliche deutsche Formulierungen wie `Pandora, ich brauche ein Tool das Wörter zählt.` werden jetzt korrekt als fehlende `word_count`-Capability erkannt.
+- Die Keyword-Erkennung für Wortzähl-Tools wurde erweitert.
+- Zusätzlicher Regressionstest schützt den Coordinator-Router gegen Rückfall auf Planner/Worker.
+
+Prüfung:
+
+- `pytest`: 13 passed
+- `compileall`: erfolgreich
+
 ## MVP 19.2 – Tool Development Agent
 
 Ziel:

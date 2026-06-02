@@ -7,7 +7,19 @@ class CapabilityDetector:
     KEYWORDS = {
         "json_pretty": ["json format", "pretty json", "json hübsch", "json formatieren"],
         "text_reverse": ["reverse text", "text umdrehen", "rückwärts"],
-        "word_count": ["word count", "wörter zählen", "wortanzahl"],
+        "word_count": [
+            "word count",
+            "count words",
+            "wörter zählen",
+            "woerter zaehlen",
+            "wörter zählt",
+            "woerter zaehlt",
+            "zählt wörter",
+            "zaehlt woerter",
+            "wortanzahl",
+            "anzahl wörter",
+            "anzahl der wörter",
+        ],
         "timestamp": ["timestamp", "zeitstempel"],
     }
 

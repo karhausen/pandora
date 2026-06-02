@@ -56,7 +56,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.2"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.2.2"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -98,7 +98,7 @@ def cmd_capability_last(args): _json(CapabilityExpansionManager().last_event())
 def cmd_capability_workflow(args): _json(asyncio.run(CapabilityWorkflow().run(args.task, activate=args.activate, retry=args.retry, mode="cli")).model_dump(mode="json"))
 def cmd_capability_workflows(args): _json({"workflows": CapabilityWorkflow().list(args.limit)})
 def cmd_capability_workflow_last(args): _json(CapabilityWorkflow().last())
-def cmd_tool_development_analyze(args): _json(ToolDevelopmentAgent().analyze(args.task, auto_create=not args.no_create).model_dump(mode="json"))
+def cmd_tool_development_analyze(args): _json(ToolDevelopmentAgent().analyze(args.task, auto_create=not args.no_create, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_tool_development_propose(args): _json(ToolDevelopmentAgent().create_proposal(args.capability).model_dump(mode="json"))
 def cmd_tool_propose_task(args): _json(ToolProposalManager().propose_from_task(args.task))
 def cmd_tool_propose_capability(args): _json(ToolProposalManager().propose_for_capability(args.capability))
@@ -142,7 +142,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 19.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 19.2.2")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -183,7 +183,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-workflows"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_capability_workflows)
     p = sub.add_parser("capability-workflow-last"); p.set_defaults(func=cmd_capability_workflow_last)
 
-    p = sub.add_parser("tool-development-analyze"); p.add_argument("task"); p.add_argument("--no-create", action="store_true"); p.set_defaults(func=cmd_tool_development_analyze)
+    p = sub.add_parser("tool-development-analyze"); p.add_argument("task"); p.add_argument("--no-create", action="store_true"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_tool_development_analyze)
     p = sub.add_parser("tool-development-propose"); p.add_argument("capability"); p.set_defaults(func=cmd_tool_development_propose)
     p = sub.add_parser("tool-propose-task"); p.add_argument("task"); p.set_defaults(func=cmd_tool_propose_task)
     p = sub.add_parser("tool-propose-capability"); p.add_argument("capability"); p.set_defaults(func=cmd_tool_propose_capability)

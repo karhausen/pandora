@@ -41,7 +41,11 @@ class CoordinatorAgent:
                 model=model,
             )
 
-        tool_gap = self.tool_development.detect_gap(task)
+        tool_gap = self.tool_development.detect_gap(
+            task,
+            provider_name=provider_name,
+            model=model,
+        )
         if tool_gap.get("gap_detected"):
             return CoordinatorDecision(
                 route="tool_development",
@@ -97,7 +101,12 @@ class CoordinatorAgent:
 
         try:
             if decision.route == "tool_development":
-                development = self.tool_development.analyze(task, auto_create=True)
+                development = self.tool_development.analyze(
+                    task,
+                    auto_create=True,
+                    provider_name=provider_name,
+                    model=model,
+                )
                 proposal = development.proposal or {}
                 proposal_id = proposal.get("id")
                 answer = development.message
