@@ -423,3 +423,58 @@ Fix:
 - Details-Bereich der User-GUI wird deterministisch aufgebaut.
 - `showDetails()` schreibt Route, Reason, Confidence, Provider, Model und Session-ID in `decisionBox`.
 - `user.js` wurde sauber neu geschrieben, damit keine alten String-Patches übrig bleiben.
+
+
+## MVP 19.1 – Memory Recall Agent
+
+Ziel:
+
+- Conversation Memory wird nicht nur als Kontext an den Chat gegeben, sondern vor dem normalen Chat gezielt abgefragt.
+- Direkte Erinnerungsfragen werden lokal, schnell und nachvollziehbar beantwortet.
+
+Neu:
+
+- `MemoryRecallAgent`
+- `MemoryRecallResult` Modell
+- regelbasierte Recall-Erkennung für gespeicherte Namen
+- `/memory/recall`
+- CLI: `python main.py memory-recall "Wie heiße ich?"`
+- Coordinator nutzt den Recall-Agenten für Route `memory`
+- ChatService schreibt Recall-Details in `execution.recall`
+
+Beispiele:
+
+```text
+Ich heiße Thomas.
+Wie heiße ich?
+→ Du heißt Thomas.
+
+Ich habe meinen Namen vergessen.
+→ Du heißt Thomas.
+
+Weißt du noch, wie ich heiße?
+→ Du heißt Thomas.
+```
+
+Architektur:
+
+```text
+User GUI
+↓
+Coordinator Agent
+↓
+Memory Recall Agent
+↓
+Conversation Memory
+↓
+Chat / Planner-Worker Fallback
+```
+
+Tests:
+
+```powershell
+python -m pytest
+python -m compileall core tools generated_tools main.py
+```
+
+Hinweis: MVP 19.1 bleibt bewusst ohne Vektor-Datenbank und ohne zusätzliche Abhängigkeiten. Semantische Suche über mehr Faktentypen ist ein sinnvoller nächster Schritt.

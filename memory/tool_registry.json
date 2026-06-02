@@ -1,1 +1,50 @@
-{}
+{
+  "echo": {
+    "id": "echo",
+    "name": "Echo",
+    "description": "Returns input text.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "text": "str"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.echo",
+    "function": "run"
+  },
+  "calculator": {
+    "id": "calculator",
+    "name": "Calculator",
+    "description": "Safely evaluates arithmetic expressions.",
+    "version": "0.1.0",
+    "input_schema": {
+      "expression": "str"
+    },
+    "output_schema": {
+      "result": "number"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.calculator",
+    "function": "run"
+  },
+  "uppercase": {
+    "id": "uppercase",
+    "name": "Uppercase",
+    "description": "Converts text to uppercase.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "text": "str"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "tools.uppercase",
+    "function": "run"
+  }
+}

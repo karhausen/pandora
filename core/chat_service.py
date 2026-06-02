@@ -4,6 +4,7 @@ from .chat_response_router import ChatResponseRouter
 from .chat_session_store import ChatSessionStore
 from .conversation_memory import ConversationMemory
 from .llm_chat_responder import LLMChatResponder
+from .memory_recall_agent import MemoryRecallAgent
 from .models import ChatRunResult
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .user_response import UserResponseFormatter
@@ -17,6 +18,7 @@ class ChatService:
         self.router = ChatResponseRouter()
         self.chat_responder = LLMChatResponder()
         self.memory = ConversationMemory()
+        self.memory_recall = MemoryRecallAgent(self.memory)
 
     async def run(
         self,
@@ -39,18 +41,23 @@ class ChatService:
         if save:
             self.memory.extract_and_store(task, session_id=session.session_id)
 
-        memory_answer = self.memory.answer_from_memory(task)
-        if memory_answer:
-            answer = memory_answer
+        memory_recall = self.memory_recall.recall(task)
+        if memory_recall.recalled and memory_recall.answer:
+            answer = memory_recall.answer
             success = True
             plan = {}
             execution = {
                 "success": True,
                 "final_output": {"message": answer},
-                "mode": "conversation_memory",
+                "mode": "memory_recall",
+                "recall": memory_recall.model_dump(mode="json"),
                 "error": None,
             }
-            metadata = {"mode": "conversation_memory", "success": True}
+            metadata = {
+                "mode": "memory_recall",
+                "success": True,
+                "recall": memory_recall.model_dump(mode="json"),
+            }
 
         elif self.router.should_use_tools(task):
             result = await self.orchestrator.run(task, provider_name=provider_name, model=model, save=save)

@@ -5,6 +5,7 @@ from datetime import datetime, UTC
 from .chat_response_router import ChatResponseRouter
 from .chat_service import ChatService
 from .conversation_memory import ConversationMemory
+from .memory_recall_agent import MemoryRecallAgent
 from .coordinator_log import CoordinatorLog
 from .models import CoordinatorDecision, CoordinatorResult
 
@@ -13,6 +14,7 @@ class CoordinatorAgent:
     def __init__(self):
         self.router = ChatResponseRouter()
         self.memory = ConversationMemory()
+        self.memory_recall = MemoryRecallAgent(self.memory)
         self.chat_service = ChatService()
         self.log = CoordinatorLog()
 
@@ -25,11 +27,12 @@ class CoordinatorAgent:
     ) -> CoordinatorDecision:
         normalized = task.strip().lower()
 
-        if self.memory.answer_from_memory(task):
+        memory_recall = self.memory_recall.recall(task)
+        if memory_recall.recalled and memory_recall.answer:
             return CoordinatorDecision(
                 route="memory",
-                reason="Conversation memory can answer this directly.",
-                confidence=0.95,
+                reason=memory_recall.reason,
+                confidence=memory_recall.confidence,
                 task=task,
                 session_id=session_id,
                 provider_name=provider_name,

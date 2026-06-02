@@ -13,6 +13,7 @@ from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
 from .coordinator_agent import CoordinatorAgent
 from .conversation_memory import ConversationMemory
+from .memory_recall_agent import MemoryRecallAgent
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .worker_agent import WorkerAgent
@@ -38,7 +39,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent MVP 10", version="10.0")
+app = FastAPI(title="Pandora Agent", version="19.1")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -176,7 +177,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.0.2"}
+    return {"status": "ok", "version": "mvp-19.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -565,7 +566,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.0.2", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.1", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")
@@ -615,6 +616,11 @@ def conversation_memory_forget(key: str):
 @app.get("/memory/conversation/logs")
 def conversation_memory_logs(limit: int = 20):
     return {"logs": ConversationMemory().log.list(limit)}
+
+
+@app.post("/memory/recall")
+def memory_recall(req: ChatRunRequest):
+    return MemoryRecallAgent().recall(req.task).model_dump(mode="json")
 
 
 @app.post("/coordinator/run")

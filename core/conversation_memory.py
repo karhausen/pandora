@@ -95,13 +95,12 @@ class ConversationMemory:
         return facts
 
     def answer_from_memory(self, text: str) -> str | None:
-        normalized = text.strip().lower()
-        facts = {fact.key: fact.value for fact in self.facts()}
-        if any(q in normalized for q in ["wie heiße ich", "was ist mein name", "kennst du meinen namen"]):
-            if "name" in facts:
-                return f"Du heißt {facts['name']}."
-            return "Deinen Namen habe ich noch nicht gespeichert."
-        return None
+        # Backward-compatible facade for older Coordinator/Chat code.
+        # The actual recall logic lives in MemoryRecallAgent since MVP 19.1.
+        from .memory_recall_agent import MemoryRecallAgent
+
+        recall = MemoryRecallAgent(self).recall(text)
+        return recall.answer if recall.recalled else None
 
     def _clean_value(self, value: str) -> str:
         value = value.strip().strip(".!?,;:")

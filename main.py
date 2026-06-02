@@ -21,6 +21,7 @@ from core.heartbeat import Heartbeat
 from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
+from core.memory_recall_agent import MemoryRecallAgent
 from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
@@ -54,7 +55,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.0.2"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.1"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -76,6 +77,8 @@ def cmd_llm_complete(args):
 def cmd_agent_run(args): _json(asyncio.run(AgentLoop().run(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout)).model_dump(mode="json"))
 def cmd_agent_journal(args): _json({"journal": TaskJournal().list(args.limit)})
 def cmd_agent_last(args): _json(TaskJournal().last())
+
+def cmd_memory_recall(args): _json(MemoryRecallAgent().recall(args.task).model_dump(mode="json"))
 
 def cmd_planner_plan(args): _json(PlannerAgent().plan(args.task, provider_name=args.provider, model=args.model, save=not args.no_save).model_dump(mode="json"))
 def cmd_planner_plans(args): _json({"plans": PlannerAgent().list_plans()})
@@ -157,6 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("agent-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_agent_run)
     p = sub.add_parser("agent-journal"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_agent_journal)
     p = sub.add_parser("agent-last"); p.set_defaults(func=cmd_agent_last)
+    p = sub.add_parser("memory-recall"); p.add_argument("task"); p.set_defaults(func=cmd_memory_recall)
 
     p = sub.add_parser("planner-plan"); p.add_argument("task"); p.add_argument("--provider", default="mock"); p.add_argument("--model"); p.add_argument("--no-save", action="store_true"); p.set_defaults(func=cmd_planner_plan)
     p = sub.add_parser("planner-plans"); p.set_defaults(func=cmd_planner_plans)

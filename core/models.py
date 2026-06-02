@@ -451,6 +451,17 @@ class ConversationMemoryFact(BaseModel):
     updated_at: str
 
 
+
+
+class MemoryRecallResult(BaseModel):
+    recalled: bool
+    answer: str | None = None
+    key: str | None = None
+    value: str | None = None
+    confidence: float = 0.0
+    reason: str = ""
+    matched_question: str | None = None
+
 class ConversationContext(BaseModel):
     session_id: str
     recent_messages: list[ChatMessage] = Field(default_factory=list)
