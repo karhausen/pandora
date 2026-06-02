@@ -21,6 +21,7 @@ from core.heartbeat import Heartbeat
 from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
+from core.model_router import ModelRouter
 from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
@@ -54,7 +55,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.3"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.4"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -69,6 +70,8 @@ def cmd_sandbox_run_tool(args): _json(Sandbox().run_tool(args.tool_id, _payload(
 def cmd_sandbox_policies(args): _json(Sandbox().policy_report())
 def cmd_sandbox_logs(args): _json({"logs": Sandbox().logs(args.limit)})
 def cmd_llm_config(args): _json(LLMConfig().get())
+def cmd_model_routes(args): _json({"routes": ModelRouter().all_routes()})
+def cmd_model_route(args): _json(ModelRouter().route(args.purpose, provider_name_override=args.provider, model_override=args.model).model_dump(mode="json"))
 def cmd_llm_analyze(args): _json(LLMRuntime().analyze_task(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_llm_complete(args):
     req = LLMRequest(task_type=LLMTaskType(args.task_type), prompt=args.prompt, provider_name=args.provider, model=args.model, expect_json=args.expect_json, timeout=args.timeout)
@@ -151,6 +154,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("sandbox-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_sandbox_logs)
 
     p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
+    p = sub.add_parser("model-routes"); p.set_defaults(func=cmd_model_routes)
+    p = sub.add_parser("model-route"); p.add_argument("purpose"); p.add_argument("--provider"); p.add_argument("--model"); p.set_defaults(func=cmd_model_route)
     p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
     p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
 
@@ -178,7 +183,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("tool-propose-task"); p.add_argument("task"); p.set_defaults(func=cmd_tool_propose_task)
     p = sub.add_parser("tool-propose-capability"); p.add_argument("capability"); p.set_defaults(func=cmd_tool_propose_capability)
-    p = sub.add_parser("tool-generate"); p.add_argument("capability"); p.add_argument("--provider", default="mock"); p.add_argument("--model"); p.add_argument("--max-attempts", type=int, default=2); p.add_argument("--no-tests", action="store_true"); p.set_defaults(func=cmd_tool_generate)
+    p = sub.add_parser("tool-generate"); p.add_argument("capability"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--max-attempts", type=int, default=2); p.add_argument("--no-tests", action="store_true"); p.set_defaults(func=cmd_tool_generate)
     p = sub.add_parser("tool-generation-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_generation_logs)
     p = sub.add_parser("tool-proposal-list"); p.set_defaults(func=cmd_tool_proposal_list)
     p = sub.add_parser("tool-proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_show)

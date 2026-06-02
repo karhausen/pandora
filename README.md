@@ -596,3 +596,56 @@ python -m compileall .
 ```
 
 Result: 14 tests passed, compileall successful.
+
+## MVP 19.4 – Model Router
+
+Ziel:
+
+- Pandora trennt Alltag/erste Anfrage von aufwendiger Code- und Tool-Erzeugung.
+- Normale Aufgaben laufen weiter lokal und schnell.
+- Tool-/Code-Erzeugung und Core-Reviews werden zentral auf ein Cloud-Expert-Modell geroutet.
+- Agenten sollen nicht selbst hart verdrahten, ob lokal oder Cloud verwendet wird.
+
+Neu:
+
+- `core/model_router.py`
+- `ModelRouter`
+- zentrale `model_routes` in `memory/llm_config.json`
+- Provider-Aliase:
+  - `lmstudio` → `local_fast`
+  - `local` → `local_fast`
+  - `cloud`, `cloud_expert`, `chatgpt` → `openai`
+- `LLMRouter` delegiert an `ModelRouter`
+- API:
+  - `GET /model-router/routes`
+  - `GET /model-router/route/{purpose}`
+- CLI:
+  - `python main.py model-routes`
+  - `python main.py model-route tool_generation`
+
+Standard-Routing:
+
+```text
+chat             -> local_fast / LM Studio
+tool_selection   -> local_fast / LM Studio
+planning         -> local_fast / LM Studio
+reflection       -> local_fast / LM Studio
+tool_generation  -> cloud_expert -> openai
+core_review      -> cloud_expert -> openai
+code_review      -> cloud_expert -> openai
+```
+
+Wichtig:
+
+- Explizite Provider-Overrides funktionieren weiterhin, z.B. `--provider mock` oder `provider_name=lmstudio`.
+- Ohne `OPENAI_API_KEY` fällt Tool-Generation weiterhin kontrolliert auf den vorhandenen Fallback zurück.
+- Cloud darf weiterhin nur Proposals erzeugen. Aktivierung bleibt manuell.
+
+Prüfung:
+
+```powershell
+python -m pytest
+python -m compileall .
+```
+
+Ergebnis: 25 Tests erfolgreich, compileall erfolgreich.

@@ -31,6 +31,7 @@ from .changelog_manager import ChangelogManager
 from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
+from .model_router import ModelRouter
 from .models import LLMRequest, LLMTaskType
 from .task_journal import TaskJournal
 from .tool_executor import ToolExecutor
@@ -67,7 +68,7 @@ class ToolActivationRequest(BaseModel):
 
 class ToolGenerateRequest(BaseModel):
     capability: str
-    provider_name: str | None = "mock"
+    provider_name: str | None = None
     model: str | None = None
     max_attempts: int = 2
     run_tests: bool = True
@@ -189,7 +190,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.3"}
+    return {"status": "ok", "version": "mvp-19.4"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -213,6 +214,16 @@ def skills():
 @app.get("/llm/config")
 def llm_config():
     return LLMConfig().get()
+
+@app.get("/model-router/routes")
+def model_router_routes():
+    return {"routes": ModelRouter().all_routes()}
+
+
+@app.get("/model-router/route/{purpose}")
+def model_router_route(purpose: str, provider_name: str | None = None, model: str | None = None):
+    return ModelRouter().route(purpose, provider_name_override=provider_name, model_override=model).model_dump(mode="json")
+
 
 @app.post("/llm/analyze")
 def llm_analyze(req: LLMAnalyzeRequest):
@@ -599,7 +610,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.3", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.4", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

@@ -90,3 +90,30 @@ Coordinator.run()
 ToolProposalManager
 ```
 
+
+## MVP 19.4 – Model Router
+
+Der Model Router ist die zentrale Policy-Schicht für Modellwahl. Agenten übergeben nur noch einen Zweck wie `chat`, `tool_selection`, `planning`, `tool_generation` oder `core_review`. Der Router entscheidet anhand von `memory/llm_config.json`, welcher Provider und welches Modell genutzt werden.
+
+```text
+Agent / Runtime
+↓
+ModelRouter
+↓
+LLMConfig provider aliases
+↓
+local_fast oder cloud_expert
+↓
+LLMRuntime Client
+```
+
+Die wichtigste Trennung:
+
+```text
+Alltagsgeschäft / schnelle Entscheidungen -> local_fast
+Code-Erzeugung / Tool-Erzeugung / Review -> cloud_expert
+```
+
+`LLMRouter` bleibt als Runtime-kompatible Fassade bestehen, delegiert aber an `ModelRouter`. Dadurch bleiben bestehende Aufrufe stabil, während die Modellstrategie zentral konfigurierbar wird.
+
+Sicherheitsregel bleibt unverändert: Cloud-Modelle dürfen Code nur als Proposal erzeugen. Lokale Validierung, Sandbox, Tests und manuelle Aktivierung bleiben Pflicht.

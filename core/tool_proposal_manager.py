@@ -72,7 +72,7 @@ class ToolProposalManager:
     def generate_with_llm(
         self,
         capability: str,
-        provider_name: str | None = "mock",
+        provider_name: str | None = None,
         model: str | None = None,
         max_attempts: int = 2,
         run_tests: bool = True,
