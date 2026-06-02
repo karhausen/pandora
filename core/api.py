@@ -14,7 +14,6 @@ from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
 from .coordinator_agent import CoordinatorAgent
 from .conversation_memory import ConversationMemory
-from .memory_recall_agent import MemoryRecallAgent
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .worker_agent import WorkerAgent
@@ -40,7 +39,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.2.2")
+app = FastAPI(title="Pandora Agent MVP 19.3.1", version="19.3.1")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -54,7 +53,7 @@ class ToolDevelopmentRequest(BaseModel):
     auto_create: bool = True
     provider_name: str | None = None
     model: str | None = None
-    timeout: float | None = 8.0
+    timeout: float | None = 10.0
 
 
 class ToolDevelopmentCapabilityRequest(BaseModel):
@@ -190,7 +189,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.2"}
+    return {"status": "ok", "version": "mvp-19.3"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -256,7 +255,11 @@ def tool_development_analyze(req: ToolDevelopmentRequest):
 
 @app.post("/tool-development/propose")
 def tool_development_propose(req: ToolDevelopmentCapabilityRequest):
-    return ToolDevelopmentAgent().create_proposal(req.capability).model_dump(mode="json")
+    return ToolDevelopmentAgent().analyze(
+        req.capability,
+        analysis={"missing_capabilities": [req.capability]},
+        auto_create=True,
+    ).model_dump(mode="json")
 
 
 @app.post("/tool-proposals/for-capability")
@@ -596,7 +599,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.1", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.3", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")
@@ -646,11 +649,6 @@ def conversation_memory_forget(key: str):
 @app.get("/memory/conversation/logs")
 def conversation_memory_logs(limit: int = 20):
     return {"logs": ConversationMemory().log.list(limit)}
-
-
-@app.post("/memory/recall")
-def memory_recall(req: ChatRunRequest):
-    return MemoryRecallAgent().recall(req.task).model_dump(mode="json")
 
 
 @app.post("/coordinator/run")

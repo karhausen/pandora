@@ -2,6 +2,7 @@ from __future__ import annotations
 import json
 import os
 import socket
+import urllib.error
 import urllib.request
 from core.models import LLMProvider, LLMRequest, LLMResponse
 
@@ -17,13 +18,40 @@ class OpenAICompatibleClient:
             messages.append({"role": "system", "content": "Context JSON: " + json.dumps(request.context, ensure_ascii=False)})
         messages.append({"role": "user", "content": request.prompt})
         payload = {"model": model, "messages": messages, "temperature": provider_config.get("temperature", 0.2), "stream": False}
-        if request.expect_json:
+        if request.expect_json and provider_config.get("supports_response_format", False):
             payload["response_format"] = {"type": "json_object"}
-        try:
-            req = urllib.request.Request(f"{base_url}/chat/completions", data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"}, method="POST")
+
+        def _post(data: dict) -> dict:
+            req = urllib.request.Request(
+                f"{base_url}/chat/completions",
+                data=json.dumps(data).encode("utf-8"),
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
+                method="POST",
+            )
             with urllib.request.urlopen(req, timeout=timeout) as resp:
-                raw = json.loads(resp.read().decode("utf-8"))
-            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=raw["choices"][0]["message"]["content"], raw=raw)
+                return json.loads(resp.read().decode("utf-8"))
+
+        try:
+            raw = _post(payload)
+            message = raw["choices"][0]["message"]
+            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=message.get("content") or "", raw=raw)
+        except urllib.error.HTTPError as exc:
+            body = ""
+            try:
+                body = exc.read().decode("utf-8", errors="replace")
+            except Exception:
+                body = ""
+            if "response_format" in payload:
+                retry_payload = dict(payload)
+                retry_payload.pop("response_format", None)
+                try:
+                    raw = _post(retry_payload)
+                    message = raw["choices"][0]["message"]
+                    raw["pandora_retry"] = {"reason": "response_format_rejected", "status": exc.code, "body": body}
+                    return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=message.get("content") or "", raw=raw)
+                except Exception as retry_exc:
+                    return LLMResponse(success=False, provider=self.provider, provider_name=provider_name, model=model, content="", error=f"HTTPError {exc.code}: {body} | retry_without_response_format_failed={type(retry_exc).__name__}: {retry_exc}")
+            return LLMResponse(success=False, provider=self.provider, provider_name=provider_name, model=model, content="", error=f"HTTPError {exc.code}: {body or exc.reason}")
         except socket.timeout:
             return LLMResponse(success=False, provider=self.provider, provider_name=provider_name, model=model, content="", error=f"Timeout after {timeout}s talking to {base_url}")
         except Exception as exc:

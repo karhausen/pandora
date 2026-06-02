@@ -425,215 +425,174 @@ Fix:
 - `user.js` wurde sauber neu geschrieben, damit keine alten String-Patches übrig bleiben.
 
 
-## MVP 19.1 – Memory Recall Agent
+## MVP 19.3 – LLM Reliability Layer
 
 Ziel:
 
-- Conversation Memory wird nicht nur als Kontext an den Chat gegeben, sondern vor dem normalen Chat gezielt abgefragt.
-- Direkte Erinnerungsfragen werden lokal, schnell und nachvollziehbar beantwortet.
+- Lokale LLMs dürfen Pandora nicht mehr durch unsauberes JSON, Markdown-Fences, `<think>`-Blöcke, Reasoning-only-Antworten oder falsche Schemas aus dem Tritt bringen.
+- Planner-Fehler durch falsches Modell-JSON werden abgefangen und nachvollziehbar gespeichert.
+- Reasoning-Inhalte von LM Studio/Qwen werden für Debugging und spätere Lernschritte abgelegt.
 
 Neu:
 
-- `MemoryRecallAgent`
-- `MemoryRecallResult` Modell
-- regelbasierte Recall-Erkennung für gespeicherte Namen
-- `/memory/recall`
-- CLI: `python main.py memory-recall "Wie heiße ich?"`
-- Coordinator nutzt den Recall-Agenten für Route `memory`
-- ChatService schreibt Recall-Details in `execution.recall`
+- `core/llm_reliability.py`
+- `LLMReliabilityLayer`
+- `LLMReliabilityReport`
+- robuste JSON-Recovery aus:
+  - Markdown-Codeblöcken
+  - eingebettetem JSON
+  - `<think>...</think>` + JSON
+- Schema-Recovery für Planner-Antworten wie `{ "result": "14" }`
+- `LLMResponse` enthält jetzt:
+  - `reasoning`
+  - `recovered`
+  - `confidence`
+  - `reliability`
+- Reasoning-Speicher unter `memory/reasoning/<task_type>/`
+- Planner-Fallback bei LLM-Schemafehlern
+- LM-Studio-Kompatibilität: `response_format` wird nicht mehr standardmäßig gesendet
+- Provider-Aliase: `lmstudio`, `lm-studio`, `lm_studio`, `local` → `local_fast`
+
+Beispiel:
+
+```text
+Bitte rechne 2+3*4
+```
+
+Wenn Qwen fälschlich antwortet:
+
+```json
+{"result":"14"}
+```
+
+wird daraus eine rekonstruierte Planner-Analyse mit `calculator` als Tool. Falls Recovery nicht möglich ist, nutzt der Planner deterministische Fallback-Regeln und speichert den Fehler in `raw_analysis.llm_analysis_error`.
+
+Tests:
+
+```powershell
+python -m pytest
+python -m compileall .
+```
+
+
+
+
+
+## MVP 19.3.4 – Single-Pass Capability Gate
+
+Bugfix:
+
+- Coordinator reuses the Tool Development capability decision from `decide()` during `run()`.
+- One user request no longer asks the capability-gate LLM twice.
+- This avoids duplicate LM Studio calls and prevents a second truncated JSON response from affecting a decision that was already made.
+- Tool proposal creation receives the precomputed gap via `precomputed_gap`.
+
+Validation:
+
+- `pytest`: 21 passed
+- `compileall`: successful
+
+## MVP 19.3.3 – Deterministic Existing Tool Fast Path
+
+MVP 19.3.3 reduces unnecessary LLM calls for obvious local tool tasks.
+
+Problem:
+
+- `Bitte rechne 2+3*4` triggered the LLM capability gate and then the Planner LLM, although the existing `calculator` tool can handle it deterministically.
+
+Change:
+
+- `ChatResponseRouter.deterministic_existing_tool()` detects conservative known-tool cases such as arithmetic.
+- `CoordinatorAgent` routes those tasks directly to `planner_worker` before asking the capability gate.
+- `PlannerAgent` skips LLM analysis when a known registered deterministic tool can be selected safely.
+- Capability discovery remains LLM-first for ambiguous/missing capabilities such as stock lookup or weather lookup.
+
+Expected behavior:
+
+```text
+Bitte rechne 2+3*4
+→ no capability-gate LLM call
+→ no planner LLM call
+→ calculator
+→ 14
+```
+
+Validation:
+
+- `pytest`: 20 passed
+- `compileall`: successful
+
+## MVP 19.3.2 – LLM Capability Gate
+
+MVP 19.3.2 ersetzt das fest verdrahtete Capability-Routing durch eine generische LLM-Entscheidung.
+
+Neue Entscheidungskette:
+
+```text
+User request
+↓
+LLM Capability Gate
+↓
+Kann direkt antworten?
+↓ nein
+Ist vorhandenes Tool ausreichend?
+↓ nein
+tool_needed / Tool Development
+```
+
+Wichtig:
+
+- Börsenkurse, Wetter, Dateien, Live-Daten, Gerätezugriff usw. müssen nicht mehr einzeln fest verdrahtet werden.
+- Das LLM liefert eine strukturierte `CapabilityDecision`.
+- Vorhandene Tools werden berücksichtigt, z.B. `calculator` für Rechenaufgaben.
+- Keyword-Erkennung bleibt nur noch transparenter Fallback bei LLM-Ausfall.
+- `/tool-development/analyze` akzeptiert jetzt `provider_name`, `model` und `timeout`.
 
 Beispiele:
 
 ```text
-Ich heiße Thomas.
-Wie heiße ich?
-→ Du heißt Thomas.
+Bitte rechne 2+3*4
+→ existing_tool_sufficient: calculator
+→ route: planner_worker
 
-Ich habe meinen Namen vergessen.
-→ Du heißt Thomas.
-
-Weißt du noch, wie ich heiße?
-→ Du heißt Thomas.
-```
-
-Architektur:
-
-```text
-User GUI
-↓
-Coordinator Agent
-↓
-Memory Recall Agent
-↓
-Conversation Memory
-↓
-Chat / Planner-Worker Fallback
-```
-
-Tests:
-
-```powershell
-python -m pytest
-python -m compileall core tools generated_tools main.py
-```
-
-Hinweis: MVP 19.1 bleibt bewusst ohne Vektor-Datenbank und ohne zusätzliche Abhängigkeiten. Semantische Suche über mehr Faktentypen ist ein sinnvoller nächster Schritt.
-
-
-
-## MVP 19.2.3 – Clean Release Package
-
-Ziel:
-
-- Release-ZIP ohne Test-Artefakte, Chatverläufe, gelernte Fakten, Logs oder generierte Tool-Proposals.
-- Pandora startet nach dem Entpacken mit leerem Wissen, aber mit statischer Grundkonfiguration.
-
-Bereinigung vor Release:
-
-```bash
-python scripts/clean_runtime_artifacts.py
-```
-
-Bereinigt werden unter anderem:
-
-- `logs/`
-- `memory/chat_sessions/`
-- `memory/task_plans/`
-- `memory/task_executions/`
-- `memory/conversation_memory.json`
-- `memory/*.jsonl`
-- `sandbox/runs/`
-- `sandbox/tmp/`
-- `sandbox/tool_generation/`
-- `tool_proposals/`
-- `skill_proposals/`
-- `proposals/improvements/`
-
-Erhalten bleiben:
-
-- `memory/tool_registry.json`
-- `memory/skill_registry.json`
-- `memory/llm_config.json`
-- `memory/execution_policy.json`
-- Sourcecode, Tests, Doku, statische Tools und Skills
-
-## MVP 19.2.2 – LLM-assisted Tool Development Routing
-
-Ziel:
-
-- Tool-Development-Routing wird nicht mehr primär über feste Keywords entschieden.
-- Das lokale LLM bewertet zuerst strukturiert, ob ein neues Tool gebraucht wird.
-- Keyword-/Capability-Regeln bleiben nur noch als robuster Fallback erhalten.
-
-Neu:
-
-- `ToolDevelopmentAnalysis` Modell
-- LLM-Routing im `ToolDevelopmentAgent`
-- JSON-Prompt `TOOL_DEVELOPMENT_ROUTING`
-- Fallback bei LLM-Fehlern, ungültigem JSON oder zu niedriger Confidence
-- API/CLI-Parameter für Provider, Modell und Timeout
-
-Ablauf:
-
-```text
-User-Anfrage
-↓
-ToolDevelopmentAgent
-↓
-LLM-Analyse
-↓
-Fallback-Regeln, falls nötig
-↓
-Tool Proposal Manager
-```
-
-Beispiel:
-
-```text
-Pandora, entwickle bitte eine Funktion, die die Anzahl der Begriffe in einem Text ermittelt.
-→ LLM erkennt: word_count
+Ich möchte den aktuellen Börsenkurs von BASF abrufen
+→ tool_needed: stock_price_lookup
 → route: tool_development
 ```
 
-Wichtig:
-
-- Die LLM-Analyse ist entscheidend für neue Formulierungen.
-- Der Fallback verhindert Abstürze, wenn LM Studio nicht erreichbar ist.
-- Neue Tools werden weiterhin nur vorgeschlagen, nicht automatisch aktiviert.
-
 Prüfung:
 
-- `pytest`: 16 passed
+- `pytest`: 18 passed
 - `compileall`: erfolgreich
 
-## MVP 19.2.1 – Tool Development Agent Hotfix
+## MVP 19.3.1 – Capability Gap Routing Fix
 
-Bugfix:
+Fix:
 
-- Natürliche deutsche Formulierungen wie `Pandora, ich brauche ein Tool das Wörter zählt.` werden jetzt korrekt als fehlende `word_count`-Capability erkannt.
-- Die Keyword-Erkennung für Wortzähl-Tools wurde erweitert.
-- Zusätzlicher Regressionstest schützt den Coordinator-Router gegen Rückfall auf Planner/Worker.
-
-Prüfung:
-
-- `pytest`: 13 passed
-- `compileall`: erfolgreich
-
-## MVP 19.2 – Tool Development Agent
-
-Ziel:
-
-- Pandora erkennt fehlende Tool-Fähigkeiten vor der normalen Tool-Ausführung.
-- Aus einer erkannten Capability-Lücke wird automatisch ein sicherer Tool-Vorschlag erzeugt.
-- Die bestehende Proposal-, Validierungs- und Aktivierungsstrecke bleibt erhalten.
-
-Neu:
-
-- `ToolDevelopmentAgent`
-- `ToolDevelopmentResult` Modell
-- Coordinator-Route `tool_development`
-- API:
+- Requests such as `Ich möchte gerne Wörter zählen.` no longer fall through to normal chat when the `word_count` tool is missing.
+- Requests such as `Ich möchte das aktuelle Wetter abrufen.` are recognized as missing capability `weather_lookup`.
+- Coordinator route `tool_development` creates a controlled tool proposal instead of producing a friendly chat answer that hides the missing capability.
+- Added API endpoints:
   - `POST /tool-development/analyze`
   - `POST /tool-development/propose`
-- CLI:
-  - `python main.py tool-development-analyze "Ich brauche ein Tool zum Wörter zählen."`
-  - `python main.py tool-development-propose word_count`
 
-Ablauf:
+Examples:
 
 ```text
-User
-↓
-Coordinator Agent
-↓
-Memory Recall Agent
-↓
-Tool Development Agent
-↓
-Tool Proposal Manager
-↓
-Static Review + pytest
-↓
-Manual Activation
-```
-
-Beispiel:
-
-```text
-Pandora, ich brauche ein Tool zum Wörter zählen.
+Ich möchte gerne Wörter zählen.
 → route: tool_development
-→ Tool-Vorschlag für 'word_count' erstellt
+→ capability: word_count
+
+Ich möchte das aktuelle Wetter abrufen.
+→ route: tool_development
+→ capability: weather_lookup
 ```
 
-Wichtig:
-
-- MVP 19.2 aktiviert neue Tools nicht automatisch.
-- Tool-Vorschläge bleiben kontrolliert, prüfbar und nachvollziehbar.
-- Die spätere Übergabe komplexer Tool-Erzeugung an ein Cloud-Expert-Modell wird vorbereitet, aber noch nicht aktiviert.
-
-Tests:
+Validation:
 
 ```powershell
 python -m pytest
-python -m compileall core tools generated_tools main.py
+python -m compileall .
 ```
+
+Result: 14 tests passed, compileall successful.

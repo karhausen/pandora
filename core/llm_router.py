@@ -18,6 +18,7 @@ class LLMRouter:
         route = cfg.get("routing", {}).get(task_type.value, {})
         provider_name = provider_name_override or route.get("provider") or cfg.get("default_provider", "mock")
         provider_cfg = self.config.provider_config(provider_name)
+        provider_name = provider_cfg.get("name", provider_name)
         provider_type = PROVIDER_TYPE_MAP.get(provider_cfg.get("type", provider_name), LLMProvider.MOCK)
         model = model_override or route.get("model") or provider_cfg.get("default_model", "mock-smart")
         return LLMRouteDecision(task_type=task_type, provider=provider_type, provider_name=provider_name, model=model, reason=f"route for {task_type.value} -> {provider_name}")

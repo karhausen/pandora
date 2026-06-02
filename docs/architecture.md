@@ -3,75 +3,90 @@
 Pandora besteht aus Core, Tools, Skills, Memory, Agent Loop, Capability Expansion, Learning und Web-GUI.
 
 
-## MVP 19.1 – Memory Recall Agent
+## MVP 19.3 – LLM Reliability Layer
 
-Der Memory Recall Agent liegt zwischen Coordinator und normalem Chat-Fallback. Er prüft direkte Erinnerungsfragen gegen `ConversationMemory` und liefert bei Treffer eine strukturierte `MemoryRecallResult`-Antwort. Dadurch bleibt die Entscheidung nachvollziehbar und benötigt keine externe Datenbank oder Cloud-Komponente.
+Der LLM Reliability Layer sitzt zwischen `LLMRuntime` und den konsumierenden Agenten. Er normalisiert lokale LLM-Antworten, bevor Planner, Tool-Development oder Chat-Logik sie verwenden.
 
-Aktueller Recall-Umfang:
+```text
+LLM Provider
+  ↓
+LLMRuntime
+  ↓
+LLMReliabilityLayer
+  ↓
+Planner / Chat / Tool Development
+```
 
-- gespeicherter Name
-- Fragen wie `Wie heiße ich?`
-- indirekte Formulierungen wie `Ich habe meinen Namen vergessen.`
-- Rückfragen wie `Weißt du noch, wie ich heiße?`
+Aufgaben:
 
-Der bestehende `ConversationMemory.answer_from_memory()` bleibt als Kompatibilitäts-Fassade erhalten und delegiert an den neuen Agenten.
+- JSON-Recovery
+- Schema-Recovery
+- Confidence-Bewertung
+- Reasoning-Extraktion
+- Reasoning-Persistenz
+- Fallback-fähige Planner-Analyse
+
+Wichtiges Prinzip:
+
+`source=llm` oder `success=True` bedeutet nicht mehr blind: Schema passt. Die Reliability-Metadaten zeigen, ob JSON gültig war, ob Schema-Recovery nötig war und mit welcher Confidence Pandora weiterarbeitet.
 
 
-## MVP 19.2 – Tool Development Agent
+## MVP 19.3.1 – Capability Gap Routing
 
-Der Tool Development Agent liegt im Coordinator vor dem Planner/Worker-Pfad. Er prüft, ob eine Aufgabe eine noch fehlende Tool-Fähigkeit beschreibt. Bei Treffer erzeugt er über den bestehenden `ToolProposalManager` einen Proposal-Ordner mit Code, Tests und Validierungsdaten.
+The Coordinator now checks `CapabilityDetector` before falling back to normal chat. If a user request describes a missing capability, Pandora routes to `tool_development` and creates a proposal through `ToolDevelopmentAgent`. This prevents friendly LLM chat answers from hiding real missing capabilities.
 
-Routing-Reihenfolge im Coordinator:
+Current gap examples:
+
+- `word_count` for word-counting requests
+- `weather_lookup` for current weather/live weather requests
+
+## MVP 19.3.2 – LLM Capability Gate
+
+Der Coordinator nutzt vor Chat/Planner eine generische Capability-Entscheidung. Der `ToolDevelopmentAgent` fragt das ausgewählte LLM, ob Pandora direkt antworten kann, ein vorhandenes Tool nutzen soll oder eine neue Tool-Fähigkeit benötigt.
+
+Das Ergebnis ist `CapabilityDecision`:
+
+- `can_answer_directly`
+- `needs_tool`
+- `existing_tool_sufficient`
+- `suggested_existing_tool`
+- `tool_needed`
+- `capability`
+- `reason`
+- `confidence`
+
+Keyword-basierte Capability-Erkennung bleibt nur als Fallback bei LLM-Fehlern erhalten. Dadurch sind neue Fälle wie Börsenkurse nicht mehr abhängig von fest eingebauten Begriffen.
+
+
+## MVP 19.3.3 – Deterministic Fast Path
+
+Pandora now avoids LLM routing for conservative, known local tool calls. The Coordinator first checks whether a registered deterministic tool can safely handle the request. If yes, it routes to Planner/Worker directly. The Planner also skips LLM analysis for the same class of requests.
+
+This keeps the LLM capability gate for ambiguous or missing-tool decisions, while making obvious existing-tool tasks faster and cheaper.
 
 ```text
 Memory Recall
 ↓
-Tool Development
+Deterministic existing tool fast path
 ↓
-Planner / Worker
+LLM Capability Gate
 ↓
-Chat Fallback
+Planner / Worker or Tool Development
+↓
+Chat
 ```
 
-Verantwortlichkeiten:
+## MVP 19.3.4 – Single-Pass Capability Gate
 
-- `CapabilityDetector`: erkennt bekannte oder analysierte Capability-Lücken
-- `ToolDevelopmentAgent`: entscheidet, ob Tool-Entwicklung zuständig ist
-- `ToolProposalManager`: erzeugt Proposal, Code, Tests und Validation
-- `ToolActivationManager`: bleibt für spätere manuelle Aktivierung zuständig
+The Coordinator now treats capability classification as a single-pass decision. If `decide()` has already called the Tool Development Agent and detected a gap, the resulting gap dictionary is cached and passed into `analyze()` as `precomputed_gap`.
 
-Sicherheitsprinzip:
-
-Tool-Erzeugung bleibt ein Proposal-Prozess. Der Agent darf Vorschläge erzeugen, aber keine neuen Tools ungeprüft aktivieren.
-
-
-
-## MVP 19.2.3 – Release Hygiene
-
-Runtime-Zustand ist nicht Bestandteil eines Release-ZIPs.
-Pandora liefert statische Konfiguration mit, startet aber ohne Chatverläufe, gelernte Fakten, Test-Logs, Task-Pläne, Executions oder generierte Proposal-Artefakte.
-
-Die Bereinigung erfolgt über `scripts/clean_runtime_artifacts.py`.
-
-## MVP 19.2.2 – LLM-assisted Tool Development Routing
-
-Der Tool Development Agent nutzt jetzt eine zweistufige Entscheidung:
+This prevents duplicate LLM calls for the same user message and makes routing more deterministic:
 
 ```text
-LLM-Analyse
-↓
-regelbasierter Fallback
+Coordinator.decide()
+  ↓ capability gate once
+Coordinator.run()
+  ↓ reuse precomputed gap
+ToolProposalManager
 ```
 
-Die LLM-Analyse liefert ein strukturiertes `ToolDevelopmentAnalysis`-Objekt mit:
-
-- `needs_tool_development`
-- `capability`
-- `reason`
-- `confidence`
-- `existing_tool_sufficient`
-- `suggested_existing_tool`
-
-Der Coordinator fragt weiterhin nur den `ToolDevelopmentAgent`. Dadurch bleibt die Routing-Logik gekapselt. Neue Formulierungen wie „Anzahl der Begriffe in einem Text ermitteln“ können erkannt werden, ohne für jede Variante ein neues Keyword einzubauen.
-
-Wenn das LLM nicht erreichbar ist oder ungültiges JSON liefert, fällt Pandora kontrolliert auf `CapabilityDetector` und einfache Trigger-Hinweise zurück.

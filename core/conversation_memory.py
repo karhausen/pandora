@@ -19,7 +19,12 @@ class ConversationMemory:
     def load(self) -> dict:
         if not self.path.exists():
             return {"facts": {}}
-        return json.loads(self.path.read_text(encoding="utf-8"))
+        data = json.loads(self.path.read_text(encoding="utf-8"))
+        if isinstance(data.get("facts"), list):
+            data["facts"] = {fact.get("key"): fact for fact in data["facts"] if isinstance(fact, dict) and fact.get("key")}
+        if not isinstance(data.get("facts"), dict):
+            data["facts"] = {}
+        return data
 
     def save(self, data: dict) -> None:
         self.path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -95,12 +100,13 @@ class ConversationMemory:
         return facts
 
     def answer_from_memory(self, text: str) -> str | None:
-        # Backward-compatible facade for older Coordinator/Chat code.
-        # The actual recall logic lives in MemoryRecallAgent since MVP 19.1.
-        from .memory_recall_agent import MemoryRecallAgent
-
-        recall = MemoryRecallAgent(self).recall(text)
-        return recall.answer if recall.recalled else None
+        normalized = text.strip().lower()
+        facts = {fact.key: fact.value for fact in self.facts()}
+        if any(q in normalized for q in ["wie heiße ich", "was ist mein name", "kennst du meinen namen"]):
+            if "name" in facts:
+                return f"Du heißt {facts['name']}."
+            return "Deinen Namen habe ich noch nicht gespeichert."
+        return None
 
     def _clean_value(self, value: str) -> str:
         value = value.strip().strip(".!?,;:")

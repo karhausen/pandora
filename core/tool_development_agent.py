@@ -1,41 +1,25 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-import json
 from typing import Any
 
 from pydantic import ValidationError
 
 from .capability_detector import CapabilityDetector
 from .llm_runtime import LLMRuntime
-from .models import LLMRequest, LLMTaskType, ToolDevelopmentAnalysis, ToolDevelopmentResult
+from .models import CapabilityDecision, LLMRequest, LLMTaskType, ToolDevelopmentResult
 from .tool_proposal_manager import ToolProposalManager
 from .tool_registry import ToolRegistry
 
 
 class ToolDevelopmentAgent:
-    """LLM-assisted agent for missing tool detection and proposal creation.
+    """LLM-first capability gate for Pandora.
 
-    MVP 19.2.2 uses the LLM as the primary routing signal. Simple keyword rules
-    remain as a safe fallback so Pandora does not crash when the local model is
-    offline, returns invalid JSON, or is unsure.
+    The agent asks the selected model one generic question:
+    Can Pandora answer directly, should it use an existing tool, or is a new
+    tool capability needed? Keyword detection is only a transparent fallback for
+    provider failures or unusable model output.
     """
-
-    FALLBACK_TRIGGER_HINTS = [
-        "tool",
-        "werkzeug",
-        "fähigkeit",
-        "capability",
-        "entwickle",
-        "erzeuge",
-        "generiere",
-        "baue",
-        "brauch",
-        "fehlt",
-        "missing",
-        "create a tool",
-        "generate a tool",
-    ]
 
     def __init__(
         self,
@@ -50,123 +34,66 @@ class ToolDevelopmentAgent:
         self.proposal_manager = proposal_manager or ToolProposalManager()
         self.llm_runtime = llm_runtime or LLMRuntime()
 
-    def _existing_tool_ids(self) -> list[str]:
-        return sorted(tool.id for tool in self.registry.list())
+    def _tool_catalog(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "id": tool.id,
+                "name": tool.name,
+                "description": tool.description,
+                "security_level": str(tool.security_level),
+                "status": str(tool.status),
+            }
+            for tool in self.registry.list()
+        ]
 
-    def _build_routing_prompt(self, task: str) -> str:
-        existing_tools = ", ".join(self._existing_tool_ids()) or "none"
-        return f"""TOOL_DEVELOPMENT_ROUTING
-Du bist der Tool Development Router von Pandora.
-Entscheide, ob der User ein neues Tool entwickeln lassen will oder ob ein vorhandenes Tool genügt.
+    def _existing_tool_ids(self) -> set[str]:
+        return {tool.id for tool in self.registry.list()}
 
-Regeln:
-- Antworte ausschließlich als JSON.
-- needs_tool_development ist true, wenn der User ein neues Tool/Werkzeug/Fähigkeit erstellen, bauen, entwickeln oder vorschlagen lassen will.
-- needs_tool_development ist auch true, wenn eine konkrete Fähigkeit angefragt wird, die nicht in den vorhandenen Tools ist.
-- existing_tool_sufficient ist true, wenn ein vorhandenes Tool die Aufgabe bereits abdecken kann.
-- capability ist ein kurzer snake_case Name, z.B. word_count, pdf_reader, file_renamer.
-- Wenn unsicher: confidence unter 0.6.
+    def _build_capability_prompt(self, task: str) -> str:
+        return (
+            "You are Pandora's capability gate. Decide whether Pandora can answer "
+            "the user directly, should use an existing tool, or needs a new tool.\n\n"
+            "Rules:\n"
+            "- Return ONLY one JSON object. No markdown.\n"
+            "- Do not answer the user's task. Classify capability need only.\n"
+            "- can_answer_directly=true only for normal knowledge/conversation where no live data, file access, device access, calculation tool, or external system is required.\n"
+            "- existing_tool_sufficient=true when one listed tool can do the task now. Put its id in suggested_existing_tool.\n"
+            "- tool_needed=true when Pandora cannot answer reliably without a tool and no listed tool is sufficient.\n"
+            "- Use a generic snake_case capability name when tool_needed=true, for example stock_price_lookup, weather_lookup, word_count, file_reader, radio_remote_control.\n"
+            "- Current/live data, web/API calls, market prices, weather, calendars, files, devices, or measurement hardware usually need a tool.\n"
+            "- If unsure, set confidence below 0.6.\n\n"
+            "JSON schema:\n"
+            '{"can_answer_directly": false, "needs_tool": true, "existing_tool_sufficient": false, '
+            '"suggested_existing_tool": null, "tool_needed": true, "capability": "snake_case_name", '
+            '"reason": "short reason", "confidence": 0.0}\n\n'
+            f"User task:\n{task}"
+        )
 
-Vorhandene Tools: {existing_tools}
-
-User-Anfrage:
-{task}
-
-JSON-Schema:
-{{
-  "needs_tool_development": true,
-  "capability": "word_count",
-  "reason": "kurze Begründung",
-  "confidence": 0.0,
-  "existing_tool_sufficient": false,
-  "suggested_existing_tool": null
-}}
-"""
-
-    def llm_analyze(
+    def classify_capability(
         self,
         task: str,
         provider_name: str | None = None,
         model: str | None = None,
-        timeout: float | None = 8.0,
-    ) -> ToolDevelopmentAnalysis:
+        timeout: float | None = 10.0,
+    ) -> tuple[CapabilityDecision | None, str, str | None]:
         request = LLMRequest(
             task_type=LLMTaskType.TOOL_SELECTION,
-            prompt=self._build_routing_prompt(task),
-            context={"task": task, "existing_tools": self._existing_tool_ids()},
+            prompt=self._build_capability_prompt(task),
+            context={"task": task, "available_tools": self._tool_catalog()},
             provider_name=provider_name,
             model=model,
             expect_json=True,
-            timeout=timeout or 8.0,
+            timeout=timeout or 10.0,
+            allow_provider_fallback=False,
         )
-        response = self.llm_runtime.complete(request)
-        if not response.success:
-            raise RuntimeError(response.error or "Tool development LLM analysis failed")
-        data = response.parsed_json if response.parsed_json is not None else json.loads(response.content)
-        return ToolDevelopmentAnalysis.model_validate(data)
-
-    def fallback_analyze(self, task: str, analysis: dict[str, Any] | None = None) -> ToolDevelopmentAnalysis:
-        gap = self.detector.detect(task, analysis=analysis)
-        text = task.strip().lower()
-        explicit_tool_request = any(hint in text for hint in self.FALLBACK_TRIGGER_HINTS)
-        if gap.get("gap_detected"):
-            return ToolDevelopmentAnalysis(
-                needs_tool_development=True,
-                capability=str(gap.get("capability")),
-                reason=gap.get("reason", "Rule-based fallback detected a missing capability."),
-                confidence=0.72,
-                existing_tool_sufficient=False,
-            )
-        return ToolDevelopmentAnalysis(
-            needs_tool_development=False,
-            capability=None,
-            reason=(
-                "Fallback found tool-development wording but no concrete missing capability."
-                if explicit_tool_request else "No tool-development intent detected by fallback."
-            ),
-            confidence=0.45 if explicit_tool_request else 0.2,
-            existing_tool_sufficient=False,
-        )
-
-    def route_analysis(
-        self,
-        task: str,
-        analysis: dict[str, Any] | None = None,
-        provider_name: str | None = None,
-        model: str | None = None,
-        timeout: float | None = 8.0,
-    ) -> tuple[ToolDevelopmentAnalysis, str, str | None]:
         try:
-            llm_result = self.llm_analyze(task, provider_name=provider_name, model=model, timeout=timeout)
-            if llm_result.confidence >= 0.6 or llm_result.needs_tool_development:
-                return llm_result, "llm", None
-            fallback = self.fallback_analyze(task, analysis=analysis)
-            return fallback, "fallback_low_confidence", None
-        except (RuntimeError, ValidationError, json.JSONDecodeError, ValueError) as exc:
-            fallback = self.fallback_analyze(task, analysis=analysis)
-            return fallback, "fallback_after_llm_error", f"{type(exc).__name__}: {exc}"
-
-    def should_handle(
-        self,
-        task: str,
-        analysis: dict[str, Any] | None = None,
-        provider_name: str | None = None,
-        model: str | None = None,
-        timeout: float | None = 8.0,
-    ) -> bool:
-        routing, _, _ = self.route_analysis(
-            task,
-            analysis=analysis,
-            provider_name=provider_name,
-            model=model,
-            timeout=timeout,
-        )
-        return bool(
-            routing.needs_tool_development
-            and not routing.existing_tool_sufficient
-            and routing.capability
-            and routing.confidence >= 0.55
-        )
+            response = self.llm_runtime.complete(request)
+            if not response.success:
+                return None, "llm_error", response.error or "LLM capability classification failed"
+            decision = CapabilityDecision.model_validate(response.parsed_json)
+            return decision, "llm", None
+        except (ValidationError, RuntimeError, ValueError, TypeError) as exc:
+            return None, "llm_error", f"{type(exc).__name__}: {exc}"
 
     def detect_gap(
         self,
@@ -174,34 +101,65 @@ JSON-Schema:
         analysis: dict[str, Any] | None = None,
         provider_name: str | None = None,
         model: str | None = None,
-        timeout: float | None = 8.0,
+        timeout: float | None = 10.0,
     ) -> dict[str, Any]:
-        routing, source, error = self.route_analysis(
+        existing_tools = sorted(self._existing_tool_ids())
+        decision, source, error = self.classify_capability(
             task,
-            analysis=analysis,
             provider_name=provider_name,
             model=model,
             timeout=timeout,
         )
-        existing_tool_ids = set(self._existing_tool_ids())
-        capability = routing.capability
-        gap_detected = bool(
-            routing.needs_tool_development
-            and capability
-            and capability not in existing_tool_ids
-            and not routing.existing_tool_sufficient
-            and routing.confidence >= 0.55
-        )
-        return {
-            "gap_detected": gap_detected,
-            "capability": capability if gap_detected else None,
-            "reason": routing.reason or ("LLM-assisted routing result." if source == "llm" else "Fallback routing result."),
-            "confidence": routing.confidence,
-            "existing_tools": sorted(existing_tool_ids),
-            "source": source,
-            "llm_error": error,
-            "analysis": routing.model_dump(mode="json"),
-        }
+
+        if decision is not None:
+            capability = (decision.capability or "").strip() or None
+            existing_tool = (decision.suggested_existing_tool or "").strip() or None
+            if decision.existing_tool_sufficient and existing_tool in self._existing_tool_ids():
+                return {
+                    "gap_detected": False,
+                    "capability": None,
+                    "reason": decision.reason or f"Existing tool is sufficient: {existing_tool}",
+                    "existing_tools": existing_tools,
+                    "source": source,
+                    "decision": decision.model_dump(mode="json"),
+                    "confidence": decision.confidence,
+                    "tool_available": True,
+                    "suggested_existing_tool": existing_tool,
+                    "llm_error": None,
+                }
+            if decision.tool_needed and capability and capability not in self._existing_tool_ids() and decision.confidence >= 0.55:
+                return {
+                    "gap_detected": True,
+                    "capability": capability,
+                    "reason": decision.reason or "LLM capability gate reported missing tool.",
+                    "existing_tools": existing_tools,
+                    "source": source,
+                    "decision": decision.model_dump(mode="json"),
+                    "confidence": decision.confidence,
+                    "tool_available": False,
+                    "suggested_existing_tool": existing_tool,
+                    "llm_error": None,
+                }
+            return {
+                "gap_detected": False,
+                "capability": capability,
+                "reason": decision.reason or "LLM capability gate did not require a new tool.",
+                "existing_tools": existing_tools,
+                "source": source,
+                "decision": decision.model_dump(mode="json"),
+                "confidence": decision.confidence,
+                "tool_available": bool(existing_tool in self._existing_tool_ids()) if existing_tool else False,
+                "suggested_existing_tool": existing_tool,
+                "llm_error": None,
+            }
+
+        # Transparent safety fallback only. This is not the primary route.
+        fallback = self.detector.detect(task, analysis=analysis)
+        fallback["source"] = "fallback_after_llm_error"
+        fallback["llm_error"] = error
+        fallback["confidence"] = 0.45 if fallback.get("gap_detected") else 0.1
+        fallback["tool_available"] = False
+        return fallback
 
     def analyze(
         self,
@@ -210,20 +168,22 @@ JSON-Schema:
         auto_create: bool = True,
         provider_name: str | None = None,
         model: str | None = None,
-        timeout: float | None = 8.0,
+        timeout: float | None = 10.0,
+        precomputed_gap: dict[str, Any] | None = None,
     ) -> ToolDevelopmentResult:
-        gap = self.detect_gap(
+        # Coordinator.decide() may already have asked the LLM capability gate.
+        # Reuse that decision during run() so one user request does not trigger
+        # the same slow/fragile LLM classification twice.
+        gap = precomputed_gap or self.detect_gap(
             task,
             analysis=analysis,
             provider_name=provider_name,
             model=model,
             timeout=timeout,
         )
-        created = False
         proposal = None
-        status = "no_gap"
-        message = "Es fehlt kein neues Tool oder die Fähigkeit ist bereits vorhanden."
-        error = gap.get("llm_error")
+        proposal_created = False
+        error = None
 
         if gap.get("gap_detected"):
             status = "gap_detected"
@@ -231,46 +191,25 @@ JSON-Schema:
             if auto_create:
                 try:
                     proposal = self.proposal_manager.propose_for_capability(str(gap["capability"]))
-                    created = True
+                    proposal_created = True
                     status = "proposal_created"
-                    proposal_status = proposal.get("status")
-                    message = (
-                        f"Tool-Vorschlag für '{gap.get('capability')}' erstellt "
-                        f"(Status: {proposal_status})."
-                    )
-                except Exception as exc:  # pragma: no cover - defensive API boundary
+                    message = f"Tool-Vorschlag für '{gap.get('capability')}' erstellt (Status: {proposal.get('status')})."
+                except Exception as exc:  # pragma: no cover - API safety boundary
                     status = "failed"
                     error = f"{type(exc).__name__}: {exc}"
                     message = "Tool-Vorschlag konnte nicht erstellt werden."
+        else:
+            status = "no_gap"
+            message = "Es fehlt kein neues Tool oder die Fähigkeit ist bereits vorhanden."
 
         return ToolDevelopmentResult(
             handled=bool(gap.get("gap_detected")),
             task=task,
             status=status,
             gap=gap,
-            proposal_created=created,
+            proposal_created=proposal_created,
             proposal=proposal,
             message=message,
             error=error,
-            created_at=datetime.now(UTC).isoformat(),
-        )
-
-    def create_proposal(self, capability: str) -> ToolDevelopmentResult:
-        proposal = self.proposal_manager.propose_for_capability(capability)
-        return ToolDevelopmentResult(
-            handled=True,
-            task=capability,
-            status="proposal_created",
-            gap={
-                "gap_detected": True,
-                "capability": capability,
-                "reason": "Direct capability proposal requested.",
-                "confidence": 1.0,
-                "existing_tools": self._existing_tool_ids(),
-                "source": "direct",
-            },
-            proposal_created=True,
-            proposal=proposal,
-            message=f"Tool-Vorschlag für '{capability}' erstellt (Status: {proposal.get('status')}).",
             created_at=datetime.now(UTC).isoformat(),
         )

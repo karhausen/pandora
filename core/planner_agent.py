@@ -22,15 +22,26 @@ class PlannerAgent:
         self.store = TaskPlanStore()
 
     def plan(self, task: str, provider_name: str | None = "mock", model: str | None = None, save: bool = True) -> TaskPlan:
-        analysis_result = self.llm.analyze_task(task, provider_name=provider_name, model=model)
-        if hasattr(analysis_result, "model_dump"):
-            analysis = analysis_result.model_dump(mode="json")
-        elif isinstance(analysis_result, dict):
-            analysis = analysis_result
+        quick_analysis = self._fallback_analysis(task)
+        quick_action = self.action_planner.plan(task, quick_analysis)
+        if quick_action.type.value == "tool" and quick_action.tool_id in self._known_tools():
+            analysis = quick_analysis
+            analysis["planner_mode"] = "deterministic_existing_tool"
+            action = quick_action
         else:
-            analysis = self._fallback_analysis(task)
+            try:
+                analysis_result = self.llm.analyze_task(task, provider_name=provider_name, model=model)
+                if hasattr(analysis_result, "model_dump"):
+                    analysis = analysis_result.model_dump(mode="json")
+                elif isinstance(analysis_result, dict):
+                    analysis = analysis_result
+                else:
+                    analysis = self._fallback_analysis(task)
+            except Exception as exc:
+                analysis = self._fallback_analysis(task)
+                analysis["llm_analysis_error"] = f"{type(exc).__name__}: {exc}"
 
-        action = self.action_planner.plan(task, analysis)
+            action = self.action_planner.plan(task, analysis)
         gap = self.capability_detector.detect(task, analysis=analysis)
 
         tools = self._known_tools()

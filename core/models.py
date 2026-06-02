@@ -103,6 +103,7 @@ class LLMRequest(BaseModel):
     provider_name: str | None = None
     expect_json: bool = False
     timeout: float = 20.0
+    allow_provider_fallback: bool = True
 
 
 class LLMResponse(BaseModel):
@@ -114,6 +115,10 @@ class LLMResponse(BaseModel):
     parsed_json: Any = None
     error: str | None = None
     raw: Any = None
+    reasoning: str | None = None
+    recovered: bool = False
+    confidence: float = 0.0
+    reliability: dict[str, Any] = Field(default_factory=dict)
 
 
 class LLMRouteDecision(BaseModel):
@@ -163,6 +168,29 @@ class AgentRunResult(BaseModel):
     error: str | None = None
     created_at: str
     execution_time: float = 0.0
+
+
+class CapabilityDecision(BaseModel):
+    can_answer_directly: bool = False
+    needs_tool: bool = False
+    existing_tool_sufficient: bool = False
+    suggested_existing_tool: str | None = None
+    tool_needed: bool = False
+    capability: str | None = None
+    reason: str = ""
+    confidence: float = 0.0
+
+
+class ToolDevelopmentResult(BaseModel):
+    handled: bool
+    task: str
+    status: str
+    gap: dict[str, Any] = Field(default_factory=dict)
+    proposal_created: bool = False
+    proposal: dict[str, Any] | None = None
+    message: str = ""
+    error: str | None = None
+    created_at: str
 
 
 class ToolProposalStatus(str, Enum):
@@ -227,29 +255,6 @@ class CapabilityWorkflowResult(BaseModel):
     activated: bool = False
     activation: dict[str, Any] | None = None
     retry_result: dict[str, Any] | None = None
-    error: str | None = None
-    created_at: str
-
-
-
-
-class ToolDevelopmentAnalysis(BaseModel):
-    needs_tool_development: bool = False
-    capability: str | None = None
-    reason: str = ""
-    confidence: float = 0.0
-    existing_tool_sufficient: bool = False
-    suggested_existing_tool: str | None = None
-
-
-class ToolDevelopmentResult(BaseModel):
-    handled: bool
-    task: str
-    status: str
-    gap: dict[str, Any] = Field(default_factory=dict)
-    proposal_created: bool = False
-    proposal: dict[str, Any] | None = None
-    message: str = ""
     error: str | None = None
     created_at: str
 
@@ -473,17 +478,6 @@ class ConversationMemoryFact(BaseModel):
     created_at: str
     updated_at: str
 
-
-
-
-class MemoryRecallResult(BaseModel):
-    recalled: bool
-    answer: str | None = None
-    key: str | None = None
-    value: str | None = None
-    confidence: float = 0.0
-    reason: str = ""
-    matched_question: str | None = None
 
 class ConversationContext(BaseModel):
     session_id: str

@@ -5,9 +5,8 @@ from datetime import datetime, UTC
 from .chat_response_router import ChatResponseRouter
 from .chat_service import ChatService
 from .conversation_memory import ConversationMemory
-from .memory_recall_agent import MemoryRecallAgent
-from .tool_development_agent import ToolDevelopmentAgent
 from .coordinator_log import CoordinatorLog
+from .tool_development_agent import ToolDevelopmentAgent
 from .models import CoordinatorDecision, CoordinatorResult
 
 
@@ -15,10 +14,10 @@ class CoordinatorAgent:
     def __init__(self):
         self.router = ChatResponseRouter()
         self.memory = ConversationMemory()
-        self.memory_recall = MemoryRecallAgent(self.memory)
         self.chat_service = ChatService()
         self.tool_development = ToolDevelopmentAgent()
         self.log = CoordinatorLog()
+        self._last_tool_gap: dict | None = None
 
     def decide(
         self,
@@ -29,27 +28,36 @@ class CoordinatorAgent:
     ) -> CoordinatorDecision:
         normalized = task.strip().lower()
 
-        memory_recall = self.memory_recall.recall(task)
-        if memory_recall.recalled and memory_recall.answer:
+        if self.memory.answer_from_memory(task):
             return CoordinatorDecision(
                 route="memory",
-                reason=memory_recall.reason,
-                confidence=memory_recall.confidence,
+                reason="Conversation memory can answer this directly.",
+                confidence=0.95,
                 task=task,
                 session_id=session_id,
                 provider_name=provider_name,
                 model=model,
             )
 
-        tool_gap = self.tool_development.detect_gap(
-            task,
-            provider_name=provider_name,
-            model=model,
-        )
-        if tool_gap.get("gap_detected"):
+        deterministic_tool = self.router.deterministic_existing_tool(task)
+        if deterministic_tool:
+            return CoordinatorDecision(
+                route="planner_worker",
+                reason=f"Known deterministic tool can handle this directly: {deterministic_tool}.",
+                confidence=0.95,
+                task=task,
+                session_id=session_id,
+                provider_name=provider_name,
+                model=model,
+            )
+
+        self._last_tool_gap = None
+        capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
+        if capability_gap.get("gap_detected"):
+            self._last_tool_gap = capability_gap
             return CoordinatorDecision(
                 route="tool_development",
-                reason=tool_gap.get("reason", "Missing tool capability detected."),
+                reason=capability_gap.get("reason", "Missing capability detected."),
                 confidence=0.9,
                 task=task,
                 session_id=session_id,
@@ -106,6 +114,7 @@ class CoordinatorAgent:
                     auto_create=True,
                     provider_name=provider_name,
                     model=model,
+                    precomputed_gap=self._last_tool_gap,
                 )
                 proposal = development.proposal or {}
                 proposal_id = proposal.get("id")
@@ -114,7 +123,7 @@ class CoordinatorAgent:
                     answer += f" Proposal-ID: {proposal_id}."
 
                 result = CoordinatorResult(
-                    success=development.error is None and development.proposal_created,
+                    success=development.error is None,
                     route=decision.route,
                     answer=answer,
                     decision=decision,

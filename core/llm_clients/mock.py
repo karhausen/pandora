@@ -7,24 +7,49 @@ class MockLLMClient:
 
     def complete(self, request: LLMRequest, model: str, provider_name: str = "mock", provider_config: dict | None = None) -> LLMResponse:
         prompt_l = request.prompt.lower()
-        user_task_l = str(request.context.get("task", request.prompt)).lower()
+        task_l = str(request.context.get("task", request.prompt)).lower()
 
-        if "tool_development_routing" in prompt_l:
-            existing_tools = set(request.context.get("existing_tools", []))
-            asks_for_tool = any(w in user_task_l for w in ["tool", "werkzeug", "fähigkeit", "entwickle", "erzeuge", "baue", "brauch", "brauche", "create", "generate", "build"])
-            word_count_intent = any(w in user_task_l for w in ["word count", "count words", "wörter", "woerter", "worte", "begriffe", "textlänge", "wortanzahl", "wieviele worte", "wie viele worte"]) and any(w in user_task_l for w in ["zähl", "zaehl", "count", "anzahl", "ermittle", "bestimme"])
-            capability = "word_count" if word_count_intent else None
-            existing_sufficient = bool(capability and capability in existing_tools)
+        if request.task_type.value == "tool_selection" and request.expect_json:
+            available_tools = request.context.get("available_tools", []) or []
+            tool_ids = {tool.get("id") for tool in available_tools if isinstance(tool, dict)}
+            capability = None
+            existing_tool = None
+            reason = "Mock capability gate: direct answer possible."
+            tool_needed = False
+            can_answer = True
+            if any(x in task_l for x in ["rechne", "berechne", "calculate", "2+3"]):
+                existing_tool = "calculator" if "calculator" in tool_ids else None
+                capability = "calculation"
+                can_answer = False
+                tool_needed = existing_tool is None
+                reason = "Mock capability gate: calculation requires calculator tool."
+            elif any(x in task_l for x in ["börse", "boerse", "aktienkurs", "börsenkurs", "stock price", "kurs abrufen"]):
+                capability = "stock_price_lookup"
+                can_answer = False
+                tool_needed = capability not in tool_ids
+                reason = "Mock capability gate: current market prices require live data tool."
+            elif any(x in task_l for x in ["wetter", "weather"]):
+                capability = "weather_lookup"
+                can_answer = False
+                tool_needed = capability not in tool_ids
+                reason = "Mock capability gate: current weather requires live data tool."
+            elif any(x in task_l for x in ["wörter", "woerter", "worte", "word count", "begriffe"]):
+                capability = "word_count"
+                can_answer = False
+                tool_needed = capability not in tool_ids
+                reason = "Mock capability gate: word counting requires a text utility tool."
             data = {
-                "needs_tool_development": bool((asks_for_tool and capability) or (word_count_intent and not existing_sufficient)),
+                "can_answer_directly": can_answer and not tool_needed and existing_tool is None,
+                "needs_tool": bool(tool_needed or existing_tool),
+                "existing_tool_sufficient": bool(existing_tool),
+                "suggested_existing_tool": existing_tool,
+                "tool_needed": bool(tool_needed),
                 "capability": capability,
-                "reason": "Mock LLM recognized a word-count tool request." if capability else "Mock LLM found no concrete missing tool capability.",
-                "confidence": 0.88 if capability else 0.35,
-                "existing_tool_sufficient": existing_sufficient,
-                "suggested_existing_tool": capability if existing_sufficient else None,
+                "reason": reason,
+                "confidence": 0.9 if (tool_needed or existing_tool) else 0.75,
             }
             content = json.dumps(data, ensure_ascii=False)
-            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "tool_development_routing"})
+            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "capability_gate"})
 
         required, tools, skills = [], [], []
         if "csv" in prompt_l:
