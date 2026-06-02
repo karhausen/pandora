@@ -9,6 +9,7 @@ from .agent_loop import AgentLoop
 from .capability_expansion_manager import CapabilityExpansionManager
 from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
+from .tool_development_agent import ToolDevelopmentAgent
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
 from .coordinator_agent import CoordinatorAgent
@@ -39,13 +40,22 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.1")
+app = FastAPI(title="Pandora Agent", version="19.2")
 
 
 class ToolProposalTaskRequest(BaseModel):
     task: str
     analysis: dict | None = None
 
+
+class ToolDevelopmentRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+    auto_create: bool = True
+
+
+class ToolDevelopmentCapabilityRequest(BaseModel):
+    capability: str
 
 
 class ToolActivationRequest(BaseModel):
@@ -177,7 +187,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.1"}
+    return {"status": "ok", "version": "mvp-19.2"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -227,6 +237,20 @@ def agent_last():
 @app.post("/tool-proposals/from-task")
 def tool_proposal_from_task(req: ToolProposalTaskRequest):
     return ToolProposalManager().propose_from_task(req.task, analysis=req.analysis)
+
+
+@app.post("/tool-development/analyze")
+def tool_development_analyze(req: ToolDevelopmentRequest):
+    return ToolDevelopmentAgent().analyze(
+        req.task,
+        analysis=req.analysis,
+        auto_create=req.auto_create,
+    ).model_dump(mode="json")
+
+
+@app.post("/tool-development/propose")
+def tool_development_propose(req: ToolDevelopmentCapabilityRequest):
+    return ToolDevelopmentAgent().create_proposal(req.capability).model_dump(mode="json")
 
 
 @app.post("/tool-proposals/for-capability")

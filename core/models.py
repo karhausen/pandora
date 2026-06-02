@@ -231,6 +231,20 @@ class CapabilityWorkflowResult(BaseModel):
     created_at: str
 
 
+
+
+class ToolDevelopmentResult(BaseModel):
+    handled: bool
+    task: str
+    status: str
+    gap: dict[str, Any] = Field(default_factory=dict)
+    proposal_created: bool = False
+    proposal: dict[str, Any] | None = None
+    message: str = ""
+    error: str | None = None
+    created_at: str
+
+
 class SkillProposalStatus(str, Enum):
     PROPOSED = "PROPOSED"
     VALIDATED = "VALIDATED"

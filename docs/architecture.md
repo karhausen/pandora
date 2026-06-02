@@ -15,3 +15,31 @@ Aktueller Recall-Umfang:
 - Rückfragen wie `Weißt du noch, wie ich heiße?`
 
 Der bestehende `ConversationMemory.answer_from_memory()` bleibt als Kompatibilitäts-Fassade erhalten und delegiert an den neuen Agenten.
+
+
+## MVP 19.2 – Tool Development Agent
+
+Der Tool Development Agent liegt im Coordinator vor dem Planner/Worker-Pfad. Er prüft, ob eine Aufgabe eine noch fehlende Tool-Fähigkeit beschreibt. Bei Treffer erzeugt er über den bestehenden `ToolProposalManager` einen Proposal-Ordner mit Code, Tests und Validierungsdaten.
+
+Routing-Reihenfolge im Coordinator:
+
+```text
+Memory Recall
+↓
+Tool Development
+↓
+Planner / Worker
+↓
+Chat Fallback
+```
+
+Verantwortlichkeiten:
+
+- `CapabilityDetector`: erkennt bekannte oder analysierte Capability-Lücken
+- `ToolDevelopmentAgent`: entscheidet, ob Tool-Entwicklung zuständig ist
+- `ToolProposalManager`: erzeugt Proposal, Code, Tests und Validation
+- `ToolActivationManager`: bleibt für spätere manuelle Aktivierung zuständig
+
+Sicherheitsprinzip:
+
+Tool-Erzeugung bleibt ein Proposal-Prozess. Der Agent darf Vorschläge erzeugen, aber keine neuen Tools ungeprüft aktivieren.

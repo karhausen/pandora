@@ -478,3 +478,63 @@ python -m compileall core tools generated_tools main.py
 ```
 
 Hinweis: MVP 19.1 bleibt bewusst ohne Vektor-Datenbank und ohne zusätzliche Abhängigkeiten. Semantische Suche über mehr Faktentypen ist ein sinnvoller nächster Schritt.
+
+
+## MVP 19.2 – Tool Development Agent
+
+Ziel:
+
+- Pandora erkennt fehlende Tool-Fähigkeiten vor der normalen Tool-Ausführung.
+- Aus einer erkannten Capability-Lücke wird automatisch ein sicherer Tool-Vorschlag erzeugt.
+- Die bestehende Proposal-, Validierungs- und Aktivierungsstrecke bleibt erhalten.
+
+Neu:
+
+- `ToolDevelopmentAgent`
+- `ToolDevelopmentResult` Modell
+- Coordinator-Route `tool_development`
+- API:
+  - `POST /tool-development/analyze`
+  - `POST /tool-development/propose`
+- CLI:
+  - `python main.py tool-development-analyze "Ich brauche ein Tool zum Wörter zählen."`
+  - `python main.py tool-development-propose word_count`
+
+Ablauf:
+
+```text
+User
+↓
+Coordinator Agent
+↓
+Memory Recall Agent
+↓
+Tool Development Agent
+↓
+Tool Proposal Manager
+↓
+Static Review + pytest
+↓
+Manual Activation
+```
+
+Beispiel:
+
+```text
+Pandora, ich brauche ein Tool zum Wörter zählen.
+→ route: tool_development
+→ Tool-Vorschlag für 'word_count' erstellt
+```
+
+Wichtig:
+
+- MVP 19.2 aktiviert neue Tools nicht automatisch.
+- Tool-Vorschläge bleiben kontrolliert, prüfbar und nachvollziehbar.
+- Die spätere Übergabe komplexer Tool-Erzeugung an ein Cloud-Expert-Modell wird vorbereitet, aber noch nicht aktiviert.
+
+Tests:
+
+```powershell
+python -m pytest
+python -m compileall core tools generated_tools main.py
+```

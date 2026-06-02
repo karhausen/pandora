@@ -6,6 +6,7 @@ from .chat_response_router import ChatResponseRouter
 from .chat_service import ChatService
 from .conversation_memory import ConversationMemory
 from .memory_recall_agent import MemoryRecallAgent
+from .tool_development_agent import ToolDevelopmentAgent
 from .coordinator_log import CoordinatorLog
 from .models import CoordinatorDecision, CoordinatorResult
 
@@ -16,6 +17,7 @@ class CoordinatorAgent:
         self.memory = ConversationMemory()
         self.memory_recall = MemoryRecallAgent(self.memory)
         self.chat_service = ChatService()
+        self.tool_development = ToolDevelopmentAgent()
         self.log = CoordinatorLog()
 
     def decide(
@@ -33,6 +35,18 @@ class CoordinatorAgent:
                 route="memory",
                 reason=memory_recall.reason,
                 confidence=memory_recall.confidence,
+                task=task,
+                session_id=session_id,
+                provider_name=provider_name,
+                model=model,
+            )
+
+        tool_gap = self.tool_development.detect_gap(task)
+        if tool_gap.get("gap_detected"):
+            return CoordinatorDecision(
+                route="tool_development",
+                reason=tool_gap.get("reason", "Missing tool capability detected."),
+                confidence=0.9,
                 task=task,
                 session_id=session_id,
                 provider_name=provider_name,
@@ -82,24 +96,49 @@ class CoordinatorAgent:
         decision = self.decide(task, session_id=session_id, provider_name=provider_name, model=model)
 
         try:
-            chat_result = await self.chat_service.run(
-                task,
-                session_id=session_id,
-                provider_name=provider_name,
-                model=model,
-                save=save,
-            )
+            if decision.route == "tool_development":
+                development = self.tool_development.analyze(task, auto_create=True)
+                proposal = development.proposal or {}
+                proposal_id = proposal.get("id")
+                answer = development.message
+                if proposal_id:
+                    answer += f" Proposal-ID: {proposal_id}."
 
-            result = CoordinatorResult(
-                success=chat_result.success,
-                route=decision.route,
-                answer=chat_result.answer,
-                decision=decision,
-                session_id=chat_result.session_id,
-                plan=chat_result.plan,
-                execution=chat_result.execution,
-                error=None,
-            )
+                result = CoordinatorResult(
+                    success=development.error is None and development.proposal_created,
+                    route=decision.route,
+                    answer=answer,
+                    decision=decision,
+                    session_id=session_id,
+                    plan={},
+                    execution={
+                        "success": development.error is None,
+                        "mode": "tool_development",
+                        "tool_development": development.model_dump(mode="json"),
+                        "proposal_id": proposal_id,
+                        "error": development.error,
+                    },
+                    error=development.error,
+                )
+            else:
+                chat_result = await self.chat_service.run(
+                    task,
+                    session_id=session_id,
+                    provider_name=provider_name,
+                    model=model,
+                    save=save,
+                )
+
+                result = CoordinatorResult(
+                    success=chat_result.success,
+                    route=decision.route,
+                    answer=chat_result.answer,
+                    decision=decision,
+                    session_id=chat_result.session_id,
+                    plan=chat_result.plan,
+                    execution=chat_result.execution,
+                    error=None,
+                )
 
         except Exception as exc:
             result = CoordinatorResult(
