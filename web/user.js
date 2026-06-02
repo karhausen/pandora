@@ -35,18 +35,29 @@ function setBusy(isBusy) {
   document.getElementById("statusText").textContent = isBusy ? "Pandora arbeitet..." : "Bereit";
 }
 
+function normalizeCoordinatorDetails(result) {
+  return {
+    route: result.route || result?.decision?.route || null,
+    reason: result?.decision?.reason || null,
+    confidence: result?.decision?.confidence ?? null,
+    provider_name: result?.decision?.provider_name || null,
+    model: result?.decision?.model || null,
+    session_id: result.session_id || null,
+    success: result.success ?? null,
+    error: result.error || null
+  };
+}
+
 function showDetails(result) {
-  document.getElementById("details").classList.remove("hidden");
+  const details = document.getElementById("details");
+  if (details) details.classList.remove("hidden");
 
   const decisionBox = document.getElementById("decisionBox");
   const planBox = document.getElementById("planBox");
   const executionBox = document.getElementById("executionBox");
 
   if (decisionBox) {
-    decisionBox.textContent = JSON.stringify({
-      route: result.route || null,
-      decision: result.decision || null
-    }, null, 2);
+    decisionBox.textContent = JSON.stringify(normalizeCoordinatorDetails(result), null, 2);
   }
 
   if (planBox) {
@@ -125,6 +136,27 @@ async function loadCurrentSession() {
   }
 }
 
+function setupProviderControls() {
+  const providerSelect = document.getElementById("providerSelect");
+  const modelInput = document.getElementById("modelInput");
+
+  if (providerSelect) {
+    providerSelect.value = currentProvider;
+    providerSelect.addEventListener("change", () => {
+      currentProvider = providerSelect.value;
+      localStorage.setItem("pandora_provider", currentProvider);
+    });
+  }
+
+  if (modelInput) {
+    modelInput.value = currentModel;
+    modelInput.addEventListener("input", () => {
+      currentModel = modelInput.value.trim();
+      localStorage.setItem("pandora_model", currentModel);
+    });
+  }
+}
+
 async function runPandora() {
   const input = document.getElementById("taskInput");
   const task = input.value.trim();
@@ -163,28 +195,6 @@ async function runPandora() {
 async function loadUserStatus() {
   const status = await api("/user/status");
   document.getElementById("statusText").textContent = status.ready ? "Bereit" : "Nicht bereit";
-}
-
-
-function setupProviderControls() {
-  const providerSelect = document.getElementById("providerSelect");
-  const modelInput = document.getElementById("modelInput");
-
-  if (providerSelect) {
-    providerSelect.value = currentProvider;
-    providerSelect.addEventListener("change", () => {
-      currentProvider = providerSelect.value;
-      localStorage.setItem("pandora_provider", currentProvider);
-    });
-  }
-
-  if (modelInput) {
-    modelInput.value = currentModel;
-    modelInput.addEventListener("input", () => {
-      currentModel = modelInput.value.trim();
-      localStorage.setItem("pandora_model", currentModel);
-    });
-  }
 }
 
 async function boot() {

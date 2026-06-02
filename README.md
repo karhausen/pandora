@@ -414,3 +414,12 @@ Fix:
 - User-GUI zeigt Coordinator-Details jetzt zuverlässig an.
 - `showDetails()` schreibt Route und Decision in `decisionBox`.
 - User-GUI nutzt `/coordinator/run`.
+
+
+## MVP 19.0.2 – Coordinator Details Display Fix
+
+Fix:
+
+- Details-Bereich der User-GUI wird deterministisch aufgebaut.
+- `showDetails()` schreibt Route, Reason, Confidence, Provider, Model und Session-ID in `decisionBox`.
+- `user.js` wurde sauber neu geschrieben, damit keine alten String-Patches übrig bleiben.
