@@ -148,3 +148,29 @@ Routen:
 Cloud Expert Status prüft nur Konfiguration und Environment. Live-Aufrufe sind explizit (`--live`) und werden nicht in Tests ausgeführt.
 
 Wichtig: Für Tool-Code-Generierung ist der generische Mock-Fallback deaktiviert. Wenn der Cloud-Key fehlt, wird transparent auf deterministische lokale Gerüste zurückgefallen, statt eine Mock-LLM-Antwort als Cloud-Code auszugeben.
+
+## MVP 19.5.1 – Secure LLM Profiles
+
+The Model Router resolves abstract purposes such as `tool_generation` to an active profile. The active profile is selected through safe configuration, while provider URLs, API keys and company model names are read from environment variables.
+
+Load order:
+
+```text
+llm_config.template.json
+↓
+llm_config.json legacy safe config
+↓
+llm_config.local.json private override
+↓
+.env / process environment
+```
+
+Profile routing:
+
+```text
+private cloud_expert → openai
+company cloud_expert → company_llm
+```
+
+Security rule: repository files may contain placeholder env-variable names, but not real API keys or internal company base URLs. Public API responses use redacted config output.
+

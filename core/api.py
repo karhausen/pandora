@@ -41,7 +41,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.5")
+app = FastAPI(title="Pandora Agent", version="19.5.1")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -220,7 +220,13 @@ def skills():
 
 @app.get("/llm/config")
 def llm_config():
-    return LLMConfig().get()
+    return LLMConfig().public_config()
+
+@app.get("/llm/config/security")
+def llm_config_security():
+    issues = LLMConfig().validate_no_inline_secrets()
+    return {"ok": not issues, "issues": issues}
+
 
 @app.get("/model-router/routes")
 def model_router_routes():
@@ -629,7 +635,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.5", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.5.1", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

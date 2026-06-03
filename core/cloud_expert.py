@@ -32,8 +32,9 @@ class CloudExpert:
         provider_cfg = self.config.provider_config(primary_route.provider_name)
         api_key_env = provider_cfg.get("api_key_env")
         api_key_present = bool(os.environ.get(api_key_env or "")) if api_key_env else bool(provider_cfg.get("api_key"))
+        base_url_configured = bool(provider_cfg.get("base_url") or provider_cfg.get("base_url_env"))
         provider_type = provider_cfg.get("type")
-        ready = provider_type == "openai" and api_key_present
+        ready = provider_type in {"openai", "openai_compatible"} and api_key_present and base_url_configured
         return {
             "ready": ready,
             "provider_name": primary_route.provider_name,
@@ -41,7 +42,8 @@ class CloudExpert:
             "provider_type": provider_type,
             "api_key_env": api_key_env,
             "api_key_present": api_key_present,
-            "base_url": provider_cfg.get("base_url"),
+            "base_url_env": provider_cfg.get("base_url_env"),
+            "base_url_configured": base_url_configured,
             "routes": routes,
             "fallback_provider": cfg.get("routing", {}).get("tool_generation", {}).get("fallback_provider"),
             "message": "Cloud expert is ready." if ready else f"Cloud expert is not ready. Set {api_key_env or 'the configured API key'}.",

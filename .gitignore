@@ -1,0 +1,7 @@
+
+# Pandora private runtime/config
+.env
+*.local.json
+memory/llm_config.local.json
+memory/llm_config.local.*.json
+!memory/llm_config.local.example.json

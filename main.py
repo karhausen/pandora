@@ -56,7 +56,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.1"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -70,7 +70,9 @@ def cmd_run_tool(args):
 def cmd_sandbox_run_tool(args): _json(Sandbox().run_tool(args.tool_id, _payload(args)))
 def cmd_sandbox_policies(args): _json(Sandbox().policy_report())
 def cmd_sandbox_logs(args): _json({"logs": Sandbox().logs(args.limit)})
-def cmd_llm_config(args): _json(LLMConfig().get())
+def cmd_llm_config(args): _json(LLMConfig().public_config())
+def cmd_llm_config_security(args):
+    issues = LLMConfig().validate_no_inline_secrets(); _json({"ok": not issues, "issues": issues})
 def cmd_model_routes(args): _json({"routes": ModelRouter().all_routes()})
 def cmd_model_route(args): _json(ModelRouter().route(args.purpose, provider_name_override=args.provider, model_override=args.model).model_dump(mode="json"))
 def cmd_cloud_expert_status(args): _json(CloudExpert().status())
@@ -157,6 +159,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("sandbox-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_sandbox_logs)
 
     p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
+    p = sub.add_parser("llm-config-security"); p.set_defaults(func=cmd_llm_config_security)
     p = sub.add_parser("model-routes"); p.set_defaults(func=cmd_model_routes)
     p = sub.add_parser("model-route"); p.add_argument("purpose"); p.add_argument("--provider"); p.add_argument("--model"); p.set_defaults(func=cmd_model_route)
     p = sub.add_parser("cloud-expert-status"); p.set_defaults(func=cmd_cloud_expert_status)

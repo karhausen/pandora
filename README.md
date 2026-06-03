@@ -650,6 +650,75 @@ python -m compileall .
 
 Ergebnis: 25 Tests erfolgreich, compileall erfolgreich.
 
+
+## MVP 19.5.1 – Secure LLM Profiles
+
+Ziel:
+
+- Pandora kann zwischen privatem Cloud-Zugang und Company-LLM wechseln.
+- Zugangsdaten und interne Company-Netzadressen landen nicht im Repository.
+- Cloud-Routing bleibt zentral über den Model Router steuerbar.
+
+Neu:
+
+- `memory/llm_config.template.json` als sichere GitHub-taugliche Vorlage
+- `memory/llm_config.local.json` als private lokale Override-Datei, nicht für GitHub
+- `.env` Unterstützung ohne zusätzliche Abhängigkeit
+- `.env.example` mit Platzhaltern
+- `.gitignore` schützt `.env` und `*.local.json`
+- `LLMConfig` lädt jetzt Template + Legacy Config + Local Override + ENV
+- Profile:
+  - `private` → `openai` / ChatGPT über `OPENAI_API_KEY`
+  - `company` → `company_llm` über `COMPANY_LLM_*`
+- `GET /llm/config` und `python main.py llm-config` geben nur redaktierte Konfiguration aus
+- `GET /llm/config/security` und `python main.py llm-config-security` prüfen auf versehentliche Inline-Secrets
+
+Private Nutzung:
+
+```powershell
+copy memory\llm_config.local.example.json memory\llm_config.local.json
+notepad memory\llm_config.local.json
+notepad .env
+```
+
+Beispiel `memory/llm_config.local.json`:
+
+```json
+{
+  "active_profile": "company"
+}
+```
+
+Beispiel `.env`:
+
+```env
+OPENAI_API_KEY=
+COMPANY_LLM_BASE_URL=
+COMPANY_LLM_API_KEY=
+COMPANY_LLM_MODEL=
+```
+
+Wichtig:
+
+- Keine echten Keys in `memory/llm_config.template.json`.
+- Keine Company-URLs in GitHub-Dateien.
+- Secrets nur über `.env` oder echte Prozess-Umgebungsvariablen.
+
+Prüfung:
+
+```powershell
+python main.py llm-config-security
+python main.py model-route tool_generation
+python main.py cloud-expert-status
+```
+
+Tests:
+
+```powershell
+python -m pytest
+python -m compileall -q .
+```
+
 ## MVP 19.5 – Cloud Expert Provider
 
 Ziel:
