@@ -781,3 +781,67 @@ python main.py tool-generate weather_lookup --no-tests
 Sicherheitsregel:
 
 Cloud Expert darf Code vorschlagen. Pandora validiert lokal. Aktivierung bleibt manuell.
+
+## MVP 19.5.2 – Profile Manager & Connectivity Tests
+
+Ziel:
+
+- Zwischen privaten und Firmen-LLM-Umgebungen umschalten, ohne Zugangsdaten oder interne URLs ins Repository zu schreiben.
+- Provider-Konfigurationen prüfen, ohne Secrets auszugeben.
+- Live-Connectivity bewusst erst mit `--live` ausführen.
+
+Neue CLI-Befehle:
+
+```powershell
+python main.py llm-profile-status
+python main.py llm-profile private
+python main.py llm-profile company
+python main.py llm-provider-status cloud_expert
+python main.py llm-provider-status company_llm
+python main.py llm-provider-smoke cloud_expert
+python main.py llm-provider-smoke cloud_expert --live
+```
+
+Neue API-Endpunkte:
+
+- `GET /llm/profile/status`
+- `POST /llm/profile`
+- `GET /llm/provider/status/{provider}`
+- `POST /llm/provider/smoke`
+
+Umschalten:
+
+```powershell
+python main.py llm-profile private
+python main.py llm-profile company
+```
+
+Das schreibt nur diese lokale, gitignorierte Datei:
+
+```text
+memory/llm_config.local.json
+```
+
+Secrets bleiben in `.env` oder in echten Umgebungsvariablen:
+
+```env
+OPENAI_API_KEY=...
+COMPANY_LLM_BASE_URL=...
+COMPANY_LLM_API_KEY=...
+COMPANY_LLM_MODEL=...
+```
+
+Sicherheit:
+
+- Statusausgaben zeigen nur `api_key_present: true/false`.
+- Company-URLs aus ENV werden als `<from env>` angezeigt.
+- Smoke-Tests laufen ohne `--live` nicht gegen das Netzwerk.
+- `.env` und `memory/llm_config.local.json` bleiben durch `.gitignore` geschützt.
+
+Validierung:
+
+```powershell
+python -m pytest
+python -m compileall .
+python main.py llm-config-security
+```

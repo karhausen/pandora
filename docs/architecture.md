@@ -174,3 +174,33 @@ company cloud_expert → company_llm
 
 Security rule: repository files may contain placeholder env-variable names, but not real API keys or internal company base URLs. Public API responses use redacted config output.
 
+
+## MVP 19.5.2 – Profile Manager & Connectivity Tests
+
+Pandora trennt ab MVP 19.5.2 drei Dinge klar:
+
+```text
+Git-sichere Template-Konfiguration
+↓
+Lokales Profil-Override
+↓
+Secrets aus ENV/.env
+```
+
+Der aktive Profile-Name wird über `memory/llm_config.local.json` gesetzt. Diese Datei ist lokal und wird nicht versioniert.
+
+```json
+{
+  "active_profile": "company"
+}
+```
+
+Der `LLMProfileManager` bietet:
+
+- Profilstatus
+- Profilumschaltung
+- Provider-Konfigurationsprüfung
+- optionalen Live-Smoke-Test
+- redaktierte Ausgaben ohne Secrets oder interne URLs
+
+Live-Smoke-Tests sind bewusst opt-in, damit Pandora nicht versehentlich aus dem Firmennetz externe Provider anspricht.

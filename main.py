@@ -22,6 +22,7 @@ from core.heartbeat import Heartbeat
 from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
+from core.llm_profile_manager import LLMProfileManager
 from core.model_router import ModelRouter
 from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
@@ -56,7 +57,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.1"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.2"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -77,6 +78,11 @@ def cmd_model_routes(args): _json({"routes": ModelRouter().all_routes()})
 def cmd_model_route(args): _json(ModelRouter().route(args.purpose, provider_name_override=args.provider, model_override=args.model).model_dump(mode="json"))
 def cmd_cloud_expert_status(args): _json(CloudExpert().status())
 def cmd_cloud_expert_smoke(args): _json(CloudExpert().smoke(prompt=args.prompt, live=args.live, timeout=args.timeout))
+
+def cmd_llm_profile_status(args): _json(LLMProfileManager().status())
+def cmd_llm_profile_set(args): _json(LLMProfileManager().set_profile(args.profile))
+def cmd_llm_provider_status(args): _json(LLMProfileManager().provider_status(args.provider))
+def cmd_llm_provider_smoke(args): _json(LLMProfileManager().smoke(provider=args.provider, live=args.live, timeout=args.timeout, prompt=args.prompt))
 def cmd_llm_analyze(args): _json(LLMRuntime().analyze_task(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_llm_complete(args):
     req = LLMRequest(task_type=LLMTaskType(args.task_type), prompt=args.prompt, provider_name=args.provider, model=args.model, expect_json=args.expect_json, timeout=args.timeout)
@@ -144,7 +150,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 19.3")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 19.5.2")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -164,6 +170,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("model-route"); p.add_argument("purpose"); p.add_argument("--provider"); p.add_argument("--model"); p.set_defaults(func=cmd_model_route)
     p = sub.add_parser("cloud-expert-status"); p.set_defaults(func=cmd_cloud_expert_status)
     p = sub.add_parser("cloud-expert-smoke"); p.add_argument("--prompt"); p.add_argument("--live", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_cloud_expert_smoke)
+    p = sub.add_parser("llm-profile-status"); p.set_defaults(func=cmd_llm_profile_status)
+    p = sub.add_parser("llm-profile"); p.add_argument("profile", choices=["private", "company"]); p.set_defaults(func=cmd_llm_profile_set)
+    p = sub.add_parser("llm-provider-status"); p.add_argument("provider", nargs="?", default="cloud_expert"); p.set_defaults(func=cmd_llm_provider_status)
+    p = sub.add_parser("llm-provider-smoke"); p.add_argument("provider", nargs="?", default="cloud_expert"); p.add_argument("--prompt"); p.add_argument("--live", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_provider_smoke)
     p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
     p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review", "code_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
 

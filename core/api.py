@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
-from fastapi import FastAPI, HTTPException
+from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
 from pydantic import BaseModel
 from .agent_loop import AgentLoop
@@ -32,6 +32,7 @@ from .cloud_expert import CloudExpert
 from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
+from .llm_profile_manager import LLMProfileManager
 from .model_router import ModelRouter
 from .models import LLMRequest, LLMTaskType
 from .task_journal import TaskJournal
@@ -41,7 +42,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.5.1")
+app = FastAPI(title="Pandora Agent", version="19.5.2")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -248,6 +249,26 @@ def cloud_expert_status():
 @app.post("/cloud-expert/smoke")
 def cloud_expert_smoke(req: CloudExpertSmokeRequest):
     return CloudExpert().smoke(prompt=req.prompt, live=req.live, timeout=req.timeout)
+
+
+@app.get("/llm/profile/status")
+def llm_profile_status():
+    return LLMProfileManager().status()
+
+
+@app.post("/llm/profile")
+def llm_profile_set(req: dict = Body(...)):
+    return LLMProfileManager().set_profile(str(req.get("profile", "")))
+
+
+@app.get("/llm/provider/status/{provider}")
+def llm_provider_status(provider: str = "cloud_expert"):
+    return LLMProfileManager().provider_status(provider)
+
+
+@app.post("/llm/provider/smoke")
+def llm_provider_smoke(req: dict = Body(...)):
+    return LLMProfileManager().smoke(provider=req.get("provider", "cloud_expert"), prompt=req.get("prompt"), live=bool(req.get("live", False)), timeout=float(req.get("timeout", 20.0)))
 
 
 @app.post("/llm/analyze")
