@@ -15,6 +15,7 @@ from core.capability_expansion_manager import CapabilityExpansionManager
 from core.capability_workflow import CapabilityWorkflow
 from core.changelog_manager import ChangelogManager
 from core.cloud_expert import CloudExpert
+from core.config_manager import ConfigManager
 from core.core_version_manager import CoreVersionManager
 from core.documentation_generator import DocumentationGenerator
 from core.governance import Governance
@@ -57,7 +58,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.2"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.5"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -71,6 +72,7 @@ def cmd_run_tool(args):
 def cmd_sandbox_run_tool(args): _json(Sandbox().run_tool(args.tool_id, _payload(args)))
 def cmd_sandbox_policies(args): _json(Sandbox().policy_report())
 def cmd_sandbox_logs(args): _json({"logs": Sandbox().logs(args.limit)})
+def cmd_config_paths(args): _json(ConfigManager().summary())
 def cmd_llm_config(args): _json(LLMConfig().public_config())
 def cmd_llm_config_security(args):
     issues = LLMConfig().validate_no_inline_secrets(); _json({"ok": not issues, "issues": issues})
@@ -164,6 +166,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("sandbox-policies"); p.set_defaults(func=cmd_sandbox_policies)
     p = sub.add_parser("sandbox-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_sandbox_logs)
 
+    p = sub.add_parser("config-paths"); p.set_defaults(func=cmd_config_paths)
     p = sub.add_parser("llm-config"); p.set_defaults(func=cmd_llm_config)
     p = sub.add_parser("llm-config-security"); p.set_defaults(func=cmd_llm_config_security)
     p = sub.add_parser("model-routes"); p.set_defaults(func=cmd_model_routes)

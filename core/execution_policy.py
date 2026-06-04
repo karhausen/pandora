@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import EXECUTION_POLICY_FILE
+from .config import EXECUTION_POLICY_FILE, LEGACY_EXECUTION_POLICY_FILE
 from .models import ExecutionPolicy, ExecutionPolicyName
 
 
@@ -12,7 +12,10 @@ class ExecutionPolicyManager:
         self.path = path
 
     def load(self) -> dict:
-        return json.loads(self.path.read_text(encoding="utf-8"))
+        path = self.path
+        if not path.exists() and path == EXECUTION_POLICY_FILE and LEGACY_EXECUTION_POLICY_FILE.exists():
+            path = LEGACY_EXECUTION_POLICY_FILE
+        return json.loads(path.read_text(encoding="utf-8"))
 
     def get_for_tool(self, tool_id: str) -> ExecutionPolicy:
         data = self.load()

@@ -14,7 +14,7 @@ class LLMProfileManager:
     """Manage local/private LLM profile selection and provider diagnostics.
 
     Secrets stay outside Git: profile selection is written to
-    memory/llm_config.local.json, while API keys/endpoints are read from ENV/.env.
+    config/llm/llm_config.local.json, while API keys/endpoints are read from ENV/.env.
     """
 
     def __init__(self, config: LLMConfig | None = None, local_path: Path = LLM_CONFIG_LOCAL_FILE):

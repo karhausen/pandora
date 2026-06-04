@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
-from .config import ENV_FILE, LLM_CONFIG_FILE, LLM_CONFIG_LOCAL_FILE, LLM_CONFIG_TEMPLATE_FILE
+from .config import ENV_FILE, LLM_CONFIG_FILE, LLM_CONFIG_LOCAL_FILE, LLM_CONFIG_TEMPLATE_FILE, LEGACY_LLM_CONFIG_FILE, LEGACY_LLM_CONFIG_LOCAL_FILE, LEGACY_LLM_CONFIG_TEMPLATE_FILE
 
 
 BUILTIN_PROVIDER_ALIASES = {
@@ -38,10 +38,11 @@ class LLMConfig:
     """Loads safe template config plus private local/ENV overrides.
 
     Load order:
-    1. memory/llm_config.template.json  (safe for GitHub)
-    2. memory/llm_config.json           (legacy fallback, should stay non-secret)
-    3. memory/llm_config.local.json     (private, gitignored)
-    4. .env / process environment       (secret values)
+    1. config/llm/llm_config.template.json  (safe for GitHub)
+    2. config/llm/llm_config.json           (non-secret defaults)
+    3. config/llm/llm_config.local.json     (private, gitignored)
+    4. legacy memory/llm_config*.json        (migration fallback)
+    5. .env / process environment            (secret values)
     """
 
     def __init__(self, path: Path = LLM_CONFIG_FILE, local_path: Path = LLM_CONFIG_LOCAL_FILE, template_path: Path = LLM_CONFIG_TEMPLATE_FILE, env_path: Path = ENV_FILE):
@@ -55,12 +56,15 @@ class LLMConfig:
     def get(self) -> dict:
         self._load_env_file_once()
         cfg: dict[str, Any] = {}
-        if self.template_path.exists():
-            cfg = _deep_merge(cfg, self._read_json(self.template_path))
-        if self.path.exists():
-            cfg = _deep_merge(cfg, self._read_json(self.path))
-        if self.local_path.exists():
-            cfg = _deep_merge(cfg, self._read_json(self.local_path))
+        template = self.template_path if self.template_path.exists() else LEGACY_LLM_CONFIG_TEMPLATE_FILE
+        defaults = self.path if self.path.exists() else LEGACY_LLM_CONFIG_FILE
+        local = self.local_path if self.local_path.exists() else LEGACY_LLM_CONFIG_LOCAL_FILE
+        if template.exists():
+            cfg = _deep_merge(cfg, self._read_json(template))
+        if defaults.exists():
+            cfg = _deep_merge(cfg, self._read_json(defaults))
+        if local.exists():
+            cfg = _deep_merge(cfg, self._read_json(local))
         return self._apply_active_profile(cfg)
 
     def public_config(self) -> dict:

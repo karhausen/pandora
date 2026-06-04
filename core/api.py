@@ -29,6 +29,7 @@ from .documentation_generator import DocumentationGenerator
 from .governance import Governance
 from .changelog_manager import ChangelogManager
 from .cloud_expert import CloudExpert
+from .config_manager import ConfigManager
 from .learning_engine import LearningEngine
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
@@ -42,7 +43,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.5.2")
+app = FastAPI(title="Pandora Agent", version="19.5.5")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -198,7 +199,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.4"}
+    return {"status": "ok", "version": "mvp-19.5.5"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -218,6 +219,11 @@ async def run_tool(tool_id: str, req: RunToolRequest):
 def skills():
     registry = SkillRegistry(); discovered = registry.discover()
     return {"discovered": discovered, "skills": [s.model_dump(mode="json") for s in registry.list()]}
+
+@app.get("/config/paths")
+def config_paths():
+    return ConfigManager().summary()
+
 
 @app.get("/llm/config")
 def llm_config():

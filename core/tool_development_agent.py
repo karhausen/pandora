@@ -95,6 +95,25 @@ class ToolDevelopmentAgent:
         except (ValidationError, RuntimeError, ValueError, TypeError) as exc:
             return None, "llm_error", f"{type(exc).__name__}: {exc}"
 
+
+    def _effective_confidence(self, decision: CapabilityDecision) -> float:
+        """Normalize unreliable confidence emitted by small local models.
+
+        Qwen-class local models sometimes reason correctly and fill every
+        boolean/capability field, but still return confidence=0.0. Treat a
+        structurally clear decision as usable while keeping the original model
+        confidence visible in the gap details.
+        """
+        if decision.confidence and decision.confidence > 0:
+            return decision.confidence
+        if decision.tool_needed and decision.capability and not decision.existing_tool_sufficient:
+            return 0.75
+        if decision.existing_tool_sufficient and decision.suggested_existing_tool:
+            return 0.75
+        if decision.can_answer_directly and not decision.tool_needed:
+            return 0.65
+        return decision.confidence
+
     def detect_gap(
         self,
         task: str,
@@ -114,6 +133,8 @@ class ToolDevelopmentAgent:
         if decision is not None:
             capability = (decision.capability or "").strip() or None
             existing_tool = (decision.suggested_existing_tool or "").strip() or None
+            effective_confidence = self._effective_confidence(decision)
+            model_confidence = decision.confidence
             if decision.existing_tool_sufficient and existing_tool in self._existing_tool_ids():
                 return {
                     "gap_detected": False,
@@ -122,12 +143,13 @@ class ToolDevelopmentAgent:
                     "existing_tools": existing_tools,
                     "source": source,
                     "decision": decision.model_dump(mode="json"),
-                    "confidence": decision.confidence,
+                    "confidence": effective_confidence,
+                    "model_confidence": model_confidence,
                     "tool_available": True,
                     "suggested_existing_tool": existing_tool,
                     "llm_error": None,
                 }
-            if decision.tool_needed and capability and capability not in self._existing_tool_ids() and decision.confidence >= 0.55:
+            if decision.tool_needed and capability and capability not in self._existing_tool_ids() and effective_confidence >= 0.55:
                 return {
                     "gap_detected": True,
                     "capability": capability,
@@ -135,11 +157,31 @@ class ToolDevelopmentAgent:
                     "existing_tools": existing_tools,
                     "source": source,
                     "decision": decision.model_dump(mode="json"),
-                    "confidence": decision.confidence,
+                    "confidence": effective_confidence,
+                    "model_confidence": model_confidence,
                     "tool_available": False,
                     "suggested_existing_tool": existing_tool,
                     "llm_error": None,
                 }
+            # Safety net: if the LLM says direct chat, but deterministic fallback
+            # still sees a concrete missing capability, do not let chat hide the gap.
+            # This keeps LLM-first routing, but protects against small local models
+            # that sometimes answer politely instead of classifying the capability.
+            fallback = self.detector.detect(task, analysis=analysis)
+            if fallback.get("gap_detected") and fallback.get("capability") not in self._existing_tool_ids():
+                fallback["source"] = "fallback_after_llm_direct_answer"
+                fallback["llm_error"] = None
+                fallback["confidence"] = 0.56
+                fallback["model_confidence"] = model_confidence
+                fallback["tool_available"] = False
+                fallback["decision"] = decision.model_dump(mode="json")
+                fallback["reason"] = (
+                    f"LLM did not route to tool development, but fallback detected missing capability: "
+                    f"{fallback.get('capability')}. LLM reason: {decision.reason}"
+                )
+                fallback["suggested_existing_tool"] = existing_tool
+                return fallback
+
             return {
                 "gap_detected": False,
                 "capability": capability,
@@ -147,7 +189,8 @@ class ToolDevelopmentAgent:
                 "existing_tools": existing_tools,
                 "source": source,
                 "decision": decision.model_dump(mode="json"),
-                "confidence": decision.confidence,
+                "confidence": effective_confidence,
+                "model_confidence": model_confidence,
                 "tool_available": bool(existing_tool in self._existing_tool_ids()) if existing_tool else False,
                 "suggested_existing_tool": existing_tool,
                 "llm_error": None,

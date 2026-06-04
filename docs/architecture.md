@@ -93,7 +93,7 @@ ToolProposalManager
 
 ## MVP 19.4 – Model Router
 
-Der Model Router ist die zentrale Policy-Schicht für Modellwahl. Agenten übergeben nur noch einen Zweck wie `chat`, `tool_selection`, `planning`, `tool_generation` oder `core_review`. Der Router entscheidet anhand von `memory/llm_config.json`, welcher Provider und welches Modell genutzt werden.
+Der Model Router ist die zentrale Policy-Schicht für Modellwahl. Agenten übergeben nur noch einen Zweck wie `chat`, `tool_selection`, `planning`, `tool_generation` oder `core_review`. Der Router entscheidet anhand von `config/llm/llm_config.json`, welcher Provider und welches Modell genutzt werden.
 
 ```text
 Agent / Runtime
@@ -187,7 +187,7 @@ Lokales Profil-Override
 Secrets aus ENV/.env
 ```
 
-Der aktive Profile-Name wird über `memory/llm_config.local.json` gesetzt. Diese Datei ist lokal und wird nicht versioniert.
+Der aktive Profile-Name wird über `config/llm/llm_config.local.json` gesetzt. Diese Datei ist lokal und wird nicht versioniert.
 
 ```json
 {
@@ -204,3 +204,29 @@ Der `LLMProfileManager` bietet:
 - redaktierte Ausgaben ohne Secrets oder interne URLs
 
 Live-Smoke-Tests sind bewusst opt-in, damit Pandora nicht versehentlich aus dem Firmennetz externe Provider anspricht.
+
+## MVP 19.5.3 – Capability Decision Confidence Normalization
+
+The Capability Gate now separates raw model confidence from Pandora's effective routing confidence.
+If a model returns a structurally clear decision such as `tool_needed=true` with a concrete missing capability but reports `confidence=0.0`, Pandora preserves the raw value as `model_confidence` and derives a safe effective `confidence` for routing.
+
+This prevents correct local model reasoning from being discarded only because the model misused the confidence field.
+
+
+## MVP 19.5.4 – Capability Gate Safety Veto
+
+Capability routing remains LLM-first. However, if the selected local model classifies a clear capability request as direct chat, `ToolDevelopmentAgent` runs a transparent fallback check. If that fallback detects a concrete missing capability, the Coordinator routes to `tool_development` and stores the original LLM decision in `gap.decision`.
+
+This protects Pandora from friendly but wrong chat answers such as asking for text instead of creating or proposing a missing `word_count` tool.
+
+
+## MVP 19.5.5 – Configuration Refactoring
+
+Static configuration has moved from `memory/` to `config/`. This separates runtime state from deployable configuration and prepares Pandora for Docker volume mapping.
+
+```text
+config/  -> static config, profiles, registries, policies
+memory/  -> runtime state, chats, facts, logs, reasoning
+```
+
+`ConfigManager` centralizes config paths. Legacy files under `memory/` remain readable as migration fallback, but new writes use `config/`.

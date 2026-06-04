@@ -610,7 +610,7 @@ Neu:
 
 - `core/model_router.py`
 - `ModelRouter`
-- zentrale `model_routes` in `memory/llm_config.json`
+- zentrale `model_routes` in `config/llm/llm_config.json`
 - Provider-Aliase:
   - `lmstudio` → `local_fast`
   - `local` → `local_fast`
@@ -661,8 +661,8 @@ Ziel:
 
 Neu:
 
-- `memory/llm_config.template.json` als sichere GitHub-taugliche Vorlage
-- `memory/llm_config.local.json` als private lokale Override-Datei, nicht für GitHub
+- `config/llm/llm_config.template.json` als sichere GitHub-taugliche Vorlage
+- `config/llm/llm_config.local.json` als private lokale Override-Datei, nicht für GitHub
 - `.env` Unterstützung ohne zusätzliche Abhängigkeit
 - `.env.example` mit Platzhaltern
 - `.gitignore` schützt `.env` und `*.local.json`
@@ -681,7 +681,7 @@ notepad memory\llm_config.local.json
 notepad .env
 ```
 
-Beispiel `memory/llm_config.local.json`:
+Beispiel `config/llm/llm_config.local.json`:
 
 ```json
 {
@@ -700,7 +700,7 @@ COMPANY_LLM_MODEL=
 
 Wichtig:
 
-- Keine echten Keys in `memory/llm_config.template.json`.
+- Keine echten Keys in `config/llm/llm_config.template.json`.
 - Keine Company-URLs in GitHub-Dateien.
 - Secrets nur über `.env` oder echte Prozess-Umgebungsvariablen.
 
@@ -782,6 +782,90 @@ Sicherheitsregel:
 
 Cloud Expert darf Code vorschlagen. Pandora validiert lokal. Aktivierung bleibt manuell.
 
+
+
+
+## MVP 19.5.5 – Configuration Refactoring
+
+Ziel:
+
+- Statische Konfiguration liegt nicht mehr in `memory/`, sondern unter `config/`.
+- `memory/` bleibt für Laufzeitdaten, Chatverläufe, Logs, Reasoning und gelernte Fakten reserviert.
+- Private Overrides bleiben geschützt und werden nicht versioniert.
+
+Neue Struktur:
+
+```text
+config/
+├─ llm/
+│  ├─ llm_config.json
+│  ├─ llm_config.template.json
+│  └─ llm_config.local.example.json
+├─ tools/
+│  ├─ tool_registry.json
+│  └─ execution_policy.json
+├─ skills/
+│  └─ skill_registry.json
+└─ system/
+   └─ pandora.json
+```
+
+Neue Komponente:
+
+- `ConfigManager`
+
+Neue CLI/API:
+
+```powershell
+python main.py config-paths
+```
+
+```text
+GET /config/paths
+```
+
+Kompatibilität:
+
+- Legacy-Dateien in `memory/` werden beim Laden weiterhin als Fallback akzeptiert.
+- Neue Schreibpfade zeigen aber auf `config/`.
+
+Prüfung:
+
+```powershell
+python -m pytest
+python -m compileall -q .
+```
+
+## MVP 19.5.4 – Capability Gate Chat-Veto Hotfix
+
+Fix:
+
+- Kleine lokale Modelle können eine klare Fähigkeitsanfrage fälschlich als normalen Chat klassifizieren.
+- Pandora nutzt weiterhin LLM-first Routing, aber ein transparenter Fallback darf eine klare fehlende Capability gegen eine falsche Chat-Entscheidung absichern.
+- Beispiel: `Ich möchte Wörter zählen` wird nicht mehr vom Chat-Fallback beantwortet, wenn `word_count` als fehlende Capability erkennbar ist.
+- Der ursprüngliche LLM-Entscheid bleibt in `gap.decision` sichtbar.
+- Neue Quelle: `fallback_after_llm_direct_answer`.
+
+Prüfung:
+
+- `pytest`: 45 passed
+- `compileall`: erfolgreich
+
+## MVP 19.5.3 – Capability Gate Confidence Normalization
+
+Bugfix:
+
+- Kleine lokale Modelle können eine korrekte Capability-Entscheidung liefern, aber `confidence: 0.0` setzen.
+- Pandora verwirft solche strukturell eindeutigen Entscheidungen nicht mehr.
+- Beispiel: `Ich möchte Wörter zählen` mit `tool_needed=true` und `capability=word_count` wird jetzt trotz Modell-Confidence `0.0` als Tool-Gap erkannt.
+- Die originale Modell-Confidence bleibt in `model_confidence` sichtbar.
+- Die von Pandora normalisierte Entscheidungs-Confidence steht in `confidence`.
+
+Prüfung:
+
+- `pytest`: 43 passed
+- `compileall`: erfolgreich
+
 ## MVP 19.5.2 – Profile Manager & Connectivity Tests
 
 Ziel:
@@ -819,7 +903,7 @@ python main.py llm-profile company
 Das schreibt nur diese lokale, gitignorierte Datei:
 
 ```text
-memory/llm_config.local.json
+config/llm/llm_config.local.json
 ```
 
 Secrets bleiben in `.env` oder in echten Umgebungsvariablen:
@@ -836,7 +920,7 @@ Sicherheit:
 - Statusausgaben zeigen nur `api_key_present: true/false`.
 - Company-URLs aus ENV werden als `<from env>` angezeigt.
 - Smoke-Tests laufen ohne `--live` nicht gegen das Netzwerk.
-- `.env` und `memory/llm_config.local.json` bleiben durch `.gitignore` geschützt.
+- `.env` und `config/llm/llm_config.local.json` bleiben durch `.gitignore` geschützt.
 
 Validierung:
 

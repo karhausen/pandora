@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# Static configuration under config/ is intentionally not cleaned here.
 
 DIRS_TO_EMPTY = [
     ROOT / "logs",

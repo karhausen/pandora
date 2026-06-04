@@ -2,7 +2,7 @@ from __future__ import annotations
 import importlib, json
 from pathlib import Path
 from .models import ToolMeta
-from .config import TOOL_REGISTRY_FILE, TOOLS_DIR, GENERATED_TOOLS_DIR
+from .config import TOOL_REGISTRY_FILE, TOOLS_DIR, GENERATED_TOOLS_DIR, LEGACY_TOOL_REGISTRY_FILE
 
 class ToolRegistry:
     def __init__(self, registry_file: Path = TOOL_REGISTRY_FILE):
@@ -12,10 +12,13 @@ class ToolRegistry:
         self.load()
 
     def load(self):
-        if not self.registry_file.exists():
+        path = self.registry_file
+        if not path.exists() and path == TOOL_REGISTRY_FILE and LEGACY_TOOL_REGISTRY_FILE.exists():
+            path = LEGACY_TOOL_REGISTRY_FILE
+        if not path.exists():
             self.tools = {}
             return
-        self.tools = {k: ToolMeta.model_validate(v) for k, v in json.loads(self.registry_file.read_text(encoding="utf-8")).items()}
+        self.tools = {k: ToolMeta.model_validate(v) for k, v in json.loads(path.read_text(encoding="utf-8")).items()}
 
     def save(self):
         self.registry_file.write_text(json.dumps({k: v.model_dump(mode="json") for k, v in self.tools.items()}, indent=2, ensure_ascii=False), encoding="utf-8")
