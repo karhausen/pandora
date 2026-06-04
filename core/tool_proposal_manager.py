@@ -57,7 +57,7 @@ class ToolProposalManager:
         code_file.write_text(code, encoding="utf-8")
         test_file.write_text(test_code, encoding="utf-8")
 
-        static = self.validator.static_review(code)
+        static = self.validator.static_review(code, design=design)
         test_result = self.validator.run_tests(proposal_dir) if static["ok"] else {"success": False, "skipped": True}
         validation = {"static": static, "tests": test_result, "design": design_result.model_dump(mode="json") if design_result else None}
         status = ToolProposalStatus.VALIDATED if static["ok"] and test_result.get("success") else ToolProposalStatus.FAILED
@@ -119,7 +119,7 @@ class ToolProposalManager:
             code_file.write_text(code, encoding="utf-8")
             test_file.write_text(test_code, encoding="utf-8")
 
-            static = self.validator.static_review(code)
+            static = self.validator.static_review(code, design=design)
             if static["ok"] and run_tests:
                 test_result = self.generation_runner.run_pytest(proposal_dir)
             elif static["ok"] and not run_tests:

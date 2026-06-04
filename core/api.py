@@ -9,6 +9,7 @@ from .agent_loop import AgentLoop
 from .capability_expansion_manager import CapabilityExpansionManager
 from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
+from .tool_review_agent import ToolReviewAgent
 from .tool_development_agent import ToolDevelopmentAgent
 from .tool_design_agent import ToolDesignAgent
 from .tool_activation_manager import ToolActivationManager
@@ -208,7 +209,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.7"}
+    return {"status": "ok", "version": "mvp-19.8"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -519,6 +520,11 @@ def tool_generation_generate(req: ToolGenerateRequest):
         max_attempts=req.max_attempts,
         run_tests=req.run_tests,
     )
+
+
+@app.post("/tool-review/review")
+def tool_review(req: ToolReviewRequest):
+    return ToolReviewAgent().review(req.code, design=req.design)
 
 
 @app.get("/tool-generation/logs")

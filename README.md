@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 19.7 – Cloud Tool Code Generator**
+Aktueller Stand: **MVP 19.8 – Tool Review & Policy-Aware Validation**
 
 ## Start
 
@@ -67,6 +67,7 @@ python main.py tool-design weather_lookup --task "Ich möchte das aktuelle Wette
 python main.py tool-propose-capability word_count
 python main.py tool-generate word_count --provider mock
 python main.py tool-generate word_count
+python main.py tool-review-file tool_proposals/<PROPOSAL_ID>/generated_tools/<TOOL>.py --design tool_proposals/<PROPOSAL_ID>/tool_design.json
 python main.py tool-proposal-list
 python main.py tool-proposal-show <PROPOSAL_ID>
 python main.py tool-proposal-activate <PROPOSAL_ID>
@@ -125,6 +126,34 @@ oder:
 }
 ```
 
+
+
+## MVP 19.8 – Tool Review & Policy-Aware Validation
+
+Neu:
+
+- `ToolReviewAgent`
+- policy-aware `ToolValidator`
+- `LIMITED` Tools mit `requires_network=true` dürfen kontrolliert `urllib.request`, `urllib.parse`, `urllib.error`, `json` und `os` verwenden
+- `requests`, `httpx`, `socket`, `subprocess`, `eval`, `exec`, `open` bleiben verboten
+- Netzwerkaufrufe müssen `timeout=` setzen
+- statische Reviews enthalten jetzt `policy`-Details
+- CLI: `tool-review-file`
+- API: `POST /tool-review/review`
+
+Wichtig:
+
+```text
+Cloud erzeugt Code
+↓
+lokaler ToolReviewAgent prüft Security/Policy
+↓
+pytest läuft nur, wenn Review ok ist
+↓
+Proposal wird VALIDATED oder FAILED
+```
+
+Damit kann ein Wettertool mit Netzwerkbedarf kontrolliert validiert werden, ohne die generellen Sicherheitsregeln für SAFE-Tools aufzuweichen.
 
 ## MVP 19.7 – Cloud Tool Code Generator
 
@@ -202,6 +231,7 @@ docs/architecture.md
 docs/roadmap.md
 docs/tool_design.md
 docs/tool_code_generation.md
+docs/tool_review.md
 docs/security.md
 ```
 

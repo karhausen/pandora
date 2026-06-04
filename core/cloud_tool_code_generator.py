@@ -110,7 +110,10 @@ Hard rules:
 - Do not use shell, subprocess, eval, exec, open, socket, ctypes or multiprocessing.
 - Do not write files.
 - For SAFE tools, do not use network.
-- For LIMITED network tools, keep code minimal and make credentials/config explicit through environment variables, but note that local validator may reject network code until network policy is enabled.
+- For LIMITED network tools, network access is allowed only through Python standard library urllib.request / urllib.parse / urllib.error.
+- For LIMITED network tools, every urlopen call must use a timeout keyword.
+- Do not use requests or httpx.
+- Make credentials/config explicit through environment variables. Do not hard-code API keys.
 - The pytest file must import: from generated_tools.{design.tool_id} import run
 - Tests must be deterministic and must not require live network.
 
