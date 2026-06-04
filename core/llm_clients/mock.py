@@ -51,6 +51,45 @@ class MockLLMClient:
             content = json.dumps(data, ensure_ascii=False)
             return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "capability_gate"})
 
+        if request.task_type.value == "tool_generation" and request.expect_json:
+            design = request.context.get("design", {}) or {}
+            tool_id = str(design.get("tool_id") or design.get("capability") or "generated_tool")
+            name = str(design.get("name") or tool_id.replace("_", " ").title())
+            description = str(design.get("description") or f"Generated tool for {tool_id}")
+            input_schema = design.get("input_schema") or {"text": "str"}
+            output_schema = design.get("output_schema") or {"text": "str"}
+            security_level = str(design.get("security_level") or "SAFE")
+            if tool_id == "word_count":
+                body = "    text = payload.get(\"text\") or payload.get(\"input\") or \"\"\n    words = [w for w in str(text).split() if w.strip()]\n    return {\"count\": len(words)}"
+                assertion = "assert run({\"text\": \"eins zwei drei\"})[\"count\"] == 3"
+            else:
+                body = "    text = payload.get(\"text\") or payload.get(\"input\") or \"\"\n    return {\"text\": str(text)}"
+                assertion = "assert isinstance(run({\"text\": \"hello\"}), dict)"
+            code = (
+                "TOOL_META = {\n"
+                f"    \"id\": \"{tool_id}\",\n"
+                f"    \"name\": \"{name}\",\n"
+                f"    \"description\": \"{description}\",\n"
+                "    \"version\": \"0.1.0\",\n"
+                f"    \"input_schema\": {input_schema!r},\n"
+                f"    \"output_schema\": {output_schema!r},\n"
+                f"    \"security_level\": \"{security_level}\",\n"
+                "    \"status\": \"ACTIVE\",\n"
+                f"    \"module\": \"generated_tools.{tool_id}\",\n"
+                "    \"function\": \"run\",\n"
+                "}\n\n"
+                "def run(payload: dict) -> dict:\n"
+                f"{body}\n"
+            )
+            test_code = (
+                f"from generated_tools.{tool_id} import run\n\n"
+                f"def test_{tool_id}():\n"
+                f"    {assertion}\n"
+            )
+            data = {"code": code, "test_code": test_code, "notes": ["Mock cloud code generation for tests."]}
+            content = json.dumps(data, ensure_ascii=False)
+            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "tool_generation"})
+
         if request.task_type.value == "tool_design" and request.expect_json:
             capability = str(request.context.get("capability") or "generated_tool")
             safe_id = capability.strip().lower().replace("-", "_").replace(" ", "_") or "generated_tool"

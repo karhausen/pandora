@@ -252,3 +252,18 @@ Manual Activation
 ```
 
 Der Design-Schritt beschreibt Input-/Output-Schema, Sicherheitslevel, Netzwerk-/Datei-/Shell-Bedarf, Dependencies, Testfälle und Risiken. Dadurch kann die spätere Cloud-Code-Erzeugung auf einem klaren Vertrag aufsetzen.
+
+
+## MVP 19.7 – Cloud Tool Code Generator
+
+Nach dem Tool Design erzeugt Pandora jetzt Kandidaten für Tool-Code und Tests über `CloudToolCodeGenerator`.
+Der Generator nutzt die `tool_generation` Route des `ModelRouter`; im privaten Profil zeigt diese Route auf den Cloud Expert.
+
+Der generierte Code bleibt in `tool_proposals/<proposal_id>/` und wird lokal geprüft:
+
+- statische Sicherheitsprüfung
+- pytest
+- Proposal-Metadaten
+- manuelle Aktivierung
+
+Cloud-Modelle dürfen keinen aktiven Code direkt schreiben oder aktivieren.

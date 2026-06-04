@@ -1,6 +1,6 @@
 # Pandora Roadmap
 
-## Erledigt bis MVP 19.6
+## Erledigt bis MVP 19.7
 
 - lokale GUI und Admin-Dashboard
 - Coordinator / Planner / Worker

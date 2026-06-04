@@ -8,6 +8,7 @@ from pathlib import Path
 
 from .capability_detector import CapabilityDetector
 from .config import ROOT_DIR, TOOL_PROPOSALS_DIR
+from .cloud_tool_code_generator import CloudToolCodeGenerator
 from .llm_tool_generator import LLMToolGenerator
 from .models import (
     ToolGenerationAttempt,
@@ -33,6 +34,7 @@ class ToolProposalManager:
         self.test_generator = ToolTestGenerator()
         self.validator = ToolValidator()
         self.llm_generator = LLMToolGenerator()
+        self.cloud_code_generator = CloudToolCodeGenerator()
         self.repair_manager = ToolRepairManager()
         self.generation_runner = ToolGenerationRunner()
         self.generation_log = ToolGenerationLog()
@@ -90,7 +92,6 @@ class ToolProposalManager:
 
         code_file = tool_dir / f"{spec.id}.py"
         test_file = test_dir / f"test_{spec.id}.py"
-        test_file.write_text(self.test_generator.generate_test(spec), encoding="utf-8")
 
         attempts: list[ToolGenerationAttempt] = []
         previous_error = None
@@ -99,12 +100,24 @@ class ToolProposalManager:
 
         for attempt_no in range(1, max_attempts + 1):
             generated = (
-                self.llm_generator.generate_code(spec, provider_name=provider_name, model=model)
-                if attempt_no == 1
-                else self.repair_manager.repair(spec, previous_error or "Unknown error", provider_name=provider_name, model=model)
+                self.cloud_code_generator.generate(
+                    design=design,
+                    previous_error=previous_error,
+                    provider_name=provider_name,
+                    model=model,
+                )
+                if design
+                else self.llm_generator.generate_code(
+                    spec,
+                    provider_name=provider_name,
+                    model=model,
+                    previous_error=previous_error,
+                )
             )
             code = generated["code"]
+            test_code = generated.get("test_code") or self.test_generator.generate_test(spec)
             code_file.write_text(code, encoding="utf-8")
+            test_file.write_text(test_code, encoding="utf-8")
 
             static = self.validator.static_review(code)
             if static["ok"] and run_tests:
@@ -115,12 +128,15 @@ class ToolProposalManager:
                 test_result = {"success": False, "skipped": True, "stderr": "\n".join(static["issues"])}
 
             success = bool(static["ok"] and test_result.get("success"))
-            previous_error = None if success else (test_result.get("stderr") or test_result.get("stdout") or "Validation failed")
+            previous_error = None if success else (test_result.get("stderr") or test_result.get("stdout") or generated.get("error") or "Validation failed")
             best_validation = {
                 "static": static,
                 "tests": test_result,
                 "source": generated.get("source"),
                 "llm_used": generated.get("llm_used"),
+                "route": generated.get("route"),
+                "notes": generated.get("notes", []),
+                "error": generated.get("error"),
                 "design": design_result.model_dump(mode="json") if design_result else None,
             }
             attempts.append(ToolGenerationAttempt(

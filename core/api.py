@@ -44,7 +44,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.6")
+app = FastAPI(title="Pandora Agent", version="19.7")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -208,7 +208,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.6"}
+    return {"status": "ok", "version": "mvp-19.7"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -682,7 +682,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.6", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.7", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

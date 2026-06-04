@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 19.6 – Real Tool Design Agent**
+Aktueller Stand: **MVP 19.7 – Cloud Tool Code Generator**
 
 ## Start
 
@@ -66,6 +66,7 @@ python main.py tools
 python main.py tool-design weather_lookup --task "Ich möchte das aktuelle Wetter abrufen" --provider mock
 python main.py tool-propose-capability word_count
 python main.py tool-generate word_count --provider mock
+python main.py tool-generate word_count
 python main.py tool-proposal-list
 python main.py tool-proposal-show <PROPOSAL_ID>
 python main.py tool-proposal-activate <PROPOSAL_ID>
@@ -124,6 +125,36 @@ oder:
 }
 ```
 
+
+## MVP 19.7 – Cloud Tool Code Generator
+
+Neu:
+
+- `CloudToolCodeGenerator`
+- Tool-Code und pytest-Dateien werden aus dem `ToolDesign` erzeugt
+- Route `tool_generation` nutzt den aktiven Cloud Expert
+- OpenAI-Standardmodell ist jetzt `gpt-4o`
+- Cloud-Code bleibt Proposal-Code und wird lokal geprüft
+- Aktivierung bleibt manuell
+
+Ablauf:
+
+```text
+Capability Gap
+↓
+Tool Design
+↓
+Cloud Tool Code Generator
+↓
+Static Review + pytest
+↓
+Proposal
+↓
+manuelle Aktivierung
+```
+
+Wichtig: Cloud erzeugt nur Kandidaten. Pandora validiert lokal und aktiviert nichts automatisch.
+
 ## MVP 19.6 – Real Tool Design Agent
 
 Neu:
@@ -170,6 +201,7 @@ Weitere Details:
 docs/architecture.md
 docs/roadmap.md
 docs/tool_design.md
+docs/tool_code_generation.md
 docs/security.md
 ```
 

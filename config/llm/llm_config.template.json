@@ -26,7 +26,7 @@
       "type": "openai",
       "base_url": "https://api.openai.com/v1",
       "api_key_env": "OPENAI_API_KEY",
-      "default_model": "gpt-4.1-mini",
+      "default_model": "gpt-4o",
       "timeout": 60.0
     },
     "company_llm": {
@@ -45,14 +45,38 @@
     }
   },
   "routing": {
-    "chat": {"provider": "local_fast", "fallback_provider": "mock"},
-    "planning": {"provider": "local_fast", "fallback_provider": "mock"},
-    "tool_selection": {"provider": "local_fast", "fallback_provider": "mock"},
-    "tool_generation": {"provider": "cloud_expert", "fallback_provider": "mock"},
-    "tool_design": {"provider": "cloud_expert", "fallback_provider": "mock"},
-    "reflection": {"provider": "local_fast", "fallback_provider": "mock"},
-    "core_review": {"provider": "cloud_expert", "fallback_provider": "mock"},
-    "code_review": {"provider": "cloud_expert", "fallback_provider": "mock"}
+    "chat": {
+      "provider": "local_fast",
+      "fallback_provider": "mock"
+    },
+    "planning": {
+      "provider": "local_fast",
+      "fallback_provider": "mock"
+    },
+    "tool_selection": {
+      "provider": "local_fast",
+      "fallback_provider": "mock"
+    },
+    "tool_generation": {
+      "provider": "cloud_expert",
+      "fallback_provider": "mock"
+    },
+    "tool_design": {
+      "provider": "cloud_expert",
+      "fallback_provider": "mock"
+    },
+    "reflection": {
+      "provider": "local_fast",
+      "fallback_provider": "mock"
+    },
+    "core_review": {
+      "provider": "cloud_expert",
+      "fallback_provider": "mock"
+    },
+    "code_review": {
+      "provider": "cloud_expert",
+      "fallback_provider": "mock"
+    }
   },
   "provider_aliases": {
     "lmstudio": "local_fast",
@@ -69,13 +93,37 @@
     "company_llm": "company_llm"
   },
   "model_routes": {
-    "chat": {"provider": "local_fast", "reason": "Fast local model for normal chat."},
-    "planning": {"provider": "local_fast", "reason": "Fast local model for simple planning."},
-    "tool_selection": {"provider": "local_fast", "reason": "Fast local model for capability gating/tool selection."},
-    "reflection": {"provider": "local_fast", "reason": "Local model is sufficient for reflection."},
-    "tool_generation": {"provider": "cloud_expert", "reason": "Tool and code generation should use the active profile cloud expert."},
-    "tool_design": {"provider": "cloud_expert", "reason": "Tool contract/design should use the active profile cloud expert."},
-    "core_review": {"provider": "cloud_expert", "reason": "Architecture/core review should use the active profile cloud expert."},
-    "code_review": {"provider": "cloud_expert", "reason": "Code review should use the active profile cloud expert."}
+    "chat": {
+      "provider": "local_fast",
+      "reason": "Fast local model for normal chat."
+    },
+    "planning": {
+      "provider": "local_fast",
+      "reason": "Fast local model for simple planning."
+    },
+    "tool_selection": {
+      "provider": "local_fast",
+      "reason": "Fast local model for capability gating/tool selection."
+    },
+    "reflection": {
+      "provider": "local_fast",
+      "reason": "Local model is sufficient for reflection."
+    },
+    "tool_generation": {
+      "provider": "cloud_expert",
+      "reason": "Tool and code generation should use the active profile cloud expert."
+    },
+    "tool_design": {
+      "provider": "cloud_expert",
+      "reason": "Tool contract/design should use the active profile cloud expert."
+    },
+    "core_review": {
+      "provider": "cloud_expert",
+      "reason": "Architecture/core review should use the active profile cloud expert."
+    },
+    "code_review": {
+      "provider": "cloud_expert",
+      "reason": "Code review should use the active profile cloud expert."
+    }
   }
 }
