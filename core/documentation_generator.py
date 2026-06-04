@@ -94,7 +94,7 @@ Pandora soll Aufgaben analysieren, Tools und Skills kontrolliert nutzen, aus Erf
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\\.venv\\Scripts\\Activate.ps1
 pip install -r requirements.txt
 python main.py status
 python main.py api

@@ -58,6 +58,7 @@ class CloudToolCodeGenerator:
             data = dict(response.parsed_json or json.loads(response.content))
             code = self._clean_code(str(data.get("code") or ""))
             test_code = self._clean_code(str(data.get("test_code") or ""))
+            test_code = self._policy_aware_test_adjustments(test_code, code, design)
             if not code or "def run" not in code or "TOOL_META" not in code:
                 raise ValueError("Generated code must define TOOL_META and run(payload)")
             if not test_code or f"generated_tools.{design.tool_id}" not in test_code:
@@ -116,11 +117,77 @@ Hard rules:
 - Make credentials/config explicit through environment variables. Do not hard-code API keys.
 - The pytest file must import: from generated_tools.{design.tool_id} import run
 - Tests must be deterministic and must not require live network.
+- If the tool reads environment variables, tests must set them with monkeypatch.setenv.
+- If tests monkeypatch urllib.request.urlopen, tests must import urllib.request explicitly.
+- Network tests must mock urllib.request.urlopen and must never call the live network.
+- Test files must include all imports they reference.
 
 ToolDesign JSON:
 {json.dumps(design.model_dump(mode='json'), indent=2, ensure_ascii=False)}
 {repair}
 """
+
+    def _policy_aware_test_adjustments(self, test_code: str, code: str, design: ToolDesign) -> str:
+        """Repair common cloud-generated test issues without weakening policy.
+
+        Cloud models often generate plausible tests that forget imports or forget
+        to provide required environment variables. These repairs keep tests
+        offline and deterministic; they do not alter the generated tool code.
+        """
+        if not test_code.strip():
+            return test_code
+
+        lines = test_code.splitlines()
+
+        def has_import(import_line: str) -> bool:
+            return any(line.strip() == import_line for line in lines)
+
+        imports_to_add: list[str] = []
+        if "json." in test_code or "json.dumps" in test_code or "json.loads" in test_code:
+            if not has_import("import json"):
+                imports_to_add.append("import json")
+        if "urllib.request" in test_code:
+            if not has_import("import urllib.request"):
+                imports_to_add.append("import urllib.request")
+        if "urllib.parse" in test_code:
+            if not has_import("import urllib.parse"):
+                imports_to_add.append("import urllib.parse")
+        if "os." in test_code:
+            if not has_import("import os"):
+                imports_to_add.append("import os")
+
+        if imports_to_add:
+            insert_at = 0
+            while insert_at < len(lines) and (lines[insert_at].startswith("import ") or lines[insert_at].startswith("from ")):
+                insert_at += 1
+            lines[insert_at:insert_at] = imports_to_add
+            test_code = "\n".join(lines)
+
+        env_names = sorted(set(re.findall(r"os\.getenv\(['\"]([A-Z0-9_]+)['\"]", code)))
+        env_names += [name for name in ["WEATHER_API_KEY"] if name in code and name not in env_names]
+        env_names = sorted(set(env_names))
+        if env_names and "monkeypatch.setenv" not in test_code:
+            test_code = self._add_monkeypatch_env_setup(test_code, env_names)
+
+        return test_code.strip() + "\n"
+
+    def _add_monkeypatch_env_setup(self, test_code: str, env_names: list[str]) -> str:
+        lines = test_code.splitlines()
+        updated: list[str] = []
+        patched_first_test = False
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith("def test_") and not patched_first_test:
+                if "monkeypatch" not in line:
+                    line = line.replace("():", "(monkeypatch):")
+                updated.append(line)
+                indent = line[: len(line) - len(line.lstrip())] + "    "
+                for env_name in env_names:
+                    updated.append(f"{indent}monkeypatch.setenv({env_name!r}, 'test-value')")
+                patched_first_test = True
+                continue
+            updated.append(line)
+        return "\n".join(updated)
 
     def _clean_code(self, text: str) -> str:
         text = text.strip()

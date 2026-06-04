@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 19.8 – Tool Review & Policy-Aware Validation**
+Aktueller Stand: **MVP 19.8.1 – Policy-Aware Test Generation**
 
 ## Start
 
@@ -25,6 +25,33 @@ Admin-GUI:
 ```text
 http://127.0.0.1:8000/admin
 ```
+
+
+## Aktuelle CLI-Tests für MVP 19.8.1
+
+Diese Tests prüfen den aktuellen Stand ohne zusätzliche Tool-API-Keys wie `WEATHER_API_KEY`. Für Cloud-Tests muss nur `OPENAI_API_KEY` gesetzt sein.
+
+```bash
+python3 main.py status
+python3 main.py config-paths
+python3 main.py llm-profile-status
+python3 main.py llm-provider-smoke cloud_expert --live
+python3 main.py model-route tool_design
+python3 main.py model-route tool_generation
+python3 main.py tool-design word_count --provider cloud_expert
+python3 main.py tool-generate word_count --provider cloud_expert
+python3 main.py tool-proposal-list
+python3 -m pytest -q
+python3 -m compileall -q .
+```
+
+Optionaler Netzwerktool-Test, nur wenn ein Proposal für ein Netzwerktool geprüft werden soll:
+
+```bash
+python3 main.py tool-generate weather_lookup --provider cloud_expert
+```
+
+Erwartung bei `weather_lookup`: Tests müssen offline laufen, Netzwerkaufrufe müssen gemockt sein, benötigte ENV-Werte müssen im Test über `monkeypatch.setenv(...)` gesetzt werden.
 
 ## Wichtige Befehle
 
@@ -127,6 +154,25 @@ oder:
 ```
 
 
+
+
+## MVP 19.8.1 – Policy-Aware Test Generation
+
+Neu/Fix:
+
+- Cloud-generierte pytest-Dateien werden nachbearbeitet, damit sie policy-konform und offline lauffähig sind.
+- Fehlende Test-Imports wie `json` oder `urllib.request` werden ergänzt.
+- Wenn generierter Tool-Code ENV-Variablen wie `WEATHER_API_KEY` benötigt, setzt der Test diese mit `monkeypatch.setenv(...)`.
+- Verbotene Design-Dependencies wie `requests`, `httpx` oder `aiohttp` werden aus dem ToolDesign entfernt und in `risk_notes` dokumentiert.
+- README enthält ab jetzt die aktuellen CLI-Tests für den jeweiligen Stand.
+- Empfohlener Standardtest ohne Tool-API-Key: `tool-generate word_count --provider cloud_expert`.
+
+Prüfung:
+
+```bash
+python3 -m pytest -q
+python3 -m compileall -q .
+```
 
 ## MVP 19.8 – Tool Review & Policy-Aware Validation
 

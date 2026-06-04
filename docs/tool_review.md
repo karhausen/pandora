@@ -56,3 +56,15 @@ Body:
 ## Warum lokal?
 
 Der Cloud Expert darf Code vorschlagen. Die Entscheidung, ob Code sicher genug für Pandora ist, bleibt lokal und nachvollziehbar.
+
+## MVP 19.8.1 – Policy-Aware Test Generation
+
+Cloud-generierte Tests werden zusätzlich normalisiert, bevor sie in einem Proposal gespeichert werden. Ziel ist, dass Tests offline laufen und keine echten Tool-API-Keys benötigen.
+
+Regeln:
+
+- Tests müssen alle verwendeten Module importieren.
+- Netzwerkaufrufe werden gemockt.
+- ENV-Secrets werden im Test mit `monkeypatch.setenv(...)` gesetzt.
+- Tool-Code wird dadurch nicht lockerer validiert; nur die Testdatei wird repariert.
+- Verbotene externe Dependencies wie `requests` werden aus dem Design entfernt und als Risiko notiert.

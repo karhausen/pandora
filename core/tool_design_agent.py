@@ -145,6 +145,13 @@ Rules:
         data.setdefault("requires_filesystem", False)
         data.setdefault("requires_shell", False)
         data.setdefault("dependencies", [])
+        forbidden_deps = {"requests", "httpx", "aiohttp"}
+        cleaned_dependencies = [dep for dep in (data.get("dependencies") or []) if str(dep).lower() not in forbidden_deps]
+        removed_dependencies = sorted({str(dep) for dep in (data.get("dependencies") or []) if str(dep).lower() in forbidden_deps})
+        data["dependencies"] = cleaned_dependencies
+        data.setdefault("risk_notes", [])
+        if removed_dependencies:
+            data["risk_notes"].append("Removed forbidden external dependencies from design: " + ", ".join(removed_dependencies))
         data.setdefault("test_cases", [])
         data.setdefault("implementation_notes", [])
         data.setdefault("risk_notes", [])
