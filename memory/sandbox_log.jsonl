@@ -1,0 +1,1 @@
+{"success": true, "tool_id": "calculator", "output": {"result": 14}, "error": null, "execution_time": 0.06150645899469964, "policy": "isolated", "isolated": true, "returncode": 0}

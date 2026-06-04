@@ -26,7 +26,7 @@
       "type": "openai",
       "base_url": "https://api.openai.com/v1",
       "api_key_env": "OPENAI_API_KEY",
-      "default_model": "gpt-4.1-mini",
+      "default_model": "gpt-4o",
       "timeout": 60.0
     },
     "company_llm": {
