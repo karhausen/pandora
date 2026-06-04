@@ -41,6 +41,7 @@ class LLMTaskType(str, Enum):
     REFLECTION = "reflection"
     CORE_REVIEW = "core_review"
     CODE_REVIEW = "code_review"
+    TOOL_DESIGN = "tool_design"
 
 
 class ToolMeta(BaseModel):
@@ -194,6 +195,47 @@ class ToolDevelopmentResult(BaseModel):
     created_at: str
 
 
+class ToolDesign(BaseModel):
+    capability: str
+    tool_id: str
+    name: str
+    description: str
+    input_schema: dict[str, Any] = Field(default_factory=dict)
+    output_schema: dict[str, Any] = Field(default_factory=dict)
+    security_level: SecurityLevel = SecurityLevel.SAFE
+    requires_network: bool = False
+    requires_filesystem: bool = False
+    requires_shell: bool = False
+    dependencies: list[str] = Field(default_factory=list)
+    test_cases: list[dict[str, Any]] = Field(default_factory=list)
+    implementation_notes: list[str] = Field(default_factory=list)
+    risk_notes: list[str] = Field(default_factory=list)
+    source: str = "deterministic"
+    confidence: float = 0.0
+
+    def to_tool_spec(self) -> "ToolSpec":
+        return ToolSpec(
+            id=self.tool_id,
+            name=self.name,
+            description=self.description,
+            capability=self.capability,
+            input_schema=self.input_schema,
+            output_schema=self.output_schema,
+            security_level=self.security_level,
+        )
+
+
+class ToolDesignResult(BaseModel):
+    success: bool
+    capability: str
+    task: str | None = None
+    design: ToolDesign | None = None
+    route: dict[str, Any] = Field(default_factory=dict)
+    llm_used: bool = False
+    error: str | None = None
+    created_at: str
+
+
 class ToolProposalStatus(str, Enum):
     PROPOSED = "PROPOSED"
     VALIDATED = "VALIDATED"
@@ -222,6 +264,7 @@ class ToolProposal(BaseModel):
     code_file: str
     test_file: str
     validation: dict[str, Any] = Field(default_factory=dict)
+    design: dict[str, Any] | None = None
     risk: str = "LOW"
 
 

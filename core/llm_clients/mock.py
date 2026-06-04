@@ -51,6 +51,30 @@ class MockLLMClient:
             content = json.dumps(data, ensure_ascii=False)
             return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "capability_gate"})
 
+        if request.task_type.value == "tool_design" and request.expect_json:
+            capability = str(request.context.get("capability") or "generated_tool")
+            safe_id = capability.strip().lower().replace("-", "_").replace(" ", "_") or "generated_tool"
+            requires_network = any(x in safe_id for x in ["weather", "stock", "market", "web", "api", "lookup"])
+            data = {
+                "capability": capability,
+                "tool_id": safe_id,
+                "name": safe_id.replace("_", " ").title(),
+                "description": f"Mock-designed tool for capability: {capability}",
+                "input_schema": {"location": "str"} if safe_id == "weather_lookup" else ({"symbol": "str"} if safe_id == "stock_price_lookup" else {"text": "str"}),
+                "output_schema": {"text": "str"} if safe_id not in ["word_count", "weather_lookup", "stock_price_lookup"] else ({"count": "int"} if safe_id == "word_count" else {"source": "str"}),
+                "security_level": "LIMITED" if requires_network else "SAFE",
+                "requires_network": requires_network,
+                "requires_filesystem": False,
+                "requires_shell": False,
+                "dependencies": [],
+                "test_cases": [{"name": "basic", "input": {}, "expected": {}}],
+                "implementation_notes": ["Mock design for tests."],
+                "risk_notes": ["Network required."] if requires_network else [],
+                "confidence": 0.85,
+            }
+            content = json.dumps(data, ensure_ascii=False)
+            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "tool_design"})
+
         required, tools, skills = [], [], []
         if "csv" in prompt_l:
             required.append("csv_processing"); tools.append("csv_reader")

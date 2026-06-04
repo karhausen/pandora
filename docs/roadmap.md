@@ -1,3 +1,38 @@
-# Roadmap
+# Pandora Roadmap
 
-Nächste Schritte: bessere GUI, persistente Strategy-Nutzung, Core-Versionierung, echte Sandbox-Isolation.
+## Erledigt bis MVP 19.6
+
+- lokale GUI und Admin-Dashboard
+- Coordinator / Planner / Worker
+- Conversation Memory und Memory Recall
+- LLM Reliability Layer
+- Capability Gate
+- Model Router
+- Cloud Expert Provider und Profile
+- sichere Config-Struktur unter `config/`
+- Real Tool Design Agent
+
+## Nächste Schritte
+
+### MVP 19.7 – Cloud Tool Code Generator
+
+Cloud Expert erzeugt Code und Tests auf Basis von `tool_design.json`.
+
+### MVP 19.8 – Tool Review Agent
+
+Zweite Prüfung von Design, Code und Tests. Fokus: Sicherheit, Minimalität, Abhängigkeiten.
+
+### MVP 20.0 – Controlled Tool Factory
+
+Kompletter kontrollierter Ablauf:
+
+```text
+Capability Gap → Design → Code → Tests → Review → Sandbox → Proposal → Manual Activation
+```
+
+### Danach
+
+- semantisches Memory
+- Capability Graph
+- Docker-Betrieb
+- Geräte-/Messgeräte-Tools

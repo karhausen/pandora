@@ -49,6 +49,7 @@
     "planning": {"provider": "local_fast", "fallback_provider": "mock"},
     "tool_selection": {"provider": "local_fast", "fallback_provider": "mock"},
     "tool_generation": {"provider": "cloud_expert", "fallback_provider": "mock"},
+    "tool_design": {"provider": "cloud_expert", "fallback_provider": "mock"},
     "reflection": {"provider": "local_fast", "fallback_provider": "mock"},
     "core_review": {"provider": "cloud_expert", "fallback_provider": "mock"},
     "code_review": {"provider": "cloud_expert", "fallback_provider": "mock"}
@@ -73,6 +74,7 @@
     "tool_selection": {"provider": "local_fast", "reason": "Fast local model for capability gating/tool selection."},
     "reflection": {"provider": "local_fast", "reason": "Local model is sufficient for reflection."},
     "tool_generation": {"provider": "cloud_expert", "reason": "Tool and code generation should use the active profile cloud expert."},
+    "tool_design": {"provider": "cloud_expert", "reason": "Tool contract/design should use the active profile cloud expert."},
     "core_review": {"provider": "cloud_expert", "reason": "Architecture/core review should use the active profile cloud expert."},
     "code_review": {"provider": "cloud_expert", "reason": "Code review should use the active profile cloud expert."}
   }

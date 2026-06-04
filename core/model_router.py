@@ -13,6 +13,7 @@ DEFAULT_MODEL_ROUTES = {
     "tool_selection": {"provider": "local_fast", "reason": "Fast local model for capability gating/tool selection."},
     "reflection": {"provider": "local_fast", "reason": "Local model is sufficient for lightweight reflection."},
     "tool_generation": {"provider": "cloud_expert", "reason": "Tool/code generation should use a stronger expert model."},
+    "tool_design": {"provider": "cloud_expert", "reason": "Tool design/contract creation should use a stronger expert model."},
     "core_review": {"provider": "cloud_expert", "reason": "Core review and architecture/code review should use an expert model."},
     "code_review": {"provider": "cloud_expert", "reason": "Code review should use an expert model."},
 }

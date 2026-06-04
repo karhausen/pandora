@@ -38,6 +38,7 @@ from core.stability_monitor import StabilityMonitor
 from core.task_journal import TaskJournal
 from core.tool_activation_manager import ToolActivationManager
 from core.tool_executor import ToolExecutor
+from core.tool_design_agent import ToolDesignAgent
 from core.tool_generation_log import ToolGenerationLog
 from core.tool_proposal_manager import ToolProposalManager
 from core.tool_registry import ToolRegistry
@@ -58,7 +59,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.5.5"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-19.6"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -110,6 +111,7 @@ def cmd_capability_last(args): _json(CapabilityExpansionManager().last_event())
 def cmd_capability_workflow(args): _json(asyncio.run(CapabilityWorkflow().run(args.task, activate=args.activate, retry=args.retry, mode="cli")).model_dump(mode="json"))
 def cmd_capability_workflows(args): _json({"workflows": CapabilityWorkflow().list(args.limit)})
 def cmd_capability_workflow_last(args): _json(CapabilityWorkflow().last())
+def cmd_tool_design(args): _json(ToolDesignAgent().design(args.capability, task=args.task, provider_name=args.provider, model=args.model, timeout=args.timeout).model_dump(mode="json"))
 def cmd_tool_propose_task(args): _json(ToolProposalManager().propose_from_task(args.task))
 def cmd_tool_propose_capability(args): _json(ToolProposalManager().propose_for_capability(args.capability))
 def cmd_tool_generate(args): _json(ToolProposalManager().generate_with_llm(args.capability, provider_name=args.provider, model=args.model, max_attempts=args.max_attempts, run_tests=not args.no_tests))
@@ -178,7 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-provider-status"); p.add_argument("provider", nargs="?", default="cloud_expert"); p.set_defaults(func=cmd_llm_provider_status)
     p = sub.add_parser("llm-provider-smoke"); p.add_argument("provider", nargs="?", default="cloud_expert"); p.add_argument("--prompt"); p.add_argument("--live", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_provider_smoke)
     p = sub.add_parser("llm-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_llm_analyze)
-    p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "reflection", "core_review", "code_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
+    p = sub.add_parser("llm-complete"); p.add_argument("prompt"); p.add_argument("--task-type", default="chat", choices=["chat", "planning", "tool_selection", "tool_generation", "tool_design", "reflection", "core_review", "code_review"]); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--expect-json", action="store_true"); p.add_argument("--timeout", type=float, default=20.0); p.set_defaults(func=cmd_llm_complete)
 
     p = sub.add_parser("agent-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=None); p.set_defaults(func=cmd_agent_run)
     p = sub.add_parser("agent-journal"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_agent_journal)
@@ -202,6 +204,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-workflows"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_capability_workflows)
     p = sub.add_parser("capability-workflow-last"); p.set_defaults(func=cmd_capability_workflow_last)
 
+    p = sub.add_parser("tool-design"); p.add_argument("capability"); p.add_argument("--task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=30.0); p.set_defaults(func=cmd_tool_design)
     p = sub.add_parser("tool-propose-task"); p.add_argument("task"); p.set_defaults(func=cmd_tool_propose_task)
     p = sub.add_parser("tool-propose-capability"); p.add_argument("capability"); p.set_defaults(func=cmd_tool_propose_capability)
     p = sub.add_parser("tool-generate"); p.add_argument("capability"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--max-attempts", type=int, default=2); p.add_argument("--no-tests", action="store_true"); p.set_defaults(func=cmd_tool_generate)

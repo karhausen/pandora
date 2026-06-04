@@ -10,6 +10,7 @@ from .capability_expansion_manager import CapabilityExpansionManager
 from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_development_agent import ToolDevelopmentAgent
+from .tool_design_agent import ToolDesignAgent
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
 from .coordinator_agent import CoordinatorAgent
@@ -43,7 +44,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.5.5")
+app = FastAPI(title="Pandora Agent", version="19.6")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -62,6 +63,14 @@ class ToolDevelopmentRequest(BaseModel):
 
 class ToolDevelopmentCapabilityRequest(BaseModel):
     capability: str
+
+
+class ToolDesignRequest(BaseModel):
+    capability: str
+    task: str | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 30.0
 
 
 class ToolActivationRequest(BaseModel):
@@ -199,7 +208,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.5.5"}
+    return {"status": "ok", "version": "mvp-19.6"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -322,6 +331,17 @@ def tool_development_propose(req: ToolDevelopmentCapabilityRequest):
         req.capability,
         analysis={"missing_capabilities": [req.capability]},
         auto_create=True,
+    ).model_dump(mode="json")
+
+
+@app.post("/tool-design/design")
+def tool_design_design(req: ToolDesignRequest):
+    return ToolDesignAgent().design(
+        req.capability,
+        task=req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
     ).model_dump(mode="json")
 
 
@@ -662,7 +682,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.5.1", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-19.6", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

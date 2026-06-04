@@ -15,6 +15,7 @@ from .models import (
     ToolProposal,
     ToolProposalStatus,
 )
+from .tool_design_agent import ToolDesignAgent
 from .tool_generation_log import ToolGenerationLog
 from .tool_generation_runner import ToolGenerationRunner
 from .tool_generator import ToolGenerator
@@ -28,6 +29,7 @@ class ToolProposalManager:
         self.root = TOOL_PROPOSALS_DIR
         self.root.mkdir(parents=True, exist_ok=True)
         self.generator = ToolGenerator()
+        self.design_agent = ToolDesignAgent()
         self.test_generator = ToolTestGenerator()
         self.validator = ToolValidator()
         self.llm_generator = LLMToolGenerator()
@@ -38,8 +40,10 @@ class ToolProposalManager:
     def detect_gap(self, task: str, analysis: dict | None = None) -> dict:
         return CapabilityDetector().detect(task, analysis=analysis)
 
-    def propose_for_capability(self, capability: str) -> dict:
-        spec = self.generator.build_spec(capability)
+    def propose_for_capability(self, capability: str, task: str | None = None, provider_name: str | None = None, model: str | None = None, use_design: bool = True) -> dict:
+        design_result = self.design_agent.design(capability, task=task, provider_name=provider_name, model=model) if use_design else None
+        design = design_result.design if design_result and design_result.success else None
+        spec = design.to_tool_spec() if design else self.generator.build_spec(capability)
         proposal_id = self._new_id()
         proposal_dir, tool_dir, test_dir = self._create_proposal_dirs(proposal_id)
 
@@ -53,7 +57,7 @@ class ToolProposalManager:
 
         static = self.validator.static_review(code)
         test_result = self.validator.run_tests(proposal_dir) if static["ok"] else {"success": False, "skipped": True}
-        validation = {"static": static, "tests": test_result}
+        validation = {"static": static, "tests": test_result, "design": design_result.model_dump(mode="json") if design_result else None}
         status = ToolProposalStatus.VALIDATED if static["ok"] and test_result.get("success") else ToolProposalStatus.FAILED
 
         proposal = self._write_proposal(
@@ -65,6 +69,7 @@ class ToolProposalManager:
             test_file=test_file,
             validation=validation,
             status=status,
+            design=design.model_dump(mode="json") if design else None,
             risk=static["risk"],
         )
         return proposal.model_dump(mode="json")
@@ -77,7 +82,9 @@ class ToolProposalManager:
         max_attempts: int = 2,
         run_tests: bool = True,
     ) -> dict:
-        spec = self.generator.build_spec(capability)
+        design_result = self.design_agent.design(capability, provider_name=provider_name, model=model)
+        design = design_result.design if design_result and design_result.success else None
+        spec = design.to_tool_spec() if design else self.generator.build_spec(capability)
         proposal_id = self._new_id()
         proposal_dir, tool_dir, test_dir = self._create_proposal_dirs(proposal_id)
 
@@ -114,6 +121,7 @@ class ToolProposalManager:
                 "tests": test_result,
                 "source": generated.get("source"),
                 "llm_used": generated.get("llm_used"),
+                "design": design_result.model_dump(mode="json") if design_result else None,
             }
             attempts.append(ToolGenerationAttempt(
                 attempt=attempt_no,
@@ -137,8 +145,10 @@ class ToolProposalManager:
             validation={
                 "attempts": [a.model_dump(mode="json") for a in attempts],
                 "latest": best_validation,
+                "design": design_result.model_dump(mode="json") if design_result else None,
             },
             status=status,
+            design=design.model_dump(mode="json") if design else None,
             risk=best_validation.get("static", {}).get("risk", "HIGH"),
         )
 
@@ -161,7 +171,7 @@ class ToolProposalManager:
         gap = self.detect_gap(task, analysis=analysis)
         if not gap.get("gap_detected"):
             return {"created": False, "gap": gap, "proposal": None}
-        proposal = self.propose_for_capability(gap["capability"])
+        proposal = self.propose_for_capability(gap["capability"], task=task)
         return {"created": True, "gap": gap, "proposal": proposal}
 
     def list(self) -> list[dict]:
@@ -222,6 +232,7 @@ class ToolProposalManager:
         validation,
         status,
         risk,
+        design=None,
     ):
         proposal = ToolProposal(
             id=proposal_id,
@@ -233,8 +244,11 @@ class ToolProposalManager:
             code_file=str(code_file),
             test_file=str(test_file),
             validation=validation,
+            design=design,
             risk=risk,
         )
+        if design:
+            (proposal_dir / "tool_design.json").write_text(json.dumps(design, indent=2, ensure_ascii=False), encoding="utf-8")
         (proposal_dir / "proposal.json").write_text(json.dumps(proposal.model_dump(mode="json"), indent=2, ensure_ascii=False), encoding="utf-8")
         (proposal_dir / "validation.json").write_text(json.dumps(validation, indent=2, ensure_ascii=False), encoding="utf-8")
         return proposal

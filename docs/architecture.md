@@ -230,3 +230,25 @@ memory/  -> runtime state, chats, facts, logs, reasoning
 ```
 
 `ConfigManager` centralizes config paths. Legacy files under `memory/` remain readable as migration fallback, but new writes use `config/`.
+
+## MVP 19.6 – Real Tool Design Agent
+
+Pandora erzeugt vor Code-Generierung jetzt einen Tool-Vertrag. Der Tool Development Agent bleibt Initiator, der Tool Design Agent liefert den konkreten Entwurf.
+
+```text
+Coordinator
+↓
+Capability Gate
+↓
+Tool Development Agent
+↓
+Tool Design Agent
+↓
+Tool Proposal Manager
+↓
+Validator / Tests
+↓
+Manual Activation
+```
+
+Der Design-Schritt beschreibt Input-/Output-Schema, Sicherheitslevel, Netzwerk-/Datei-/Shell-Bedarf, Dependencies, Testfälle und Risiken. Dadurch kann die spätere Cloud-Code-Erzeugung auf einem klaren Vertrag aufsetzen.
