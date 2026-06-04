@@ -23,11 +23,11 @@ class ToolActivationManager:
         try:
             shown = self.proposals.show(proposal_id)
             proposal = shown["proposal"]
-            if proposal["status"] != "VALIDATED":
+            if proposal["status"] != "APPROVED":
                 return self._record(ToolActivationResult(
                     activated=False,
                     proposal_id=proposal_id,
-                    error="Only VALIDATED proposals can be activated.",
+                    error="Only APPROVED proposals can be installed.",
                 ))
 
             spec = proposal["spec"]
@@ -61,7 +61,7 @@ class ToolActivationManager:
                     error=result.error or "Activation test failed.",
                 ))
 
-            return self._record(ToolActivationResult(
+            result = self._record(ToolActivationResult(
                 activated=True,
                 proposal_id=proposal_id,
                 tool_id=tool_id,
@@ -69,6 +69,8 @@ class ToolActivationManager:
                 registered=True,
                 tested=True,
             ))
+            self.proposals.mark_installed(proposal_id, activation=result.model_dump(mode="json"))
+            return result
 
         except Exception as exc:
             return self._record(ToolActivationResult(
@@ -95,7 +97,7 @@ class ToolActivationManager:
             return {"text": "{\"b\":2,\"a\":1}"}
         if tool_id == "text_reverse":
             return {"text": "abc"}
-        if tool_id == "word_count":
+        if tool_id in {"word_count", "word_count_tool"}:
             return {"text": "eins zwei drei"}
         if tool_id == "timestamp":
             return {}

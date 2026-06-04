@@ -60,7 +60,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-19.8"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-20.0"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -123,6 +123,8 @@ def cmd_tool_review_file(args):
 def cmd_tool_generation_logs(args): _json({"logs": ToolGenerationLog().list(args.limit)})
 def cmd_tool_proposal_list(args): _json({"tool_proposals": ToolProposalManager().list()})
 def cmd_tool_proposal_show(args): _json(ToolProposalManager().show(args.proposal_id))
+def cmd_tool_proposal_approve(args): _json(ToolProposalManager().approve(args.proposal_id, note=args.note))
+def cmd_tool_proposal_reject(args): _json(ToolProposalManager().reject(args.proposal_id, reason=args.reason))
 def cmd_tool_proposal_prepare(args): _json(ToolProposalManager().prepare_activation_copy(args.proposal_id))
 def cmd_tool_proposal_activate(args):
     payload = json.loads(args.test_json) if args.test_json else None
@@ -159,7 +161,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 19.5.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 20.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -217,8 +219,16 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("tool-generation-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_generation_logs)
     p = sub.add_parser("tool-proposal-list"); p.set_defaults(func=cmd_tool_proposal_list)
     p = sub.add_parser("tool-proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_show)
+    p = sub.add_parser("tool-proposal-approve"); p.add_argument("proposal_id"); p.add_argument("--note"); p.set_defaults(func=cmd_tool_proposal_approve)
+    p = sub.add_parser("tool-proposal-reject"); p.add_argument("proposal_id"); p.add_argument("--reason"); p.set_defaults(func=cmd_tool_proposal_reject)
     p = sub.add_parser("tool-proposal-prepare"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_prepare)
     p = sub.add_parser("tool-proposal-activate"); p.add_argument("proposal_id"); p.add_argument("--test-json"); p.set_defaults(func=cmd_tool_proposal_activate)
+    p = sub.add_parser("proposal-list"); p.set_defaults(func=cmd_tool_proposal_list)
+    p = sub.add_parser("proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_tool_proposal_show)
+    p = sub.add_parser("proposal-approve"); p.add_argument("proposal_id"); p.add_argument("--note"); p.set_defaults(func=cmd_tool_proposal_approve)
+    p = sub.add_parser("proposal-reject"); p.add_argument("proposal_id"); p.add_argument("--reason"); p.set_defaults(func=cmd_tool_proposal_reject)
+    p = sub.add_parser("proposal-install"); p.add_argument("proposal_id"); p.add_argument("--test-json"); p.set_defaults(func=cmd_tool_proposal_activate)
+    p = sub.add_parser("tool-list"); p.set_defaults(func=cmd_tools)
     p = sub.add_parser("tool-activation-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_activation_log)
 
     p = sub.add_parser("skill-propose-from-journal"); p.add_argument("--name"); p.set_defaults(func=cmd_skill_propose_from_journal)

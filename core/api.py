@@ -45,7 +45,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="19.7")
+app = FastAPI(title="Pandora Agent", version="20.0")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -209,7 +209,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-19.8"}
+    return {"status": "ok", "version": "mvp-20.0"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -360,6 +360,23 @@ def tool_proposal_list():
 def tool_proposal_show(proposal_id: str):
     return ToolProposalManager().show(proposal_id)
 
+
+
+
+@app.post("/tool-proposals/{proposal_id}/approve")
+def tool_proposal_approve(proposal_id: str, note: str | None = Body(default=None)):
+    return ToolProposalManager().approve(proposal_id, note=note)
+
+
+@app.post("/tool-proposals/{proposal_id}/reject")
+def tool_proposal_reject(proposal_id: str, reason: str | None = Body(default=None)):
+    return ToolProposalManager().reject(proposal_id, reason=reason)
+
+
+@app.post("/tool-proposals/{proposal_id}/install")
+async def tool_proposal_install(proposal_id: str, req: ToolActivationRequest | None = None):
+    payload = req.test_payload if req else None
+    return (await ToolActivationManager().activate(proposal_id, test_payload=payload)).model_dump(mode="json")
 
 @app.post("/tool-proposals/{proposal_id}/prepare-activation")
 def tool_proposal_prepare_activation(proposal_id: str):
@@ -688,7 +705,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-19.7", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-20.0", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

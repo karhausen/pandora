@@ -209,6 +209,49 @@ class ToolProposalManager:
                 result[name.removesuffix(".json")] = json.loads(p.read_text(encoding="utf-8"))
         return result
 
+    def approve(self, proposal_id: str, note: str | None = None) -> dict:
+        proposal = self._load_proposal(proposal_id)
+        if proposal["status"] != ToolProposalStatus.VALIDATED.value:
+            return {"success": False, "proposal_id": proposal_id, "status": proposal.get("status"), "error": "Only VALIDATED proposals can be approved."}
+        proposal = self._update_status(proposal_id, ToolProposalStatus.APPROVED, note=note)
+        return {"success": True, "proposal_id": proposal_id, "status": proposal["status"], "proposal": proposal}
+
+    def reject(self, proposal_id: str, reason: str | None = None) -> dict:
+        proposal = self._load_proposal(proposal_id)
+        if proposal["status"] == ToolProposalStatus.INSTALLED.value:
+            return {"success": False, "proposal_id": proposal_id, "status": proposal.get("status"), "error": "INSTALLED proposals cannot be rejected."}
+        proposal = self._update_status(proposal_id, ToolProposalStatus.REJECTED, note=reason)
+        return {"success": True, "proposal_id": proposal_id, "status": proposal["status"], "proposal": proposal}
+
+    def mark_installed(self, proposal_id: str, activation: dict | None = None) -> dict:
+        proposal = self._update_status(proposal_id, ToolProposalStatus.INSTALLED, note="Installed into generated_tools and tool registry.", extra={"activation": activation or {}})
+        return {"success": True, "proposal_id": proposal_id, "status": proposal["status"], "proposal": proposal}
+
+    def _load_proposal(self, proposal_id: str) -> dict:
+        path = self.root / proposal_id / "proposal.json"
+        if not path.exists():
+            raise FileNotFoundError(proposal_id)
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    def _update_status(self, proposal_id: str, status: ToolProposalStatus, note: str | None = None, extra: dict | None = None) -> dict:
+        proposal_dir = self.root / proposal_id
+        path = proposal_dir / "proposal.json"
+        proposal = self._load_proposal(proposal_id)
+        history = proposal.setdefault("lifecycle", [])
+        entry = {
+            "status": status.value,
+            "created_at": datetime.now(UTC).isoformat(),
+        }
+        if note:
+            entry["note"] = note
+        if extra:
+            entry.update(extra)
+        history.append(entry)
+        proposal["status"] = status.value
+        proposal["updated_at"] = entry["created_at"]
+        path.write_text(json.dumps(proposal, indent=2, ensure_ascii=False), encoding="utf-8")
+        return proposal
+
     def prepare_activation_copy(self, proposal_id: str) -> dict:
         data = self.show(proposal_id)
         proposal = data["proposal"]

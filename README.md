@@ -2,34 +2,24 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 19.8.1 – Policy-Aware Test Generation**
+Aktueller Stand: **MVP 20.0 – Controlled Tool Factory**
 
 ## Start
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-python main.py status
-python main.py api
+python3 main.py status
+python3 main.py api
 ```
 
-User-GUI:
+User-GUI: `http://127.0.0.1:8000/`
+Admin-GUI: `http://127.0.0.1:8000/admin`
 
-```text
-http://127.0.0.1:8000/
-```
+## Aktuelle CLI-Tests für MVP 20.0
 
-Admin-GUI:
-
-```text
-http://127.0.0.1:8000/admin
-```
-
-
-## Aktuelle CLI-Tests für MVP 19.8.1
-
-Diese Tests prüfen den aktuellen Stand ohne zusätzliche Tool-API-Keys wie `WEATHER_API_KEY`. Für Cloud-Tests muss nur `OPENAI_API_KEY` gesetzt sein.
+Standardtests ohne zusätzliche Tool-API-Keys:
 
 ```bash
 python3 main.py status
@@ -38,97 +28,73 @@ python3 main.py llm-profile-status
 python3 main.py llm-provider-smoke cloud_expert --live
 python3 main.py model-route tool_design
 python3 main.py model-route tool_generation
-python3 main.py tool-design word_count --provider cloud_expert
 python3 main.py tool-generate word_count --provider cloud_expert
-python3 main.py tool-proposal-list
+python3 main.py proposal-list
+python3 main.py proposal-show <PROPOSAL_ID>
+python3 main.py proposal-approve <PROPOSAL_ID>
+python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
+python3 main.py tool-list
+python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
 python3 -m pytest -q
 python3 -m compileall -q .
 ```
 
-Optionaler Netzwerktool-Test, nur wenn ein Proposal für ein Netzwerktool geprüft werden soll:
+Optionaler Netzwerktool-Test:
 
 ```bash
 python3 main.py tool-generate weather_lookup --provider cloud_expert
 ```
 
-Erwartung bei `weather_lookup`: Tests müssen offline laufen, Netzwerkaufrufe müssen gemockt sein, benötigte ENV-Werte müssen im Test über `monkeypatch.setenv(...)` gesetzt werden.
+Netzwerktools bleiben `LIMITED`, müssen offline testbar sein und werden erst nach manueller Prüfung installiert.
 
 ## Wichtige Befehle
 
-Status und Tests:
+Konfiguration/Profile:
 
-```powershell
-python main.py status
-python main.py heartbeat
-python -m pytest
-python -m compileall .
+```bash
+python3 main.py config-paths
+python3 main.py llm-config-security
+python3 main.py llm-profile-status
+python3 main.py llm-profile private
+python3 main.py llm-profile company
+python3 main.py llm-provider-status cloud_expert
+python3 main.py llm-provider-smoke cloud_expert --live
 ```
 
-Konfiguration:
+Tool Factory:
 
-```powershell
-python main.py config-paths
-python main.py llm-config-security
-python main.py llm-profile-status
-python main.py llm-profile private
-python main.py llm-profile company
-python main.py llm-provider-status cloud_expert
-python main.py llm-provider-smoke cloud_expert --live
+```bash
+python3 main.py tool-generate word_count --provider cloud_expert
+python3 main.py proposal-list
+python3 main.py proposal-show <PROPOSAL_ID>
+python3 main.py proposal-approve <PROPOSAL_ID>
+python3 main.py proposal-reject <PROPOSAL_ID>
+python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
+python3 main.py tool-list
+python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
 ```
 
-Model Routing:
+Tests/Status:
 
-```powershell
-python main.py model-routes
-python main.py model-route chat
-python main.py model-route tool_selection
-python main.py model-route tool_design
-python main.py model-route tool_generation
-```
-
-Tools:
-
-```powershell
-python main.py tools
-python main.py tool-design weather_lookup --task "Ich möchte das aktuelle Wetter abrufen" --provider mock
-python main.py tool-propose-capability word_count
-python main.py tool-generate word_count --provider mock
-python main.py tool-generate word_count
-python main.py tool-review-file tool_proposals/<PROPOSAL_ID>/generated_tools/<TOOL>.py --design tool_proposals/<PROPOSAL_ID>/tool_design.json
-python main.py tool-proposal-list
-python main.py tool-proposal-show <PROPOSAL_ID>
-python main.py tool-proposal-activate <PROPOSAL_ID>
-```
-
-Chat / Agent:
-
-```powershell
-python main.py planner-worker-run "Bitte rechne 2+3*4"
-python main.py agent-run "Hallo Pandora" --provider mock
+```bash
+python3 main.py heartbeat
+python3 -m pytest -q
+python3 -m compileall -q .
 ```
 
 ## Konfiguration
 
-Statische Konfiguration liegt unter `config/`:
+Statische Konfiguration liegt unter `config/`, Runtime-Daten unter `memory/`.
 
 ```text
-config/
-├─ llm/
-│  ├─ llm_config.template.json
-│  ├─ llm_config.json
-│  └─ llm_config.local.json   # privat, gitignored
-├─ tools/
-│  ├─ tool_registry.json
-│  └─ execution_policy.json
-├─ skills/
-│  └─ skill_registry.json
-└─ system/
-   └─ pandora.json
+config/llm/llm_config.json
+config/llm/llm_config.local.json   # privat, gitignored
+config/tools/tool_registry.json
+config/tools/execution_policy.json
+config/skills/skill_registry.json
 ```
 
-Runtime-Daten liegen unter `memory/` und gehören nicht in Git.
-
-Private Secrets gehören in `.env` oder in lokale ENV-Variablen:
+Secrets gehören in `.env` oder echte Umgebungsvariablen:
 
 ```env
 OPENAI_API_KEY=...
@@ -137,24 +103,40 @@ COMPANY_LLM_API_KEY=...
 COMPANY_LLM_MODEL=...
 ```
 
-`config/llm/llm_config.local.json` schaltet das Profil um:
+Profilumschaltung:
 
-```json
-{
-  "active_profile": "private"
-}
-```
-
-oder:
-
-```json
-{
-  "active_profile": "company"
-}
+```bash
+python3 main.py llm-profile private
+python3 main.py llm-profile company
 ```
 
 
+## MVP 20.0 – Controlled Tool Factory
 
+Neu:
+
+- Proposal-Lifecycle: `VALIDATED → APPROVED → INSTALLED` oder `REJECTED`
+- Installation nur nach explizitem Approval
+- installierte Tools werden nach `generated_tools/` kopiert und in `config/tools/tool_registry.json` registriert
+- neue CLI-Aliase: `proposal-list`, `proposal-show`, `proposal-approve`, `proposal-reject`, `proposal-install`, `tool-list`
+- API-Endpunkte für Approve/Reject/Install
+- Release-Clean entfernt Runtime-Proposals und generierte Testtools
+
+Akzeptanztest:
+
+```bash
+python3 main.py tool-generate word_count --provider cloud_expert
+python3 main.py proposal-approve <PROPOSAL_ID>
+python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
+python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
+```
+
+Prüfung:
+
+```bash
+python3 -m pytest -q
+python3 -m compileall -q .
+```
 
 ## MVP 19.8.1 – Policy-Aware Test Generation
 

@@ -242,6 +242,7 @@ class ToolProposalStatus(str, Enum):
     FAILED = "FAILED"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
+    INSTALLED = "INSTALLED"
 
 
 class ToolSpec(BaseModel):
@@ -309,6 +310,7 @@ class SkillProposalStatus(str, Enum):
     FAILED = "FAILED"
     APPROVED = "APPROVED"
     REJECTED = "REJECTED"
+    INSTALLED = "INSTALLED"
 
 
 class SkillProposal(BaseModel):

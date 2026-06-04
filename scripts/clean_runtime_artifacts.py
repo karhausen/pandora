@@ -53,6 +53,16 @@ def main() -> None:
                 shutil.rmtree(path)
     for path in ROOT.rglob("*.pyc"):
         path.unlink()
+    generated_tools = ROOT / "generated_tools"
+    generated_tools.mkdir(parents=True, exist_ok=True)
+    for child in generated_tools.iterdir():
+        if child.name in {"__init__.py", ".gitkeep"}:
+            continue
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+    (generated_tools / "__init__.py").touch()
     for path in DIRS_TO_EMPTY:
         empty_dir(path)
     for path, content in FILES_TO_RESET.items():
