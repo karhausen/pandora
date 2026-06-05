@@ -52,25 +52,5 @@
     "function": "run",
     "aliases": [],
     "installed_from": null
-  },
-  "word_counter": {
-    "id": "word_counter",
-    "name": "Word Counter",
-    "description": "Counts the number of words in a given text input",
-    "version": "0.1.0",
-    "input_schema": {
-      "text": "string"
-    },
-    "output_schema": {
-      "count": "integer"
-    },
-    "security_level": "SAFE",
-    "status": "ACTIVE",
-    "module": "generated_tools.word_counter",
-    "function": "run",
-    "aliases": [
-      "word_count"
-    ],
-    "installed_from": "tool_20260605_093550_7dbd7a12"
   }
 }

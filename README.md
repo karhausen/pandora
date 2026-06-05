@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
-Aktueller Stand: **MVP 20.2.2 – Generated Tool Output Contract Hotfix**
+Aktueller Stand: **MVP 20.3 – Tool Quality Gate & Semantic Validation**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`  
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.2.2
+## Aktuelle CLI-Tests für MVP 20.3
 
 Grundstatus:
 
@@ -34,6 +34,7 @@ Tool Factory mit sicherem Standardtool:
 python3 main.py tool-generate word_count --provider cloud_expert
 python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
+python3 main.py tool-quality-proposal <PROPOSAL_ID>
 python3 main.py proposal-approve <PROPOSAL_ID>
 python3 main.py proposal-install <PROPOSAL_ID>
 python3 main.py tool-list
@@ -71,6 +72,19 @@ python3 -m pytest -q
 python3 -m compileall -q .
 ```
 
+
+
+## MVP 20.3 Hinweis
+
+MVP 20.3 ergänzt ein Tool Quality Gate. Ein Proposal wird nur noch `VALIDATED`, wenn alle drei Ebenen erfolgreich sind:
+
+```text
+Static Review
+pytest
+Semantic Validation
+```
+
+Die semantische Validierung prüft den Vertrag aus `ToolDesign`/`output_schema` gegen das tatsächliche Tool-Ergebnis. Beispiel: Ein Tool mit `output_schema: {"count": "integer"}` darf nicht `{ "text": ... }` zurückgeben.
 
 ## MVP 20.2.2 Hinweis
 
@@ -134,6 +148,7 @@ docs/tool_lifecycle.md
 docs/tool_design.md
 docs/tool_code_generation.md
 docs/tool_review.md
+docs/tool_quality_gate.md
 docs/security.md
 ```
 

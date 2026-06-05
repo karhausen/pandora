@@ -210,7 +210,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-20.1"}
+    return {"status": "ok", "version": "mvp-20.3"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -579,6 +579,11 @@ def tool_review(req: ToolReviewRequest):
     return ToolReviewAgent().review(req.code, design=req.design)
 
 
+@app.get("/tool-quality/{proposal_id}")
+def tool_quality(proposal_id: str):
+    return ToolProposalManager().quality_check(proposal_id)
+
+
 @app.get("/tool-generation/logs")
 def tool_generation_logs(limit: int = 20):
     from .tool_generation_log import ToolGenerationLog
@@ -740,7 +745,7 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-20.0", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    return {"ready": True, "version": "mvp-20.3", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
 
 
 @app.post("/chat/run")

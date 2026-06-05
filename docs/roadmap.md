@@ -46,3 +46,8 @@ Installierte Tools können verwaltet, deaktiviert, reaktiviert, deprecatiert, de
 ## MVP 20.2 – Tool Factory GUI Workflow
 
 Tool-Proposals können in der User-GUI geprüft, approved, installiert oder rejected werden.
+
+
+## MVP 20.3 – Tool Quality Gate & Semantic Validation
+
+Semantic validation closes the gap between generated code, tests, and ToolDesign contracts.

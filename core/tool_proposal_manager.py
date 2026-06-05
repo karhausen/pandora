@@ -20,6 +20,7 @@ from .tool_design_agent import ToolDesignAgent
 from .tool_generation_log import ToolGenerationLog
 from .tool_generation_runner import ToolGenerationRunner
 from .tool_generator import ToolGenerator
+from .tool_quality_gate import ToolQualityGate
 from .tool_repair_manager import ToolRepairManager
 from .tool_test_generator import ToolTestGenerator
 from .tool_validator import ToolValidator
@@ -38,6 +39,7 @@ class ToolProposalManager:
         self.repair_manager = ToolRepairManager()
         self.generation_runner = ToolGenerationRunner()
         self.generation_log = ToolGenerationLog()
+        self.quality_gate = ToolQualityGate()
 
     def detect_gap(self, task: str, analysis: dict | None = None) -> dict:
         return CapabilityDetector().detect(task, analysis=analysis)
@@ -59,8 +61,9 @@ class ToolProposalManager:
 
         static = self.validator.static_review(code, design=design)
         test_result = self.validator.run_tests(proposal_dir) if static["ok"] else {"success": False, "skipped": True}
-        validation = {"static": static, "tests": test_result, "design": design_result.model_dump(mode="json") if design_result else None}
-        status = ToolProposalStatus.VALIDATED if static["ok"] and test_result.get("success") else ToolProposalStatus.FAILED
+        semantic = self.quality_gate.validate(proposal_dir, spec.id, design or spec) if static["ok"] and test_result.get("success") else {"ok": False, "skipped": True}
+        validation = {"static": static, "tests": test_result, "semantic": semantic, "design": design_result.model_dump(mode="json") if design_result else None}
+        status = ToolProposalStatus.VALIDATED if static["ok"] and test_result.get("success") and semantic.get("ok") else ToolProposalStatus.FAILED
 
         proposal = self._write_proposal(
             proposal_id=proposal_id,
@@ -251,6 +254,16 @@ class ToolProposalManager:
         proposal["updated_at"] = entry["created_at"]
         path.write_text(json.dumps(proposal, indent=2, ensure_ascii=False), encoding="utf-8")
         return proposal
+
+
+    def quality_check(self, proposal_id: str) -> dict:
+        data = self.show(proposal_id)
+        proposal = data["proposal"]
+        design = proposal.get("design") or proposal.get("spec")
+        tool_id = proposal.get("spec", {}).get("id")
+        if not tool_id:
+            return {"ok": False, "error": "Proposal spec.id missing"}
+        return self.quality_gate.validate(Path(proposal["proposal_dir"]), tool_id, design)
 
     def prepare_activation_copy(self, proposal_id: str) -> dict:
         data = self.show(proposal_id)
