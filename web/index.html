@@ -46,6 +46,30 @@
 
     <section id="chat" class="chat"></section>
 
+<section id="toolWorkflow" class="tool-workflow hidden">
+  <div class="workflow-header">
+    <div>
+      <h2>Tool Factory Workflow</h2>
+      <p>Review → Approve → Install → Test</p>
+    </div>
+    <button type="button" onclick="loadProposals()">Aktualisieren</button>
+  </div>
+
+  <div id="proposalHint" class="workflow-hint">Noch kein Tool-Vorschlag ausgewählt.</div>
+
+  <div class="workflow-grid">
+    <aside class="proposal-list" id="proposalList"></aside>
+    <section class="proposal-detail">
+      <div id="proposalSummary" class="proposal-summary">Wähle links einen Proposal aus.</div>
+      <div class="workflow-actions">
+        <button type="button" id="approveButton" onclick="approveSelectedProposal()" disabled>Approve</button>
+        <button type="button" id="installButton" onclick="installSelectedProposal()" disabled>Install</button>
+        <button type="button" id="rejectButton" onclick="rejectSelectedProposal()" disabled>Reject</button>
+      </div>
+      <pre id="proposalBox">{}</pre>
+    </section>
+  </div>
+</section>
 
 <section id="details" class="details hidden">
   <details open>

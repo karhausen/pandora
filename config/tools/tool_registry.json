@@ -13,7 +13,9 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.echo",
-    "function": "run"
+    "function": "run",
+    "aliases": [],
+    "installed_from": null
   },
   "calculator": {
     "id": "calculator",
@@ -29,7 +31,9 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.calculator",
-    "function": "run"
+    "function": "run",
+    "aliases": [],
+    "installed_from": null
   },
   "uppercase": {
     "id": "uppercase",
@@ -45,7 +49,9 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "tools.uppercase",
-    "function": "run"
+    "function": "run",
+    "aliases": [],
+    "installed_from": null
   },
   "word_counter": {
     "id": "word_counter",
@@ -61,6 +67,10 @@
     "security_level": "SAFE",
     "status": "ACTIVE",
     "module": "generated_tools.word_counter",
-    "function": "run"
+    "function": "run",
+    "aliases": [
+      "word_count"
+    ],
+    "installed_from": "tool_20260605_074035_d54a6883"
   }
 }

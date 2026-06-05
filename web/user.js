@@ -1,6 +1,7 @@
 let currentSessionId = localStorage.getItem("pandora_session_id") || null;
 let currentProvider = localStorage.getItem("pandora_provider") || "mock";
 let currentModel = localStorage.getItem("pandora_model") || "";
+let selectedProposalId = null;
 
 async function api(path, options = {}) {
   const response = await fetch(path, options);
@@ -157,6 +158,122 @@ function setupProviderControls() {
   }
 }
 
+
+function proposalStatusClass(status) {
+  const normalized = String(status || "").toLowerCase();
+  if (["validated", "approved", "installed"].includes(normalized)) return `status ${normalized}`;
+  if (["failed", "rejected"].includes(normalized)) return `status danger`;
+  return "status";
+}
+
+function extractProposalId(result) {
+  return result?.execution?.proposal_id
+    || result?.execution?.tool_development?.proposal?.id
+    || result?.execution?.tool_development?.proposal_id
+    || result?.proposal_id
+    || null;
+}
+
+function openWorkflow(message) {
+  const workflow = document.getElementById("toolWorkflow");
+  const hint = document.getElementById("proposalHint");
+  if (workflow) workflow.classList.remove("hidden");
+  if (hint && message) hint.textContent = message;
+}
+
+async function loadProposals(selectId = selectedProposalId) {
+  const workflow = document.getElementById("toolWorkflow");
+  if (workflow) workflow.classList.remove("hidden");
+
+  const data = await api("/tool-proposals");
+  const proposals = data.tool_proposals || [];
+  const list = document.getElementById("proposalList");
+  if (!list) return;
+
+  list.innerHTML = "";
+  if (!proposals.length) {
+    list.innerHTML = '<div class="empty">Keine Proposals vorhanden.</div>';
+    return;
+  }
+
+  for (const proposal of proposals) {
+    const item = document.createElement("button");
+    item.type = "button";
+    item.className = `proposal-item ${proposal.id === selectId ? "active" : ""}`;
+    item.innerHTML = `
+      <span class="proposal-title">${proposal.capability || proposal.id}</span>
+      <span class="proposal-id">${proposal.id}</span>
+      <span class="${proposalStatusClass(proposal.status)}">${proposal.status}</span>
+    `;
+    item.addEventListener("click", () => showProposal(proposal.id));
+    list.appendChild(item);
+  }
+
+  if (selectId) {
+    await showProposal(selectId, false);
+  }
+}
+
+function updateWorkflowButtons(proposal) {
+  const approve = document.getElementById("approveButton");
+  const install = document.getElementById("installButton");
+  const reject = document.getElementById("rejectButton");
+  const status = proposal?.status;
+
+  if (approve) approve.disabled = status !== "VALIDATED";
+  if (install) install.disabled = status !== "APPROVED";
+  if (reject) reject.disabled = status === "INSTALLED" || !status;
+}
+
+async function showProposal(proposalId, refreshList = true) {
+  selectedProposalId = proposalId;
+  const data = await api(`/tool-proposals/${proposalId}`);
+  const proposal = data.proposal || data;
+
+  const summary = document.getElementById("proposalSummary");
+  if (summary) {
+    summary.innerHTML = `
+      <div><strong>${proposal.capability || proposal.id}</strong></div>
+      <div>ID: ${proposal.id}</div>
+      <div>Status: <span class="${proposalStatusClass(proposal.status)}">${proposal.status}</span></div>
+      <div>Risiko: ${proposal.risk || "unbekannt"}</div>
+    `;
+  }
+
+  const box = document.getElementById("proposalBox");
+  if (box) box.textContent = JSON.stringify(proposal, null, 2);
+  updateWorkflowButtons(proposal);
+
+  if (refreshList) await loadProposals(proposalId);
+}
+
+async function approveSelectedProposal() {
+  if (!selectedProposalId) return;
+  const result = await api(`/tool-proposals/${selectedProposalId}/approve`, { method: "POST" });
+  document.getElementById("proposalHint").textContent = result.success ? "Proposal approved." : `Approve fehlgeschlagen: ${result.error || "unbekannt"}`;
+  await loadProposals(selectedProposalId);
+}
+
+async function rejectSelectedProposal() {
+  if (!selectedProposalId) return;
+  const result = await api(`/tool-proposals/${selectedProposalId}/reject`, { method: "POST" });
+  document.getElementById("proposalHint").textContent = result.success ? "Proposal rejected." : `Reject fehlgeschlagen: ${result.error || "unbekannt"}`;
+  await loadProposals(selectedProposalId);
+}
+
+async function installSelectedProposal() {
+  if (!selectedProposalId) return;
+  const result = await api(`/tool-proposals/${selectedProposalId}/install`, {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({})
+  });
+  document.getElementById("proposalHint").textContent = result.activated
+    ? `Tool installiert: ${result.tool_id}`
+    : `Installation fehlgeschlagen: ${result.error || "unbekannt"}`;
+  await loadProposals(selectedProposalId);
+}
+
 async function runPandora() {
   const input = document.getElementById("taskInput");
   const task = input.value.trim();
@@ -183,6 +300,12 @@ async function runPandora() {
     localStorage.setItem("pandora_session_id", currentSessionId);
     addMessage("assistant", result.answer || "Erledigt.");
     showDetails(result);
+    const proposalId = extractProposalId(result);
+    if (proposalId) {
+      selectedProposalId = proposalId;
+      openWorkflow(`Neuer Tool-Vorschlag erkannt: ${proposalId}`);
+      await loadProposals(proposalId);
+    }
     await loadSessions();
   } else {
     addMessage("assistant", `Fehler: ${result.error || "Unbekannter Fehler"}`);

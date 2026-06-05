@@ -41,3 +41,8 @@ Capability Gap → Design → Code → Tests → Review → Sandbox → Proposal
 ## MVP 20.1 – Tool Lifecycle Manager
 
 Installierte Tools können verwaltet, deaktiviert, reaktiviert, deprecatiert, deinstalliert und über Nutzungsstatistiken bewertet werden.
+
+
+## MVP 20.2 – Tool Factory GUI Workflow
+
+Tool-Proposals können in der User-GUI geprüft, approved, installiert oder rejected werden.

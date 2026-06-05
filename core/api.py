@@ -46,7 +46,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="20.1")
+app = FastAPI(title="Pandora Agent", version="20.2")
 
 
 class ToolProposalTaskRequest(BaseModel):

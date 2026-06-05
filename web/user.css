@@ -197,3 +197,127 @@ pre {
     grid-template-columns: 1fr;
   }
 }
+
+.tool-workflow {
+  background: rgba(17, 24, 39, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.workflow-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.workflow-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.workflow-header p,
+.workflow-hint,
+.proposal-id {
+  color: var(--muted);
+}
+
+.workflow-hint {
+  border: 1px solid var(--border);
+  background: #020617;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) 1fr;
+  gap: 12px;
+}
+
+.proposal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 520px;
+  overflow: auto;
+}
+
+.proposal-item {
+  text-align: left;
+  background: #020617;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px;
+  border-radius: 12px;
+}
+
+.proposal-item.active,
+.proposal-item:hover {
+  border-color: var(--accent);
+}
+
+.proposal-title,
+.proposal-id,
+.status {
+  display: block;
+}
+
+.proposal-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.status {
+  width: fit-content;
+  margin-top: 8px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #334155;
+  color: var(--text);
+}
+
+.status.validated { background: #1d4ed8; }
+.status.approved { background: #047857; }
+.status.installed { background: #166534; }
+.status.danger { background: var(--danger); }
+
+.proposal-detail {
+  min-width: 0;
+}
+
+.proposal-summary {
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.workflow-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+#rejectButton {
+  background: #991b1b;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 12px;
+}
+
+@media (max-width: 800px) {
+  .workflow-grid {
+    grid-template-columns: 1fr;
+  }
+}

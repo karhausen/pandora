@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 20.1 – Tool Lifecycle Manager**
+Aktueller Stand: **MVP 20.2 – Tool Factory GUI Workflow**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.1
+## Aktuelle CLI-Tests für MVP 20.2
 
 Standardtests ohne zusätzliche Tool-API-Keys:
 
@@ -120,6 +120,46 @@ python3 main.py llm-profile company
 
 
 
+
+
+## MVP 20.2 – Tool Factory GUI Workflow
+
+Neu:
+
+- User-GUI zeigt Tool-Vorschläge direkt im Workflow-Bereich.
+- Nach einer Chat-Anfrage mit neuem Proposal wird der Proposal automatisch geöffnet.
+- Buttons: `Approve`, `Install`, `Reject`.
+- Workflow bleibt kontrolliert: kein Auto-Install ohne Nutzeraktion.
+- Details in `docs/tool_factory_gui.md`.
+
+GUI-Test:
+
+```bash
+python3 main.py api
+```
+
+Dann öffnen:
+
+```text
+http://127.0.0.1:8000/
+```
+
+Anfrage:
+
+```text
+Ich möchte Wörter zählen können
+```
+
+Danach in der GUI:
+
+```text
+Tool Factory Workflow → Proposal prüfen → Approve → Install
+```
+
+Prüfung für dieses Paket:
+
+- `pytest`: 73 passed
+- `compileall`: erfolgreich
 
 ## MVP 20.1 – Tool Lifecycle Manager
 
