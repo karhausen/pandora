@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
-Aktueller Stand: **MVP 20.3 – Tool Quality Gate & Semantic Validation**
+Aktueller Stand: **MVP 20.4 – Generic Capability Gap Detection**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`  
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.3
+## Aktuelle CLI-Tests für MVP 20.4
 
 Grundstatus:
 
@@ -32,6 +32,8 @@ Tool Factory mit sicherem Standardtool:
 
 ```bash
 python3 main.py tool-generate word_count --provider cloud_expert
+python3 main.py capability-evaluate "Ich brauche ein Tool um Aktienkurse abzurufen"
+python3 main.py capability-evaluate "Wie ist der aktuelle Dollar-Kurs?"
 python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
 python3 main.py tool-quality-proposal <PROPOSAL_ID>
@@ -73,6 +75,26 @@ python3 -m compileall -q .
 ```
 
 
+
+
+## MVP 20.4 Hinweis
+
+MVP 20.4 verbessert die Capability-Erkennung vor dem Planner. Pandora erkennt jetzt generischer, wenn eine Aufgabe aktuelle/live Daten oder einen expliziten Tool-Wunsch enthält und kein installiertes Tool vorhanden ist.
+
+Beispiele:
+
+```text
+Ich brauche ein Tool um Aktienkurse abzurufen
+→ stock_price_lookup
+
+Wie ist der aktuelle Dollar-Kurs?
+→ exchange_rate_lookup
+
+Welche Primzahlen liegen zwischen 10 und 30?
+→ keine Capability-Lücke, normale lokale Antwort ist okay
+```
+
+Damit soll der Planner nicht mehr fälschlich mit `Keine Tool-Ausführung nötig` antworten, wenn tatsächlich ein neues Abruf-/Live-Daten-Tool benötigt wird.
 
 ## MVP 20.3 Hinweis
 

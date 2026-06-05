@@ -97,7 +97,7 @@ class ToolDevelopmentAgent:
                 return None, "llm_error", response.error or "LLM capability classification failed"
             decision = CapabilityDecision.model_validate(response.parsed_json)
             return decision, "llm", None
-        except (ValidationError, RuntimeError, ValueError, TypeError) as exc:
+        except (ValidationError, RuntimeError, ValueError, TypeError, KeyError) as exc:
             return None, "llm_error", f"{type(exc).__name__}: {exc}"
 
 

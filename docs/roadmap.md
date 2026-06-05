@@ -51,3 +51,10 @@ Tool-Proposals können in der User-GUI geprüft, approved, installiert oder reje
 ## MVP 20.3 – Tool Quality Gate & Semantic Validation
 
 Semantic validation closes the gap between generated code, tests, and ToolDesign contracts.
+
+
+## MVP 20.4 – Generic Capability Gap Detection
+
+Status: umgesetzt.
+
+Pandora erkennt generische Capability-Lücken für Live-Daten-/Abruf-Aufgaben wie Aktienkurse oder Wechselkurse, auch wenn sie nicht explizit in der alten Keyword-Liste standen. Prime-/Rechen-/Wissensfragen bleiben lokale Antworten oder vorhandene Tools.
