@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
-Aktueller Stand: **MVP 20.4 – Generic Capability Gap Detection**
+Aktueller Stand: **MVP 20.4.1 – Implicit Live Data Gap Detection + No Dummy Code Policy**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`  
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.4
+## Aktuelle CLI-Tests für MVP 20.4.1
 
 Grundstatus:
 
@@ -34,6 +34,7 @@ Tool Factory mit sicherem Standardtool:
 python3 main.py tool-generate word_count --provider cloud_expert
 python3 main.py capability-evaluate "Ich brauche ein Tool um Aktienkurse abzurufen"
 python3 main.py capability-evaluate "Wie ist der aktuelle Dollar-Kurs?"
+python3 main.py capability-evaluate "Wie wird das Wetter?"
 python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
 python3 main.py tool-quality-proposal <PROPOSAL_ID>
@@ -76,6 +77,26 @@ python3 -m compileall -q .
 
 
 
+
+
+## MVP 20.4.1 Hinweis
+
+MVP 20.4.1 ergänzt die implizite Live-Daten-Erkennung und eine No-Dummy-Code-Policy.
+
+Beispiele:
+
+```text
+Wie wird das Wetter?
+→ weather_lookup
+
+Wie ist der Dollar-Kurs?
+→ exchange_rate_lookup
+
+Ich brauche ein Tool um Aktienkurse abzurufen
+→ stock_price_lookup
+```
+
+Zusätzlich markiert das Tool Quality Gate generischen Dummy-Code wie `return {"text": str(text)}` als Fehler, wenn das `output_schema` andere Felder erwartet. Dadurch bleiben Proposals wie `stock_price_lookup` korrekt `FAILED`, solange der erzeugte Code den Design-Vertrag nicht erfüllt.
 
 ## MVP 20.4 Hinweis
 

@@ -32,12 +32,18 @@ class CapabilityDetector:
         "waehrungskurs": "exchange_rate",
         "wetter": "weather",
         "weather": "weather",
+        "euro": "exchange_rate",
+        "usd": "exchange_rate",
+        "eurusd": "exchange_rate",
+        "bitcoin": "crypto_price",
+        "btc": "crypto_price",
     }
 
     LIVE_DATA_HINTS = [
-        "aktuell", "aktueller", "aktuelle", "aktuellen", "jetzt", "heute", "live",
+        "aktuell", "aktueller", "aktuelle", "aktuellen", "jetzt", "heute", "morgen", "live",
         "abrufen", "holen", "anzeigen", "abfragen", "lookup", "fetch", "get",
         "kurs", "kurse", "preis", "preise", "price", "rate", "quote",
+        "wird", "werden", "vorhersage", "forecast",
     ]
 
     TOOL_REQUEST_HINTS = [
@@ -155,10 +161,12 @@ class CapabilityDetector:
         explicit_tool_request = any(hint in normalized for hint in self.TOOL_REQUEST_HINTS)
         live_data_request = any(hint in normalized for hint in self.LIVE_DATA_HINTS)
 
-        if not (explicit_tool_request or live_data_request):
+        domain = self._domain_from_text(normalized)
+        implicit_live_question = bool(domain and self._looks_like_live_data_question(normalized, domain))
+
+        if not (explicit_tool_request or live_data_request or implicit_live_question):
             return None
 
-        domain = self._domain_from_text(normalized)
         if domain:
             return f"{domain}_lookup", f"Generic capability detection inferred live lookup capability: {domain}_lookup."
 
@@ -169,6 +177,16 @@ class CapabilityDetector:
                 return f"{slug}_lookup", f"Generic tool request inferred capability: {slug}_lookup."
 
         return None
+
+    def _looks_like_live_data_question(self, text: str, domain: str) -> bool:
+        question_hints = [
+            "wie", "was", "welche", "welcher", "wieviel", "wie viel",
+            "brauche ich", "soll ich", "ist", "wird", "werden", "steht",
+            "current", "today", "tomorrow", "forecast", "price", "rate",
+        ]
+        if domain in {"weather", "stock_price", "exchange_rate", "crypto_price"}:
+            return any(hint in text for hint in question_hints)
+        return False
 
     def _domain_from_text(self, text: str) -> str | None:
         for term, domain in self.DOMAIN_TERMS.items():

@@ -43,6 +43,10 @@ class ToolQualityGate:
             }
 
         checks["importable"] = True
+        code_text = self._read_code(proposal_dir, tool_id)
+        placeholder_issues = self._detect_placeholder_code(code_text, expected_output_schema)
+        issues.extend(placeholder_issues)
+        checks["placeholder_code"] = bool(placeholder_issues)
         meta = getattr(module, "TOOL_META", None)
         run = getattr(module, "run", None)
         if not isinstance(meta, dict):
@@ -90,6 +94,36 @@ class ToolQualityGate:
             "warnings": warnings,
             "checks": checks,
         }
+
+    def _read_code(self, proposal_dir: Path, tool_id: str) -> str:
+        path = proposal_dir / "generated_tools" / f"{tool_id}.py"
+        try:
+            return path.read_text(encoding="utf-8")
+        except Exception:
+            return ""
+
+    def _detect_placeholder_code(self, code: str, output_schema: dict[str, str]) -> list[str]:
+        normalized = " ".join(code.split())
+        issues: list[str] = []
+        if not code.strip():
+            return ["Placeholder implementation detected: empty tool code"]
+
+        placeholder_patterns = [
+            'return {"text": str(text)}',
+            "return {'text': str(text)}",
+        ]
+        if any(pattern in code for pattern in placeholder_patterns):
+            schema_keys = set(output_schema.keys())
+            if schema_keys and schema_keys != {"text"}:
+                issues.append(
+                    "Placeholder implementation detected: generic text echo does not satisfy output_schema."
+                )
+
+        lowered = code.lower()
+        if "todo" in lowered or "notimplementederror" in lowered or "placeholder" in lowered:
+            issues.append("Placeholder implementation detected: TODO/not implemented marker found.")
+
+        return sorted(set(issues))
 
     def _run_case(
         self,

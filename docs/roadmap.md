@@ -58,3 +58,10 @@ Semantic validation closes the gap between generated code, tests, and ToolDesign
 Status: umgesetzt.
 
 Pandora erkennt generische Capability-Lücken für Live-Daten-/Abruf-Aufgaben wie Aktienkurse oder Wechselkurse, auch wenn sie nicht explizit in der alten Keyword-Liste standen. Prime-/Rechen-/Wissensfragen bleiben lokale Antworten oder vorhandene Tools.
+
+
+## MVP 20.4.1 – Implicit Live Data Gap Detection + No Dummy Code Policy
+
+Status: umgesetzt.
+
+Pandora erkennt jetzt implizite Live-Datenfragen wie Wetter- oder Wechselkursfragen als Capability-Gap, auch ohne explizite Formulierung „Ich brauche ein Tool“. Zusätzlich blockiert das Quality Gate generische Dummy-Implementierungen, die nicht zum ToolDesign-Vertrag passen.

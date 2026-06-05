@@ -29,3 +29,27 @@ Tool vorhanden?
 ```
 
 Die Erkennung bleibt bewusst ein Fallback. Die LLM-Entscheidung ist weiterhin die erste Instanz.
+
+
+## MVP 20.4.1 – Implicit Live Data Gap Detection
+
+Die Erkennung wurde erweitert, damit Pandora nicht nur explizite Tool-Wünsche erkennt, sondern auch implizite Live-Datenfragen.
+
+Beispiele:
+
+```text
+Wie wird das Wetter?
+→ weather_lookup
+
+Wie ist der Dollar-Kurs?
+→ exchange_rate_lookup
+
+Wie steht die BASF-Aktie?
+→ stock_price_lookup
+```
+
+Wenn das lokale LLM freundlich direkt antworten möchte, prüft der Fallback trotzdem, ob die Aufgabe Live-Daten benötigt. Dadurch sollen Chat-Antworten wie „Ich habe keine aktuellen Daten“ nicht mehr echte Capability-Gaps verdecken.
+
+## No-Dummy-Code Policy
+
+Das Quality Gate blockiert generischen Template-Code, wenn er nicht zum `output_schema` passt. Beispiel: Ein Tool mit `output_schema` `ticker`, `price`, `change`, `change_percent` darf nicht nur `{"text": "..."}` zurückgeben.
