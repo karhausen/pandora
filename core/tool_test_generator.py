@@ -31,9 +31,32 @@ def test_word_count():
 def test_timestamp():
     assert "timestamp" in run({})
 '''
+        if self._looks_like_word_counter(spec):
+            output_key = self._first_output_key(spec, default="count")
+            return f'''from generated_tools.{spec.id} import run
+
+def test_{spec.id}():
+    result = run({{"text": "eins zwei drei"}})
+    assert result["{output_key}"] == 3
+'''
         return f'''from generated_tools.{spec.id} import run
 
 def test_{spec.id}():
     result = run({{"text": "hello"}})
     assert isinstance(result, dict)
 '''
+
+
+    def _looks_like_word_counter(self, spec: ToolSpec) -> bool:
+        text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
+        output_keys = {str(key).lower() for key in spec.output_schema.keys()}
+        output_types = {str(value).lower() for value in spec.output_schema.values()}
+        return (
+            ("word" in text and ("count" in text or "counter" in text))
+            or bool(output_keys.intersection({"count", "word_count", "words"}) and output_types.intersection({"int", "integer", "number"}))
+        )
+
+    def _first_output_key(self, spec: ToolSpec, default: str = "result") -> str:
+        for key in spec.output_schema.keys():
+            return str(key)
+        return default

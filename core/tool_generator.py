@@ -133,6 +133,27 @@ TOOL_META = {
 def run(payload: dict) -> dict:
     return {"timestamp": datetime.now(UTC).isoformat()}
 '''
+        if self._looks_like_word_counter(spec):
+            output_key = self._first_output_key(spec, default="count")
+            return f'''TOOL_META = {{
+    "id": "{spec.id}",
+    "name": "{spec.name}",
+    "description": "{spec.description}",
+    "version": "0.1.0",
+    "input_schema": {spec.input_schema!r},
+    "output_schema": {spec.output_schema!r},
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.{spec.id}",
+    "function": "run",
+}}
+
+def run(payload: dict) -> dict:
+    text = payload.get("text") or payload.get("input") or ""
+    words = [word for word in str(text).split() if word.strip()]
+    return {{"{output_key}": len(words)}}
+'''
+
         return f'''TOOL_META = {{
     "id": "{spec.id}",
     "name": "{spec.name}",
@@ -150,6 +171,20 @@ def run(payload: dict) -> dict:
     text = payload.get("text") or payload.get("input") or ""
     return {{"text": str(text)}}
 '''
+
+    def _looks_like_word_counter(self, spec: ToolSpec) -> bool:
+        text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
+        output_keys = {str(key).lower() for key in spec.output_schema.keys()}
+        output_types = {str(value).lower() for value in spec.output_schema.values()}
+        return (
+            ("word" in text and ("count" in text or "counter" in text))
+            or bool(output_keys.intersection({"count", "word_count", "words"}) and output_types.intersection({"int", "integer", "number"}))
+        )
+
+    def _first_output_key(self, spec: ToolSpec, default: str = "result") -> str:
+        for key in spec.output_schema.keys():
+            return str(key)
+        return default
 
     def _safe_id(self, capability: str) -> str:
         value = re.sub(r"[^a-zA-Z0-9_]+", "_", capability.strip().lower()).strip("_")

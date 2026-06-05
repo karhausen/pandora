@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 from pathlib import Path
 
@@ -48,6 +49,19 @@ def empty_dir(path: Path) -> None:
     (path / ".gitkeep").touch()
 
 
+def reset_tool_registry_to_base_tools() -> None:
+    registry = ROOT / "config" / "tools" / "tool_registry.json"
+    if not registry.exists():
+        return
+    data = json.loads(registry.read_text(encoding="utf-8"))
+    base = {
+        tool_id: meta
+        for tool_id, meta in data.items()
+        if str(meta.get("module", "")).startswith("tools.") and not meta.get("installed_from")
+    }
+    registry.write_text(json.dumps(base, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
 def main() -> None:
     for pattern in ["__pycache__", ".pytest_cache"]:
         for path in ROOT.rglob(pattern):
@@ -67,6 +81,7 @@ def main() -> None:
     (generated_tools / "__init__.py").touch()
     for path in DIRS_TO_EMPTY:
         empty_dir(path)
+    reset_tool_registry_to_base_tools()
     for path, content in FILES_TO_RESET.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")

@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
-Aktueller Stand: **MVP 20.2.1 – Installed Tool Routing Hotfix**
+Aktueller Stand: **MVP 20.2.2 – Generated Tool Output Contract Hotfix**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`  
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.2.1
+## Aktuelle CLI-Tests für MVP 20.2.2
 
 Grundstatus:
 
@@ -70,6 +70,13 @@ Tests:
 python3 -m pytest -q
 python3 -m compileall -q .
 ```
+
+
+## MVP 20.2.2 Hinweis
+
+Der Generator prüft jetzt strenger, dass erzeugter Tool-Code zum `output_schema` passt. Ein Tool mit `output_schema: {"count": "integer"}` darf nicht nur `{ "text": ... }` zurückgeben.
+
+Der Clean-Release-Schritt entfernt außerdem installierte Generated Tools aus `generated_tools/` und setzt `config/tools/tool_registry.json` auf die Basis-Tools zurück.
 
 ## GUI Workflow
 
