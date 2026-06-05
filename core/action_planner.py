@@ -1,8 +1,13 @@
 from __future__ import annotations
 import re
 from .models import AgentAction, AgentActionType
+from .tool_registry import ToolRegistry
 
 class ActionPlanner:
+    def __init__(self, registry: ToolRegistry | None = None):
+        self.registry = registry or ToolRegistry()
+        self.registry.discover()
+
     def plan(self, task: str, analysis: dict) -> AgentAction:
         risk = str(analysis.get("risk_level", "LOW")).upper()
         if risk == "HIGH":
@@ -25,8 +30,9 @@ class ActionPlanner:
             return AgentAction(type=AgentActionType.TOOL, tool_id="uppercase", payload=self._payload_for_tool("uppercase", task), reason="Rule fallback detected uppercase.")
         if "json format" in task_l or "pretty json" in task_l or "json formatieren" in task_l:
             return AgentAction(type=AgentActionType.TOOL, tool_id="json_pretty", payload=self._payload_for_tool("json_pretty", task), reason="Rule fallback detected JSON formatting.")
-        if "word count" in task_l or "wörter zählen" in task_l or "wortanzahl" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="word_count", payload=self._payload_for_tool("word_count", task), reason="Rule fallback detected word count.")
+        if "word count" in task_l or "wörter zählen" in task_l or "wörter" in task_l or "woerter" in task_l or "wortanzahl" in task_l:
+            tool_id = self._resolve_tool_id("word_count") or "word_count"
+            return AgentAction(type=AgentActionType.TOOL, tool_id=tool_id, payload=self._payload_for_tool("word_count", task), reason="Rule fallback detected word count.")
         if "reverse text" in task_l or "text umdrehen" in task_l or "rückwärts" in task_l:
             return AgentAction(type=AgentActionType.TOOL, tool_id="text_reverse", payload=self._payload_for_tool("text_reverse", task), reason="Rule fallback detected text reverse.")
         if "timestamp" in task_l or "zeitstempel" in task_l:
@@ -36,12 +42,19 @@ class ActionPlanner:
 
         return AgentAction(type=AgentActionType.ANSWER, payload={"text": "Keine Tool-Ausführung nötig."}, reason="No suitable tool or skill needed.")
 
+    def _resolve_tool_id(self, tool_id: str) -> str | None:
+        return self.registry.resolve_id(tool_id)
+
     def _first_known_tool(self, tools: list[str]) -> str:
+        for tool in tools:
+            resolved = self._resolve_tool_id(tool)
+            if resolved:
+                return resolved
         known = {"calculator", "echo", "uppercase", "json_pretty", "text_reverse", "word_count", "timestamp"}
         for tool in tools:
             if tool in known:
-                return tool
-        return tools[0]
+                return self._resolve_tool_id(tool) or tool
+        return self._resolve_tool_id(tools[0]) or tools[0]
 
     def _payload_from_task(self, task: str) -> dict:
         text = self._extract_text(task)
@@ -52,7 +65,7 @@ class ActionPlanner:
             return {"expression": self._extract_expression(task)}
         if tool_id == "json_pretty":
             return {"text": self._extract_text(task)}
-        if tool_id in {"echo", "uppercase", "text_reverse", "word_count"}:
+        if tool_id in {"echo", "uppercase", "text_reverse", "word_count"} or self.registry.get(tool_id) and "text" in (self.registry.get(tool_id).input_schema or {}):
             text = self._extract_text(task)
             return {"text": text, "input": text}
         if tool_id == "timestamp":
@@ -70,6 +83,9 @@ class ActionPlanner:
 
     def _extract_text(self, task: str) -> str:
         lowered = task.lower()
+        quoted = re.search(r'"([^"]+)"', task)
+        if quoted:
+            return quoted.group(1).strip()
         for marker in ["--text", "text:", "input:"]:
             idx = lowered.find(marker)
             if idx >= 0:

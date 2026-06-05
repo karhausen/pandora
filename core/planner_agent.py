@@ -107,7 +107,11 @@ class PlannerAgent:
     def _known_tools(self) -> set[str]:
         registry = ToolRegistry()
         registry.discover()
-        return {tool.id for tool in registry.list()}
+        known: set[str] = set()
+        for tool in registry.list():
+            known.add(tool.id)
+            known.update(tool.aliases or [])
+        return known
 
     def _known_skills(self) -> set[str]:
         registry = SkillRegistry()

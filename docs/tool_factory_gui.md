@@ -81,3 +81,28 @@ Proposal prüfen → Approve → Install
 ```bash
 python3 main.py tool-list
 ```
+
+
+## MVP 20.2.1 – Installed Tool Routing Hotfix
+
+Wenn ein Proposal installiert wurde, darf Pandora dieselbe Capability nicht erneut als Gap behandeln. Beispiel:
+
+```text
+Capability: word_count
+Installiertes Tool: word_counter
+Alias: word_count
+```
+
+Nach der Installation wird `Zähle die Wörter in "eins zwei drei vier"` an das vorhandene Tool geroutet, statt ein neues Proposal zu erzeugen.
+
+Wichtige Regel:
+
+```text
+Capability Gap prüfen
+↓
+Registry inklusive Aliases prüfen
+↓
+Wenn Tool vorhanden: planner_worker / Tool-Ausführung
+↓
+Nur wenn kein Tool vorhanden: Tool Development
+```

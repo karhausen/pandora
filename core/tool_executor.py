@@ -20,7 +20,7 @@ class ToolExecutor:
 
         if self.use_sandbox:
             from .sandbox import Sandbox
-            result = await asyncio.to_thread(Sandbox().run_tool, tool_id, payload)
+            result = await asyncio.to_thread(Sandbox().run_tool, resolved_tool_id, payload)
             tool_result = ToolResult(
                 success=bool(result.get("success")),
                 tool=resolved_tool_id,

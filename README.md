@@ -1,8 +1,8 @@
 # Pandora Agent
 
-Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
+Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
-Aktueller Stand: **MVP 20.2 – Tool Factory GUI Workflow**
+Aktueller Stand: **MVP 20.2.1 – Installed Tool Routing Hotfix**
 
 ## Start
 
@@ -14,81 +14,71 @@ python3 main.py status
 python3 main.py api
 ```
 
-User-GUI: `http://127.0.0.1:8000/`
+User-GUI: `http://127.0.0.1:8000/`  
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.2
+## Aktuelle CLI-Tests für MVP 20.2.1
 
-Standardtests ohne zusätzliche Tool-API-Keys:
+Grundstatus:
 
 ```bash
 python3 main.py status
 python3 main.py config-paths
 python3 main.py llm-profile-status
 python3 main.py llm-provider-smoke cloud_expert --live
-python3 main.py model-route tool_design
-python3 main.py model-route tool_generation
-python3 main.py tool-generate word_count --provider cloud_expert
-python3 main.py proposal-list
-python3 main.py proposal-show <PROPOSAL_ID>
-python3 main.py proposal-approve <PROPOSAL_ID>
-python3 main.py proposal-install <PROPOSAL_ID>
-python3 main.py tool-list
-python3 main.py tool-info <TOOL_ID>
-python3 main.py run-tool <TOOL_ID> --file payload.json
-python3 main.py tool-stats <TOOL_ID>
-python3 main.py tool-disable <TOOL_ID>
-python3 main.py tool-enable <TOOL_ID>
-python3 -m pytest -q
-python3 -m compileall -q .
 ```
 
-Optionaler Netzwerktool-Test:
-
-```bash
-python3 main.py tool-generate weather_lookup --provider cloud_expert
-```
-
-Netzwerktools bleiben `LIMITED`, müssen offline testbar sein und werden erst nach manueller Prüfung installiert.
-
-## Wichtige Befehle
-
-Konfiguration/Profile:
-
-```bash
-python3 main.py config-paths
-python3 main.py llm-config-security
-python3 main.py llm-profile-status
-python3 main.py llm-profile private
-python3 main.py llm-profile company
-python3 main.py llm-provider-status cloud_expert
-python3 main.py llm-provider-smoke cloud_expert --live
-```
-
-Tool Factory:
+Tool Factory mit sicherem Standardtool:
 
 ```bash
 python3 main.py tool-generate word_count --provider cloud_expert
 python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
 python3 main.py proposal-approve <PROPOSAL_ID>
-python3 main.py proposal-reject <PROPOSAL_ID>
 python3 main.py proposal-install <PROPOSAL_ID>
 python3 main.py tool-list
-python3 main.py tool-info <TOOL_ID>
+```
+
+Payload-Datei für Windows/macOS/Linux:
+
+```json
+{
+  "text": "eins zwei drei vier"
+}
+```
+
+Tool ausführen:
+
+```bash
 python3 main.py run-tool <TOOL_ID> --file payload.json
+```
+
+Wichtig: Wenn `tool-list` z.B. `word_counter` mit Alias `word_count` zeigt, funktionieren beide Ebenen im Routing: Pandora erkennt die Capability `word_count`, nutzt aber das installierte Tool `word_counter`.
+
+Lifecycle:
+
+```bash
+python3 main.py tool-info <TOOL_ID>
 python3 main.py tool-stats <TOOL_ID>
 python3 main.py tool-disable <TOOL_ID>
 python3 main.py tool-enable <TOOL_ID>
 ```
 
-Tests/Status:
+Tests:
 
 ```bash
-python3 main.py heartbeat
 python3 -m pytest -q
 python3 -m compileall -q .
 ```
+
+## GUI Workflow
+
+1. User fragt nach einer neuen Fähigkeit.
+2. Pandora erzeugt ein Proposal.
+3. GUI öffnet den Tool-Factory-Bereich.
+4. User klickt `Approve`.
+5. User klickt `Install`.
+6. Tool ist in `tool-list` sichtbar und kann verwendet werden.
 
 ## Konfiguration
 
@@ -118,254 +108,22 @@ python3 main.py llm-profile private
 python3 main.py llm-profile company
 ```
 
-
-
-
-
-## MVP 20.2 – Tool Factory GUI Workflow
-
-Neu:
-
-- User-GUI zeigt Tool-Vorschläge direkt im Workflow-Bereich.
-- Nach einer Chat-Anfrage mit neuem Proposal wird der Proposal automatisch geöffnet.
-- Buttons: `Approve`, `Install`, `Reject`.
-- Workflow bleibt kontrolliert: kein Auto-Install ohne Nutzeraktion.
-- Details in `docs/tool_factory_gui.md`.
-
-GUI-Test:
-
-```bash
-python3 main.py api
-```
-
-Dann öffnen:
-
-```text
-http://127.0.0.1:8000/
-```
-
-Anfrage:
-
-```text
-Ich möchte Wörter zählen können
-```
-
-Danach in der GUI:
-
-```text
-Tool Factory Workflow → Proposal prüfen → Approve → Install
-```
-
-Prüfung für dieses Paket:
-
-- `pytest`: 73 passed
-- `compileall`: erfolgreich
-
-## MVP 20.1 – Tool Lifecycle Manager
-
-Neu:
-
-- `ToolLifecycleManager`
-- Tool-Statusverwaltung: `ACTIVE`, `DISABLED`, `DEPRECATED`, `FAILED`
-- installierte Tools können deaktiviert, reaktiviert, deprecatiert und deinstalliert werden
-- Tool-Aliase: Capability-Name wie `word_count` kann auf Tool-ID wie `word_counter` zeigen
-- Tool-Nutzungsstatistik in `memory/tool_usage_stats.json`
-- Ausführung verweigert `DISABLED`/`DEPRECATED` Tools sauber
-- API-Endpunkte für Info, Enable, Disable, Deprecate, Uninstall und Stats
-
-Aktuelle CLI-Tests:
-
-```bash
-python3 main.py status
-python3 main.py tool-list
-python3 main.py tool-info <TOOL_ID>
-python3 main.py run-tool <TOOL_ID> --file payload.json
-python3 main.py tool-stats <TOOL_ID>
-python3 main.py tool-disable <TOOL_ID>
-python3 main.py run-tool <TOOL_ID> --file payload.json   # soll abgewiesen werden
-python3 main.py tool-enable <TOOL_ID>
-python3 main.py run-tool <TOOL_ID> --file payload.json   # soll wieder funktionieren
-python3 -m pytest -q
-python3 -m compileall -q .
-```
-
-Prüfung für dieses Paket:
-
-- `pytest`: 71 passed
-- `compileall`: erfolgreich
-
-## MVP 20.0.1 – Tool Install Metadata Normalization Hotfix
-
-Fix:
-
-- `proposal-install` kann jetzt Cloud-generierte `TOOL_META`-Varianten installieren, die design-style Felder wie `tool_id` enthalten.
-- Beim Installieren normalisiert Pandora `spec`, `design` und `TOOL_META` zu gültigem `ToolMeta`.
-- Runtime-Feld `module` wird automatisch auf `generated_tools.<tool_id>` gesetzt.
-- Regressionstest für `word_count_tool` mit fehlendem `id`/`module` ergänzt.
-
-Aktuelle CLI-Tests:
-
-```bash
-python3 main.py status
-python3 main.py tool-list
-python3 main.py proposal-list
-python3 main.py proposal-approve <proposal_id>
-python3 main.py proposal-install <proposal_id> --test-json '{"text":"eins zwei drei"}'
-python3 -m pytest -q
-python3 -m compileall -q .
-```
-
-Prüfung für dieses Paket:
-
-- `pytest`: 67 passed
-- `compileall`: erfolgreich
-
-## MVP 20.0 – Controlled Tool Factory
-
-Neu:
-
-- Proposal-Lifecycle: `VALIDATED → APPROVED → INSTALLED` oder `REJECTED`
-- Installation nur nach explizitem Approval
-- installierte Tools werden nach `generated_tools/` kopiert und in `config/tools/tool_registry.json` registriert
-- neue CLI-Aliase: `proposal-list`, `proposal-show`, `proposal-approve`, `proposal-reject`, `proposal-install`, `tool-list`
-- API-Endpunkte für Approve/Reject/Install
-- Release-Clean entfernt Runtime-Proposals und generierte Testtools
-
-Akzeptanztest:
-
-```bash
-python3 main.py tool-generate word_count --provider cloud_expert
-python3 main.py proposal-approve <PROPOSAL_ID>
-python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
-python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
-```
-
-Prüfung:
-
-```bash
-python3 -m pytest -q
-python3 -m compileall -q .
-```
-
-## MVP 19.8.1 – Policy-Aware Test Generation
-
-Neu/Fix:
-
-- Cloud-generierte pytest-Dateien werden nachbearbeitet, damit sie policy-konform und offline lauffähig sind.
-- Fehlende Test-Imports wie `json` oder `urllib.request` werden ergänzt.
-- Wenn generierter Tool-Code ENV-Variablen wie `WEATHER_API_KEY` benötigt, setzt der Test diese mit `monkeypatch.setenv(...)`.
-- Verbotene Design-Dependencies wie `requests`, `httpx` oder `aiohttp` werden aus dem ToolDesign entfernt und in `risk_notes` dokumentiert.
-- README enthält ab jetzt die aktuellen CLI-Tests für den jeweiligen Stand.
-- Empfohlener Standardtest ohne Tool-API-Key: `tool-generate word_count --provider cloud_expert`.
-
-Prüfung:
-
-```bash
-python3 -m pytest -q
-python3 -m compileall -q .
-```
-
-## MVP 19.8 – Tool Review & Policy-Aware Validation
-
-Neu:
-
-- `ToolReviewAgent`
-- policy-aware `ToolValidator`
-- `LIMITED` Tools mit `requires_network=true` dürfen kontrolliert `urllib.request`, `urllib.parse`, `urllib.error`, `json` und `os` verwenden
-- `requests`, `httpx`, `socket`, `subprocess`, `eval`, `exec`, `open` bleiben verboten
-- Netzwerkaufrufe müssen `timeout=` setzen
-- statische Reviews enthalten jetzt `policy`-Details
-- CLI: `tool-review-file`
-- API: `POST /tool-review/review`
-
-Wichtig:
-
-```text
-Cloud erzeugt Code
-↓
-lokaler ToolReviewAgent prüft Security/Policy
-↓
-pytest läuft nur, wenn Review ok ist
-↓
-Proposal wird VALIDATED oder FAILED
-```
-
-Damit kann ein Wettertool mit Netzwerkbedarf kontrolliert validiert werden, ohne die generellen Sicherheitsregeln für SAFE-Tools aufzuweichen.
-
-## MVP 19.7 – Cloud Tool Code Generator
-
-Neu:
-
-- `CloudToolCodeGenerator`
-- Tool-Code und pytest-Dateien werden aus dem `ToolDesign` erzeugt
-- Route `tool_generation` nutzt den aktiven Cloud Expert
-- OpenAI-Standardmodell ist jetzt `gpt-4o`
-- Cloud-Code bleibt Proposal-Code und wird lokal geprüft
-- Aktivierung bleibt manuell
-
-Ablauf:
-
-```text
-Capability Gap
-↓
-Tool Design
-↓
-Cloud Tool Code Generator
-↓
-Static Review + pytest
-↓
-Proposal
-↓
-manuelle Aktivierung
-```
-
-Wichtig: Cloud erzeugt nur Kandidaten. Pandora validiert lokal und aktiviert nichts automatisch.
-
-## MVP 19.6 – Real Tool Design Agent
-
-Neu:
-
-- `ToolDesignAgent`
-- `ToolDesign` / `ToolDesignResult`
-- `tool_design` Model-Route
-- CLI: `tool-design`
-- API: `POST /tool-design/design`
-- Tool-Proposals enthalten jetzt `tool_design.json`
-- Tool-Erzeugung startet mit einem Tool-Vertrag: Input, Output, Security, Netzwerkbedarf, Testfälle, Risiken
-
-Ablauf:
-
-```text
-Capability Gap
-↓
-Tool Development Agent
-↓
-Tool Design Agent
-↓
-Tool Proposal Manager
-↓
-Validator / Tests
-↓
-Proposal
-↓
-manuelle Aktivierung
-```
-
-Wichtig: Auch MVP 19.6 aktiviert neue Tools nicht automatisch.
+OpenAI-Standardmodell: `gpt-4o`.
 
 ## Sicherheit
 
-Pandora darf Tool-Vorschläge erzeugen und validieren, aber neuen Code nicht ungeprüft aktivieren. Aktivierung bleibt manuell.
+Cloud-Modelle erzeugen nur Kandidaten. Pandora validiert lokal. Aktivierung bleibt manuell.
 
 Keine Zugangsdaten, Company-URLs oder privaten Profile ins Repository committen.
 
 ## Dokumentation
 
-Weitere Details:
-
 ```text
 docs/architecture.md
 docs/roadmap.md
+docs/tool_factory.md
+docs/tool_factory_gui.md
+docs/tool_lifecycle.md
 docs/tool_design.md
 docs/tool_code_generation.md
 docs/tool_review.md
@@ -374,8 +132,6 @@ docs/security.md
 
 ## Release bereinigen
 
-Vor dem Verpacken:
-
-```powershell
+```bash
 python scripts/clean_runtime_artifacts.py
 ```

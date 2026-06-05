@@ -49,6 +49,11 @@ class ToolDevelopmentAgent:
     def _existing_tool_ids(self) -> set[str]:
         return {tool.id for tool in self.registry.list()}
 
+    def _available_tool_id(self, capability_or_tool: str | None) -> str | None:
+        if not capability_or_tool:
+            return None
+        return self.registry.resolve_id(capability_or_tool.strip())
+
     def _build_capability_prompt(self, task: str) -> str:
         return (
             "You are Pandora's capability gate. Decide whether Pandora can answer "
@@ -135,21 +140,38 @@ class ToolDevelopmentAgent:
             existing_tool = (decision.suggested_existing_tool or "").strip() or None
             effective_confidence = self._effective_confidence(decision)
             model_confidence = decision.confidence
-            if decision.existing_tool_sufficient and existing_tool in self._existing_tool_ids():
+            resolved_existing_tool = self._available_tool_id(existing_tool)
+            resolved_capability_tool = self._available_tool_id(capability)
+            if decision.existing_tool_sufficient and resolved_existing_tool:
                 return {
                     "gap_detected": False,
                     "capability": None,
-                    "reason": decision.reason or f"Existing tool is sufficient: {existing_tool}",
+                    "reason": decision.reason or f"Existing tool is sufficient: {resolved_existing_tool}",
                     "existing_tools": existing_tools,
                     "source": source,
                     "decision": decision.model_dump(mode="json"),
                     "confidence": effective_confidence,
                     "model_confidence": model_confidence,
                     "tool_available": True,
-                    "suggested_existing_tool": existing_tool,
+                    "suggested_existing_tool": resolved_existing_tool,
                     "llm_error": None,
                 }
-            if decision.tool_needed and capability and capability not in self._existing_tool_ids() and effective_confidence >= 0.55:
+            if decision.tool_needed and capability and resolved_capability_tool:
+                return {
+                    "gap_detected": False,
+                    "capability": capability,
+                    "reason": decision.reason or f"Capability is already covered by installed tool: {resolved_capability_tool}",
+                    "existing_tools": existing_tools,
+                    "source": source,
+                    "decision": decision.model_dump(mode="json"),
+                    "confidence": effective_confidence,
+                    "model_confidence": model_confidence,
+                    "tool_available": True,
+                    "suggested_existing_tool": resolved_capability_tool,
+                    "llm_error": None,
+                }
+
+            if decision.tool_needed and capability and not resolved_capability_tool and effective_confidence >= 0.55:
                 return {
                     "gap_detected": True,
                     "capability": capability,
@@ -168,7 +190,8 @@ class ToolDevelopmentAgent:
             # This keeps LLM-first routing, but protects against small local models
             # that sometimes answer politely instead of classifying the capability.
             fallback = self.detector.detect(task, analysis=analysis)
-            if fallback.get("gap_detected") and fallback.get("capability") not in self._existing_tool_ids():
+            fallback_tool = self._available_tool_id(fallback.get("capability"))
+            if fallback.get("gap_detected") and not fallback_tool:
                 fallback["source"] = "fallback_after_llm_direct_answer"
                 fallback["llm_error"] = None
                 fallback["confidence"] = 0.56
@@ -182,6 +205,21 @@ class ToolDevelopmentAgent:
                 fallback["suggested_existing_tool"] = existing_tool
                 return fallback
 
+            if fallback.get("capability") and fallback_tool:
+                return {
+                    "gap_detected": False,
+                    "capability": fallback.get("capability"),
+                    "reason": f"Fallback matched capability, but installed tool is available: {fallback_tool}.",
+                    "existing_tools": existing_tools,
+                    "source": "fallback_existing_tool_after_llm",
+                    "decision": decision.model_dump(mode="json"),
+                    "confidence": 0.7,
+                    "model_confidence": model_confidence,
+                    "tool_available": True,
+                    "suggested_existing_tool": fallback_tool,
+                    "llm_error": None,
+                }
+
             return {
                 "gap_detected": False,
                 "capability": capability,
@@ -191,8 +229,8 @@ class ToolDevelopmentAgent:
                 "decision": decision.model_dump(mode="json"),
                 "confidence": effective_confidence,
                 "model_confidence": model_confidence,
-                "tool_available": bool(existing_tool in self._existing_tool_ids()) if existing_tool else False,
-                "suggested_existing_tool": existing_tool,
+                "tool_available": bool(self._available_tool_id(existing_tool)) if existing_tool else False,
+                "suggested_existing_tool": self._available_tool_id(existing_tool) or existing_tool,
                 "llm_error": None,
             }
 
@@ -200,8 +238,8 @@ class ToolDevelopmentAgent:
         fallback = self.detector.detect(task, analysis=analysis)
         fallback["source"] = "fallback_after_llm_error"
         fallback["llm_error"] = error
-        fallback["confidence"] = 0.45 if fallback.get("gap_detected") else 0.1
-        fallback["tool_available"] = False
+        fallback["confidence"] = 0.45 if fallback.get("gap_detected") else 0.7 if fallback.get("tool_available") else 0.1
+        fallback["tool_available"] = bool(fallback.get("tool_available"))
         return fallback
 
     def analyze(

@@ -15,6 +15,9 @@ class ChatResponseRouter:
         "gross",
         "groß",
         "word_count",
+        "wörter",
+        "woerter",
+        "wortanzahl",
         "reverse",
     ]
 
@@ -38,6 +41,15 @@ class ChatResponseRouter:
 
         if text.startswith("echo ") or text.startswith("wiederhole "):
             return "echo"
+
+        if "wörter" in text or "woerter" in text or "word count" in text or "wortanzahl" in text:
+            try:
+                from .tool_registry import ToolRegistry
+                registry = ToolRegistry()
+                registry.discover()
+                return registry.resolve_id("word_count")
+            except Exception:
+                return None
 
         return None
 

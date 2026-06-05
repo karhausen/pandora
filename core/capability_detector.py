@@ -38,9 +38,15 @@ class CapabilityDetector:
         self.registry = registry or ToolRegistry()
         self.registry.discover()
 
+    def _available_tool_id(self, capability: str) -> str | None:
+        return self.registry.resolve_id(capability)
+
+    def _existing_tool_ids(self) -> set[str]:
+        return {tool.id for tool in self.registry.list()}
+
     def detect(self, task: str, analysis: dict | None = None) -> dict:
         task_l = task.lower()
-        existing_tool_ids = {tool.id for tool in self.registry.list()}
+        existing_tool_ids = self._existing_tool_ids()
 
         # If LLM already suggested a missing capability, prefer that.
         missing = []
@@ -48,7 +54,8 @@ class CapabilityDetector:
             missing = analysis.get("missing_capabilities") or []
 
         for capability in missing:
-            if capability not in existing_tool_ids:
+            available_tool = self._available_tool_id(capability)
+            if not available_tool:
                 return {
                     "gap_detected": True,
                     "capability": capability,
@@ -58,13 +65,22 @@ class CapabilityDetector:
 
         for capability, keywords in self.KEYWORDS.items():
             if any(keyword in task_l for keyword in keywords):
-                if capability not in existing_tool_ids:
+                available_tool = self._available_tool_id(capability)
+                if not available_tool:
                     return {
                         "gap_detected": True,
                         "capability": capability,
                         "reason": f"Task matched capability keywords for {capability}.",
                         "existing_tools": sorted(existing_tool_ids),
                     }
+                return {
+                    "gap_detected": False,
+                    "capability": capability,
+                    "reason": f"Capability {capability} is already covered by installed tool {available_tool}.",
+                    "existing_tools": sorted(existing_tool_ids),
+                    "tool_available": True,
+                    "suggested_existing_tool": available_tool,
+                }
 
         return {
             "gap_detected": False,
