@@ -111,6 +111,33 @@ python3 main.py llm-profile company
 ```
 
 
+
+## MVP 20.0.1 – Tool Install Metadata Normalization Hotfix
+
+Fix:
+
+- `proposal-install` kann jetzt Cloud-generierte `TOOL_META`-Varianten installieren, die design-style Felder wie `tool_id` enthalten.
+- Beim Installieren normalisiert Pandora `spec`, `design` und `TOOL_META` zu gültigem `ToolMeta`.
+- Runtime-Feld `module` wird automatisch auf `generated_tools.<tool_id>` gesetzt.
+- Regressionstest für `word_count_tool` mit fehlendem `id`/`module` ergänzt.
+
+Aktuelle CLI-Tests:
+
+```bash
+python3 main.py status
+python3 main.py tool-list
+python3 main.py proposal-list
+python3 main.py proposal-approve <proposal_id>
+python3 main.py proposal-install <proposal_id> --test-json '{"text":"eins zwei drei"}'
+python3 -m pytest -q
+python3 -m compileall -q .
+```
+
+Prüfung für dieses Paket:
+
+- `pytest`: 67 passed
+- `compileall`: erfolgreich
+
 ## MVP 20.0 – Controlled Tool Factory
 
 Neu:

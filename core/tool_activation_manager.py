@@ -7,7 +7,7 @@ from datetime import datetime, UTC
 from pathlib import Path
 
 from .config import GENERATED_TOOLS_DIR, TOOL_ACTIVATION_LOG
-from .models import ToolActivationResult, ToolMeta
+from .models import SecurityLevel, ToolActivationResult, ToolMeta, ToolStatus
 from .tool_executor import ToolExecutor
 from .tool_proposal_manager import ToolProposalManager
 from .tool_registry import ToolRegistry
@@ -43,7 +43,8 @@ class ToolActivationManager:
 
             importlib.invalidate_caches()
             module = importlib.import_module(f"generated_tools.{tool_id}")
-            meta = ToolMeta.model_validate(getattr(module, "TOOL_META"))
+            raw_meta = getattr(module, "TOOL_META", None)
+            meta = self._normalize_tool_meta(raw_meta, proposal=proposal, tool_id=tool_id)
             self.registry.register(meta)
 
             tested = False
@@ -78,6 +79,34 @@ class ToolActivationManager:
                 proposal_id=proposal_id,
                 error=f"{type(exc).__name__}: {exc}",
             ))
+
+
+    def _normalize_tool_meta(self, raw_meta, proposal: dict, tool_id: str) -> ToolMeta:
+        """Build a valid ToolMeta from generated code plus proposal metadata.
+
+        Cloud-generated tools sometimes use design-style keys such as
+        ``tool_id`` and omit the runtime-only ``module`` field. Installation is
+        the boundary where Pandora knows the final module path, so normalize the
+        metadata here instead of rejecting an otherwise valid proposal.
+        """
+        spec = dict(proposal.get("spec") or {})
+        design = dict(proposal.get("design") or {})
+        raw = dict(raw_meta or {}) if isinstance(raw_meta, dict) else {}
+
+        merged = {**spec, **design, **raw}
+        normalized = {
+            "id": merged.get("id") or merged.get("tool_id") or spec.get("id") or tool_id,
+            "name": merged.get("name") or spec.get("name") or tool_id.replace("_", " ").title(),
+            "description": merged.get("description") or spec.get("description") or f"Generated tool: {tool_id}",
+            "version": merged.get("version") or "0.1.0",
+            "input_schema": merged.get("input_schema") or spec.get("input_schema") or {},
+            "output_schema": merged.get("output_schema") or spec.get("output_schema") or {},
+            "security_level": merged.get("security_level") or spec.get("security_level") or SecurityLevel.SAFE.value,
+            "status": merged.get("status") or ToolStatus.ACTIVE.value,
+            "module": f"generated_tools.{tool_id}",
+            "function": merged.get("function") or "run",
+        }
+        return ToolMeta.model_validate(normalized)
 
     def list_log(self, limit: int = 20) -> list[dict]:
         if not TOOL_ACTIVATION_LOG.exists():

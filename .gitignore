@@ -1,7 +1,12 @@
-
 # Pandora private runtime/config
 .env
 *.local.json
-memory/llm_config.local.json
-memory/llm_config.local.*.json
-!memory/llm_config.local.example.json
+config/**/*.local.json
+!config/**/*.local.example.json
+memory/*.local.json
+memory/*.local.*.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/

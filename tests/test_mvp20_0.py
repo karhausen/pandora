@@ -128,3 +128,89 @@ def test_approved_proposal_can_be_installed_and_registered(monkeypatch):
     registry.discover()
     assert registry.get("unit_echo_install") is not None
     _cleanup_installed()
+
+
+def test_install_normalizes_cloud_design_style_tool_meta(monkeypatch):
+    from core import tool_activation_manager as activation_module
+
+    proposal_id = "tool_lifecycle_design_meta_test"
+    proposal_dir = TOOL_PROPOSALS_DIR / proposal_id
+    tool_dir = proposal_dir / "generated_tools"
+    test_dir = proposal_dir / "tests"
+    tool_dir.mkdir(parents=True, exist_ok=True)
+    test_dir.mkdir(parents=True, exist_ok=True)
+    (tool_dir / "__init__.py").write_text("", encoding="utf-8")
+
+    code_file = tool_dir / "word_count_tool.py"
+    code_file.write_text('''TOOL_META = {
+    "tool_id": "word_count_tool",
+    "name": "Word Count Tool",
+    "description": "Counts words.",
+    "input_schema": {"text": "string"},
+    "output_schema": {"word_count": "integer"},
+}
+
+def run(payload: dict) -> dict:
+    text = payload.get("text", "")
+    return {"word_count": len([part for part in text.split() if part])}
+''', encoding="utf-8")
+    test_file = test_dir / "test_word_count_tool.py"
+    test_file.write_text("def test_placeholder():\n    assert True\n", encoding="utf-8")
+
+    proposal = {
+        "id": proposal_id,
+        "status": "VALIDATED",
+        "capability": "word_count",
+        "spec": {
+            "id": "word_count_tool",
+            "name": "Word Count Tool",
+            "description": "Counts words.",
+            "capability": "word_count",
+            "input_schema": {"text": "string"},
+            "output_schema": {"word_count": "integer"},
+            "security_level": "SAFE",
+        },
+        "created_at": datetime.now(UTC).isoformat(),
+        "proposal_dir": str(proposal_dir),
+        "code_file": str(code_file),
+        "test_file": str(test_file),
+        "validation": {"static": {"ok": True}, "tests": {"success": True}},
+        "design": {
+            "capability": "word_count",
+            "tool_id": "word_count_tool",
+            "name": "Word Count Tool",
+            "description": "Counts words.",
+            "input_schema": {"text": "string"},
+            "output_schema": {"word_count": "integer"},
+            "security_level": "SAFE",
+        },
+        "risk": "LOW",
+    }
+    (proposal_dir / "proposal.json").write_text(json.dumps(proposal, indent=2), encoding="utf-8")
+
+    registry = ToolRegistry()
+    registry.tools.pop("word_count_tool", None)
+    registry.save()
+    installed_file = GENERATED_TOOLS_DIR / "word_count_tool.py"
+    if installed_file.exists():
+        installed_file.unlink()
+
+    monkeypatch.setattr(activation_module, "ToolExecutor", _FakeToolExecutor)
+    approved = ToolProposalManager().approve(proposal_id)
+    assert approved["success"] is True
+
+    installed = asyncio.run(ToolActivationManager().activate(proposal_id, test_payload={"text": "eins zwei drei"}))
+    assert installed.activated is True
+    assert installed.tool_id == "word_count_tool"
+
+    registry = ToolRegistry()
+    registry.discover()
+    meta = registry.get("word_count_tool")
+    assert meta is not None
+    assert meta.module == "generated_tools.word_count_tool"
+    assert meta.id == "word_count_tool"
+
+    registry.tools.pop("word_count_tool", None)
+    registry.save()
+    if installed_file.exists():
+        installed_file.unlink()

@@ -47,3 +47,8 @@ python3 main.py tool-list
 ## Safety
 
 Cloud-generated code is never activated directly. It must pass local review and tests, then be approved and installed explicitly.
+
+
+## MVP 20.0.1 – Installation metadata normalization
+
+Cloud-generated tools may define `TOOL_META` with design-oriented fields such as `tool_id` and may omit runtime fields such as `module`. Installation now normalizes metadata from three sources: proposal `spec`, proposal `design`, and generated module `TOOL_META`. The final runtime metadata always contains `id`, `module`, `function`, schemas, status, and security level before being written to the registry.
