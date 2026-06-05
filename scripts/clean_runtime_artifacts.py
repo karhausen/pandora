@@ -22,6 +22,7 @@ DIRS_TO_EMPTY = [
 FILES_TO_RESET = {
     ROOT / "memory" / "chat_sessions.json": '{\n  "sessions": []\n}\n',
     ROOT / "memory" / "conversation_memory.json": '{\n  "facts": {}\n}\n',
+    ROOT / "memory" / "tool_usage_stats.json": "{}\n",
     ROOT / "memory" / "coordinator_log.jsonl": "",
     ROOT / "memory" / "planner_agent_log.jsonl": "",
     ROOT / "memory" / "worker_agent_log.jsonl": "",
@@ -30,6 +31,7 @@ FILES_TO_RESET = {
     ROOT / "memory" / "capability_event_log.jsonl": "",
     ROOT / "memory" / "capability_workflow_log.jsonl": "",
     ROOT / "memory" / "tool_generation_log.jsonl": "",
+    ROOT / "memory" / "tool_lifecycle_log.jsonl": "",
     ROOT / "memory" / "reality_check_log.jsonl": "",
 }
 

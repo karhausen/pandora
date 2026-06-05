@@ -2,7 +2,7 @@
 
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool-Entwicklung.
 
-Aktueller Stand: **MVP 20.0 – Controlled Tool Factory**
+Aktueller Stand: **MVP 20.1 – Tool Lifecycle Manager**
 
 ## Start
 
@@ -17,7 +17,7 @@ python3 main.py api
 User-GUI: `http://127.0.0.1:8000/`
 Admin-GUI: `http://127.0.0.1:8000/admin`
 
-## Aktuelle CLI-Tests für MVP 20.0
+## Aktuelle CLI-Tests für MVP 20.1
 
 Standardtests ohne zusätzliche Tool-API-Keys:
 
@@ -32,9 +32,13 @@ python3 main.py tool-generate word_count --provider cloud_expert
 python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
 python3 main.py proposal-approve <PROPOSAL_ID>
-python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
+python3 main.py proposal-install <PROPOSAL_ID>
 python3 main.py tool-list
-python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
+python3 main.py tool-info <TOOL_ID>
+python3 main.py run-tool <TOOL_ID> --file payload.json
+python3 main.py tool-stats <TOOL_ID>
+python3 main.py tool-disable <TOOL_ID>
+python3 main.py tool-enable <TOOL_ID>
 python3 -m pytest -q
 python3 -m compileall -q .
 ```
@@ -69,9 +73,13 @@ python3 main.py proposal-list
 python3 main.py proposal-show <PROPOSAL_ID>
 python3 main.py proposal-approve <PROPOSAL_ID>
 python3 main.py proposal-reject <PROPOSAL_ID>
-python3 main.py proposal-install <PROPOSAL_ID> --test-json '{"text":"eins zwei drei"}'
+python3 main.py proposal-install <PROPOSAL_ID>
 python3 main.py tool-list
-python3 main.py run-tool word_count --json '{"text":"eins zwei drei"}'
+python3 main.py tool-info <TOOL_ID>
+python3 main.py run-tool <TOOL_ID> --file payload.json
+python3 main.py tool-stats <TOOL_ID>
+python3 main.py tool-disable <TOOL_ID>
+python3 main.py tool-enable <TOOL_ID>
 ```
 
 Tests/Status:
@@ -111,6 +119,40 @@ python3 main.py llm-profile company
 ```
 
 
+
+
+## MVP 20.1 – Tool Lifecycle Manager
+
+Neu:
+
+- `ToolLifecycleManager`
+- Tool-Statusverwaltung: `ACTIVE`, `DISABLED`, `DEPRECATED`, `FAILED`
+- installierte Tools können deaktiviert, reaktiviert, deprecatiert und deinstalliert werden
+- Tool-Aliase: Capability-Name wie `word_count` kann auf Tool-ID wie `word_counter` zeigen
+- Tool-Nutzungsstatistik in `memory/tool_usage_stats.json`
+- Ausführung verweigert `DISABLED`/`DEPRECATED` Tools sauber
+- API-Endpunkte für Info, Enable, Disable, Deprecate, Uninstall und Stats
+
+Aktuelle CLI-Tests:
+
+```bash
+python3 main.py status
+python3 main.py tool-list
+python3 main.py tool-info <TOOL_ID>
+python3 main.py run-tool <TOOL_ID> --file payload.json
+python3 main.py tool-stats <TOOL_ID>
+python3 main.py tool-disable <TOOL_ID>
+python3 main.py run-tool <TOOL_ID> --file payload.json   # soll abgewiesen werden
+python3 main.py tool-enable <TOOL_ID>
+python3 main.py run-tool <TOOL_ID> --file payload.json   # soll wieder funktionieren
+python3 -m pytest -q
+python3 -m compileall -q .
+```
+
+Prüfung für dieses Paket:
+
+- `pytest`: 71 passed
+- `compileall`: erfolgreich
 
 ## MVP 20.0.1 – Tool Install Metadata Normalization Hotfix
 

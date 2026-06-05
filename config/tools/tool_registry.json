@@ -46,5 +46,21 @@
     "status": "ACTIVE",
     "module": "tools.uppercase",
     "function": "run"
+  },
+  "word_counter": {
+    "id": "word_counter",
+    "name": "Word Counter",
+    "description": "Counts the number of words in a given text input",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "string"
+    },
+    "output_schema": {
+      "count": "integer"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.word_counter",
+    "function": "run"
   }
 }

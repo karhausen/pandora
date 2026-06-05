@@ -36,3 +36,8 @@ Capability Gap → Design → Code → Tests → Review → Sandbox → Proposal
 - Capability Graph
 - Docker-Betrieb
 - Geräte-/Messgeräte-Tools
+
+
+## MVP 20.1 – Tool Lifecycle Manager
+
+Installierte Tools können verwaltet, deaktiviert, reaktiviert, deprecatiert, deinstalliert und über Nutzungsstatistiken bewertet werden.

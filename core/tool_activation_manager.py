@@ -94,8 +94,16 @@ class ToolActivationManager:
         raw = dict(raw_meta or {}) if isinstance(raw_meta, dict) else {}
 
         merged = {**spec, **design, **raw}
+        normalized_id = merged.get("id") or merged.get("tool_id") or spec.get("id") or tool_id
+        aliases = set(merged.get("aliases") or [])
+        capability = proposal.get("capability") or spec.get("capability") or design.get("capability")
+        if capability and capability != normalized_id:
+            aliases.add(capability)
+        if tool_id and tool_id != normalized_id:
+            aliases.add(tool_id)
+
         normalized = {
-            "id": merged.get("id") or merged.get("tool_id") or spec.get("id") or tool_id,
+            "id": normalized_id,
             "name": merged.get("name") or spec.get("name") or tool_id.replace("_", " ").title(),
             "description": merged.get("description") or spec.get("description") or f"Generated tool: {tool_id}",
             "version": merged.get("version") or "0.1.0",
@@ -105,6 +113,8 @@ class ToolActivationManager:
             "status": merged.get("status") or ToolStatus.ACTIVE.value,
             "module": f"generated_tools.{tool_id}",
             "function": merged.get("function") or "run",
+            "aliases": sorted(aliases),
+            "installed_from": proposal.get("id"),
         }
         return ToolMeta.model_validate(normalized)
 
@@ -126,7 +136,7 @@ class ToolActivationManager:
             return {"text": "{\"b\":2,\"a\":1}"}
         if tool_id == "text_reverse":
             return {"text": "abc"}
-        if tool_id in {"word_count", "word_count_tool"}:
+        if tool_id in {"word_count", "word_count_tool", "word_counter"}:
             return {"text": "eins zwei drei"}
         if tool_id == "timestamp":
             return {}

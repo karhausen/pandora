@@ -16,6 +16,7 @@ class ToolStatus(str, Enum):
     ACTIVE = "ACTIVE"
     VALIDATED = "VALIDATED"
     DISABLED = "DISABLED"
+    DEPRECATED = "DEPRECATED"
     FAILED = "FAILED"
 
 
@@ -55,6 +56,18 @@ class ToolMeta(BaseModel):
     status: ToolStatus = ToolStatus.ACTIVE
     module: str
     function: str = "run"
+    aliases: list[str] = Field(default_factory=list)
+    installed_from: str | None = None
+
+
+class ToolLifecycleResult(BaseModel):
+    success: bool
+    tool_id: str
+    status: ToolStatus | None = None
+    message: str = ""
+    error: str | None = None
+    tool: dict[str, Any] | None = None
+    stats: dict[str, Any] | None = None
 
 
 class ToolResult(BaseModel):

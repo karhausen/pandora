@@ -36,6 +36,8 @@ PROTECTED_CORE_FILES = {
 GENERATED_TOOLS_DIR = ROOT_DIR / "generated_tools"
 TOOL_PROPOSALS_DIR = ROOT_DIR / "tool_proposals"
 TOOL_ACTIVATION_LOG = MEMORY_DIR / "tool_activation_log.jsonl"
+TOOL_USAGE_STATS_FILE = MEMORY_DIR / "tool_usage_stats.json"
+TOOL_LIFECYCLE_LOG_FILE = MEMORY_DIR / "tool_lifecycle_log.jsonl"
 
 CAPABILITY_EVENT_LOG = MEMORY_DIR / "capability_events.jsonl"
 

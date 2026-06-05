@@ -41,11 +41,12 @@ from .models import LLMRequest, LLMTaskType
 from .task_journal import TaskJournal
 from .tool_executor import ToolExecutor
 from .tool_registry import ToolRegistry
+from .tool_lifecycle_manager import ToolLifecycleManager
 from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="20.0")
+app = FastAPI(title="Pandora Agent", version="20.1")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -209,7 +210,7 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-20.0"}
+    return {"status": "ok", "version": "mvp-20.1"}
 
 @app.get("/heartbeat")
 async def heartbeat():
@@ -224,6 +225,40 @@ def tools():
 async def run_tool(tool_id: str, req: RunToolRequest):
     registry = ToolRegistry(); registry.discover()
     return (await ToolExecutor(registry).run_tool(tool_id, req.payload, task=req.task)).model_dump()
+
+@app.get("/tools/{tool_id}/info")
+def tool_info(tool_id: str):
+    return ToolLifecycleManager().info(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/enable")
+def tool_enable(tool_id: str):
+    return ToolLifecycleManager().enable(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/disable")
+def tool_disable(tool_id: str):
+    return ToolLifecycleManager().disable(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/deprecate")
+def tool_deprecate(tool_id: str):
+    return ToolLifecycleManager().deprecate(tool_id).model_dump(mode="json")
+
+
+@app.delete("/tools/{tool_id}")
+def tool_uninstall(tool_id: str, keep_file: bool = False):
+    return ToolLifecycleManager().uninstall(tool_id, delete_file=not keep_file).model_dump(mode="json")
+
+
+@app.get("/tools/{tool_id}/stats")
+def tool_stats(tool_id: str):
+    return ToolLifecycleManager().stats(tool_id)
+
+
+@app.get("/tool-stats")
+def tool_stats_all():
+    return ToolLifecycleManager().stats()
 
 @app.get("/skills")
 def skills():

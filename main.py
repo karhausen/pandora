@@ -42,6 +42,7 @@ from core.tool_design_agent import ToolDesignAgent
 from core.tool_generation_log import ToolGenerationLog
 from core.tool_proposal_manager import ToolProposalManager
 from core.tool_registry import ToolRegistry
+from core.tool_lifecycle_manager import ToolLifecycleManager
 from core.tool_review_agent import ToolReviewAgent
 from core.worker_agent import WorkerAgent
 
@@ -60,7 +61,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-20.0"})
+def cmd_status(args): _json({"status": "ok", "version": "mvp-20.1"})
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -130,6 +131,13 @@ def cmd_tool_proposal_activate(args):
     payload = json.loads(args.test_json) if args.test_json else None
     _json(asyncio.run(ToolActivationManager().activate(args.proposal_id, test_payload=payload)).model_dump(mode="json"))
 def cmd_tool_activation_log(args): _json({"activations": ToolActivationManager().list_log(args.limit)})
+
+def cmd_tool_info(args): _json(ToolLifecycleManager().info(args.tool_id).model_dump(mode="json"))
+def cmd_tool_enable(args): _json(ToolLifecycleManager().enable(args.tool_id).model_dump(mode="json"))
+def cmd_tool_disable(args): _json(ToolLifecycleManager().disable(args.tool_id).model_dump(mode="json"))
+def cmd_tool_deprecate(args): _json(ToolLifecycleManager().deprecate(args.tool_id).model_dump(mode="json"))
+def cmd_tool_uninstall(args): _json(ToolLifecycleManager().uninstall(args.tool_id, delete_file=not args.keep_file).model_dump(mode="json"))
+def cmd_tool_stats(args): _json(ToolLifecycleManager().stats(args.tool_id))
 def cmd_skill_propose_from_journal(args): _json(SkillProposalManager().propose_from_journal(name=args.name))
 def cmd_skill_proposal_list(args): _json({"skill_proposals": SkillProposalManager().list()})
 def cmd_skill_proposal_show(args): _json(SkillProposalManager().show(args.proposal_id))
@@ -229,6 +237,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("proposal-reject"); p.add_argument("proposal_id"); p.add_argument("--reason"); p.set_defaults(func=cmd_tool_proposal_reject)
     p = sub.add_parser("proposal-install"); p.add_argument("proposal_id"); p.add_argument("--test-json"); p.set_defaults(func=cmd_tool_proposal_activate)
     p = sub.add_parser("tool-list"); p.set_defaults(func=cmd_tools)
+    p = sub.add_parser("tool-info"); p.add_argument("tool_id"); p.set_defaults(func=cmd_tool_info)
+    p = sub.add_parser("tool-enable"); p.add_argument("tool_id"); p.set_defaults(func=cmd_tool_enable)
+    p = sub.add_parser("tool-disable"); p.add_argument("tool_id"); p.set_defaults(func=cmd_tool_disable)
+    p = sub.add_parser("tool-deprecate"); p.add_argument("tool_id"); p.set_defaults(func=cmd_tool_deprecate)
+    p = sub.add_parser("tool-uninstall"); p.add_argument("tool_id"); p.add_argument("--keep-file", action="store_true"); p.set_defaults(func=cmd_tool_uninstall)
+    p = sub.add_parser("tool-stats"); p.add_argument("tool_id", nargs="?"); p.set_defaults(func=cmd_tool_stats)
     p = sub.add_parser("tool-activation-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_activation_log)
 
     p = sub.add_parser("skill-propose-from-journal"); p.add_argument("--name"); p.set_defaults(func=cmd_skill_propose_from_journal)
