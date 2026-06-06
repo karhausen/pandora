@@ -1,0 +1,5 @@
+{"success": true, "tool_id": "echo", "output": {"text": "heartbeat"}, "error": null, "execution_time": 2.0756752750003216, "policy": "trusted", "isolated": true, "returncode": 0}
+{"success": true, "tool_id": "echo", "output": {"text": "heartbeat"}, "error": null, "execution_time": 1.8647855599997456, "policy": "trusted", "isolated": true, "returncode": 0}
+{"success": true, "tool_id": "echo", "output": {"text": "heartbeat"}, "error": null, "execution_time": 2.074599262999982, "policy": "trusted", "isolated": true, "returncode": 0}
+{"success": true, "tool_id": "echo", "output": {"text": "heartbeat"}, "error": null, "execution_time": 1.869962163999844, "policy": "trusted", "isolated": true, "returncode": 0}
+{"success": true, "tool_id": "echo", "output": {"text": "heartbeat"}, "error": null, "execution_time": 1.9723007480001797, "policy": "trusted", "isolated": true, "returncode": 0}

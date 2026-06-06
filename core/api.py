@@ -14,6 +14,10 @@ from .tool_development_agent import ToolDevelopmentAgent
 from .tool_design_agent import ToolDesignAgent
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
+from .control_core import ControlCore
+from .core_status import CoreStatusService
+from .nightly_reflection import NightlyReflection
+from .safety_gate import SafetyGate
 from .coordinator_agent import CoordinatorAgent
 from .conversation_memory import ConversationMemory
 from .user_response import UserResponseFormatter
@@ -46,7 +50,7 @@ from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
 
-app = FastAPI(title="Pandora Agent", version="20.2")
+app = FastAPI(title="Pandora Agent", version="21.0-control-core")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -210,7 +214,23 @@ class RunToolRequest(BaseModel):
 
 @app.get("/status")
 def status():
-    return {"status": "ok", "version": "mvp-20.3"}
+    return CoreStatusService().status()
+
+@app.get("/control/status")
+def control_status():
+    return ControlCore().status()
+
+@app.get("/control/routes")
+def control_routes():
+    return ControlCore().routes()
+
+@app.post("/control/safety-check")
+def control_safety_check(payload: dict = Body(default={})): 
+    return SafetyGate().evaluate(payload.get("action", "unknown"), paths=payload.get("paths") or [], approved=bool(payload.get("approved"))).model_dump()
+
+@app.post("/control/nightly-reflection")
+def control_nightly_reflection(payload: dict = Body(default={})): 
+    return NightlyReflection().run(limit=int(payload.get("limit", 200)))
 
 @app.get("/heartbeat")
 async def heartbeat():

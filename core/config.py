@@ -30,7 +30,7 @@ IMPROVEMENTS_DIR = PROPOSALS_DIR / "improvements"
 
 PROTECTED_CORE_FILES = {
     "heartbeat.py", "rollback_manager.py", "recovery.py", "security.py",
-    "activation_manager.py", "version_manager.py", "config.py",
+    "activation_manager.py", "core_version_manager.py", "config.py",
 }
 
 GENERATED_TOOLS_DIR = ROOT_DIR / "generated_tools"

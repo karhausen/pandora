@@ -233,3 +233,17 @@ docs/security.md
 ```bash
 python scripts/clean_runtime_artifacts.py
 ```
+
+## MVP 21.0 - Stable Control Core
+
+Dieser Stand ergänzt Pandora um einen geschützten Control-Core-Pfad:
+
+- zentrale Statusquelle: `core/core_status.py`
+- Schaltzentrale: `core/control_core.py`
+- Safety Gate: `core/safety_gate.py`
+- Memory Gateway: `core/memory_gateway.py`
+- Nachtreflexion ohne Auto-Aktivierung: `core/nightly_reflection.py`
+- erweiterter Heartbeat für Planner, Memory, Registry und Tool Executor
+- Dockerfile und docker-compose für reproduzierbaren API-Start
+
+Wichtig: Der Core bleibt geschützt. Wachstum findet über Tools, Skills, Workflows und Memory statt.

@@ -17,6 +17,10 @@ from core.changelog_manager import ChangelogManager
 from core.cloud_expert import CloudExpert
 from core.config_manager import ConfigManager
 from core.core_version_manager import CoreVersionManager
+from core.control_core import ControlCore
+from core.core_status import CoreStatusService
+from core.nightly_reflection import NightlyReflection
+from core.safety_gate import SafetyGate
 from core.documentation_generator import DocumentationGenerator
 from core.governance import Governance
 from core.heartbeat import Heartbeat
@@ -61,7 +65,7 @@ def _payload(args) -> dict:
     return {}
 
 
-def cmd_status(args): _json({"status": "ok", "version": "mvp-20.3"})
+def cmd_status(args): _json(CoreStatusService().status())
 def cmd_api(args):
     import uvicorn
     uvicorn.run("core.api:app", host=args.host, port=args.port, reload=args.reload)
@@ -164,6 +168,13 @@ def cmd_core_activate(args): _json(asyncio.run(ActivationManager().activate(args
 def cmd_core_rollback(args): _json(RollbackManager().rollback(args.version_id))
 def cmd_core_rollback_log(args): _json({"log": RollbackManager().log(args.limit)})
 def cmd_core_stability(args): _json(asyncio.run(StabilityMonitor().check()))
+
+def cmd_control_status(args): _json(ControlCore().status())
+def cmd_control_routes(args): _json(ControlCore().routes())
+def cmd_control_run(args): _json(asyncio.run(ControlCore().run(args.task, provider_name=args.provider, model=args.model, save=not args.no_save)))
+def cmd_safety_check(args): _json(SafetyGate().evaluate(args.action, paths=args.path or [], approved=args.approved).model_dump())
+def cmd_nightly_reflect(args): _json(NightlyReflection().run(limit=args.limit))
+
 def cmd_reality_check(args): _json(asyncio.run(RealityCheck().run(iterations=args.iterations, delay=args.delay, run_pytest=args.pytest)).model_dump(mode="json"))
 def cmd_reality_logs(args): _json({"logs": RealityCheck().logs(args.limit)})
 def cmd_stability_report(args): _json(RealityCheck().report())
@@ -174,6 +185,11 @@ def build_parser() -> argparse.ArgumentParser:
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
+    p = sub.add_parser("control-status"); p.set_defaults(func=cmd_control_status)
+    p = sub.add_parser("control-routes"); p.set_defaults(func=cmd_control_routes)
+    p = sub.add_parser("control-run"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--no-save", action="store_true"); p.set_defaults(func=cmd_control_run)
+    p = sub.add_parser("safety-check"); p.add_argument("action"); p.add_argument("--path", action="append"); p.add_argument("--approved", action="store_true"); p.set_defaults(func=cmd_safety_check)
+    p = sub.add_parser("nightly-reflect"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_nightly_reflect)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
