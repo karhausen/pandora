@@ -130,11 +130,19 @@ class ToolProposalManager:
             else:
                 test_result = {"success": False, "skipped": True, "stderr": "\n".join(static["issues"])}
 
-            success = bool(static["ok"] and test_result.get("success"))
-            previous_error = None if success else (test_result.get("stderr") or test_result.get("stdout") or generated.get("error") or "Validation failed")
+            semantic = (
+                self.quality_gate.validate(proposal_dir, spec.id, design or spec)
+                if static["ok"] and test_result.get("success")
+                else {"ok": False, "skipped": True, "reason": "Static review or tests failed before semantic validation."}
+            )
+
+            success = bool(static["ok"] and test_result.get("success") and semantic.get("ok"))
+            semantic_error = "; ".join(semantic.get("issues") or []) if not semantic.get("ok") else ""
+            previous_error = None if success else (semantic_error or test_result.get("stderr") or test_result.get("stdout") or generated.get("error") or "Validation failed")
             best_validation = {
                 "static": static,
                 "tests": test_result,
+                "semantic": semantic,
                 "source": generated.get("source"),
                 "llm_used": generated.get("llm_used"),
                 "route": generated.get("route"),

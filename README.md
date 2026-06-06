@@ -1,5 +1,38 @@
 # Pandora Agent
 
+## MVP 20.5 – Design Driven Code Generation & Placeholder Detection
+
+Ziel:
+
+- Tool-Code wird strikt aus dem `ToolDesign` erzeugt.
+- `run(payload)` muss alle Felder aus `output_schema` liefern.
+- Generischer Dummy-Code wie `return {"text": str(text)}` wird nicht mehr als brauchbares Tool akzeptiert, wenn das Schema andere Felder verlangt.
+- Cloud-Fehler erzeugen keinen scheinbar gültigen Fallback-Code mehr. Stattdessen wird ein FAILED-Proposal mit transparenter Fehlermeldung erzeugt.
+- `generate_with_llm` bewertet jetzt Static Review, pytest **und** Semantic Quality Gate gemeinsam.
+
+Aktuelle CLI-Smoke-Tests:
+
+```bash
+python main.py status
+python main.py llm-provider-smoke --live
+python main.py tool-generate word_count --provider cloud_expert
+python main.py proposal-list
+python main.py tool-quality-proposal <proposal_id>
+python main.py proposal-approve <proposal_id>
+python main.py proposal-install <proposal_id>
+python main.py tool-list
+python main.py run-tool <tool_id> --file payload.json
+```
+
+Entwicklertests:
+
+```bash
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q
+python -m compileall -q .
+```
+
+
+
 Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
 
 Aktueller Stand: **MVP 20.4.1 – Implicit Live Data Gap Detection + No Dummy Code Policy**
