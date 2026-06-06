@@ -1,5 +1,25 @@
 # Pandora Agent
 
+## MVP 21.1 – Nightly Governance Review
+
+Ziel:
+
+- Pandora kann einen Nacht-Review erzeugen, ohne sich selbst zu verändern.
+- Der Review prüft Core-Status, Governance und Task-Historie.
+- Ergebnis ist ein prüfbares Paket unter `proposals/nightly_reviews/`.
+- `auto_changes_made` bleibt bewusst immer `false`.
+
+CLI:
+
+```bash
+python main.py control-status
+python main.py nightly-reflect --limit 50
+python main.py nightly-review --limit 50
+python main.py nightly-review --no-write
+pytest tests/test_mvp21_control_core.py tests/test_mvp21_1_governance_review.py -q
+```
+
+
 ## MVP 20.5 – Design Driven Code Generation & Placeholder Detection
 
 Ziel:
