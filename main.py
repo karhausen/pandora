@@ -36,6 +36,7 @@ from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
 from core.proposal_review_inbox import ProposalReviewInbox
+from core.proposal_approval_workflow import ProposalApprovalWorkflow
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -148,6 +149,10 @@ def cmd_review_inbox_status(args): _json(ProposalReviewInbox().status())
 def cmd_review_inbox_list(args): _json(ProposalReviewInbox().summary(include_reviewed=args.include_reviewed, limit=args.limit))
 def cmd_review_inbox_show(args): _json(ProposalReviewInbox().show(args.item_id))
 def cmd_review_inbox_mark(args): _json(ProposalReviewInbox().mark_reviewed(args.item_id, decision=args.decision, note=args.note))
+def cmd_approval_status(args): _json(ProposalApprovalWorkflow().status())
+def cmd_approval_pending(args): _json(ProposalApprovalWorkflow().pending(limit=args.limit))
+def cmd_approval_decide(args): _json(ProposalApprovalWorkflow().decide(args.item_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
+def cmd_approval_audit(args): _json(ProposalApprovalWorkflow().audit(limit=args.limit))
 
 def cmd_capability_gap_status(args): _json(CapabilityGapPipeline().status())
 def cmd_capability_gap_run(args): _json(CapabilityGapPipeline().run_once(limit=args.limit, min_signals=args.min_signals, force=args.force, dry_run=args.dry_run))
@@ -225,7 +230,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.5")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.7")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -238,7 +243,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
     p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.5-capability-gap-pipeline"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.7-proposal-approval-workflow"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -248,6 +253,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("review-inbox-list"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_review_inbox_list)
     p = sub.add_parser("review-inbox-show"); p.add_argument("item_id"); p.set_defaults(func=cmd_review_inbox_show)
     p = sub.add_parser("review-inbox-mark"); p.add_argument("item_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work"]); p.add_argument("--note"); p.set_defaults(func=cmd_review_inbox_mark)
+    p = sub.add_parser("approval-status"); p.set_defaults(func=cmd_approval_status)
+    p = sub.add_parser("approval-pending"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_approval_pending)
+    p = sub.add_parser("approval-decide"); p.add_argument("item_id"); p.add_argument("--decision", required=True, choices=["approve_next_step", "reject", "needs_work", "defer", "reviewed"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_approval_decide)
+    p = sub.add_parser("approval-audit"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_approval_audit)
     p = sub.add_parser("capability-gap-status"); p.set_defaults(func=cmd_capability_gap_status)
     p = sub.add_parser("capability-gap-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-signals", type=int, default=1); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_capability_gap_run)
     p = sub.add_parser("tool-improvement-status"); p.set_defaults(func=cmd_tool_improvement_status)

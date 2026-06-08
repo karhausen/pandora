@@ -12,6 +12,7 @@ from .capability_gap_pipeline import CapabilityGapPipeline
 from .core_status import CoreStatusService
 from .memory_gateway import MemoryGateway
 from .proposal_review_inbox import ProposalReviewInbox
+from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .skill_candidate_pipeline import SkillCandidatePipeline
 from .tool_improvement_pipeline import ToolImprovementPipeline
 from scripts.release_audit import audit as release_audit
@@ -68,6 +69,7 @@ class MaintenanceManager:
                 "capability gap proposal generation",
                 "tool improvement proposal generation",
                 "proposal review inbox summary generation",
+                "proposal approval workflow status summary",
             ],
             "blocked_actions": [
                 "core source modification",
@@ -215,6 +217,15 @@ class MaintenanceManager:
                 "counts_by_category": inbox.get("counts_by_category"),
             })
 
+            approval = ProposalApprovalWorkflow().status()
+            report["steps"].append({
+                "name": "proposal_approval_workflow",
+                "ok": True,
+                "observe_only": approval.get("observe_only"),
+                "human_approval_required": approval.get("human_approval_required"),
+                "counts_by_status": approval.get("counts_by_status"),
+            })
+
             cleanup = self.cleanup_runtime_markers()
             report["steps"].append({"name": "runtime_marker_cleanup", **cleanup})
 
@@ -251,6 +262,7 @@ class MaintenanceManager:
             {"name": "skill_candidate_pipeline", "effect": "create reviewable skill proposal only when not dry-run"},
             {"name": "tool_improvement_pipeline", "effect": "create reviewable tool improvement proposal only when not dry-run"},
             {"name": "proposal_review_inbox", "effect": "summarize all pending review items only"},
+            {"name": "proposal_approval_workflow", "effect": "summarize pending human decisions only"},
             {"name": "runtime_marker_cleanup", "effect": "create missing .gitkeep markers only"},
             {"name": "maintenance_report", "effect": "write summary JSON only when not dry-run"},
         ]
