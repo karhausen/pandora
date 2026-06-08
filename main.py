@@ -37,6 +37,7 @@ from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
 from core.proposal_review_inbox import ProposalReviewInbox
 from core.proposal_approval_workflow import ProposalApprovalWorkflow
+from core.operations_dashboard import OperationsDashboardService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -209,6 +210,10 @@ def cmd_maintenance_run(args):
         window_start=args.window_start,
         window_end=args.window_end,
     ))
+def cmd_operations_dashboard(args): _json(OperationsDashboardService().summary(limit=args.limit))
+def cmd_operations_preview(args): _json(OperationsDashboardService().maintenance_preview(limit=args.limit, window_start=args.window_start, window_end=args.window_end))
+def cmd_operations_run(args): _json(OperationsDashboardService().run_maintenance(limit=args.limit, force=args.force, window_start=args.window_start, window_end=args.window_end))
+
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
     from scripts.export_release import main as export_main
@@ -230,7 +235,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.9")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -242,8 +247,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("nightly-review"); p.add_argument("--limit", type=int, default=200); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_nightly_review)
     p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
     p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
+
+    p = sub.add_parser("operations-dashboard"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_operations_dashboard)
+    p = sub.add_parser("operations-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_preview)
+    p = sub.add_parser("operations-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_run)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.9-minimal-web-gui"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.0-operations-dashboard"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

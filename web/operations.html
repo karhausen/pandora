@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Operations Dashboard</title>
+  <link rel="stylesheet" href="/web/operations.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Operations Dashboard</h1>
+      <p>Status, Wartung, Nachtmodus und Review-Lage an einem Ort.</p>
+    </div>
+    <nav class="top-actions">
+      <a href="/" class="badge link">User</a>
+      <a href="/admin" class="badge link">Admin</a>
+      <a href="/approval" class="badge link">Approval Center</a>
+      <span id="statusBadge" class="badge">Lade...</span>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="card wide">
+      <div class="card-head">
+        <div>
+          <h2>Übersicht</h2>
+          <p>Diese Ansicht führt keine Core-Änderungen und keine Tool-/Skill-Aktivierungen aus.</p>
+        </div>
+        <button onclick="loadDashboard()">Aktualisieren</button>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Maintenance Preview</h2>
+      <p>Trockenlauf: zeigt geplante Schritte, ohne Reports oder Vorschläge zu schreiben.</p>
+      <div class="row">
+        <input id="previewLimit" type="number" value="200" min="1" />
+        <button onclick="previewMaintenance()">Dry Run</button>
+      </div>
+      <pre id="previewBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card danger-zone">
+      <h2>Maintenance Run</h2>
+      <p>Erzeugt nur Review-Pakete und Reports. Keine automatische Installation, keine Core-Änderung.</p>
+      <div class="row">
+        <input id="runLimit" type="number" value="200" min="1" />
+        <label><input id="forceRun" type="checkbox" /> Force</label>
+        <button onclick="runMaintenance()">Wartung starten</button>
+      </div>
+      <pre id="runBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card wide">
+      <h2>Rohdaten</h2>
+      <pre id="dashboardBox">Noch keine Daten.</pre>
+    </section>
+  </main>
+
+  <script src="/web/operations.js"></script>
+</body>
+</html>

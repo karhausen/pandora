@@ -52,8 +52,9 @@ from .skill_activation_manager import SkillActivationManager
 from .proposal_review_inbox import ProposalReviewInbox
 from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
+from .operations_dashboard import OperationsDashboardService
 
-app = FastAPI(title="Pandora Agent", version="21.9-minimal-web-gui")
+app = FastAPI(title="Pandora Agent", version="22.0-operations-dashboard")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -221,6 +222,43 @@ class GuiApprovalDecisionRequest(BaseModel):
     decision: str
     note: str | None = None
     decided_by: str = "user"
+
+
+class OperationsMaintenanceRunRequest(BaseModel):
+    limit: int = 200
+    force: bool = False
+    window_start: str = "02:00"
+    window_end: str = "05:00"
+
+
+def get_operations_dashboard_service() -> OperationsDashboardService:
+    return OperationsDashboardService()
+
+
+@app.get("/api/gui/operations/dashboard")
+def gui_operations_dashboard(limit: int = 50):
+    return get_operations_dashboard_service().summary(limit=limit)
+
+
+@app.post("/api/gui/operations/maintenance/preview")
+def gui_operations_maintenance_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_dashboard_service().maintenance_preview(
+        limit=req.limit,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
+
+
+@app.post("/api/gui/operations/maintenance/run")
+def gui_operations_maintenance_run(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_dashboard_service().run_maintenance(
+        limit=req.limit,
+        force=req.force,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
 
 
 def get_gui_approval_service() -> GuiApprovalApiService:
@@ -583,6 +621,11 @@ def web_approval():
     return FileResponse(WEB_DIR / "approval.html")
 
 
+@app.get("/operations")
+def web_operations():
+    return FileResponse(WEB_DIR / "operations.html")
+
+
 @app.get("/web/approval.js")
 def web_approval_js():
     return FileResponse(WEB_DIR / "approval.js")
@@ -591,6 +634,16 @@ def web_approval_js():
 @app.get("/web/approval.css")
 def web_approval_css():
     return FileResponse(WEB_DIR / "approval.css")
+
+
+@app.get("/web/operations.js")
+def web_operations_js():
+    return FileResponse(WEB_DIR / "operations.js")
+
+
+@app.get("/web/operations.css")
+def web_operations_css():
+    return FileResponse(WEB_DIR / "operations.css")
 
 
 @app.post("/learning/run")
