@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-21.4-tool-improvement-pipeline"
+PANDORA_CORE_VERSION = "mvp-21.8-gui-approval-api"
 
 
 @dataclass(frozen=True)

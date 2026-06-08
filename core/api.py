@@ -49,8 +49,11 @@ from .tool_lifecycle_manager import ToolLifecycleManager
 from .skill_registry import SkillRegistry
 from .skill_proposal_manager import SkillProposalManager
 from .skill_activation_manager import SkillActivationManager
+from .proposal_review_inbox import ProposalReviewInbox
+from .proposal_approval_workflow import ProposalApprovalWorkflow
+from .gui_approval_api import GuiApprovalApiService
 
-app = FastAPI(title="Pandora Agent", version="21.0-control-core")
+app = FastAPI(title="Pandora Agent", version="21.8-gui-approval-api")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -211,6 +214,63 @@ class UserRunRequest(BaseModel):
 class RunToolRequest(BaseModel):
     payload: dict = {}
     task: str | None = None
+
+
+
+class GuiApprovalDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+
+def get_gui_approval_service() -> GuiApprovalApiService:
+    return GuiApprovalApiService()
+
+
+@app.get("/api/gui/approval/status")
+def gui_approval_status():
+    return get_gui_approval_service().approval.status()
+
+
+@app.get("/api/gui/approval/dashboard")
+def gui_approval_dashboard(limit: int = 100):
+    return get_gui_approval_service().dashboard(limit=limit)
+
+
+@app.get("/api/gui/approval/inbox")
+def gui_approval_inbox(include_reviewed: bool = False, limit: int = 100):
+    return get_gui_approval_service().list_inbox(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.get("/api/gui/approval/inbox/{item_id:path}")
+def gui_approval_item(item_id: str):
+    payload = get_gui_approval_service().show_item(item_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="review inbox item not found")
+    return payload
+
+
+@app.post("/api/gui/approval/inbox/{item_id:path}/decision")
+def gui_approval_decision(item_id: str, req: GuiApprovalDecisionRequest):
+    try:
+        payload = get_gui_approval_service().decide(
+            item_id,
+            decision=req.decision,
+            note=req.note,
+            decided_by=req.decided_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("ok") is False and payload.get("reason") == "item not found":
+        raise HTTPException(status_code=404, detail="review inbox item not found")
+    if payload.get("ok") is False:
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+
+@app.get("/api/gui/approval/audit")
+def gui_approval_audit(limit: int = 100):
+    return get_gui_approval_service().audit(limit=limit)
 
 @app.get("/status")
 def status():
