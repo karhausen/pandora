@@ -33,6 +33,7 @@ RUNTIME_DIRS = {
     "memory/snapshots",
     "proposals/maintenance_reports",
     "proposals/nightly_reviews",
+    "proposals/tool_improvements",
 }
 
 BLOCKED_SUFFIXES = {
