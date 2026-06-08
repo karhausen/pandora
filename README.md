@@ -268,7 +268,7 @@ Dieser Stand ergänzt Pandora um einen geschützten Control-Core-Pfad:
 
 Wichtig: Der Core bleibt geschützt. Wachstum findet über Tools, Skills, Workflows und Memory statt.
 
-## MVP 21.2 – Maintenance Manager
+## MVP 21.3 – Maintenance Manager
 
 Pandora besitzt jetzt einen kontrollierten Wartungsmodus als Vorstufe zum späteren Day/Night-Mode.
 
@@ -279,3 +279,14 @@ python main.py maintenance-run --force --limit 200
 ```
 
 Der Maintenance Manager erzeugt Reviews und Reports, führt Audits aus und bleibt observe-only bezüglich Core, Tools und Skills. Er aktiviert keine Änderungen automatisch.
+
+
+## MVP 21.3 – Skill Candidate Pipeline
+
+Pandora kann im Wartungsmodus wiederkehrende Tool-Muster aus dem Task Journal erkennen und daraus prüfbare Skill-Vorschläge erzeugen. Die Pipeline ist observe-only: keine Aktivierung, keine Registry-Änderung, keine Core-Änderung.
+
+```bash
+python main.py skill-candidate-status
+python main.py skill-candidate-run --dry-run --force
+python main.py skill-candidate-run --force --limit 200
+```

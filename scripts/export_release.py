@@ -153,7 +153,7 @@ def sanitize_tree(dst: Path) -> None:
 
 
 def run_tests(dst: Path) -> None:
-    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "-q"], cwd=dst, check=True)
+    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "tests/test_mvp21_3_skill_candidate_pipeline.py", "-q"], cwd=dst, check=True)
 
 
 def run_audit(dst: Path) -> dict[str, object]:
@@ -195,7 +195,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-21.2-maintenance-manager")
+    parser.add_argument("--version", default="mvp-21.3-skill-candidate-pipeline")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()

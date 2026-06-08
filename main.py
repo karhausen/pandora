@@ -29,6 +29,7 @@ from core.learning_engine import LearningEngine
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
+from core.maintenance_manager import MaintenanceManager
 from core.model_router import ModelRouter
 from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
@@ -37,6 +38,7 @@ from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
+from core.skill_candidate_pipeline import SkillCandidatePipeline
 from core.skill_proposal_manager import SkillProposalManager
 from core.skill_registry import SkillRegistry
 from core.stability_monitor import StabilityMonitor
@@ -145,6 +147,8 @@ def cmd_tool_disable(args): _json(ToolLifecycleManager().disable(args.tool_id).m
 def cmd_tool_deprecate(args): _json(ToolLifecycleManager().deprecate(args.tool_id).model_dump(mode="json"))
 def cmd_tool_uninstall(args): _json(ToolLifecycleManager().uninstall(args.tool_id, delete_file=not args.keep_file).model_dump(mode="json"))
 def cmd_tool_stats(args): _json(ToolLifecycleManager().stats(args.tool_id))
+def cmd_skill_candidate_status(args): _json(SkillCandidatePipeline().status())
+def cmd_skill_candidate_run(args): _json(SkillCandidatePipeline().run_once(name=args.name, limit=args.limit, min_entries=args.min_entries, force=args.force, dry_run=args.dry_run))
 def cmd_skill_propose_from_journal(args): _json(SkillProposalManager().propose_from_journal(name=args.name))
 def cmd_skill_proposal_list(args): _json({"skill_proposals": SkillProposalManager().list()})
 def cmd_skill_proposal_show(args): _json(SkillProposalManager().show(args.proposal_id))
@@ -207,7 +211,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.3")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -220,7 +224,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
     p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.2-maintenance-manager"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.3-skill-candidate-pipeline"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -294,6 +298,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("tool-stats"); p.add_argument("tool_id", nargs="?"); p.set_defaults(func=cmd_tool_stats)
     p = sub.add_parser("tool-activation-log"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_tool_activation_log)
 
+    p = sub.add_parser("skill-candidate-status"); p.set_defaults(func=cmd_skill_candidate_status)
+    p = sub.add_parser("skill-candidate-run"); p.add_argument("--name"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-entries", type=int, default=1); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_skill_candidate_run)
     p = sub.add_parser("skill-propose-from-journal"); p.add_argument("--name"); p.set_defaults(func=cmd_skill_propose_from_journal)
     p = sub.add_parser("skill-proposal-list"); p.set_defaults(func=cmd_skill_proposal_list)
     p = sub.add_parser("skill-proposal-show"); p.add_argument("proposal_id"); p.set_defaults(func=cmd_skill_proposal_show)
