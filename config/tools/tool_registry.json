@@ -52,25 +52,5 @@
     "function": "run",
     "aliases": [],
     "installed_from": null
-  },
-  "word_count_tool": {
-    "id": "word_count_tool",
-    "name": "Word Count Tool",
-    "description": "Counts the number of words in a given text.",
-    "version": "0.1.0",
-    "input_schema": {
-      "text": "string"
-    },
-    "output_schema": {
-      "word_count": "integer"
-    },
-    "security_level": "SAFE",
-    "status": "ACTIVE",
-    "module": "generated_tools.word_count_tool",
-    "function": "run",
-    "aliases": [
-      "word_count"
-    ],
-    "installed_from": "tool_20260606_141051_7f66acbf"
   }
 }

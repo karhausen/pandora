@@ -10,3 +10,25 @@ memory/*.local.*.json
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Release/build artifacts
+release/build/
+release/*.zip
+release_manifest.json
+.dockerignore.local
+
+# Runtime folders
+logs/*
+!logs/.gitkeep
+sandbox/runs/*
+!sandbox/runs/.gitkeep
+sandbox/tmp/*
+!sandbox/tmp/.gitkeep
+memory/chat_sessions/*
+!memory/chat_sessions/.gitkeep
+memory/task_plans/*
+!memory/task_plans/.gitkeep
+memory/task_executions/*
+!memory/task_executions/.gitkeep
+memory/reasoning/*
+!memory/reasoning/.gitkeep

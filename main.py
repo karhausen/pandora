@@ -50,6 +50,7 @@ from core.tool_registry import ToolRegistry
 from core.tool_lifecycle_manager import ToolLifecycleManager
 from core.tool_review_agent import ToolReviewAgent
 from core.worker_agent import WorkerAgent
+from scripts.release_audit import audit as release_audit
 
 
 def _json(data) -> None:
@@ -176,6 +177,20 @@ def cmd_control_run(args): _json(asyncio.run(ControlCore().run(args.task, provid
 def cmd_safety_check(args): _json(SafetyGate().evaluate(args.action, paths=args.path or [], approved=args.approved).model_dump())
 def cmd_nightly_reflect(args): _json(NightlyReflection().run(limit=args.limit))
 def cmd_nightly_review(args): _json(CoreGovernanceReview().run(limit=args.limit, write=not args.no_write))
+def cmd_release_audit(args): _json(release_audit(Path(args.root)))
+def cmd_release_export(args):
+    from scripts.export_release import main as export_main
+    argv = ["export_release", "--version", args.version]
+    if args.output:
+        argv.extend(["--output", args.output])
+    if args.skip_tests:
+        argv.append("--skip-tests")
+    old_argv = sys.argv
+    try:
+        sys.argv = argv
+        raise SystemExit(export_main())
+    finally:
+        sys.argv = old_argv
 
 def cmd_reality_check(args): _json(asyncio.run(RealityCheck().run(iterations=args.iterations, delay=args.delay, run_pytest=args.pytest)).model_dump(mode="json"))
 def cmd_reality_logs(args): _json({"logs": RealityCheck().logs(args.limit)})
@@ -193,6 +208,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("safety-check"); p.add_argument("action"); p.add_argument("--path", action="append"); p.add_argument("--approved", action="store_true"); p.set_defaults(func=cmd_safety_check)
     p = sub.add_parser("nightly-reflect"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_nightly_reflect)
     p = sub.add_parser("nightly-review"); p.add_argument("--limit", type=int, default=200); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_nightly_review)
+    p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.1.1-release-packaging"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
