@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Approval Center</title>
+  <link rel="stylesheet" href="/web/approval.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Approval Center</h1>
+      <p>Prüfe Vorschläge, entscheide nächste Schritte und behalte die Audit-Historie im Blick.</p>
+    </div>
+    <nav>
+      <a href="/">User</a>
+      <a href="/admin">Admin</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="panel dashboard">
+      <div class="panel-head">
+        <h2>Dashboard</h2>
+        <button onclick="refreshAll()">Aktualisieren</button>
+      </div>
+      <div id="dashboardCards" class="cards"></div>
+      <p class="notice">Die GUI speichert nur Entscheidungen. Sie führt keinen Code aus und aktiviert keine Tools oder Skills.</p>
+    </section>
+
+    <section class="panel inbox">
+      <div class="panel-head">
+        <h2>Review Inbox</h2>
+        <label class="checkbox"><input id="includeReviewed" type="checkbox" onchange="loadInbox()" /> erledigte anzeigen</label>
+      </div>
+      <div id="inboxList" class="list"></div>
+    </section>
+
+    <section class="panel detail">
+      <h2>Vorschlagsdetails</h2>
+      <div id="detailBox" class="empty">Wähle links einen Vorschlag aus.</div>
+      <div id="decisionBox" class="decision-box hidden">
+        <label>Notiz</label>
+        <textarea id="decisionNote" placeholder="Warum entscheidest du so?"></textarea>
+        <div class="actions">
+          <button onclick="sendDecision('approve_next_step')">Genehmigen</button>
+          <button onclick="sendDecision('needs_work')" class="secondary">Überarbeiten</button>
+          <button onclick="sendDecision('defer')" class="secondary">Später</button>
+          <button onclick="sendDecision('reject')" class="danger">Ablehnen</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel audit">
+      <div class="panel-head">
+        <h2>Audit</h2>
+        <button onclick="loadAudit()">Audit laden</button>
+      </div>
+      <pre id="auditBox">Noch nicht geladen.</pre>
+    </section>
+  </main>
+
+  <script src="/web/approval.js"></script>
+</body>
+</html>

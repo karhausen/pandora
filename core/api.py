@@ -53,7 +53,7 @@ from .proposal_review_inbox import ProposalReviewInbox
 from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
 
-app = FastAPI(title="Pandora Agent", version="21.8-gui-approval-api")
+app = FastAPI(title="Pandora Agent", version="21.9-minimal-web-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -576,6 +576,21 @@ def web_js():
 @app.get("/web/style.css")
 def web_css():
     return FileResponse(WEB_DIR / "style.css")
+
+
+@app.get("/approval")
+def web_approval():
+    return FileResponse(WEB_DIR / "approval.html")
+
+
+@app.get("/web/approval.js")
+def web_approval_js():
+    return FileResponse(WEB_DIR / "approval.js")
+
+
+@app.get("/web/approval.css")
+def web_approval_css():
+    return FileResponse(WEB_DIR / "approval.css")
 
 
 @app.post("/learning/run")

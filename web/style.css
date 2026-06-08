@@ -10,3 +10,5 @@ input,select{background:#020617;color:var(--text);border:1px solid var(--border)
 button{background:var(--accent);color:white;border:none;border-radius:8px;padding:10px 14px;cursor:pointer}button:hover{filter:brightness(1.1)}
 pre{background:#020617;border:1px solid #1f2937;border-radius:10px;padding:12px;overflow:auto;max-height:360px;white-space:pre-wrap}
 h2{margin-top:0}
+
+.top-actions{display:flex;gap:10px;align-items:center}.badge.link{color:var(--text);text-decoration:none}
