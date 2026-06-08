@@ -35,6 +35,7 @@ from core.model_router import ModelRouter
 from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
+from core.proposal_review_inbox import ProposalReviewInbox
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -143,6 +144,11 @@ def cmd_tool_proposal_activate(args):
     _json(asyncio.run(ToolActivationManager().activate(args.proposal_id, test_payload=payload)).model_dump(mode="json"))
 def cmd_tool_activation_log(args): _json({"activations": ToolActivationManager().list_log(args.limit)})
 
+def cmd_review_inbox_status(args): _json(ProposalReviewInbox().status())
+def cmd_review_inbox_list(args): _json(ProposalReviewInbox().summary(include_reviewed=args.include_reviewed, limit=args.limit))
+def cmd_review_inbox_show(args): _json(ProposalReviewInbox().show(args.item_id))
+def cmd_review_inbox_mark(args): _json(ProposalReviewInbox().mark_reviewed(args.item_id, decision=args.decision, note=args.note))
+
 def cmd_capability_gap_status(args): _json(CapabilityGapPipeline().status())
 def cmd_capability_gap_run(args): _json(CapabilityGapPipeline().run_once(limit=args.limit, min_signals=args.min_signals, force=args.force, dry_run=args.dry_run))
 
@@ -237,6 +243,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
     p = sub.add_parser("skills"); p.set_defaults(func=cmd_skills)
+
+    p = sub.add_parser("review-inbox-status"); p.set_defaults(func=cmd_review_inbox_status)
+    p = sub.add_parser("review-inbox-list"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_review_inbox_list)
+    p = sub.add_parser("review-inbox-show"); p.add_argument("item_id"); p.set_defaults(func=cmd_review_inbox_show)
+    p = sub.add_parser("review-inbox-mark"); p.add_argument("item_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work"]); p.add_argument("--note"); p.set_defaults(func=cmd_review_inbox_mark)
     p = sub.add_parser("capability-gap-status"); p.set_defaults(func=cmd_capability_gap_status)
     p = sub.add_parser("capability-gap-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-signals", type=int, default=1); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_capability_gap_run)
     p = sub.add_parser("tool-improvement-status"); p.set_defaults(func=cmd_tool_improvement_status)
