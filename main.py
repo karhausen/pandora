@@ -177,6 +177,15 @@ def cmd_control_run(args): _json(asyncio.run(ControlCore().run(args.task, provid
 def cmd_safety_check(args): _json(SafetyGate().evaluate(args.action, paths=args.path or [], approved=args.approved).model_dump())
 def cmd_nightly_reflect(args): _json(NightlyReflection().run(limit=args.limit))
 def cmd_nightly_review(args): _json(CoreGovernanceReview().run(limit=args.limit, write=not args.no_write))
+def cmd_maintenance_status(args): _json(MaintenanceManager().status())
+def cmd_maintenance_run(args):
+    _json(MaintenanceManager().run_once(
+        limit=args.limit,
+        force=args.force,
+        dry_run=args.dry_run,
+        window_start=args.window_start,
+        window_end=args.window_end,
+    ))
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
     from scripts.export_release import main as export_main
@@ -198,7 +207,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 20.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.2")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -208,8 +217,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("safety-check"); p.add_argument("action"); p.add_argument("--path", action="append"); p.add_argument("--approved", action="store_true"); p.set_defaults(func=cmd_safety_check)
     p = sub.add_parser("nightly-reflect"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_nightly_reflect)
     p = sub.add_parser("nightly-review"); p.add_argument("--limit", type=int, default=200); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_nightly_review)
+    p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
+    p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.1.1-release-packaging"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.2-maintenance-manager"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

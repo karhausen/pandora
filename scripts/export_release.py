@@ -30,7 +30,7 @@ EXCLUDE_DIR_NAMES = {
 
 EXCLUDE_SUFFIXES = {".pyc", ".pyo", ".pyd", ".log"}
 EXCLUDE_FILE_NAMES = {".coverage", "coverage.xml", ".DS_Store", "Thumbs.db"}
-EXCLUDE_RELATIVE = {".env", "config/llm/llm_config.local.json"}
+EXCLUDE_RELATIVE = {".env", "config/llm/llm_config.local.json", "memory/maintenance.lock"}
 RUNTIME_DIRS_TO_KEEP_EMPTY = {
     "logs",
     "memory/chat_sessions",
@@ -40,6 +40,8 @@ RUNTIME_DIRS_TO_KEEP_EMPTY = {
     "sandbox/runs",
     "sandbox/tmp",
     "proposals/improvements",
+    "proposals/maintenance_reports",
+    "proposals/nightly_reviews",
     "skill_proposals",
     "tool_proposals",
 }
@@ -60,6 +62,7 @@ RESET_FILES = {
     "memory/tool_lifecycle_log.jsonl": "",
     "memory/reality_check_log.jsonl": "",
     "memory/core_events.jsonl": "",
+    "memory/maintenance_events.jsonl": "",
 }
 
 
@@ -150,7 +153,7 @@ def sanitize_tree(dst: Path) -> None:
 
 
 def run_tests(dst: Path) -> None:
-    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "-q"], cwd=dst, check=True)
+    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "-q"], cwd=dst, check=True)
 
 
 def run_audit(dst: Path) -> dict[str, object]:
@@ -192,7 +195,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-21.1.1-release-packaging")
+    parser.add_argument("--version", default="mvp-21.2-maintenance-manager")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()

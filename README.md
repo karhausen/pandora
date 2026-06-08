@@ -267,3 +267,15 @@ Dieser Stand ergänzt Pandora um einen geschützten Control-Core-Pfad:
 - Dockerfile und docker-compose für reproduzierbaren API-Start
 
 Wichtig: Der Core bleibt geschützt. Wachstum findet über Tools, Skills, Workflows und Memory statt.
+
+## MVP 21.2 – Maintenance Manager
+
+Pandora besitzt jetzt einen kontrollierten Wartungsmodus als Vorstufe zum späteren Day/Night-Mode.
+
+```bash
+python main.py maintenance-status
+python main.py maintenance-run --dry-run --force
+python main.py maintenance-run --force --limit 200
+```
+
+Der Maintenance Manager erzeugt Reviews und Reports, führt Audits aus und bleibt observe-only bezüglich Core, Tools und Skills. Er aktiviert keine Änderungen automatisch.

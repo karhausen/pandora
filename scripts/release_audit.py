@@ -31,6 +31,8 @@ RUNTIME_DIRS = {
     "core_versions/runtime",
     "memory/checkpoints",
     "memory/snapshots",
+    "proposals/maintenance_reports",
+    "proposals/nightly_reviews",
 }
 
 BLOCKED_SUFFIXES = {
@@ -50,6 +52,7 @@ BLOCKED_FILENAMES = {
 BLOCKED_EXACT_RELATIVE = {
     ".env",
     "config/llm/llm_config.local.json",
+    "memory/maintenance.lock",
 }
 
 SECRET_PATTERNS = [
