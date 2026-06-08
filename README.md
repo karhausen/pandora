@@ -290,3 +290,17 @@ python main.py skill-candidate-status
 python main.py skill-candidate-run --dry-run --force
 python main.py skill-candidate-run --force --limit 200
 ```
+
+## MVP 21.5 – Capability Gap Pipeline
+
+Pandora can now consolidate missing-capability signals from the capability event log and task journal into reviewable proposals.
+
+Commands:
+
+```bash
+python main.py capability-gap-status
+python main.py capability-gap-run --dry-run --force
+python main.py capability-gap-run --force --limit 200
+```
+
+The pipeline is observe-only. It does not generate code, install tools, activate skills, call LLMs or modify the core.

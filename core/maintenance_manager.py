@@ -8,6 +8,7 @@ from typing import Any
 
 from .config import MEMORY_DIR, PROPOSALS_DIR, ROOT_DIR
 from .core_governance_review import CoreGovernanceReview
+from .capability_gap_pipeline import CapabilityGapPipeline
 from .core_status import CoreStatusService
 from .memory_gateway import MemoryGateway
 from .skill_candidate_pipeline import SkillCandidatePipeline
@@ -63,6 +64,7 @@ class MaintenanceManager:
                 "empty runtime directory cleanup",
                 "maintenance report generation",
                 "skill candidate proposal generation",
+                "capability gap proposal generation",
                 "tool improvement proposal generation",
             ],
             "blocked_actions": [
@@ -162,6 +164,19 @@ class MaintenanceManager:
                 "issues": audit_result.get("issues", []),
             })
 
+            capability_gaps = CapabilityGapPipeline().run_once(limit=limit, force=True, dry_run=False)
+            report["steps"].append({
+                "name": "capability_gap_pipeline",
+                "ok": capability_gaps.get("status") in {"completed", "no_candidate", "skipped"},
+                "status": capability_gaps.get("status"),
+                "proposal_id": (capability_gaps.get("proposal") or {}).get("id"),
+                "activated": capability_gaps.get("activated"),
+                "observe_only": capability_gaps.get("observe_only"),
+            })
+            gap_proposal_dir = (capability_gaps.get("proposal") or {}).get("proposal_dir")
+            if gap_proposal_dir:
+                report["persistent_changes"].append(gap_proposal_dir)
+
             skill_candidates = SkillCandidatePipeline().run_once(limit=limit, force=True, dry_run=False)
             report["steps"].append({
                 "name": "skill_candidate_pipeline",
@@ -207,7 +222,7 @@ class MaintenanceManager:
         only ensures known directories exist and records what it touched.
         """
         touched: list[str] = []
-        for relative in ["logs", "proposals/maintenance_reports", "proposals/nightly_reviews"]:
+        for relative in ["logs", "proposals/maintenance_reports", "proposals/nightly_reviews", "proposals/capability_gaps"]:
             directory = self.root_dir / relative
             directory.mkdir(parents=True, exist_ok=True)
             gitkeep = directory / ".gitkeep"
@@ -220,6 +235,7 @@ class MaintenanceManager:
         return [
             {"name": "nightly_governance_review", "effect": "write review JSON only when not dry-run"},
             {"name": "release_audit", "effect": "inspect tree for blocked runtime artifacts/secrets"},
+            {"name": "capability_gap_pipeline", "effect": "create reviewable capability gap proposal only when not dry-run"},
             {"name": "skill_candidate_pipeline", "effect": "create reviewable skill proposal only when not dry-run"},
             {"name": "tool_improvement_pipeline", "effect": "create reviewable tool improvement proposal only when not dry-run"},
             {"name": "runtime_marker_cleanup", "effect": "create missing .gitkeep markers only"},

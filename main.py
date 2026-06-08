@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT))
 from core.activation_manager import ActivationManager
 from core.agent_loop import AgentLoop
 from core.capability_expansion_manager import CapabilityExpansionManager
+from core.capability_gap_pipeline import CapabilityGapPipeline
 from core.capability_workflow import CapabilityWorkflow
 from core.changelog_manager import ChangelogManager
 from core.cloud_expert import CloudExpert
@@ -142,6 +143,9 @@ def cmd_tool_proposal_activate(args):
     _json(asyncio.run(ToolActivationManager().activate(args.proposal_id, test_payload=payload)).model_dump(mode="json"))
 def cmd_tool_activation_log(args): _json({"activations": ToolActivationManager().list_log(args.limit)})
 
+def cmd_capability_gap_status(args): _json(CapabilityGapPipeline().status())
+def cmd_capability_gap_run(args): _json(CapabilityGapPipeline().run_once(limit=args.limit, min_signals=args.min_signals, force=args.force, dry_run=args.dry_run))
+
 def cmd_tool_improvement_status(args): _json(ToolImprovementPipeline().status())
 def cmd_tool_improvement_run(args): _json(ToolImprovementPipeline().run_once(limit=args.limit, min_executions=args.min_executions, max_success_rate=args.max_success_rate, min_failures=args.min_failures, force=args.force, dry_run=args.dry_run))
 
@@ -215,7 +219,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.4")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 21.5")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -228,11 +232,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
     p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.4-tool-improvement-pipeline"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-21.5-capability-gap-pipeline"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
     p = sub.add_parser("skills"); p.set_defaults(func=cmd_skills)
+    p = sub.add_parser("capability-gap-status"); p.set_defaults(func=cmd_capability_gap_status)
+    p = sub.add_parser("capability-gap-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-signals", type=int, default=1); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_capability_gap_run)
     p = sub.add_parser("tool-improvement-status"); p.set_defaults(func=cmd_tool_improvement_status)
     p = sub.add_parser("tool-improvement-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-executions", type=int, default=3); p.add_argument("--max-success-rate", type=float, default=0.70); p.add_argument("--min-failures", type=int, default=2); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_tool_improvement_run)
 
