@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Skill Center</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/skill-center.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Skill Center</h1>
+        <p>Installierte Skills, Skill-Kandidaten und Aktivierungshistorie an einem Ort prüfen.</p>
+      </div>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="badge link" href="/">User GUI</a>
+        <a class="badge link" href="/operations">Operations Dashboard</a>
+        <a class="badge link" href="/tools-center">Tool Center</a>
+        <a class="badge link primary" href="/skills-center">Skill Center</a>
+        <a class="badge link" href="/approval">Approval Center</a>
+      </nav>
+    </header>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Skills</span><strong id="skillCount">–</strong></article>
+      <article class="card"><span class="label">Aktiv</span><strong id="activeCount">–</strong></article>
+      <article class="card"><span class="label">Deaktiviert</span><strong id="disabledCount">–</strong></article>
+      <article class="card"><span class="label">Kandidaten</span><strong id="candidateCount">–</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="loadSkillCenter()">Aktualisieren</button>
+      <select id="statusFilter" onchange="loadSkillCenter()">
+        <option value="">Alle Status</option>
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="VALIDATED">VALIDATED</option>
+        <option value="DISABLED">DISABLED</option>
+        <option value="FAILED">FAILED</option>
+      </select>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="layout">
+      <aside class="skill-list" id="skillList"></aside>
+      <section class="skill-detail">
+        <div id="skillDetail" class="empty">Wähle einen Skill aus.</div>
+        <div class="action-row">
+          <button type="button" onclick="skillAction('enable')">Aktivieren</button>
+          <button type="button" onclick="skillAction('disable')">Deaktivieren</button>
+        </div>
+        <pre id="rawSkill">{}</pre>
+      </section>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Skill-Kandidaten</h2>
+          <a class="badge link" href="/approval">Im Approval Center prüfen</a>
+        </div>
+        <div id="candidateList" class="compact-list"></div>
+      </article>
+      <article class="panel">
+        <h2>Aktivierungshistorie</h2>
+        <div id="activationLog" class="compact-list"></div>
+      </article>
+    </section>
+  </main>
+  <script src="/web/skill-center.js"></script>
+</body>
+</html>

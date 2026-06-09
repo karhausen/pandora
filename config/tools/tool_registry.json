@@ -52,5 +52,23 @@
     "function": "run",
     "aliases": [],
     "installed_from": null
+  },
+  "word_count": {
+    "id": "word_count",
+    "name": "Word Count",
+    "description": "Counts words in input text.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "count": "int"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.word_count",
+    "function": "run",
+    "aliases": [],
+    "installed_from": "tool_20260609_070837_555ec749"
   }
 }

@@ -39,6 +39,7 @@ from core.proposal_review_inbox import ProposalReviewInbox
 from core.proposal_approval_workflow import ProposalApprovalWorkflow
 from core.operations_dashboard import OperationsDashboardService
 from core.tool_center import ToolCenterService
+from core.skill_center import SkillCenterService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -216,6 +217,9 @@ def cmd_operations_preview(args): _json(OperationsDashboardService().maintenance
 def cmd_operations_run(args): _json(OperationsDashboardService().run_maintenance(limit=args.limit, force=args.force, window_start=args.window_start, window_end=args.window_end))
 def cmd_tool_center_dashboard(args): _json(ToolCenterService().dashboard())
 def cmd_tool_center_list(args): _json(ToolCenterService().list_tools(status=args.status, include_stats=not args.no_stats))
+def cmd_skill_center_dashboard(args): _json(SkillCenterService().dashboard(limit=args.limit))
+def cmd_skill_center_list(args): _json(SkillCenterService().list_skills(status=args.status))
+def cmd_skill_center_candidates(args): _json(SkillCenterService().list_candidates(limit=args.limit))
 
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
@@ -256,6 +260,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("operations-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_run)
     p = sub.add_parser("tool-center-dashboard"); p.set_defaults(func=cmd_tool_center_dashboard)
     p = sub.add_parser("tool-center-list"); p.add_argument("--status"); p.add_argument("--no-stats", action="store_true"); p.set_defaults(func=cmd_tool_center_list)
+    p = sub.add_parser("skill-center-dashboard"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_skill_center_dashboard)
+    p = sub.add_parser("skill-center-list"); p.add_argument("--status"); p.set_defaults(func=cmd_skill_center_list)
+    p = sub.add_parser("skill-center-candidates"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_skill_center_candidates)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
     p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.1-user-gui-navigation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
