@@ -12,6 +12,7 @@ SYSTEM_CONFIG_DIR = CONFIG_DIR / "system"
 LOGS_DIR = ROOT_DIR / "logs"
 PROMPTS_DIR = ROOT_DIR / "prompts"
 PROPOSALS_DIR = ROOT_DIR / "proposals"
+USER_KNOWLEDGE_DIR = ROOT_DIR / "user_knowledge"
 
 TOOL_REGISTRY_FILE = TOOLS_CONFIG_DIR / "tool_registry.json"
 SKILL_REGISTRY_FILE = SKILLS_CONFIG_DIR / "skill_registry.json"

@@ -43,6 +43,7 @@ from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
 from core.night_mode_dashboard import NightModeDashboardService
 from core.llm_profile_center import LLMProfileCenterService
+from core.user_knowledge_base import UserKnowledgeBaseService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -237,6 +238,14 @@ def cmd_night_mode_dashboard(args): _json(NightModeDashboardService().dashboard(
 def cmd_night_mode_reports(args): _json(NightModeDashboardService().reports(limit=args.limit))
 def cmd_night_mode_show(args): _json(NightModeDashboardService().show_report(args.report_id))
 def cmd_night_mode_preview(args): _json(NightModeDashboardService().maintenance_preview(limit=args.limit, window_start=args.window_start, window_end=args.window_end))
+def cmd_knowledge_dashboard(args): _json(UserKnowledgeBaseService().dashboard(query=args.query, limit=args.limit))
+def cmd_knowledge_status(args): _json(UserKnowledgeBaseService().status())
+def cmd_knowledge_ensure(args): _json(UserKnowledgeBaseService().ensure_structure())
+def cmd_knowledge_areas(args): _json(UserKnowledgeBaseService().areas())
+def cmd_knowledge_area(args): _json(UserKnowledgeBaseService().list_area(args.area, limit=args.limit))
+def cmd_knowledge_show(args): _json(UserKnowledgeBaseService().show_file(args.area, args.path, max_lines=args.max_lines))
+def cmd_knowledge_search(args): _json(UserKnowledgeBaseService().search(query=args.query, limit=args.limit, cloud_context=args.cloud_context))
+def cmd_knowledge_context_preview(args): _json(UserKnowledgeBaseService().context_preview(query=args.query, target=args.target, limit=args.limit))
 
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
@@ -259,7 +268,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.6")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.7")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -289,12 +298,21 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("night-mode-reports"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_night_mode_reports)
     p = sub.add_parser("night-mode-show"); p.add_argument("report_id"); p.set_defaults(func=cmd_night_mode_show)
     p = sub.add_parser("night-mode-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_night_mode_preview)
+
+    p = sub.add_parser("knowledge-dashboard"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_knowledge_dashboard)
+    p = sub.add_parser("knowledge-status"); p.set_defaults(func=cmd_knowledge_status)
+    p = sub.add_parser("knowledge-ensure"); p.set_defaults(func=cmd_knowledge_ensure)
+    p = sub.add_parser("knowledge-areas"); p.set_defaults(func=cmd_knowledge_areas)
+    p = sub.add_parser("knowledge-area"); p.add_argument("area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_knowledge_area)
+    p = sub.add_parser("knowledge-show"); p.add_argument("area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("path"); p.add_argument("--max-lines", type=int, default=160); p.set_defaults(func=cmd_knowledge_show)
+    p = sub.add_parser("knowledge-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.add_argument("--cloud-context", action="store_true"); p.set_defaults(func=cmd_knowledge_search)
+    p = sub.add_parser("knowledge-context-preview"); p.add_argument("query"); p.add_argument("--target", default="local", choices=["local", "cloud", "company", "company_llm"]); p.add_argument("--limit", type=int, default=10); p.set_defaults(func=cmd_knowledge_context_preview)
     p = sub.add_parser("llm-profile-center-dashboard"); p.set_defaults(func=cmd_llm_profile_center_dashboard)
     p = sub.add_parser("llm-profile-center-profiles"); p.set_defaults(func=cmd_llm_profile_center_profiles)
     p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
     p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.6-llm-profile-center"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.7-user-knowledge-base"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

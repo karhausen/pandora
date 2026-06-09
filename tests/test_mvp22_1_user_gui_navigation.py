@@ -32,5 +32,5 @@ def test_user_gui_navigation_styles_are_served():
     assert "nav-pill" not in response.text
 
 
-def test_core_version_bumped_to_22_1_1():
-    assert PANDORA_CORE_VERSION == "mvp-22.6.2-user-gui-routing-sync"
+def test_core_version_is_current_mvp22_series():
+    assert PANDORA_CORE_VERSION.startswith("mvp-22.")

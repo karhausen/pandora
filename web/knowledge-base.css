@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.app { max-width: 1280px; margin: 0 auto; padding: 28px; }
+.hero { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 18px; }
+h1 { margin: 0 0 8px; font-size: 36px; }
+p { color: var(--muted); }
+.summary-grid, .policy-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.policy-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card, .panel, .policy { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
+.card strong { display: block; font-size: 28px; margin-top: 6px; }
+.label { color: var(--muted); font-size: 13px; }
+.policy { display: flex; flex-direction: column; gap: 6px; }
+.policy span { color: var(--muted); }
+.policy.public { border-color: rgba(34, 197, 94, 0.5); }
+.policy.restricted { border-color: rgba(234, 179, 8, 0.55); }
+.policy.private { border-color: rgba(239, 68, 68, 0.55); }
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 18px 0; }
+.toolbar input { min-width: 280px; flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 11px 12px; }
+.layout { display: grid; grid-template-columns: 280px 360px minmax(0, 1fr); gap: 14px; align-items: start; }
+.knowledge-list, .knowledge-detail { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 12px; min-height: 380px; }
+.knowledge-item { display: block; width: 100%; text-align: left; background: var(--panel-soft); color: var(--text); border: 1px solid var(--border); border-radius: 14px; padding: 12px; margin-bottom: 10px; cursor: pointer; }
+.knowledge-item:hover, .knowledge-item.selected { border-color: var(--accent); filter: brightness(1.06); }
+.knowledge-item h3 { margin: 0 0 6px; font-size: 16px; }
+.knowledge-item p { margin: 0 0 8px; font-size: 13px; }
+pre { white-space: pre-wrap; overflow: auto; background: #020617; border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: var(--text); }
+.empty { color: var(--muted); }
+.compact-list .knowledge-item { cursor: pointer; }
+@media (max-width: 980px) { .hero { flex-direction: column; } .summary-grid, .policy-grid, .layout { grid-template-columns: 1fr; } }

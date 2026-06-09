@@ -32,3 +32,4 @@ memory/task_executions/*
 !memory/task_executions/.gitkeep
 memory/reasoning/*
 !memory/reasoning/.gitkeep
+/config/llm/llm_routing_audit.jsonl

@@ -125,6 +125,8 @@ def audit(root: Path) -> dict[str, object]:
                 issues.append(AuditIssue("error", relative, "build metadata must not be released"))
             if path.name.endswith(".local.json") and not path.name.endswith(".local.example.json"):
                 issues.append(AuditIssue("error", relative, "local configuration file must not be released"))
+            if relative.startswith("user_knowledge/") and path.name not in {".gitkeep", "README.md"}:
+                issues.append(AuditIssue("error", relative, "user knowledge content must not be released"))
 
     for path in iter_files(root):
         relative = rel(path, root)

@@ -59,8 +59,9 @@ from .memory_explorer import MemoryExplorerService
 from .night_mode_dashboard import NightModeDashboardService
 from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
+from .user_knowledge_base import UserKnowledgeBaseService
 
-app = FastAPI(title="Pandora Agent", version="22.6.2-user-gui-routing-sync")
+app = FastAPI(title="Pandora Agent", version="22.7-user-knowledge-base")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -243,6 +244,61 @@ class GuiToolActionRequest(BaseModel):
 
 class GuiSkillActionRequest(BaseModel):
     action: str
+
+
+
+
+def get_user_knowledge_service() -> UserKnowledgeBaseService:
+    return UserKnowledgeBaseService()
+
+
+@app.get("/api/gui/knowledge/dashboard")
+def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):
+    return get_user_knowledge_service().dashboard(query=query, limit=limit)
+
+
+@app.get("/api/gui/knowledge/status")
+def gui_knowledge_status():
+    return get_user_knowledge_service().status()
+
+
+@app.post("/api/gui/knowledge/ensure-structure")
+def gui_knowledge_ensure_structure():
+    return get_user_knowledge_service().ensure_structure()
+
+
+@app.get("/api/gui/knowledge/areas")
+def gui_knowledge_areas():
+    return get_user_knowledge_service().areas()
+
+
+@app.get("/api/gui/knowledge/areas/{area}")
+def gui_knowledge_area(area: str, limit: int = 200):
+    try:
+        return get_user_knowledge_service().list_area(area, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/knowledge/areas/{area}/files/{relative_path:path}")
+def gui_knowledge_file(area: str, relative_path: str, max_lines: int = 160):
+    try:
+        payload = get_user_knowledge_service().show_file(area, relative_path, max_lines=max_lines)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="knowledge file not found")
+    return payload
+
+
+@app.get("/api/gui/knowledge/search")
+def gui_knowledge_search(query: str, limit: int = 50, cloud_context: bool = False):
+    return get_user_knowledge_service().search(query=query, limit=limit, cloud_context=cloud_context)
+
+
+@app.get("/api/gui/knowledge/context-preview")
+def gui_knowledge_context_preview(query: str, target: str = "local", limit: int = 10):
+    return get_user_knowledge_service().context_preview(query=query, target=target, limit=limit)
 
 
 def get_memory_explorer_service() -> MemoryExplorerService:
@@ -906,6 +962,21 @@ def web_night_mode():
 @app.get("/llm-profiles")
 def web_llm_profiles():
     return FileResponse(WEB_DIR / "llm-profile-center.html")
+
+
+@app.get("/knowledge-base")
+def web_knowledge_base():
+    return FileResponse(WEB_DIR / "knowledge-base.html")
+
+
+@app.get("/web/knowledge-base.js")
+def web_knowledge_base_js():
+    return FileResponse(WEB_DIR / "knowledge-base.js")
+
+
+@app.get("/web/knowledge-base.css")
+def web_knowledge_base_css():
+    return FileResponse(WEB_DIR / "knowledge-base.css")
 
 
 @app.get("/web/llm-profile-center.js")

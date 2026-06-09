@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Knowledge Base</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/knowledge-base.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>User Knowledge Base</h1>
+        <p>Dateibasierte Wissensbasis für Markdown, Text und JSON mit klarer Cloud-/Local-Policy.</p>
+      </div>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="badge link" href="/">User GUI</a>
+        <a class="badge link" href="/operations">Operations Dashboard</a>
+        <a class="badge link primary" href="/knowledge-base">Knowledge Base</a>
+        <a class="badge link" href="/memory-explorer">Memory Explorer</a>
+        <a class="badge link" href="/llm-profiles">LLM & Profile Center</a>
+      </nav>
+    </header>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Bereiche</span><strong id="areaCount">–</strong></article>
+      <article class="card"><span class="label">Dateien</span><strong id="fileCount">–</strong></article>
+      <article class="card"><span class="label">Cloud erlaubt</span><strong id="cloudCount">–</strong></article>
+      <article class="card"><span class="label">Local only</span><strong id="localOnlyCount">–</strong></article>
+    </section>
+
+    <section class="policy-grid">
+      <article class="policy public"><strong>public</strong><span>lokal + Cloud erlaubt</span></article>
+      <article class="policy restricted"><strong>restricted_cloud_allowed</strong><span>Cloud nach Policy-Prüfung</span></article>
+      <article class="policy private"><strong>private_local_only</strong><span>nur lokales LLM, niemals Cloud</span></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="loadKnowledgeBase()">Aktualisieren</button>
+      <button class="badge link" type="button" onclick="ensureStructure()">Struktur anlegen</button>
+      <input id="searchInput" placeholder="Suche in User Knowledge ..." onkeydown="if(event.key==='Enter') searchKnowledge(false)" />
+      <button class="badge link" type="button" onclick="searchKnowledge(false)">Lokal suchen</button>
+      <button class="badge link" type="button" onclick="searchKnowledge(true)">Cloud-sichere Suche</button>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="layout">
+      <aside class="knowledge-list" id="areaList"></aside>
+      <aside class="knowledge-list" id="fileList"></aside>
+      <section class="knowledge-detail">
+        <div id="knowledgeDetail" class="empty">Wähle einen Bereich oder eine Datei aus.</div>
+        <pre id="rawKnowledge">{}</pre>
+      </section>
+    </section>
+
+    <section class="panel">
+      <h2>Suchergebnisse</h2>
+      <div id="searchResults" class="compact-list"></div>
+    </section>
+  </main>
+  <script src="/web/knowledge-base.js"></script>
+</body>
+</html>
