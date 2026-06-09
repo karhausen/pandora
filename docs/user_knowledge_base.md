@@ -49,3 +49,22 @@ python main.py knowledge-context-preview "suchbegriff" --target cloud
 
 Die API ist read-only. Pandora kann die Struktur anlegen, verändert aber keine Wissensdateien.
 Private Dateien aus `private_local_only` werden bei Cloud-/Company-Kontextvorschau blockiert.
+
+## Metadaten ab MVP 22.9
+
+Markdown-Dateien können einen YAML-ähnlichen Header tragen. Dieser verbessert Suche, Ranking, Governance und Context Injection.
+
+```yaml
+---
+title: Beispiel
+tags:
+  - wissen
+visibility: public
+cloud_allowed: true
+priority: normal
+owner: thomas
+last_reviewed: 2026-06-09
+---
+```
+
+`private_local_only` bleibt auch mit Metadaten strikt lokal. Ein `cloud_allowed: true` in diesem Bereich wird als Governance-Fehler gemeldet.

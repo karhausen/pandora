@@ -28,6 +28,7 @@
       <article class="card"><span class="label">Dateien</span><strong id="fileCount">–</strong></article>
       <article class="card"><span class="label">Cloud erlaubt</span><strong id="cloudCount">–</strong></article>
       <article class="card"><span class="label">Local only</span><strong id="localOnlyCount">–</strong></article>
+      <article class="card"><span class="label">Governance</span><strong id="governanceStatus">–</strong></article>
     </section>
 
     <section class="policy-grid">
@@ -39,6 +40,7 @@
     <section class="toolbar">
       <button class="badge link primary" type="button" onclick="loadKnowledgeBase()">Aktualisieren</button>
       <button class="badge link" type="button" onclick="ensureStructure()">Struktur anlegen</button>
+      <button class="badge link" type="button" onclick="loadGovernance()">Governance prüfen</button>
       <input id="searchInput" placeholder="Suche in User Knowledge ..." onkeydown="if(event.key==='Enter') searchKnowledge(false)" />
       <button class="badge link" type="button" onclick="searchKnowledge(false)">Lokal suchen</button>
       <button class="badge link" type="button" onclick="searchKnowledge(true)">Cloud-sichere Suche</button>
@@ -52,6 +54,11 @@
         <div id="knowledgeDetail" class="empty">Wähle einen Bereich oder eine Datei aus.</div>
         <pre id="rawKnowledge">{}</pre>
       </section>
+    </section>
+
+    <section class="panel">
+      <h2>Governance & Metadaten</h2>
+      <div id="governancePanel" class="compact-list"></div>
     </section>
 
     <section class="panel">

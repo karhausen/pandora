@@ -44,6 +44,7 @@ from core.memory_explorer import MemoryExplorerService
 from core.night_mode_dashboard import NightModeDashboardService
 from core.llm_profile_center import LLMProfileCenterService
 from core.user_knowledge_base import UserKnowledgeBaseService
+from core.knowledge_governance import KnowledgeGovernanceService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -246,6 +247,9 @@ def cmd_knowledge_area(args): _json(UserKnowledgeBaseService().list_area(args.ar
 def cmd_knowledge_show(args): _json(UserKnowledgeBaseService().show_file(args.area, args.path, max_lines=args.max_lines))
 def cmd_knowledge_search(args): _json(UserKnowledgeBaseService().search(query=args.query, limit=args.limit, cloud_context=args.cloud_context))
 def cmd_knowledge_context_preview(args): _json(UserKnowledgeBaseService().context_preview(query=args.query, target=args.target, limit=args.limit))
+def cmd_knowledge_governance_status(args): _json(KnowledgeGovernanceService().status())
+def cmd_knowledge_governance_run(args): _json(KnowledgeGovernanceService().run(limit=args.limit))
+def cmd_knowledge_metadata_audit(args): _json(KnowledgeGovernanceService().metadata_index(limit=args.limit))
 
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
@@ -268,7 +272,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.8")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.9")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -307,12 +311,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("knowledge-show"); p.add_argument("area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("path"); p.add_argument("--max-lines", type=int, default=160); p.set_defaults(func=cmd_knowledge_show)
     p = sub.add_parser("knowledge-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.add_argument("--cloud-context", action="store_true"); p.set_defaults(func=cmd_knowledge_search)
     p = sub.add_parser("knowledge-context-preview"); p.add_argument("query"); p.add_argument("--target", default="local", choices=["local", "cloud", "company", "company_llm"]); p.add_argument("--limit", type=int, default=10); p.set_defaults(func=cmd_knowledge_context_preview)
+    p = sub.add_parser("knowledge-governance-status"); p.set_defaults(func=cmd_knowledge_governance_status)
+    p = sub.add_parser("knowledge-governance-run"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_governance_run)
+    p = sub.add_parser("knowledge-metadata-audit"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_metadata_audit)
     p = sub.add_parser("llm-profile-center-dashboard"); p.set_defaults(func=cmd_llm_profile_center_dashboard)
     p = sub.add_parser("llm-profile-center-profiles"); p.set_defaults(func=cmd_llm_profile_center_profiles)
     p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
     p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.8-knowledge-search-context-injection"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.9-knowledge-metadata-governance"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

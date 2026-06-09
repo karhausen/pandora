@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.responses import FileResponse, PlainTextResponse
@@ -61,8 +62,9 @@ from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
+from .knowledge_governance import KnowledgeGovernanceService
 
-app = FastAPI(title="Pandora Agent", version="22.8-knowledge-search-context-injection")
+app = FastAPI(title="Pandora Agent", version="22.9-knowledge-metadata-governance")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -309,6 +311,36 @@ def get_knowledge_context_service() -> KnowledgeContextService:
 @app.get("/api/gui/knowledge/context-injection-preview")
 def gui_knowledge_context_injection_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
     return get_knowledge_context_service().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
+
+def get_knowledge_governance_service() -> KnowledgeGovernanceService:
+    return KnowledgeGovernanceService()
+
+
+@app.get("/api/gui/knowledge/governance")
+def gui_knowledge_governance(limit: int = 500):
+    return get_knowledge_governance_service().run(limit=limit)
+
+
+@app.get("/api/gui/knowledge/governance/status")
+def gui_knowledge_governance_status():
+    return get_knowledge_governance_service().status()
+
+
+@app.get("/api/gui/knowledge/metadata")
+def gui_knowledge_metadata(limit: int = 500):
+    return get_knowledge_governance_service().metadata_index(limit=limit)
+
+
+class KnowledgeMetadataValidationRequest(BaseModel):
+    metadata: dict[str, Any]
+    area: str = "public"
+    relative_path: str = "inline.md"
+
+
+@app.post("/api/gui/knowledge/metadata/validate")
+def gui_knowledge_metadata_validate(req: KnowledgeMetadataValidationRequest):
+    return get_knowledge_governance_service().validate_metadata(req.metadata, area=req.area, relative_path=req.relative_path)
 
 
 
@@ -1311,7 +1343,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-22.8-knowledge-search-context-injection",
+        "version": "mvp-22.9-knowledge-metadata-governance",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

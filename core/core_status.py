@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-22.8-knowledge-search-context-injection"
+PANDORA_CORE_VERSION = "mvp-22.9-knowledge-metadata-governance"
 
 
 @dataclass(frozen=True)

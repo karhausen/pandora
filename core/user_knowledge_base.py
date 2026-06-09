@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .knowledge_metadata import normalize_metadata, strip_frontmatter
+
 from .config import ROOT_DIR
 
 
@@ -146,7 +148,9 @@ class UserKnowledgeBaseService:
             return {"found": False, "area": area_def.name, "relative_path": relative_path, "error": "unsupported file type"}
         stat = file_path.stat()
         text = self._safe_read_text(file_path)
-        preview = "\n".join(text.splitlines()[:max_lines])[: self.max_preview_chars]
+        metadata = normalize_metadata(area_def.name, file_path.relative_to(root).as_posix(), text) if file_path.suffix.lower() == ".md" else {}
+        preview_text = strip_frontmatter(text) if file_path.suffix.lower() == ".md" else text
+        preview = "\n".join(preview_text.splitlines()[:max_lines])[: self.max_preview_chars]
         payload: dict[str, Any] = {
             "found": True,
             "area": area_def.name,
@@ -156,8 +160,12 @@ class UserKnowledgeBaseService:
             "size_bytes": stat.st_size,
             "modified_at": stat.st_mtime,
             "policy": area_def.policy,
-            "cloud_allowed": area_def.cloud_allowed,
-            "local_only": not area_def.cloud_allowed,
+            "cloud_allowed": bool(metadata.get("cloud_allowed", area_def.cloud_allowed)),
+            "local_only": not bool(metadata.get("cloud_allowed", area_def.cloud_allowed)),
+            "metadata": metadata,
+            "tags": metadata.get("tags", []),
+            "priority": metadata.get("priority", "normal"),
+            "title": metadata.get("title") or file_path.stem,
             "preview": preview,
             "read_only": True,
         }
@@ -178,20 +186,27 @@ class UserKnowledgeBaseService:
             for file in self._scan_files(root, limit=1000):
                 path = root / file["relative_path"]
                 text = self._safe_read_text(path)
-                haystack = f"{file['relative_path']}\n{text[:50000]}".lower()
+                metadata = file.get("metadata", {}) or {}
+                if cloud_context and not bool(metadata.get("cloud_allowed", area_def.cloud_allowed)):
+                    continue
+                meta_text = " ".join([str(metadata.get("title", "")), str(metadata.get("summary", "")), " ".join(metadata.get("tags", []) or [])])
+                haystack = f"{file['relative_path']}\n{meta_text}\n{text[:50000]}".lower()
                 if needle in haystack:
+                    score = self._score_match(needle, file, metadata, text)
                     results.append(
                         {
                             "area": area_def.name,
                             "policy": area_def.policy,
-                            "cloud_allowed": area_def.cloud_allowed,
+                            "cloud_allowed": bool(metadata.get("cloud_allowed", area_def.cloud_allowed)),
                             **file,
+                            "metadata": metadata,
+                            "score": score,
                             "snippet": self._snippet(text, needle),
                         }
                     )
-                    if len(results) >= limit:
-                        return {"query": query, "count": len(results), "results": results, "cloud_context": cloud_context, "truncated": True}
-        return {"query": query, "count": len(results), "results": results, "cloud_context": cloud_context, "truncated": False}
+        results.sort(key=lambda item: (item.get("score", 0), item.get("modified_at", 0)), reverse=True)
+        truncated = len(results) > limit
+        return {"query": query, "count": min(len(results), limit), "results": results[:limit], "cloud_context": cloud_context, "truncated": truncated}
 
     def context_preview(self, *, query: str, target: str = "local", limit: int = 10) -> dict[str, Any]:
         """Return a safe preview of knowledge files eligible for a target LLM context."""
@@ -236,13 +251,20 @@ class UserKnowledgeBaseService:
             if not path.is_file() or path.name == ".gitkeep" or path.suffix.lower() not in self.allowed_suffixes:
                 continue
             stat = path.stat()
+            relative_path = path.relative_to(root).as_posix()
+            area_name = root.name
+            metadata = normalize_metadata(area_name, relative_path, self._safe_read_text(path)) if path.suffix.lower() == ".md" else {}
             files.append(
                 {
-                    "relative_path": path.relative_to(root).as_posix(),
+                    "relative_path": relative_path,
                     "name": path.name,
                     "type": path.suffix.lower().lstrip("."),
                     "size_bytes": stat.st_size,
                     "modified_at": stat.st_mtime,
+                    "metadata": metadata,
+                    "tags": metadata.get("tags", []),
+                    "priority": metadata.get("priority", "normal"),
+                    "title": metadata.get("title") or path.stem,
                 }
             )
         files.sort(key=lambda item: item["modified_at"], reverse=True)
@@ -259,6 +281,20 @@ class UserKnowledgeBaseService:
             return json.loads(self._safe_read_text(path) or "{}")
         except json.JSONDecodeError as exc:
             return {"_error": f"Invalid JSON: {exc}"}
+
+    def _score_match(self, needle: str, file: dict[str, Any], metadata: dict[str, Any], text: str) -> int:
+        score = 0
+        if needle in str(metadata.get("title", "")).lower():
+            score += 30
+        if any(needle in str(tag).lower() for tag in metadata.get("tags", []) or []):
+            score += 25
+        if needle in file.get("relative_path", "").lower():
+            score += 15
+        if needle in text.lower():
+            score += 10
+        priority = metadata.get("priority") or "normal"
+        score += {"critical": 12, "high": 8, "normal": 3, "low": 0}.get(priority, 1)
+        return score
 
     def _snippet(self, text: str, needle: str, width: int = 260) -> str:
         lower = text.lower()

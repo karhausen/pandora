@@ -72,3 +72,9 @@ a.badge.link.primary {
     justify-content: flex-start;
   }
 }
+
+.badge.danger {
+  background: rgba(220, 38, 38, 0.28);
+  border-color: #dc2626;
+  color: #ffffff;
+}
