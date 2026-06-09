@@ -74,3 +74,13 @@ def test_user_gui_links_memory_explorer():
     assert page.status_code == 200
     assert "/memory-explorer" in page.text
     assert "Memory Explorer" in page.text
+
+
+def test_memory_explorer_uses_dark_shared_theme():
+    html = Path('web/memory-explorer.html').read_text(encoding='utf-8')
+    css = Path('web/memory-explorer.css').read_text(encoding='utf-8')
+
+    assert '/web/shared.css' in html
+    assert 'background: var(--bg)' in css
+    assert 'color: var(--text)' in css
+    assert 'background: var(--panel)' in css
