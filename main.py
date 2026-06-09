@@ -41,6 +41,7 @@ from core.operations_dashboard import OperationsDashboardService
 from core.tool_center import ToolCenterService
 from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
+from core.night_mode_dashboard import NightModeDashboardService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -226,6 +227,10 @@ def cmd_memory_explorer_areas(args): _json(MemoryExplorerService().areas())
 def cmd_memory_explorer_area(args): _json(MemoryExplorerService().list_area(args.area, limit=args.limit))
 def cmd_memory_explorer_show(args): _json(MemoryExplorerService().show_file(args.area, args.path, max_lines=args.max_lines))
 def cmd_memory_explorer_search(args): _json(MemoryExplorerService().search(query=args.query, limit=args.limit))
+def cmd_night_mode_dashboard(args): _json(NightModeDashboardService().dashboard(limit=args.limit))
+def cmd_night_mode_reports(args): _json(NightModeDashboardService().reports(limit=args.limit))
+def cmd_night_mode_show(args): _json(NightModeDashboardService().show_report(args.report_id))
+def cmd_night_mode_preview(args): _json(NightModeDashboardService().maintenance_preview(limit=args.limit, window_start=args.window_start, window_end=args.window_end))
 
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
@@ -248,7 +253,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.4")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.5")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -274,8 +279,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("memory-explorer-area"); p.add_argument("area", choices=["memory", "proposals"]); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_memory_explorer_area)
     p = sub.add_parser("memory-explorer-show"); p.add_argument("area", choices=["memory", "proposals"]); p.add_argument("path"); p.add_argument("--max-lines", type=int, default=120); p.set_defaults(func=cmd_memory_explorer_show)
     p = sub.add_parser("memory-explorer-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_memory_explorer_search)
+    p = sub.add_parser("night-mode-dashboard"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_night_mode_dashboard)
+    p = sub.add_parser("night-mode-reports"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_night_mode_reports)
+    p = sub.add_parser("night-mode-show"); p.add_argument("report_id"); p.set_defaults(func=cmd_night_mode_show)
+    p = sub.add_parser("night-mode-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_night_mode_preview)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.4-memory-explorer"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.5-night-mode-dashboard"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

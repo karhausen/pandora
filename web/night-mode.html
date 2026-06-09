@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Night Mode Dashboard</title>
+  <link rel="stylesheet" href="/web/night-mode.css" />
+  <link rel="stylesheet" href="/web/shared.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Night Mode Dashboard</h1>
+      <p>Nachtberichte, Wartungsvorschau und Wachstums-Signale ohne automatische Änderungen.</p>
+    </div>
+    <nav class="top-actions">
+      <a href="/" class="badge link">User</a>
+      <a href="/operations" class="badge link">Operations</a>
+      <a href="/approval" class="badge link">Approval</a>
+      <span id="statusBadge" class="badge">Lade...</span>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="card wide">
+      <div class="card-head">
+        <div>
+          <h2>Übersicht</h2>
+          <p>Night Mode analysiert und organisiert. Folgeaktionen bleiben genehmigungspflichtig.</p>
+        </div>
+        <button onclick="loadDashboard()">Aktualisieren</button>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Wartungs-Vorschau</h2>
+      <p>Trockenlauf für den nächsten Nachtlauf. Es werden keine Reports geschrieben.</p>
+      <div class="row">
+        <input id="previewLimit" type="number" value="200" min="1" />
+        <button onclick="previewNightMode()">Dry Run</button>
+      </div>
+      <pre id="previewBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Letzte Nachtberichte</h2>
+      <div class="row">
+        <button onclick="loadReports()">Berichte laden</button>
+      </div>
+      <div id="reportList" class="report-list">Noch keine Daten.</div>
+    </section>
+
+    <section class="card wide">
+      <h2>Bericht Details</h2>
+      <pre id="reportBox">Wähle einen Bericht aus.</pre>
+    </section>
+
+    <section class="card wide">
+      <h2>Rohdaten</h2>
+      <pre id="dashboardBox">Noch keine Daten.</pre>
+    </section>
+  </main>
+
+  <script src="/web/night-mode.js"></script>
+</body>
+</html>

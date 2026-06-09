@@ -56,8 +56,9 @@ from .operations_dashboard import OperationsDashboardService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
+from .night_mode_dashboard import NightModeDashboardService
 
-app = FastAPI(title="Pandora Agent", version="22.4-memory-explorer")
+app = FastAPI(title="Pandora Agent", version="22.5-night-mode-dashboard")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -403,6 +404,41 @@ def gui_operations_maintenance_run(req: OperationsMaintenanceRunRequest | None =
         window_end=req.window_end,
     )
 
+
+
+def get_night_mode_dashboard_service() -> NightModeDashboardService:
+    return NightModeDashboardService()
+
+
+@app.get("/api/gui/night-mode/dashboard")
+def gui_night_mode_dashboard(limit: int = 20):
+    return get_night_mode_dashboard_service().dashboard(limit=limit)
+
+
+@app.get("/api/gui/night-mode/reports")
+def gui_night_mode_reports(limit: int = 50):
+    return get_night_mode_dashboard_service().reports(limit=limit)
+
+
+@app.get("/api/gui/night-mode/reports/{report_id:path}")
+def gui_night_mode_report_show(report_id: str):
+    try:
+        payload = get_night_mode_dashboard_service().show_report(report_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="night mode report not found")
+    return payload
+
+
+@app.post("/api/gui/night-mode/maintenance/preview")
+def gui_night_mode_maintenance_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_night_mode_dashboard_service().maintenance_preview(
+        limit=req.limit,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
 
 def get_gui_approval_service() -> GuiApprovalApiService:
     return GuiApprovalApiService()
@@ -789,6 +825,11 @@ def web_memory_explorer():
     return FileResponse(WEB_DIR / "memory-explorer.html")
 
 
+@app.get("/night-mode")
+def web_night_mode():
+    return FileResponse(WEB_DIR / "night-mode.html")
+
+
 @app.get("/web/approval.js")
 def web_approval_js():
     return FileResponse(WEB_DIR / "approval.js")
@@ -837,6 +878,16 @@ def web_memory_explorer_js():
 @app.get("/web/memory-explorer.css")
 def web_memory_explorer_css():
     return FileResponse(WEB_DIR / "memory-explorer.css")
+
+
+@app.get("/web/night-mode.js")
+def web_night_mode_js():
+    return FileResponse(WEB_DIR / "night-mode.js")
+
+
+@app.get("/web/night-mode.css")
+def web_night_mode_css():
+    return FileResponse(WEB_DIR / "night-mode.css")
 
 
 @app.post("/learning/run")
