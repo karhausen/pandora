@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandora</title>
+  <title>Pandora User GUI</title>
   <link rel="stylesheet" href="/web/user.css" />
 </head>
 <body>
@@ -11,10 +11,30 @@
     <header class="hero">
       <div>
         <h1>Pandora</h1>
-        <p>Dein lokaler KI-Agent.</p>
+        <p>Dein lokaler KI-Agent – Chat, Kontrolle und Wartung mit klaren Wegen.</p>
       </div>
-      <a class="admin-link" href="/admin">Admin</a>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="nav-pill primary" href="/operations">Operations Dashboard</a>
+        <a class="nav-pill" href="/approval">Approval Center</a>
+        <a class="nav-pill" href="/admin">Admin</a>
+      </nav>
     </header>
+
+
+    <section class="quick-nav" aria-label="Schnellzugriff">
+      <a class="quick-card" href="/operations">
+        <strong>Operations Dashboard</strong>
+        <span>Status, Maintenance, Nightly Review und Systemprüfung.</span>
+      </a>
+      <a class="quick-card" href="/approval">
+        <strong>Approval Center</strong>
+        <span>Vorschläge prüfen, genehmigen oder ablehnen.</span>
+      </a>
+      <a class="quick-card" href="/admin">
+        <strong>Admin Dashboard</strong>
+        <span>Tools, Skills, Planner, Learning und technische Details.</span>
+      </a>
+    </section>
 
     <section class="session-bar" id="sessionBar"><button onclick="newSession()">Neue Unterhaltung</button><select id="sessionSelect" onchange="switchSession()"></select></section>
 

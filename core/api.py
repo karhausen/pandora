@@ -54,7 +54,7 @@ from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
 
-app = FastAPI(title="Pandora Agent", version="22.0-operations-dashboard")
+app = FastAPI(title="Pandora Agent", version="22.1-user-gui-navigation")
 
 
 class ToolProposalTaskRequest(BaseModel):

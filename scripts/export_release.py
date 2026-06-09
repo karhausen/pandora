@@ -156,7 +156,7 @@ def sanitize_tree(dst: Path) -> None:
 
 
 def run_tests(dst: Path) -> None:
-    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "tests/test_mvp21_3_skill_candidate_pipeline.py", "tests/test_mvp21_4_tool_improvement_pipeline.py", "tests/test_mvp21_5_capability_gap_pipeline.py", "tests/test_mvp21_6_proposal_review_inbox.py", "tests/test_mvp21_7_proposal_approval_workflow.py", "tests/test_mvp21_8_gui_approval_api.py", "tests/test_mvp21_9_minimal_web_gui.py", "tests/test_mvp22_0_operations_dashboard.py", "-q"], cwd=dst, check=True)
+    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "tests/test_mvp21_3_skill_candidate_pipeline.py", "tests/test_mvp21_4_tool_improvement_pipeline.py", "tests/test_mvp21_5_capability_gap_pipeline.py", "tests/test_mvp21_6_proposal_review_inbox.py", "tests/test_mvp21_7_proposal_approval_workflow.py", "tests/test_mvp21_8_gui_approval_api.py", "tests/test_mvp21_9_minimal_web_gui.py", "tests/test_mvp22_0_operations_dashboard.py", "tests/test_mvp22_1_user_gui_navigation.py", "-q"], cwd=dst, check=True)
 
 
 def run_audit(dst: Path) -> dict[str, object]:
@@ -198,7 +198,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-22.0-operations-dashboard")
+    parser.add_argument("--version", default="mvp-22.1-user-gui-navigation")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()
