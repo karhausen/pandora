@@ -616,6 +616,11 @@ def web_css():
     return FileResponse(WEB_DIR / "style.css")
 
 
+@app.get("/web/shared.css")
+def web_shared_css():
+    return FileResponse(WEB_DIR / "shared.css")
+
+
 @app.get("/approval")
 def web_approval():
     return FileResponse(WEB_DIR / "approval.html")

@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-22.1.1-user-gui-badge-links"
+PANDORA_CORE_VERSION = "mvp-22.1.2-user-gui-shared-badge-styles"
 
 
 @dataclass(frozen=True)

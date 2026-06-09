@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pandora User GUI</title>
   <link rel="stylesheet" href="/web/user.css" />
+  <link rel="stylesheet" href="/web/shared.css" />
 </head>
 <body>
   <main class="app">
@@ -21,19 +22,10 @@
     </header>
 
 
-    <section class="quick-nav" aria-label="Schnellzugriff">
-      <a class="badge-card link" href="/operations">
-        <strong>Operations Dashboard</strong>
-        <span>Status, Maintenance, Nightly Review und Systemprüfung.</span>
-      </a>
-      <a class="badge-card link" href="/approval">
-        <strong>Approval Center</strong>
-        <span>Vorschläge prüfen, genehmigen oder ablehnen.</span>
-      </a>
-      <a class="badge-card link" href="/admin">
-        <strong>Admin Dashboard</strong>
-        <span>Tools, Skills, Planner, Learning und technische Details.</span>
-      </a>
+    <section class="quick-nav badge-row" aria-label="Schnellzugriff">
+      <a class="badge link primary" href="/operations">Operations Dashboard</a>
+      <a class="badge link" href="/approval">Approval Center</a>
+      <a class="badge link" href="/admin">Admin Dashboard</a>
     </section>
 
     <section class="session-bar" id="sessionBar"><button onclick="newSession()">Neue Unterhaltung</button><select id="sessionSelect" onchange="switchSession()"></select></section>

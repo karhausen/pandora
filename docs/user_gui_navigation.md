@@ -35,3 +35,15 @@ Betroffen:
 - Operations Dashboard bleibt prominent erreichbar
 
 Ziel: einheitliche Bedienung und sichtbare, klare Navigationspunkte.
+
+
+## MVP 22.1.2 – Shared Badge Styles
+
+Die User-GUI nutzt jetzt dieselbe zentrale Badge-Link-Basis wie Approval, Operations und Admin.
+
+Wichtig:
+
+- `web/shared.css` enthält die gemeinsame `.badge.link` Darstellung.
+- `index.html`, `admin.html`, `approval.html` und `operations.html` laden dieses Stylesheet.
+- Die User-Startseite nutzt keine abweichenden `badge-card` Schnellzugriffe mehr, sondern echte `badge link` Elemente.
+- Der Operations-Dashboard-Link bleibt als `badge link primary` hervorgehoben.
