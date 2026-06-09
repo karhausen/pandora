@@ -330,19 +330,23 @@ pre {
   justify-content: flex-end;
 }
 
-.nav-pill, .admin-link {
-  color: var(--muted);
-  text-decoration: none;
+.badge, .admin-link {
+  background: #1f2937;
   border: 1px solid var(--border);
-  padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.55);
+  padding: 10px 14px;
+  white-space: nowrap;
 }
 
-.nav-pill.primary {
+.badge.link, .link {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.badge.primary {
   color: #ffffff;
   border-color: var(--accent);
-  background: rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.35);
 }
 
 .quick-nav {
@@ -352,7 +356,7 @@ pre {
   margin-bottom: 16px;
 }
 
-.quick-card {
+.badge-card {
   display: block;
   background: rgba(17, 24, 39, 0.82);
   border: 1px solid var(--border);
@@ -362,19 +366,19 @@ pre {
   text-decoration: none;
 }
 
-.quick-card strong {
+.badge-card strong {
   display: block;
   margin-bottom: 6px;
 }
 
-.quick-card span {
+.badge-card span {
   display: block;
   color: var(--muted);
   font-size: 13px;
   line-height: 1.35;
 }
 
-.quick-card:hover, .nav-pill:hover {
+.badge-card:hover, .badge.link:hover {
   border-color: var(--accent);
 }
 

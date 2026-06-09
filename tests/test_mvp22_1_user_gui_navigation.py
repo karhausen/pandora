@@ -27,8 +27,10 @@ def test_user_gui_navigation_styles_are_served():
     response = client.get("/web/user.css")
     assert response.status_code == 200
     assert "quick-nav" in response.text
-    assert "nav-pill" in response.text
+    assert "badge" in response.text
+    assert "badge-card" in response.text
+    assert "nav-pill" not in response.text
 
 
-def test_core_version_bumped_to_22_1():
-    assert PANDORA_CORE_VERSION == "mvp-22.1-user-gui-navigation"
+def test_core_version_bumped_to_22_1_1():
+    assert PANDORA_CORE_VERSION == "mvp-22.1.1-user-gui-badge-links"

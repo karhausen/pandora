@@ -22,3 +22,16 @@ Die User-GUI startet weiterhin keine Core-Änderungen direkt. Sie verlinkt nur a
 - `/operations` ist die Betriebs- und Wartungszentrale.
 - `/approval` ist die menschliche Freigabestelle.
 - `/admin` bleibt für technische Details.
+
+
+## MVP 22.1.1 – Badge Links
+
+Die User-GUI nutzt für die Hauptnavigation nun dieselben Badge-Link-Buttons wie Operations-, Admin- und Approval-Seiten.
+
+Betroffen:
+
+- `/` User-GUI Header Navigation
+- Schnellzugriffskarten als `badge-card link`
+- Operations Dashboard bleibt prominent erreichbar
+
+Ziel: einheitliche Bedienung und sichtbare, klare Navigationspunkte.
