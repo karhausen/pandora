@@ -397,3 +397,30 @@ pre {
     grid-template-columns: 1fr;
   }
 }
+
+.routing-summary {
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.routing-summary .label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.routing-summary strong {
+  display: block;
+  font-size: 16px;
+}
+
+.routing-summary small {
+  display: block;
+  color: var(--muted);
+  margin-top: 3px;
+}

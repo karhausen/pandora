@@ -43,21 +43,13 @@
     <section class="composer">
       <textarea id="taskInput" placeholder="Was soll Pandora tun?">Bitte rechne 2+3*4</textarea>
       
-<div class="provider-row">
-  <label>
-    Provider
-    <select id="providerSelect">
-      <option value="mock">mock</option>
-      <option value="local_fast">local_fast</option>
-      <option value="lmstudio">lmstudio</option>
-      <option value="ollama">ollama</option>
-      <option value="openai">openai</option>
-    </select>
-  </label>
-  <label>
-    Modell optional
-    <input id="modelInput" placeholder="z.B. qwen/qwen3-1.7b" />
-  </label>
+<div class="provider-row routing-summary" id="routingSummary">
+  <div>
+    <span class="label">Chat-Route</span>
+    <strong id="activeChatProvider">Lade Routing ...</strong>
+    <small id="activeChatModel">Modell wird geladen</small>
+  </div>
+  <a class="badge link" href="/llm-profiles">Routing ändern</a>
 </div>
 
 <div class="actions">

@@ -1,6 +1,5 @@
 let currentSessionId = localStorage.getItem("pandora_session_id") || null;
-let currentProvider = localStorage.getItem("pandora_provider") || "mock";
-let currentModel = localStorage.getItem("pandora_model") || "";
+let activeChatRoute = null;
 let selectedProposalId = null;
 
 async function api(path, options = {}) {
@@ -137,25 +136,22 @@ async function loadCurrentSession() {
   }
 }
 
-function setupProviderControls() {
-  const providerSelect = document.getElementById("providerSelect");
-  const modelInput = document.getElementById("modelInput");
+function renderActiveChatRoute(status) {
+  activeChatRoute = status.active_chat_route || null;
+  const providerBox = document.getElementById("activeChatProvider");
+  const modelBox = document.getElementById("activeChatModel");
+  if (!providerBox || !modelBox) return;
 
-  if (providerSelect) {
-    providerSelect.value = currentProvider;
-    providerSelect.addEventListener("change", () => {
-      currentProvider = providerSelect.value;
-      localStorage.setItem("pandora_provider", currentProvider);
-    });
+  if (!activeChatRoute) {
+    providerBox.textContent = "Routing unbekannt";
+    modelBox.textContent = "Bitte im LLM & Profile Center prüfen";
+    return;
   }
 
-  if (modelInput) {
-    modelInput.value = currentModel;
-    modelInput.addEventListener("input", () => {
-      currentModel = modelInput.value.trim();
-      localStorage.setItem("pandora_model", currentModel);
-    });
-  }
+  providerBox.textContent = activeChatRoute.provider_name || "unbekannt";
+  const model = activeChatRoute.model || "kein Modell gesetzt";
+  const source = activeChatRoute.resolved_from || "Routing";
+  modelBox.textContent = `${model} · ${source}`;
 }
 
 
@@ -289,8 +285,6 @@ async function runPandora() {
     body: JSON.stringify({
       task,
       session_id: currentSessionId,
-      provider_name: currentProvider,
-      model: currentModel || null,
       save: true
     })
   });
@@ -317,11 +311,11 @@ async function runPandora() {
 
 async function loadUserStatus() {
   const status = await api("/user/status");
+  renderActiveChatRoute(status);
   document.getElementById("statusText").textContent = status.ready ? "Bereit" : "Nicht bereit";
 }
 
 async function boot() {
-  setupProviderControls();
   await loadUserStatus();
   await loadSessions();
   if (currentSessionId) {

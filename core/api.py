@@ -60,7 +60,7 @@ from .night_mode_dashboard import NightModeDashboardService
 from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 
-app = FastAPI(title="Pandora Agent", version="22.6.1-llm-routing-editor")
+app = FastAPI(title="Pandora Agent", version="22.6.2-user-gui-routing-sync")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -194,7 +194,7 @@ class PlannerAgentRequest(BaseModel):
 class CoordinatorRunRequest(BaseModel):
     task: str
     session_id: str | None = None
-    provider_name: str | None = "mock"
+    provider_name: str | None = None
     model: str | None = None
     save: bool = True
 
@@ -202,7 +202,7 @@ class CoordinatorRunRequest(BaseModel):
 class ChatRunRequest(BaseModel):
     task: str
     session_id: str | None = None
-    provider_name: str | None = "mock"
+    provider_name: str | None = None
     model: str | None = None
     save: bool = True
 
@@ -1225,7 +1225,16 @@ async def user_run(req: UserRunRequest):
 
 @app.get("/user/status")
 def user_status():
-    return {"ready": True, "version": "mvp-20.3", "providers": ["mock", "local_fast", "lmstudio", "ollama", "openai"]}
+    route = ModelRouter().route("chat").model_dump(mode="json")
+    providers = LLMRoutingEditorService().available_providers()
+    return {
+        "ready": True,
+        "version": "mvp-22.6.2-user-gui-routing-sync",
+        "providers": providers,
+        "active_chat_route": route,
+        "routing_editor_url": "/llm-profiles",
+        "provider_selection_mode": "central_routing",
+    }
 
 
 @app.post("/chat/run")

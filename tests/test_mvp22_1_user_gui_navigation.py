@@ -33,4 +33,4 @@ def test_user_gui_navigation_styles_are_served():
 
 
 def test_core_version_bumped_to_22_1_1():
-    assert PANDORA_CORE_VERSION == "mvp-22.1.2-user-gui-shared-badge-styles"
+    assert PANDORA_CORE_VERSION == "mvp-22.6.2-user-gui-routing-sync"
