@@ -1,0 +1,15 @@
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.card, .panel, .memory-detail { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 16px; padding: 1rem; }
+.label { display: block; opacity: .72; font-size: .85rem; margin-bottom: .35rem; }
+.toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 1rem 0; }
+.toolbar input { min-width: min(460px, 100%); flex: 1; padding: .72rem .9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,.18); background: rgba(0,0,0,.22); color: inherit; }
+.layout { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(260px, 1fr) minmax(320px, 1.4fr); gap: 1rem; align-items: start; }
+.memory-list { display: grid; gap: .65rem; }
+.memory-item { text-align: left; width: 100%; border: 1px solid rgba(255,255,255,.12); border-radius: 14px; padding: .9rem; color: inherit; background: rgba(255,255,255,.05); cursor: pointer; }
+.memory-item:hover, .memory-item.selected { background: rgba(255,255,255,.1); }
+.memory-item h3 { margin: 0 0 .35rem; }
+.memory-item p { margin: .25rem 0; opacity: .75; }
+.memory-detail pre, #rawMemory { white-space: pre-wrap; overflow: auto; max-height: 560px; }
+.empty { opacity: .7; }
+.compact-list { display: grid; gap: .6rem; }
+@media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }

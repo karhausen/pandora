@@ -55,8 +55,9 @@ from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
+from .memory_explorer import MemoryExplorerService
 
-app = FastAPI(title="Pandora Agent", version="22.3-skill-center-gui")
+app = FastAPI(title="Pandora Agent", version="22.4-memory-explorer")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -240,6 +241,43 @@ class GuiToolActionRequest(BaseModel):
 class GuiSkillActionRequest(BaseModel):
     action: str
 
+
+def get_memory_explorer_service() -> MemoryExplorerService:
+    return MemoryExplorerService()
+
+
+@app.get("/api/gui/memory/dashboard")
+def gui_memory_dashboard(query: str | None = None, limit: int = 20):
+    return get_memory_explorer_service().dashboard(query=query, limit=limit)
+
+
+@app.get("/api/gui/memory/areas")
+def gui_memory_areas():
+    return get_memory_explorer_service().areas()
+
+
+@app.get("/api/gui/memory/areas/{area}")
+def gui_memory_area(area: str, limit: int = 200):
+    try:
+        return get_memory_explorer_service().list_area(area, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/memory/areas/{area}/files/{relative_path:path}")
+def gui_memory_file(area: str, relative_path: str, max_lines: int = 120):
+    try:
+        payload = get_memory_explorer_service().show_file(area, relative_path, max_lines=max_lines)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="memory file not found")
+    return payload
+
+
+@app.get("/api/gui/memory/search")
+def gui_memory_search(query: str, limit: int = 50):
+    return get_memory_explorer_service().search(query=query, limit=limit)
 
 
 def get_tool_center_service() -> ToolCenterService:
@@ -746,6 +784,11 @@ def web_skill_center():
     return FileResponse(WEB_DIR / "skill-center.html")
 
 
+@app.get("/memory-explorer")
+def web_memory_explorer():
+    return FileResponse(WEB_DIR / "memory-explorer.html")
+
+
 @app.get("/web/approval.js")
 def web_approval_js():
     return FileResponse(WEB_DIR / "approval.js")
@@ -784,6 +827,16 @@ def web_skill_center_js():
 @app.get("/web/skill-center.css")
 def web_skill_center_css():
     return FileResponse(WEB_DIR / "skill-center.css")
+
+
+@app.get("/web/memory-explorer.js")
+def web_memory_explorer_js():
+    return FileResponse(WEB_DIR / "memory-explorer.js")
+
+
+@app.get("/web/memory-explorer.css")
+def web_memory_explorer_css():
+    return FileResponse(WEB_DIR / "memory-explorer.css")
 
 
 @app.post("/learning/run")

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Memory Explorer</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/memory-explorer.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Memory Explorer</h1>
+        <p>Read-only Übersicht über Pandora Memory, Logs und Proposal-Artefakte.</p>
+      </div>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="badge link" href="/">User GUI</a>
+        <a class="badge link" href="/operations">Operations Dashboard</a>
+        <a class="badge link" href="/tools-center">Tool Center</a>
+        <a class="badge link" href="/skills-center">Skill Center</a>
+        <a class="badge link primary" href="/memory-explorer">Memory Explorer</a>
+        <a class="badge link" href="/approval">Approval Center</a>
+      </nav>
+    </header>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Bereiche</span><strong id="areaCount">–</strong></article>
+      <article class="card"><span class="label">Dateien</span><strong id="fileCount">–</strong></article>
+      <article class="card"><span class="label">Speicher</span><strong id="byteCount">–</strong></article>
+      <article class="card"><span class="label">Modus</span><strong>Read-only</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="loadMemoryExplorer()">Aktualisieren</button>
+      <input id="searchInput" placeholder="Suche in Memory/Proposals ..." onkeydown="if(event.key==='Enter') searchMemory()" />
+      <button class="badge link" type="button" onclick="searchMemory()">Suchen</button>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="layout">
+      <aside class="memory-list" id="areaList"></aside>
+      <aside class="memory-list" id="fileList"></aside>
+      <section class="memory-detail">
+        <div id="memoryDetail" class="empty">Wähle einen Bereich oder eine Datei aus.</div>
+        <pre id="rawMemory">{}</pre>
+      </section>
+    </section>
+
+    <section class="panel">
+      <h2>Suchergebnisse</h2>
+      <div id="searchResults" class="compact-list"></div>
+    </section>
+  </main>
+  <script src="/web/memory-explorer.js"></script>
+</body>
+</html>
