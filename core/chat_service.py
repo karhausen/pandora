@@ -22,7 +22,7 @@ class ChatService:
         self,
         task: str,
         session_id: str | None = None,
-        provider_name: str | None = "mock",
+        provider_name: str | None = None,
         model: str | None = None,
         save: bool = True,
     ) -> ChatRunResult:

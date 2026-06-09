@@ -34,3 +34,18 @@ def test_user_gui_links_provider_changes_to_llm_profile_center():
     assert "Chat-Route" in html
     assert 'href="/llm-profiles"' in html
     assert "Routing ändern" in html
+
+
+def test_user_run_request_does_not_default_to_mock_provider():
+    from core.api import UserRunRequest
+
+    req = UserRunRequest(task="Hallo")
+    assert req.provider_name is None
+
+
+def test_chat_path_defaults_use_central_routing_not_mock_override():
+    from pathlib import Path
+
+    assert 'provider_name: str | None = None' in Path('core/chat_service.py').read_text(encoding='utf-8')
+    assert 'provider_name: str | None = None' in Path('core/llm_chat_responder.py').read_text(encoding='utf-8')
+    assert 'provider_name: str | None = None' in Path('core/coordinator_agent.py').read_text(encoding='utf-8')

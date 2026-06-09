@@ -213,7 +213,7 @@ class ChatSessionCreateRequest(BaseModel):
 
 class UserRunRequest(BaseModel):
     task: str
-    provider_name: str | None = "mock"
+    provider_name: str | None = None
     model: str | None = None
     save: bool = True
 

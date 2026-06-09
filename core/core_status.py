@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-22.6.2-user-gui-routing-sync"
+PANDORA_CORE_VERSION = "mvp-22.6.3-chat-route-default-fix"
 
 
 @dataclass(frozen=True)

@@ -8,6 +8,7 @@ from .conversation_memory import ConversationMemory
 from .coordinator_log import CoordinatorLog
 from .tool_development_agent import ToolDevelopmentAgent
 from .models import CoordinatorDecision, CoordinatorResult
+from .model_router import ModelRouter
 
 
 class CoordinatorAgent:
@@ -23,7 +24,7 @@ class CoordinatorAgent:
         self,
         task: str,
         session_id: str | None = None,
-        provider_name: str | None = "mock",
+        provider_name: str | None = None,
         model: str | None = None,
     ) -> CoordinatorDecision:
         normalized = task.strip().lower()
@@ -77,31 +78,33 @@ class CoordinatorAgent:
             )
 
         if normalized:
+            chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
             return CoordinatorDecision(
                 route="chat",
                 reason="Task is conversational/free-form text.",
                 confidence=0.8,
                 task=task,
                 session_id=session_id,
-                provider_name=provider_name,
-                model=model,
+                provider_name=chat_route.provider_name,
+                model=chat_route.model,
             )
 
+        chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
         return CoordinatorDecision(
             route="chat",
             reason="Empty or unclear input; use chat fallback.",
             confidence=0.4,
             task=task,
             session_id=session_id,
-            provider_name=provider_name,
-            model=model,
+            provider_name=chat_route.provider_name,
+            model=chat_route.model,
         )
 
     async def run(
         self,
         task: str,
         session_id: str | None = None,
-        provider_name: str | None = "mock",
+        provider_name: str | None = None,
         model: str | None = None,
         save: bool = True,
     ) -> CoordinatorResult:

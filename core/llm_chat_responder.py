@@ -13,7 +13,7 @@ class LLMChatResponder:
         task: str,
         history: list[dict] | None = None,
         context_summary: str | None = None,
-        provider_name: str | None = "mock",
+        provider_name: str | None = None,
         model: str | None = None,
     ) -> dict:
         if provider_name == "mock":
