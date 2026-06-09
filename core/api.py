@@ -53,8 +53,9 @@ from .proposal_review_inbox import ProposalReviewInbox
 from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
+from .tool_center import ToolCenterService
 
-app = FastAPI(title="Pandora Agent", version="22.1-user-gui-navigation")
+app = FastAPI(title="Pandora Agent", version="22.2-tool-center-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -230,6 +231,51 @@ class OperationsMaintenanceRunRequest(BaseModel):
     window_start: str = "02:00"
     window_end: str = "05:00"
 
+
+class GuiToolActionRequest(BaseModel):
+    action: str
+
+
+
+
+def get_tool_center_service() -> ToolCenterService:
+    return ToolCenterService()
+
+
+@app.get("/api/gui/tools/dashboard")
+def gui_tools_dashboard():
+    return get_tool_center_service().dashboard()
+
+
+@app.get("/api/gui/tools")
+def gui_tools_list(status: str | None = None, include_stats: bool = True):
+    return get_tool_center_service().list_tools(status=status, include_stats=include_stats)
+
+
+@app.get("/api/gui/tools/{tool_id:path}")
+def gui_tools_show(tool_id: str):
+    payload = get_tool_center_service().show_tool(tool_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="tool not found")
+    return payload
+
+
+@app.post("/api/gui/tools/{tool_id:path}/action")
+def gui_tools_action(tool_id: str, req: GuiToolActionRequest):
+    try:
+        payload = get_tool_center_service().set_tool_status(tool_id, req.action)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("success") is False and payload.get("error") == "Tool not found":
+        raise HTTPException(status_code=404, detail="tool not found")
+    if payload.get("success") is False:
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+
+@app.get("/api/gui/tools/{tool_id:path}/stats")
+def gui_tools_stats(tool_id: str):
+    return get_tool_center_service().stats(tool_id)
 
 def get_operations_dashboard_service() -> OperationsDashboardService:
     return OperationsDashboardService()
@@ -631,6 +677,11 @@ def web_operations():
     return FileResponse(WEB_DIR / "operations.html")
 
 
+@app.get("/tools-center")
+def web_tool_center():
+    return FileResponse(WEB_DIR / "tool-center.html")
+
+
 @app.get("/web/approval.js")
 def web_approval_js():
     return FileResponse(WEB_DIR / "approval.js")
@@ -649,6 +700,16 @@ def web_operations_js():
 @app.get("/web/operations.css")
 def web_operations_css():
     return FileResponse(WEB_DIR / "operations.css")
+
+
+@app.get("/web/tool-center.js")
+def web_tool_center_js():
+    return FileResponse(WEB_DIR / "tool-center.js")
+
+
+@app.get("/web/tool-center.css")
+def web_tool_center_css():
+    return FileResponse(WEB_DIR / "tool-center.css")
 
 
 @app.post("/learning/run")

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Tool Center</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/tool-center.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Tool Center</h1>
+        <p>Installierte Tools prüfen, Status sehen und sichere Lifecycle-Aktionen auslösen.</p>
+      </div>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="badge link" href="/">User GUI</a>
+        <a class="badge link primary" href="/tools-center">Tool Center</a>
+        <a class="badge link" href="/operations">Operations Dashboard</a>
+        <a class="badge link" href="/approval">Approval Center</a>
+      </nav>
+    </header>
+
+    <section class="summary-grid" id="summaryGrid">
+      <article class="card"><span class="label">Tools</span><strong id="toolCount">–</strong></article>
+      <article class="card"><span class="label">Aktiv</span><strong id="activeCount">–</strong></article>
+      <article class="card"><span class="label">Deaktiviert</span><strong id="disabledCount">–</strong></article>
+      <article class="card"><span class="label">Deprecated</span><strong id="deprecatedCount">–</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="loadToolCenter()">Aktualisieren</button>
+      <select id="statusFilter" onchange="loadToolCenter()">
+        <option value="">Alle Status</option>
+        <option value="ACTIVE">ACTIVE</option>
+        <option value="VALIDATED">VALIDATED</option>
+        <option value="DISABLED">DISABLED</option>
+        <option value="DEPRECATED">DEPRECATED</option>
+        <option value="FAILED">FAILED</option>
+      </select>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="layout">
+      <aside class="tool-list" id="toolList"></aside>
+      <section class="tool-detail">
+        <div id="toolDetail" class="empty">Wähle ein Tool aus.</div>
+        <div class="action-row">
+          <button type="button" onclick="toolAction('enable')">Aktivieren</button>
+          <button type="button" onclick="toolAction('disable')">Deaktivieren</button>
+          <button type="button" onclick="toolAction('deprecate')">Deprecated markieren</button>
+        </div>
+        <pre id="rawTool">{}</pre>
+      </section>
+    </section>
+  </main>
+  <script src="/web/tool-center.js"></script>
+</body>
+</html>
