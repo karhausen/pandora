@@ -58,8 +58,9 @@ from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
 from .night_mode_dashboard import NightModeDashboardService
 from .llm_profile_center import LLMProfileCenterService
+from .llm_routing_editor import LLMRoutingEditorService
 
-app = FastAPI(title="Pandora Agent", version="22.6-llm-profile-center")
+app = FastAPI(title="Pandora Agent", version="22.6.1-llm-routing-editor")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -478,6 +479,43 @@ def gui_llm_profiles_routes():
 @app.post("/api/gui/llm-profiles/smoke-preview")
 def gui_llm_profiles_smoke_preview(req: dict = Body(...)):
     return LLMProfileCenterService().smoke_preview(provider=str(req.get("provider", "cloud_expert")))
+
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/status")
+def gui_llm_routing_editor_status():
+    return LLMRoutingEditorService().status()
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/routes")
+def gui_llm_routing_editor_routes():
+    return LLMRoutingEditorService().routes()
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/preview")
+def gui_llm_routing_editor_preview(req: dict = Body(...)):
+    return LLMRoutingEditorService().preview_update(req.get("updates") or [])
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/apply")
+def gui_llm_routing_editor_apply(req: dict = Body(...)):
+    result = LLMRoutingEditorService().apply_update(req.get("updates") or [], actor=str(req.get("actor", "user-gui")))
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result)
+    return result
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/audit")
+def gui_llm_routing_editor_audit(limit: int = 50):
+    return LLMRoutingEditorService().audit(limit=limit)
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/rollback")
+def gui_llm_routing_editor_rollback(req: dict | None = Body(None)):
+    result = LLMRoutingEditorService().rollback((req or {}).get("backup_path"))
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result)
+    return result
 
 @app.get("/api/gui/approval/status")
 def gui_approval_status():

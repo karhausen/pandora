@@ -17,7 +17,7 @@ async function loadAll(){
   document.getElementById('securityIssues').textContent = dash.security && dash.security.issues && dash.security.issues.length ? dash.security.issues.join(', ') : 'Keine Inline-Secrets gemeldet.';
   renderProfiles(await api('/api/gui/llm-profiles/profiles'));
   renderProviders(await api('/api/gui/llm-profiles/providers'));
-  renderRoutes(await api('/api/gui/llm-profiles/routes'));
+  await loadRoutingEditor();
   document.getElementById('guardrails').innerHTML = (dash.guardrails || []).map(x=>`<li>${esc(x)}</li>`).join('');
 }
 function renderProfiles(data){
@@ -38,10 +38,75 @@ function renderProviders(data){
       <div class="meta">API-Key ENV: ${esc(p.api_key_env || '–')} · vorhanden: ${p.api_key_present ? 'ja' : 'nein'}</div>
     </div>`).join('');
 }
+let routingEditorState = null;
+
+async function loadRoutingEditor(){
+  const [status, data] = await Promise.all([
+    api('/api/gui/llm-profiles/routing-editor/status'),
+    api('/api/gui/llm-profiles/routing-editor/routes')
+  ]);
+  routingEditorState = data;
+  document.getElementById('routingStatus').textContent = `${data.routes.length} Routing-Regeln · ${status.local_override_exists ? 'Local Override aktiv' : 'kein Local Override'} · Profil ${data.active_profile || 'unbekannt'}`;
+  renderRoutes(data);
+}
+
 function renderRoutes(data){
-  const routes = data.routes || {};
-  document.getElementById('routes').innerHTML = Object.entries(routes).map(([name, route]) => `
-    <div class="route"><strong>${esc(name)}</strong><span class="meta">Provider: ${esc(route.provider || route.resolved_provider || '–')}</span><br><span class="meta">${esc(route.reason || '')}</span></div>`).join('');
+  const providers = data.providers || [];
+  document.getElementById('routes').innerHTML = (data.routes || []).map(route => {
+    const providerOptions = providers.map(p => `<option value="${esc(p)}" ${p === route.provider ? 'selected' : ''}>${esc(p)}</option>`).join('');
+    return `
+      <div class="route-editor" data-purpose="${esc(route.purpose)}">
+        <label><strong>${esc(route.purpose)}</strong><span>Aktuell: ${esc(route.resolved.provider_name)} · ${esc(route.resolved.model)}</span></label>
+        <label>Provider<select class="route-provider">${providerOptions}</select></label>
+        <label>Modell optional<input class="route-model" value="${esc(route.model || '')}" placeholder="Provider Default" /></label>
+        <label>Grund<input class="route-reason" value="${esc(route.reason || '')}" placeholder="Warum diese Route?" /></label>
+      </div>`;
+  }).join('');
+}
+
+function collectRoutingUpdates(){
+  return Array.from(document.querySelectorAll('.route-editor')).map(row => ({
+    purpose: row.dataset.purpose,
+    provider: row.querySelector('.route-provider').value,
+    model: row.querySelector('.route-model').value.trim(),
+    reason: row.querySelector('.route-reason').value.trim(),
+  }));
+}
+
+async function previewRoutingChanges(){
+  const data = await api('/api/gui/llm-profiles/routing-editor/preview', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({updates: collectRoutingUpdates()})
+  });
+  document.getElementById('routingPreview').textContent = JSON.stringify(data, null, 2);
+}
+
+async function applyRoutingChanges(){
+  const preview = await api('/api/gui/llm-profiles/routing-editor/preview', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({updates: collectRoutingUpdates()})
+  });
+  if(!preview.ok){
+    document.getElementById('routingPreview').textContent = JSON.stringify(preview, null, 2);
+    return;
+  }
+  const message = `Routing wirklich speichern?\n\nWarnungen: ${(preview.warnings || []).length}`;
+  if(!confirm(message)) return;
+  const result = await api('/api/gui/llm-profiles/routing-editor/apply', {
+    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({updates: collectRoutingUpdates(), actor:'user-gui'})
+  });
+  document.getElementById('routingPreview').textContent = JSON.stringify(result, null, 2);
+  await loadAll();
+}
+
+async function loadRoutingAudit(){
+  const data = await api('/api/gui/llm-profiles/routing-editor/audit?limit=20');
+  document.getElementById('routingPreview').textContent = JSON.stringify(data, null, 2);
+}
+
+async function rollbackRouting(){
+  if(!confirm('Letztes Routing-Backup zurückspielen?')) return;
+  const data = await api('/api/gui/llm-profiles/routing-editor/rollback', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({})});
+  document.getElementById('routingPreview').textContent = JSON.stringify(data, null, 2);
+  await loadAll();
 }
 async function setProfile(profile){
   await api('/api/gui/llm-profiles/profile', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({profile})});

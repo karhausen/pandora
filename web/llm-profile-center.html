@@ -64,9 +64,22 @@
     </section>
 
     <section class="panel">
-      <h2>Routing</h2>
-      <p>Welche Aufgaben an welches Modell/Profil gehen.</p>
-      <div id="routes" class="route-grid"></div>
+      <div class="panel-head">
+        <div>
+          <h2>Routing Editor</h2>
+          <p>Routing-Regeln kontrolliert ändern. Es werden nur Local-Overrides ohne Secrets gespeichert.</p>
+        </div>
+        <button class="badge link" onclick="loadRoutingEditor()">Routing laden</button>
+      </div>
+      <div id="routingStatus" class="meta">Routing Editor wird geladen.</div>
+      <div id="routes" class="route-grid editable"></div>
+      <div class="editor-actions">
+        <button class="badge link" onclick="previewRoutingChanges()">Preview</button>
+        <button class="badge link primary" onclick="applyRoutingChanges()">Änderungen speichern</button>
+        <button class="badge link" onclick="loadRoutingAudit()">Audit laden</button>
+        <button class="badge link danger" onclick="rollbackRouting()">Letztes Backup zurückspielen</button>
+      </div>
+      <pre id="routingPreview" class="output-box">Noch keine Preview.</pre>
     </section>
 
     <section class="panel warning">
