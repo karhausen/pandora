@@ -42,6 +42,7 @@ from core.tool_center import ToolCenterService
 from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
 from core.night_mode_dashboard import NightModeDashboardService
+from core.llm_profile_center import LLMProfileCenterService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -101,6 +102,11 @@ def cmd_model_route(args): _json(ModelRouter().route(args.purpose, provider_name
 def cmd_cloud_expert_status(args): _json(CloudExpert().status())
 def cmd_cloud_expert_smoke(args): _json(CloudExpert().smoke(prompt=args.prompt, live=args.live, timeout=args.timeout))
 
+
+def cmd_llm_profile_center_dashboard(args): _json(LLMProfileCenterService().dashboard())
+def cmd_llm_profile_center_profiles(args): _json(LLMProfileCenterService().profiles())
+def cmd_llm_profile_center_providers(args): _json(LLMProfileCenterService().providers())
+def cmd_llm_profile_center_routes(args): _json(LLMProfileCenterService().routes())
 def cmd_llm_profile_status(args): _json(LLMProfileManager().status())
 def cmd_llm_profile_set(args): _json(LLMProfileManager().set_profile(args.profile))
 def cmd_llm_provider_status(args): _json(LLMProfileManager().provider_status(args.provider))
@@ -253,7 +259,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.5")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.6")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -283,8 +289,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("night-mode-reports"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_night_mode_reports)
     p = sub.add_parser("night-mode-show"); p.add_argument("report_id"); p.set_defaults(func=cmd_night_mode_show)
     p = sub.add_parser("night-mode-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_night_mode_preview)
+    p = sub.add_parser("llm-profile-center-dashboard"); p.set_defaults(func=cmd_llm_profile_center_dashboard)
+    p = sub.add_parser("llm-profile-center-profiles"); p.set_defaults(func=cmd_llm_profile_center_profiles)
+    p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
+    p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.5-night-mode-dashboard"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.6-llm-profile-center"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

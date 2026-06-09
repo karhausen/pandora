@@ -57,8 +57,9 @@ from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
 from .night_mode_dashboard import NightModeDashboardService
+from .llm_profile_center import LLMProfileCenterService
 
-app = FastAPI(title="Pandora Agent", version="22.5-night-mode-dashboard")
+app = FastAPI(title="Pandora Agent", version="22.6-llm-profile-center")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -444,6 +445,40 @@ def get_gui_approval_service() -> GuiApprovalApiService:
     return GuiApprovalApiService()
 
 
+
+
+@app.get("/api/gui/llm-profiles/dashboard")
+def gui_llm_profiles_dashboard():
+    return LLMProfileCenterService().dashboard()
+
+
+@app.get("/api/gui/llm-profiles/profiles")
+def gui_llm_profiles_profiles():
+    return LLMProfileCenterService().profiles()
+
+
+@app.post("/api/gui/llm-profiles/profile")
+def gui_llm_profiles_set_profile(req: dict = Body(...)):
+    result = LLMProfileCenterService().set_profile(str(req.get("profile", "")))
+    if not result.get("success", False):
+        raise HTTPException(status_code=400, detail=result)
+    return result
+
+
+@app.get("/api/gui/llm-profiles/providers")
+def gui_llm_profiles_providers():
+    return LLMProfileCenterService().providers()
+
+
+@app.get("/api/gui/llm-profiles/routes")
+def gui_llm_profiles_routes():
+    return LLMProfileCenterService().routes()
+
+
+@app.post("/api/gui/llm-profiles/smoke-preview")
+def gui_llm_profiles_smoke_preview(req: dict = Body(...)):
+    return LLMProfileCenterService().smoke_preview(provider=str(req.get("provider", "cloud_expert")))
+
 @app.get("/api/gui/approval/status")
 def gui_approval_status():
     return get_gui_approval_service().approval.status()
@@ -828,6 +863,21 @@ def web_memory_explorer():
 @app.get("/night-mode")
 def web_night_mode():
     return FileResponse(WEB_DIR / "night-mode.html")
+
+
+@app.get("/llm-profiles")
+def web_llm_profiles():
+    return FileResponse(WEB_DIR / "llm-profile-center.html")
+
+
+@app.get("/web/llm-profile-center.js")
+def web_llm_profile_center_js():
+    return FileResponse(WEB_DIR / "llm-profile-center.js")
+
+
+@app.get("/web/llm-profile-center.css")
+def web_llm_profile_center_css():
+    return FileResponse(WEB_DIR / "llm-profile-center.css")
 
 
 @app.get("/web/approval.js")

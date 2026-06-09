@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora LLM & Profile Center</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/llm-profile-center.css" />
+</head>
+<body>
+  <main class="page-shell">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Pandora Control Core</p>
+        <h1>LLM & Profile Center</h1>
+        <p>Profile, Provider und Routing sichtbar machen — ohne Secrets anzuzeigen.</p>
+      </div>
+      <nav class="badge-row" aria-label="Navigation">
+        <a class="badge link" href="/">User-GUI</a>
+        <a class="badge link primary" href="/operations">Operations</a>
+        <a class="badge link" href="/night-mode">Night Mode</a>
+        <a class="badge link" href="/approval">Approval</a>
+      </nav>
+    </header>
+
+    <section class="grid cards">
+      <article class="card strong">
+        <span class="label">Aktives Profil</span>
+        <h2 id="activeProfile">lade…</h2>
+        <p id="profileHint">Profilstatus wird geladen.</p>
+      </article>
+      <article class="card">
+        <span class="label">Cloud Expert</span>
+        <h2 id="cloudProvider">–</h2>
+        <p id="cloudReady">–</p>
+      </article>
+      <article class="card">
+        <span class="label">Security</span>
+        <h2 id="securityStatus">–</h2>
+        <p id="securityIssues">–</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Profile</h2>
+          <p>Umschalten zwischen privater LLM-Nutzung und Company-Profil.</p>
+        </div>
+        <button class="badge link" onclick="loadAll()">Aktualisieren</button>
+      </div>
+      <div id="profiles" class="list"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Provider</h2>
+          <p>Sanitisiert: keine API-Keys, keine geheimen Environment-Werte.</p>
+        </div>
+        <button class="badge link" onclick="smokePreview()">Smoke Preview</button>
+      </div>
+      <div id="providers" class="list compact"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Routing</h2>
+      <p>Welche Aufgaben an welches Modell/Profil gehen.</p>
+      <div id="routes" class="route-grid"></div>
+    </section>
+
+    <section class="panel warning">
+      <h2>Leitplanken</h2>
+      <ul id="guardrails"></ul>
+    </section>
+  </main>
+
+  <script src="/web/llm-profile-center.js"></script>
+</body>
+</html>
