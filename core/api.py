@@ -60,8 +60,9 @@ from .night_mode_dashboard import NightModeDashboardService
 from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
+from .knowledge_context import KnowledgeContextService
 
-app = FastAPI(title="Pandora Agent", version="22.7-user-knowledge-base")
+app = FastAPI(title="Pandora Agent", version="22.8-knowledge-search-context-injection")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -299,6 +300,16 @@ def gui_knowledge_search(query: str, limit: int = 50, cloud_context: bool = Fals
 @app.get("/api/gui/knowledge/context-preview")
 def gui_knowledge_context_preview(query: str, target: str = "local", limit: int = 10):
     return get_user_knowledge_service().context_preview(query=query, target=target, limit=limit)
+
+
+def get_knowledge_context_service() -> KnowledgeContextService:
+    return KnowledgeContextService()
+
+
+@app.get("/api/gui/knowledge/context-injection-preview")
+def gui_knowledge_context_injection_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    return get_knowledge_context_service().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
 
 
 def get_memory_explorer_service() -> MemoryExplorerService:
@@ -1300,7 +1311,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-22.6.2-user-gui-routing-sync",
+        "version": "mvp-22.8-knowledge-search-context-injection",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

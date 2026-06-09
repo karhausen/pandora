@@ -4,6 +4,7 @@ from .chat_response_router import ChatResponseRouter
 from .chat_session_store import ChatSessionStore
 from .conversation_memory import ConversationMemory
 from .llm_chat_responder import LLMChatResponder
+from .knowledge_context import KnowledgeContextService
 from .models import ChatRunResult
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .user_response import UserResponseFormatter
@@ -17,6 +18,7 @@ class ChatService:
         self.router = ChatResponseRouter()
         self.chat_responder = LLMChatResponder()
         self.memory = ConversationMemory()
+        self.knowledge_context = KnowledgeContextService()
 
     async def run(
         self,
@@ -69,10 +71,14 @@ class ChatService:
             current_session = self.store.get(session.session_id) if save else session
             history = [m.model_dump(mode="json") for m in current_session.messages]
             context = self.memory.build_context(session.session_id, current_session.messages)
+            knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
+            merged_context = context.summary
+            if knowledge.get("context_text"):
+                merged_context = (merged_context + "\n\n" if merged_context else "") + "User Knowledge Base Kontext:\n" + knowledge["context_text"]
             llm_result = self.chat_responder.respond(
                 task,
                 history=history,
-                context_summary=context.summary,
+                context_summary=merged_context,
                 provider_name=provider_name,
                 model=model,
             )
@@ -87,6 +93,14 @@ class ChatService:
                 "model": llm_result.get("model"),
                 "error": llm_result.get("error"),
                 "context_used": True,
+                "knowledge_context": {
+                    "source_count": knowledge.get("source_count", 0),
+                    "sources": knowledge.get("sources", []),
+                    "target": knowledge.get("target"),
+                    "cloud_context": knowledge.get("cloud_context"),
+                    "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
+                    "route_target": knowledge.get("route_target", {}),
+                },
             }
             metadata = {
                 "mode": "llm_chat",
@@ -94,6 +108,7 @@ class ChatService:
                 "provider_name": llm_result.get("provider_name"),
                 "model": llm_result.get("model"),
                 "context_used": True,
+                "knowledge_context": execution.get("knowledge_context", {}),
             }
 
         assistant_message = self.store.add_message(

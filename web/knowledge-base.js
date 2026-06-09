@@ -122,4 +122,28 @@ async function searchKnowledge(cloudOnly) {
   setStatus(`${data.count || 0} Treffer`);
 }
 
+async function previewInjection() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) { setStatus('Bitte Suchbegriff eingeben.'); return; }
+  setStatus('Erzeuge Context-Injection Preview ...');
+  const res = await fetch(`/api/gui/knowledge/context-injection-preview?query=${encodeURIComponent(query)}&limit=5`);
+  const data = await res.json();
+  const el = document.getElementById('searchResults');
+  el.innerHTML = `
+    <div class="knowledge-item selected">
+      <h3>Context-Injection Preview</h3>
+      <div class="badge-row">
+        <span class="badge primary">${escapeHtml(data.target)}</span>
+        <span class="badge">${data.source_count || 0} Quellen</span>
+        <span class="badge">${data.context_chars || 0} Zeichen</span>
+        <span class="badge">${data.blocked_local_only_count || 0} local-only blockiert</span>
+      </div>
+      <p>${escapeHtml(data.rule || '')}</p>
+      <pre>${escapeHtml(data.context_text || 'Kein passender Knowledge-Kontext gefunden.')}</pre>
+    </div>
+  `;
+  document.getElementById('rawKnowledge').textContent = JSON.stringify(data, null, 2);
+  setStatus('Context-Injection Preview bereit');
+}
+
 window.addEventListener('DOMContentLoaded', loadKnowledgeBase);

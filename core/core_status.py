@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-22.7-user-knowledge-base"
+PANDORA_CORE_VERSION = "mvp-22.8-knowledge-search-context-injection"
 
 
 @dataclass(frozen=True)
