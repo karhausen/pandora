@@ -1,215 +1,121 @@
 # Pandora Agent
 
-## MVP 21.1 – Nightly Governance Review
+Pandora ist ein lokaler, modularer KI-Assistent mit kontrollierter Agentenarchitektur.
+Der Core ist die Schaltzentrale: Er nimmt Aufgaben an, entscheidet über Routing, nutzt LLMs, Tools, Skills und Memory, schützt sensible Daten und erzeugt nachvollziehbare Vorschläge für Wachstum.
 
-Ziel:
+Aktueller Stand: **MVP 22.9.3 – Documentation Cleanup**
 
-- Pandora kann einen Nacht-Review erzeugen, ohne sich selbst zu verändern.
-- Der Review prüft Core-Status, Governance und Task-Historie.
-- Ergebnis ist ein prüfbares Paket unter `proposals/nightly_reviews/`.
-- `auto_changes_made` bleibt bewusst immer `false`.
+## Was Pandora aktuell kann
 
-CLI:
+- Chat über lokale, private Cloud- oder Company-LLM-Routen
+- Profile für `private` und `company`
+- LLM Routing Editor in der GUI
+- Tool Center GUI
+- Skill Center GUI
+- Memory Explorer
+- User Knowledge Base mit Policy-Regeln
+- Knowledge Search & Context Injection
+- Knowledge Governance mit Health Score
+- Night Mode / Maintenance Manager
+- Proposal Review Inbox und Approval Workflow
+- Operations Dashboard
+- Release Packaging mit Audit gegen Runtime-Artefakte und Secrets
 
-```bash
-python main.py control-status
-python main.py nightly-reflect --limit 50
-python main.py nightly-review --limit 50
-python main.py nightly-review --no-write
-pytest tests/test_mvp21_control_core.py tests/test_mvp21_1_governance_review.py -q
+## Grundprinzip
+
+Pandora darf wachsen, aber nicht unkontrolliert.
+
+```text
+Core = stabil, kontrollierend, geschützt
+Tools = erweiterbar
+Skills = erweiterbar
+Memory = wachsend
+Knowledge Base = vom User gepflegt
+GUI = Steuerung und Transparenz
 ```
 
+Der aktive Core darf nicht automatisch überschrieben werden. Vorschläge werden geprüft, getestet und vom User genehmigt.
 
-## MVP 20.5 – Design Driven Code Generation & Placeholder Detection
-
-Ziel:
-
-- Tool-Code wird strikt aus dem `ToolDesign` erzeugt.
-- `run(payload)` muss alle Felder aus `output_schema` liefern.
-- Generischer Dummy-Code wie `return {"text": str(text)}` wird nicht mehr als brauchbares Tool akzeptiert, wenn das Schema andere Felder verlangt.
-- Cloud-Fehler erzeugen keinen scheinbar gültigen Fallback-Code mehr. Stattdessen wird ein FAILED-Proposal mit transparenter Fehlermeldung erzeugt.
-- `generate_with_llm` bewertet jetzt Static Review, pytest **und** Semantic Quality Gate gemeinsam.
-
-Aktuelle CLI-Smoke-Tests:
+## Schnellstart lokal
 
 ```bash
-python main.py status
-python main.py llm-provider-smoke --live
-python main.py tool-generate word_count --provider cloud_expert
-python main.py proposal-list
-python main.py tool-quality-proposal <proposal_id>
-python main.py proposal-approve <proposal_id>
-python main.py proposal-install <proposal_id>
-python main.py tool-list
-python main.py run-tool <tool_id> --file payload.json
-```
+python -m venv .venv
+source .venv/bin/activate      # Linux/macOS
+# .venv\Scripts\activate       # Windows
 
-Entwicklertests:
-
-```bash
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest -q
-python -m compileall -q .
-```
-
-
-
-Lokaler, modularer Multi-Agent-Assistent mit kontrollierter Tool Factory.
-
-Aktueller Stand: **MVP 20.4.1 – Implicit Live Data Gap Detection + No Dummy Code Policy**
-
-## Start
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
 pip install -r requirements.txt
-python3 main.py status
-python3 main.py api
+python main.py status
+python main.py api --host 127.0.0.1 --port 8000
 ```
 
-User-GUI: `http://127.0.0.1:8000/`  
-Admin-GUI: `http://127.0.0.1:8000/admin`
-
-## Aktuelle CLI-Tests für MVP 20.4.1
-
-Grundstatus:
-
-```bash
-python3 main.py status
-python3 main.py config-paths
-python3 main.py llm-profile-status
-python3 main.py llm-provider-smoke cloud_expert --live
-```
-
-Tool Factory mit sicherem Standardtool:
-
-```bash
-python3 main.py tool-generate word_count --provider cloud_expert
-python3 main.py capability-evaluate "Ich brauche ein Tool um Aktienkurse abzurufen"
-python3 main.py capability-evaluate "Wie ist der aktuelle Dollar-Kurs?"
-python3 main.py capability-evaluate "Wie wird das Wetter?"
-python3 main.py proposal-list
-python3 main.py proposal-show <PROPOSAL_ID>
-python3 main.py tool-quality-proposal <PROPOSAL_ID>
-python3 main.py proposal-approve <PROPOSAL_ID>
-python3 main.py proposal-install <PROPOSAL_ID>
-python3 main.py tool-list
-```
-
-Payload-Datei für Windows/macOS/Linux:
-
-```json
-{
-  "text": "eins zwei drei vier"
-}
-```
-
-Tool ausführen:
-
-```bash
-python3 main.py run-tool <TOOL_ID> --file payload.json
-```
-
-Wichtig: Wenn `tool-list` z.B. `word_counter` mit Alias `word_count` zeigt, funktionieren beide Ebenen im Routing: Pandora erkennt die Capability `word_count`, nutzt aber das installierte Tool `word_counter`.
-
-Lifecycle:
-
-```bash
-python3 main.py tool-info <TOOL_ID>
-python3 main.py tool-stats <TOOL_ID>
-python3 main.py tool-disable <TOOL_ID>
-python3 main.py tool-enable <TOOL_ID>
-```
-
-Tests:
-
-```bash
-python3 -m pytest -q
-python3 -m compileall -q .
-```
-
-
-
-
-
-## MVP 20.4.1 Hinweis
-
-MVP 20.4.1 ergänzt die implizite Live-Daten-Erkennung und eine No-Dummy-Code-Policy.
-
-Beispiele:
+Dann im Browser öffnen:
 
 ```text
-Wie wird das Wetter?
-→ weather_lookup
-
-Wie ist der Dollar-Kurs?
-→ exchange_rate_lookup
-
-Ich brauche ein Tool um Aktienkurse abzurufen
-→ stock_price_lookup
+http://127.0.0.1:8000/
 ```
 
-Zusätzlich markiert das Tool Quality Gate generischen Dummy-Code wie `return {"text": str(text)}` als Fehler, wenn das `output_schema` andere Felder erwartet. Dadurch bleiben Proposals wie `stock_price_lookup` korrekt `FAILED`, solange der erzeugte Code den Design-Vertrag nicht erfüllt.
-
-## MVP 20.4 Hinweis
-
-MVP 20.4 verbessert die Capability-Erkennung vor dem Planner. Pandora erkennt jetzt generischer, wenn eine Aufgabe aktuelle/live Daten oder einen expliziten Tool-Wunsch enthält und kein installiertes Tool vorhanden ist.
-
-Beispiele:
+Wichtige GUI-Seiten:
 
 ```text
-Ich brauche ein Tool um Aktienkurse abzurufen
-→ stock_price_lookup
-
-Wie ist der aktuelle Dollar-Kurs?
-→ exchange_rate_lookup
-
-Welche Primzahlen liegen zwischen 10 und 30?
-→ keine Capability-Lücke, normale lokale Antwort ist okay
+/                         User-GUI
+/operations               Operations Dashboard
+/approval                 Approval Center
+/tools-center             Tool Center
+/skills-center            Skill Center
+/memory-explorer          Memory Explorer
+/knowledge-base           User Knowledge Base
+/night-mode               Night Mode Dashboard
+/llm-profiles             LLM & Profile Center
 ```
 
-Damit soll der Planner nicht mehr fälschlich mit `Keine Tool-Ausführung nötig` antworten, wenn tatsächlich ein neues Abruf-/Live-Daten-Tool benötigt wird.
+## Docker
 
-## MVP 20.3 Hinweis
+```bash
+docker compose build
+docker compose up
+```
 
-MVP 20.3 ergänzt ein Tool Quality Gate. Ein Proposal wird nur noch `VALIDATED`, wenn alle drei Ebenen erfolgreich sind:
+Danach:
 
 ```text
-Static Review
-pytest
-Semantic Validation
+http://127.0.0.1:8000/
 ```
-
-Die semantische Validierung prüft den Vertrag aus `ToolDesign`/`output_schema` gegen das tatsächliche Tool-Ergebnis. Beispiel: Ein Tool mit `output_schema: {"count": "integer"}` darf nicht `{ "text": ... }` zurückgeben.
-
-## MVP 20.2.2 Hinweis
-
-Der Generator prüft jetzt strenger, dass erzeugter Tool-Code zum `output_schema` passt. Ein Tool mit `output_schema: {"count": "integer"}` darf nicht nur `{ "text": ... }` zurückgeben.
-
-Der Clean-Release-Schritt entfernt außerdem installierte Generated Tools aus `generated_tools/` und setzt `config/tools/tool_registry.json` auf die Basis-Tools zurück.
-
-## GUI Workflow
-
-1. User fragt nach einer neuen Fähigkeit.
-2. Pandora erzeugt ein Proposal.
-3. GUI öffnet den Tool-Factory-Bereich.
-4. User klickt `Approve`.
-5. User klickt `Install`.
-6. Tool ist in `tool-list` sichtbar und kann verwendet werden.
 
 ## Konfiguration
 
-Statische Konfiguration liegt unter `config/`, Runtime-Daten unter `memory/`.
+Standardkonfiguration:
 
 ```text
 config/llm/llm_config.json
-config/llm/llm_config.local.json   # privat, gitignored
 config/tools/tool_registry.json
 config/tools/execution_policy.json
 config/skills/skill_registry.json
 ```
 
-Secrets gehören in `.env` oder echte Umgebungsvariablen:
+Lokale/private Konfiguration:
+
+```text
+config/llm/llm_config.local.json
+```
+
+Diese Datei wird nicht ins Release-ZIP gepackt.
+
+Beispiel:
+
+```json
+{
+  "active_profile": "company",
+  "model_routes": {
+    "chat": {
+      "provider": "cloud_expert",
+      "model": "company-default-model",
+      "reason": "Company model for normal chat."
+    }
+  }
+}
+```
+
+Secrets gehören in `.env` oder echte Umgebungsvariablen, niemals ins Repository:
 
 ```env
 OPENAI_API_KEY=...
@@ -218,89 +124,169 @@ COMPANY_LLM_API_KEY=...
 COMPANY_LLM_MODEL=...
 ```
 
-Profilumschaltung:
+## LLM Routing
 
-```bash
-python3 main.py llm-profile private
-python3 main.py llm-profile company
-```
-
-OpenAI-Standardmodell: `gpt-4o`.
-
-## Sicherheit
-
-Cloud-Modelle erzeugen nur Kandidaten. Pandora validiert lokal. Aktivierung bleibt manuell.
-
-Keine Zugangsdaten, Company-URLs oder privaten Profile ins Repository committen.
-
-## Dokumentation
+Pandora unterscheidet Aufgabenarten wie:
 
 ```text
-docs/architecture.md
-docs/roadmap.md
-docs/tool_factory.md
-docs/tool_factory_gui.md
-docs/tool_lifecycle.md
-docs/tool_design.md
-docs/tool_code_generation.md
-docs/tool_review.md
-docs/tool_quality_gate.md
-docs/security.md
+chat
+planning
+tool_design
+tool_code_generation
+code_review
+core_review
+maintenance
+night_mode
 ```
 
-## Release bereinigen
+Die Routen werden im LLM & Profile Center gepflegt:
+
+```text
+http://127.0.0.1:8000/llm-profiles
+```
+
+Wichtig: Die User-GUI nutzt die zentrale Chat-Route. Es gibt keinen separaten Provider-Override mehr im Chat.
+
+## User Knowledge Base
+
+Eigene Wissensdateien liegen unter:
+
+```text
+user_knowledge/
+├── public/
+├── restricted_cloud_allowed/
+└── private_local_only/
+```
+
+Bedeutung:
+
+```text
+public                    lokal + Cloud erlaubt
+restricted_cloud_allowed  Cloud möglich, aber nur nach Policy-Prüfung
+private_local_only        nur lokales LLM, niemals Cloud
+```
+
+Empfohlenes Format ist Markdown mit YAML-Metadaten:
+
+```markdown
+---
+title: Tool Factory
+tags:
+  - pandora
+  - tools
+visibility: public
+cloud_allowed: true
+priority: high
+last_reviewed: 2026-06-10
+---
+
+# Tool Factory
+
+Notizen und Wissen zur Pandora Tool Factory.
+```
+
+Governance prüfen:
 
 ```bash
-python scripts/clean_runtime_artifacts.py
+python main.py knowledge-governance-run
+python main.py knowledge-metadata-audit
 ```
 
-## MVP 21.0 - Stable Control Core
+## Wichtige CLI-Befehle
 
-Dieser Stand ergänzt Pandora um einen geschützten Control-Core-Pfad:
+Status und API:
 
-- zentrale Statusquelle: `core/core_status.py`
-- Schaltzentrale: `core/control_core.py`
-- Safety Gate: `core/safety_gate.py`
-- Memory Gateway: `core/memory_gateway.py`
-- Nachtreflexion ohne Auto-Aktivierung: `core/nightly_reflection.py`
-- erweiterter Heartbeat für Planner, Memory, Registry und Tool Executor
-- Dockerfile und docker-compose für reproduzierbaren API-Start
+```bash
+python main.py status
+python main.py control-status
+python main.py heartbeat
+python main.py api --host 127.0.0.1 --port 8000
+```
 
-Wichtig: Der Core bleibt geschützt. Wachstum findet über Tools, Skills, Workflows und Memory statt.
-
-## MVP 21.3 – Maintenance Manager
-
-Pandora besitzt jetzt einen kontrollierten Wartungsmodus als Vorstufe zum späteren Day/Night-Mode.
+Operations und Maintenance:
 
 ```bash
 python main.py maintenance-status
 python main.py maintenance-run --dry-run --force
-python main.py maintenance-run --force --limit 200
+python main.py operations-preview
+python main.py operations-run --force
 ```
 
-Der Maintenance Manager erzeugt Reviews und Reports, führt Audits aus und bleibt observe-only bezüglich Core, Tools und Skills. Er aktiviert keine Änderungen automatisch.
-
-
-## MVP 21.3 – Skill Candidate Pipeline
-
-Pandora kann im Wartungsmodus wiederkehrende Tool-Muster aus dem Task Journal erkennen und daraus prüfbare Skill-Vorschläge erzeugen. Die Pipeline ist observe-only: keine Aktivierung, keine Registry-Änderung, keine Core-Änderung.
+Review und Approval:
 
 ```bash
+python main.py review-inbox-list
+python main.py review-inbox-show <item_id>
+python main.py approval-pending
+python main.py approval-decide <item_id> --decision approve_next_step --note "geprüft"
+python main.py approval-audit
+```
+
+Tools und Skills:
+
+```bash
+python main.py tool-list
+python main.py tool-info <tool_id>
+python main.py tool-enable <tool_id>
+python main.py tool-disable <tool_id>
 python main.py skill-candidate-status
 python main.py skill-candidate-run --dry-run --force
-python main.py skill-candidate-run --force --limit 200
 ```
 
-## MVP 21.5 – Capability Gap Pipeline
-
-Pandora can now consolidate missing-capability signals from the capability event log and task journal into reviewable proposals.
-
-Commands:
+Knowledge:
 
 ```bash
-python main.py capability-gap-status
-python main.py capability-gap-run --dry-run --force
-python main.py capability-gap-run --force --limit 200
+python main.py knowledge-governance-status
+python main.py knowledge-governance-run
+python main.py knowledge-metadata-audit
 ```
 
-The pipeline is observe-only. It does not generate code, install tools, activate skills, call LLMs or modify the core.
+Tests:
+
+```bash
+python -m pytest -q
+python -m compileall -q .
+```
+
+Release bauen:
+
+```bash
+python scripts/export_release.py --skip-tests
+```
+
+## Dokumentation
+
+Der Ordner `docs/` enthält technische Detaildokumente.
+Der Einstieg ist:
+
+```text
+docs/README.md
+docs/overview.md
+docs/configuration.md
+docs/commands.md
+docs/gui.md
+docs/knowledge_base.md
+docs/roadmap.md
+```
+
+Kurze Platzhalter-Dokumente wurden entfernt. Später können ausgewählte Inhalte nach `user_knowledge/public/pandora/` übernommen werden, damit Pandora sie aktiv als Kontext nutzen kann.
+
+## Sicherheit
+
+- Keine Secrets im Repository
+- Keine lokalen `.local.json` Dateien im Release
+- Keine echten User-Knowledge-Inhalte im Release
+- Keine Runtime-Artefakte im ZIP
+- Private Knowledge bleibt lokal
+- Core-Änderungen nur über Review/Approval
+- Mock/Fallback-LLM wird in der Ausführung diagnostisch sichtbar gemacht
+
+## Aktueller nächster Architekturpfad
+
+Nach der Dokumentationsbereinigung ist der nächste große fachliche Schritt:
+
+```text
+MVP 23.0 – Capability Graph
+```
+
+Vorher sinnvoll: echte Knowledge-Dateien pflegen, Governance prüfen und LLM-Routing stabil testen.

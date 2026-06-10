@@ -217,7 +217,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-22.9.2-llm-fallback-diagnostics")
+    parser.add_argument("--version", default="mvp-22.9.3-documentation-cleanup")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()
