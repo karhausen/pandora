@@ -330,7 +330,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-rebuild"); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_capability_rebuild)
     p = sub.add_parser("capability-list"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_capability_list)
     p = sub.add_parser("capability-show"); p.add_argument("capability"); p.set_defaults(func=cmd_capability_show)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.0-capability-graph-foundation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.1-capability-explorer-gui"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

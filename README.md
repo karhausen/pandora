@@ -290,3 +290,8 @@ MVP 23.0 – Capability Graph
 ```
 
 Vorher sinnvoll: echte Knowledge-Dateien pflegen, Governance prüfen und LLM-Routing stabil testen.
+
+
+## Capability Explorer
+
+Der Capability Explorer ist unter `/capability-explorer` erreichbar und zeigt Beziehungen zwischen Capabilities, Tools, Skills, Knowledge-Dokumenten und Capability Gaps.

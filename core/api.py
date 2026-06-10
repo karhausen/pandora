@@ -66,7 +66,7 @@ from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
 
-app = FastAPI(title="Pandora Agent", version="23.0-capability-graph-foundation")
+app = FastAPI(title="Pandora Agent", version="23.1-capability-explorer-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1141,6 +1141,21 @@ def web_knowledge_editor():
     return FileResponse(WEB_DIR / "knowledge-editor.html")
 
 
+@app.get("/capability-explorer")
+def web_capability_explorer():
+    return FileResponse(WEB_DIR / "capability-explorer.html")
+
+
+@app.get("/web/capability-explorer.js")
+def web_capability_explorer_js():
+    return FileResponse(WEB_DIR / "capability-explorer.js")
+
+
+@app.get("/web/capability-explorer.css")
+def web_capability_explorer_css():
+    return FileResponse(WEB_DIR / "capability-explorer.css")
+
+
 @app.get("/web/knowledge-base.js")
 def web_knowledge_base_js():
     return FileResponse(WEB_DIR / "knowledge-base.js")
@@ -1482,7 +1497,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-23.0-capability-graph-foundation",
+        "version": "mvp-23.1-capability-explorer-gui",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

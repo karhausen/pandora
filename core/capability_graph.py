@@ -114,7 +114,7 @@ class CapabilityGraphService:
 
         graph = {
             "kind": "capability_graph",
-            "version": "mvp-23.0-capability-graph-foundation",
+            "version": "mvp-23.1-capability-explorer-gui",
             "updated_at": datetime.now(UTC).isoformat(),
             "nodes": [node.as_dict() for node in sorted(nodes.values(), key=lambda item: (item.type, item.label.lower()))],
             "edges": [edge.as_dict() for edge in sorted(edges.values(), key=lambda item: (item.source, item.relation, item.target))],
