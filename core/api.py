@@ -64,7 +64,7 @@ from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
 from .knowledge_governance import KnowledgeGovernanceService
 
-app = FastAPI(title="Pandora Agent", version="22.9-knowledge-metadata-governance")
+app = FastAPI(title="Pandora Agent", version="22.9.1-knowledge-governance-hardening")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1343,7 +1343,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-22.9-knowledge-metadata-governance",
+        "version": "mvp-22.9.1-knowledge-governance-hardening",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

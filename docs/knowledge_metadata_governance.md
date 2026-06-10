@@ -46,3 +46,8 @@ POST /api/gui/knowledge/metadata/validate
 ## Wichtig
 
 Die Governance ist read-only. Pandora verändert keine User-Knowledge-Dateien automatisch.
+
+
+## MVP 22.9.1 Hardening
+
+Die Governance prüft jetzt echte Regelverletzungen: fehlende Metadaten, Sichtbarkeitskonflikte, private Cloud-Freigaben, mögliche Secrets in public, Review-Alter, schwache Tags, sehr kurze/leere Inhalte, große Kontextdateien und Duplicate-Hinweise. Reports enthalten `health_score`, `grade` und eine klare Summary.

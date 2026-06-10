@@ -168,7 +168,7 @@ async function loadGovernanceStatus() {
     const res = await fetch('/api/gui/knowledge/governance/status');
     const data = await res.json();
     const el = document.getElementById('governanceStatus');
-    if (el) el.textContent = data.ok ? 'OK' : `${data.error_count || 0} Fehler`;
+    if (el) el.textContent = data.ok ? `OK · ${data.health_score ?? 100}/100` : `${data.error_count || 0} Fehler · ${data.health_score ?? 0}/100`;
   } catch {
     const el = document.getElementById('governanceStatus');
     if (el) el.textContent = '–';
@@ -182,11 +182,11 @@ async function loadGovernance() {
   const el = document.getElementById('governancePanel');
   const issues = data.issues || [];
   if (!issues.length) {
-    el.innerHTML = '<div class="knowledge-item selected"><h3>Governance OK</h3><p>Keine Policy-Probleme gefunden.</p></div>';
+    el.innerHTML = `<div class="knowledge-item selected"><h3>Governance OK</h3><div class="badge-row"><span class="badge primary">Score ${escapeHtml(data.health_score ?? 100)}/100</span><span class="badge">Grade ${escapeHtml(data.grade || 'A')}</span><span class="badge">${escapeHtml(data.file_count || 0)} Dateien</span></div><p>${escapeHtml(data.summary || 'Keine Policy-Probleme gefunden.')}</p></div>`;
   } else {
-    el.innerHTML = issues.slice(0, 50).map(issue => `
+    el.innerHTML = `<div class="knowledge-item selected"><h3>Governance Report</h3><div class="badge-row"><span class="badge ${data.ok ? 'primary' : 'danger'}">Score ${escapeHtml(data.health_score ?? 0)}/100</span><span class="badge">Grade ${escapeHtml(data.grade || '-')}</span><span class="badge danger">${escapeHtml(data.error_count || 0)} Fehler</span><span class="badge">${escapeHtml(data.warning_count || 0)} Warnungen</span><span class="badge">${escapeHtml(data.info_count || 0)} Hinweise</span></div><p>${escapeHtml(data.summary || '')}</p></div>` + issues.slice(0, 80).map(issue => `
       <div class="knowledge-item">
-        <h3>${escapeHtml(issue.code)} <span class="badge ${issue.severity === 'error' ? 'danger' : ''}">${escapeHtml(issue.severity)}</span></h3>
+        <h3>${escapeHtml(issue.code)} <span class="badge ${issue.severity === 'error' ? 'danger' : issue.severity === 'warning' ? '' : 'primary'}">${escapeHtml(issue.severity)}</span></h3>
         <p>${escapeHtml(issue.area)} / ${escapeHtml(issue.relative_path)}</p>
         <p>${escapeHtml(issue.message)}</p>
       </div>
