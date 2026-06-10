@@ -36,3 +36,5 @@ user_knowledge/public/pandora/
 ```
 
 Dann kann Pandora diese Inhalte über Knowledge Search und Context Injection selbst nutzen.
+
+- [Knowledge Editor](knowledge_editor.md)

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Knowledge Editor</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/knowledge-editor.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Knowledge Editor</h1>
+        <p>Wissen kontrolliert anlegen, bearbeiten, verschieben und löschen – nur innerhalb von <code>user_knowledge/</code>.</p>
+      </div>
+      <nav class="hero-actions" aria-label="Pandora Navigation">
+        <a class="badge link" href="/">User GUI</a>
+        <a class="badge link" href="/knowledge-base">Knowledge Base</a>
+        <a class="badge link primary" href="/knowledge-editor">Knowledge Editor</a>
+        <a class="badge link" href="/operations">Operations Dashboard</a>
+      </nav>
+    </header>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Editor</span><strong id="editorEnabled">–</strong></article>
+      <article class="card"><span class="label">Bereich</span><strong id="currentArea">public</strong></article>
+      <article class="card"><span class="label">Datei</span><strong id="currentFile">neu</strong></article>
+      <article class="card"><span class="label">Governance</span><strong id="governanceState">–</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="newMarkdown()">Neue Markdown-Datei</button>
+      <button class="badge link" type="button" onclick="createFolder()">Ordner anlegen</button>
+      <button class="badge link" type="button" onclick="loadTree()">Baum aktualisieren</button>
+      <button class="badge link primary" type="button" onclick="saveFile()">Speichern</button>
+      <button class="badge link" type="button" onclick="moveFile()">Verschieben</button>
+      <button class="badge link danger" type="button" onclick="deleteCurrent()">Löschen</button>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="editor-layout">
+      <aside class="tree-panel">
+        <h2>Wissensbaum</h2>
+        <div id="treeList" class="compact-list"></div>
+      </aside>
+
+      <section class="editor-panel">
+        <div class="form-grid">
+          <label>Bereich
+            <select id="areaSelect" onchange="onAreaChange()">
+              <option value="public">public</option>
+              <option value="restricted_cloud_allowed">restricted_cloud_allowed</option>
+              <option value="private_local_only">private_local_only</option>
+            </select>
+          </label>
+          <label>Pfad / Datei
+            <input id="relativePath" placeholder="pandora/notiz.md" />
+          </label>
+          <label>Titel
+            <input id="metaTitle" placeholder="Titel" />
+          </label>
+          <label>Tags, kommagetrennt
+            <input id="metaTags" placeholder="pandora, tools, python" />
+          </label>
+          <label>Sichtbarkeit
+            <select id="metaVisibility">
+              <option value="public">public</option>
+              <option value="restricted_cloud_allowed">restricted_cloud_allowed</option>
+              <option value="private_local_only">private_local_only</option>
+            </select>
+          </label>
+          <label>Cloud erlaubt
+            <select id="metaCloudAllowed">
+              <option value="true">true</option>
+              <option value="false">false</option>
+            </select>
+          </label>
+          <label>Priorität
+            <select id="metaPriority">
+              <option value="low">low</option>
+              <option value="normal">normal</option>
+              <option value="high">high</option>
+              <option value="critical">critical</option>
+            </select>
+          </label>
+          <label>Owner
+            <input id="metaOwner" placeholder="thomas" />
+          </label>
+          <label>Last reviewed
+            <input id="metaLastReviewed" type="date" />
+          </label>
+          <label class="wide">Summary
+            <input id="metaSummary" placeholder="Kurze Zusammenfassung für Governance und Suche" />
+          </label>
+        </div>
+
+        <label class="body-label">Inhalt
+          <textarea id="bodyEditor" spellcheck="false" placeholder="# Überschrift\n\nInhalt ..."></textarea>
+        </label>
+
+        <div class="editor-actions badge-row">
+          <label class="inline-check"><input id="overwriteToggle" type="checkbox" checked /> vorhandene Datei überschreiben</label>
+          <span class="badge" id="policyHint">Policy wird geladen</span>
+          <span class="badge" id="pathHint">Pfadschutz aktiv</span>
+        </div>
+      </section>
+
+      <aside class="preview-panel">
+        <h2>Governance / Ergebnis</h2>
+        <div id="governancePanel" class="compact-list"></div>
+        <h2>Rohdaten</h2>
+        <pre id="rawOutput">{}</pre>
+      </aside>
+    </section>
+  </main>
+  <script src="/web/knowledge-editor.js"></script>
+</body>
+</html>

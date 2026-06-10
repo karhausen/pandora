@@ -63,8 +63,9 @@ from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
 from .knowledge_governance import KnowledgeGovernanceService
+from .knowledge_editor import KnowledgeEditorService
 
-app = FastAPI(title="Pandora Agent", version="22.9.1-knowledge-governance-hardening")
+app = FastAPI(title="Pandora Agent", version="22.10-knowledge-editor-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -302,6 +303,101 @@ def gui_knowledge_search(query: str, limit: int = 50, cloud_context: bool = Fals
 @app.get("/api/gui/knowledge/context-preview")
 def gui_knowledge_context_preview(query: str, target: str = "local", limit: int = 10):
     return get_user_knowledge_service().context_preview(query=query, target=target, limit=limit)
+
+
+def get_knowledge_editor_service() -> KnowledgeEditorService:
+    return KnowledgeEditorService()
+
+
+class KnowledgeEditorSaveRequest(BaseModel):
+    area: str
+    relative_path: str
+    metadata: dict[str, Any] | None = None
+    body: str = ""
+    overwrite: bool = False
+
+
+class KnowledgeEditorFolderRequest(BaseModel):
+    area: str
+    relative_path: str
+
+
+class KnowledgeEditorMoveRequest(BaseModel):
+    source_area: str
+    source_path: str
+    target_area: str
+    target_path: str
+    overwrite: bool = False
+
+
+class KnowledgeEditorDeleteRequest(BaseModel):
+    area: str
+    relative_path: str
+    confirm: bool = False
+
+
+@app.get("/api/gui/knowledge/editor/status")
+def gui_knowledge_editor_status():
+    return get_knowledge_editor_service().status()
+
+
+@app.get("/api/gui/knowledge/editor/tree")
+def gui_knowledge_editor_tree():
+    return get_knowledge_editor_service().tree()
+
+
+@app.get("/api/gui/knowledge/editor/template")
+def gui_knowledge_editor_template(area: str = "public", relative_path: str = "new-note.md"):
+    try:
+        return get_knowledge_editor_service().metadata_template(area=area, relative_path=relative_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/knowledge/editor/files/{area}/{relative_path:path}")
+def gui_knowledge_editor_file(area: str, relative_path: str):
+    try:
+        return get_knowledge_editor_service().read_file(area=area, relative_path=relative_path)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/files")
+def gui_knowledge_editor_save(req: KnowledgeEditorSaveRequest):
+    try:
+        return get_knowledge_editor_service().save_file(area=req.area, relative_path=req.relative_path, metadata=req.metadata, body=req.body, overwrite=req.overwrite)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/folders")
+def gui_knowledge_editor_create_folder(req: KnowledgeEditorFolderRequest):
+    try:
+        return get_knowledge_editor_service().create_folder(area=req.area, relative_path=req.relative_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/move")
+def gui_knowledge_editor_move(req: KnowledgeEditorMoveRequest):
+    try:
+        return get_knowledge_editor_service().move_file(source_area=req.source_area, source_path=req.source_path, target_area=req.target_area, target_path=req.target_path, overwrite=req.overwrite)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/delete")
+def gui_knowledge_editor_delete(req: KnowledgeEditorDeleteRequest):
+    try:
+        return get_knowledge_editor_service().delete_path(area=req.area, relative_path=req.relative_path, confirm=req.confirm)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 def get_knowledge_context_service() -> KnowledgeContextService:
@@ -1012,6 +1108,11 @@ def web_knowledge_base():
     return FileResponse(WEB_DIR / "knowledge-base.html")
 
 
+@app.get("/knowledge-editor")
+def web_knowledge_editor():
+    return FileResponse(WEB_DIR / "knowledge-editor.html")
+
+
 @app.get("/web/knowledge-base.js")
 def web_knowledge_base_js():
     return FileResponse(WEB_DIR / "knowledge-base.js")
@@ -1020,6 +1121,16 @@ def web_knowledge_base_js():
 @app.get("/web/knowledge-base.css")
 def web_knowledge_base_css():
     return FileResponse(WEB_DIR / "knowledge-base.css")
+
+
+@app.get("/web/knowledge-editor.js")
+def web_knowledge_editor_js():
+    return FileResponse(WEB_DIR / "knowledge-editor.js")
+
+
+@app.get("/web/knowledge-editor.css")
+def web_knowledge_editor_css():
+    return FileResponse(WEB_DIR / "knowledge-editor.css")
 
 
 @app.get("/web/llm-profile-center.js")
@@ -1343,7 +1454,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-22.9.1-knowledge-governance-hardening",
+        "version": "mvp-22.10-knowledge-editor-gui",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",
