@@ -64,8 +64,9 @@ from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
+from .capability_graph import CapabilityGraphService
 
-app = FastAPI(title="Pandora Agent", version="22.10-knowledge-editor-gui")
+app = FastAPI(title="Pandora Agent", version="23.0-capability-graph-foundation")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -439,6 +440,33 @@ def gui_knowledge_metadata_validate(req: KnowledgeMetadataValidationRequest):
     return get_knowledge_governance_service().validate_metadata(req.metadata, area=req.area, relative_path=req.relative_path)
 
 
+
+
+def get_capability_graph_service() -> CapabilityGraphService:
+    return CapabilityGraphService()
+
+
+@app.get("/api/capabilities")
+def api_capabilities(query: str | None = None, limit: int = 200):
+    return get_capability_graph_service().list_capabilities(query=query, limit=limit)
+
+
+@app.get("/api/capabilities/graph")
+def api_capability_graph():
+    return get_capability_graph_service().load_graph()
+
+
+@app.post("/api/capabilities/rebuild")
+def api_capability_rebuild():
+    return get_capability_graph_service().rebuild(write=True)
+
+
+@app.get("/api/capabilities/{capability:path}")
+def api_capability_show(capability: str):
+    payload = get_capability_graph_service().show_capability(capability)
+    if not payload.get("found"):
+        raise HTTPException(status_code=404, detail=payload.get("error", "capability not found"))
+    return payload
 
 def get_memory_explorer_service() -> MemoryExplorerService:
     return MemoryExplorerService()
@@ -1454,7 +1482,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-22.10-knowledge-editor-gui",
+        "version": "mvp-23.0-capability-graph-foundation",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

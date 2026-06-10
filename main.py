@@ -45,6 +45,7 @@ from core.night_mode_dashboard import NightModeDashboardService
 from core.llm_profile_center import LLMProfileCenterService
 from core.user_knowledge_base import UserKnowledgeBaseService
 from core.knowledge_governance import KnowledgeGovernanceService
+from core.capability_graph import CapabilityGraphService
 from core.reality_check import RealityCheck
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -251,6 +252,11 @@ def cmd_knowledge_governance_status(args): _json(KnowledgeGovernanceService().st
 def cmd_knowledge_governance_run(args): _json(KnowledgeGovernanceService().run(limit=args.limit))
 def cmd_knowledge_metadata_audit(args): _json(KnowledgeGovernanceService().metadata_index(limit=args.limit))
 
+def cmd_capability_status(args): _json(CapabilityGraphService().status())
+def cmd_capability_rebuild(args): _json(CapabilityGraphService().rebuild(write=not args.no_write))
+def cmd_capability_list(args): _json(CapabilityGraphService().list_capabilities(query=args.query, limit=args.limit))
+def cmd_capability_show(args): _json(CapabilityGraphService().show_capability(args.capability))
+
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
     from scripts.export_release import main as export_main
@@ -272,7 +278,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 22.10")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -319,7 +325,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
     p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-22.10-knowledge-editor-gui"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+
+    p = sub.add_parser("capability-status"); p.set_defaults(func=cmd_capability_status)
+    p = sub.add_parser("capability-rebuild"); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_capability_rebuild)
+    p = sub.add_parser("capability-list"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_capability_list)
+    p = sub.add_parser("capability-show"); p.add_argument("capability"); p.set_defaults(func=cmd_capability_show)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.0-capability-graph-foundation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

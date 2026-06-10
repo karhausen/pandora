@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-22.10-knowledge-editor-gui"
+PANDORA_CORE_VERSION = "mvp-23.0-capability-graph-foundation"
 
 
 @dataclass(frozen=True)

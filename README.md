@@ -3,7 +3,7 @@
 Pandora ist ein lokaler, modularer KI-Assistent mit kontrollierter Agentenarchitektur.
 Der Core ist die Schaltzentrale: Er nimmt Aufgaben an, entscheidet über Routing, nutzt LLMs, Tools, Skills und Memory, schützt sensible Daten und erzeugt nachvollziehbare Vorschläge für Wachstum.
 
-Aktueller Stand: **MVP 22.10 – Knowledge Editor GUI**
+Aktueller Stand: **MVP 23.0 – Knowledge Editor GUI**
 
 ## Was Pandora aktuell kann
 
