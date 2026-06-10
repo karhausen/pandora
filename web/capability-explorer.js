@@ -19,6 +19,7 @@ async function loadDashboard() {
   const graph = await graphRes.json();
   renderSummary(graph);
   await loadCapabilities();
+  await loadIntelligence(false);
   setStatus('Capability Graph geladen');
 }
 
@@ -127,7 +128,43 @@ async function rebuildGraph() {
   const payload = await res.json();
   renderSummary(payload);
   await loadCapabilities();
+  await loadIntelligence(true);
   setStatus('Capability Graph neu aufgebaut');
+}
+
+
+async function loadIntelligence(rebuild = false) {
+  const url = rebuild ? '/api/capabilities/intelligence/rebuild?limit=8' : '/api/capabilities/intelligence?limit=8';
+  const res = await fetch(url, { method: rebuild ? 'POST' : 'GET' });
+  const payload = await res.json();
+  renderIntelligence(payload);
+}
+
+function renderIntelligence(payload) {
+  const summary = payload.summary || {};
+  const sev = summary.by_severity || {};
+  document.getElementById('intelligenceSummary').innerHTML = `
+    <span class="badge danger">High: ${escapeHtml(sev.high ?? 0)}</span>
+    <span class="badge warning">Medium: ${escapeHtml(sev.medium ?? 0)}</span>
+    <span class="badge">Low: ${escapeHtml(sev.low ?? 0)}</span>
+    <span class="badge">Findings: ${escapeHtml(payload.finding_count ?? 0)}</span>
+  `;
+  const findings = payload.findings || [];
+  const list = document.getElementById('intelligenceList');
+  if (!findings.length) {
+    list.innerHTML = '<div class="empty">Keine priorisierten Lücken gefunden.</div>';
+    return;
+  }
+  list.innerHTML = findings.map(item => `
+    <article class="intelligence-item" onclick="showCapability('${escapeHtml(item.capability_id)}')">
+      <div class="intelligence-title">
+        <h3>${escapeHtml(item.label)}</h3>
+        <span class="badge ${item.severity === 'high' ? 'danger' : item.severity === 'medium' ? 'warning' : ''}">${escapeHtml(item.severity)} · ${escapeHtml(item.score)}</span>
+      </div>
+      <p>${escapeHtml((item.reasons || []).join(', '))}</p>
+      <p><strong>Nächster Schritt:</strong> ${escapeHtml(item.recommended_next_step)}</p>
+    </article>
+  `).join('');
 }
 
 window.addEventListener('DOMContentLoaded', loadDashboard);

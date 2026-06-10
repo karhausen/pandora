@@ -38,6 +38,18 @@
       <span id="statusText">Bereit</span>
     </section>
 
+    <section class="intelligence-panel card">
+      <div class="panel-heading">
+        <div>
+          <h2>Capability Gap Intelligence</h2>
+          <p>Priorisierte Fähigkeitslücken aus Graph, Knowledge, Tools, Skills und Gaps.</p>
+        </div>
+        <button class="badge link" type="button" onclick="loadIntelligence(true)">Intelligence neu berechnen</button>
+      </div>
+      <div id="intelligenceSummary" class="badge-row"></div>
+      <div id="intelligenceList" class="intelligence-list empty">Noch keine Analyse geladen.</div>
+    </section>
+
     <section class="layout">
       <aside class="capability-list" id="capabilityList"></aside>
       <section class="capability-detail">

@@ -31,3 +31,16 @@ body {
 pre { background: #020617; border: 1px solid var(--border); border-radius: 14px; padding: 14px; overflow: auto; color: #d1d5db; }
 .empty { color: var(--muted); }
 @media (max-width: 900px) { .hero { flex-direction: column; } .summary-grid, .layout, .meta-grid, .relation-grid { grid-template-columns: 1fr; } }
+
+.intelligence-panel { margin-bottom: 18px; }
+.panel-heading { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+.panel-heading h2 { margin: 0 0 6px; }
+.panel-heading p { margin: 0; color: var(--muted); }
+.intelligence-list { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.intelligence-item { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px; cursor: pointer; }
+.intelligence-item:hover { border-color: var(--accent); filter: brightness(1.06); }
+.intelligence-title { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+.intelligence-title h3 { margin: 0 0 8px; font-size: 15px; }
+.intelligence-item p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+.badge.warning { border-color: #f59e0b; color: #fbbf24; }
+@media (max-width: 900px) { .panel-heading { flex-direction: column; } .intelligence-list { grid-template-columns: 1fr; } }

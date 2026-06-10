@@ -65,8 +65,9 @@ from .knowledge_context import KnowledgeContextService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
+from .capability_gap_intelligence import CapabilityGapIntelligenceService
 
-app = FastAPI(title="Pandora Agent", version="23.1-capability-explorer-gui")
+app = FastAPI(title="Pandora Agent", version="23.2-capability-gap-intelligence")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -460,6 +461,21 @@ def api_capability_graph():
 def api_capability_rebuild():
     return get_capability_graph_service().rebuild(write=True)
 
+
+
+
+def get_capability_intelligence_service() -> CapabilityGapIntelligenceService:
+    return CapabilityGapIntelligenceService()
+
+
+@app.get("/api/capabilities/intelligence")
+def api_capability_intelligence(limit: int = 50):
+    return get_capability_intelligence_service().analyze(limit=limit)
+
+
+@app.post("/api/capabilities/intelligence/rebuild")
+def api_capability_intelligence_rebuild(limit: int = 50):
+    return get_capability_intelligence_service().analyze(rebuild=True, limit=limit)
 
 @app.get("/api/capabilities/{capability:path}")
 def api_capability_show(capability: str):
@@ -1497,7 +1513,7 @@ def user_status():
     providers = LLMRoutingEditorService().available_providers()
     return {
         "ready": True,
-        "version": "mvp-23.1-capability-explorer-gui",
+        "version": "mvp-23.2-capability-gap-intelligence",
         "providers": providers,
         "active_chat_route": route,
         "routing_editor_url": "/llm-profiles",

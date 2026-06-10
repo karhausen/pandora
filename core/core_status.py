@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-23.0-capability-graph-foundation"
+PANDORA_CORE_VERSION = "mvp-23.2-capability-gap-intelligence"
 
 
 @dataclass(frozen=True)
