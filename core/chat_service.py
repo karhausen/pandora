@@ -92,6 +92,11 @@ class ChatService:
                 "provider_name": llm_result.get("provider_name"),
                 "model": llm_result.get("model"),
                 "error": llm_result.get("error"),
+                "fallback_used": llm_result.get("fallback_used", False),
+                "primary_provider_name": llm_result.get("primary_provider_name"),
+                "primary_model": llm_result.get("primary_model"),
+                "fallback_reason": llm_result.get("fallback_reason"),
+                "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
                 "context_used": True,
                 "knowledge_context": {
                     "source_count": knowledge.get("source_count", 0),
@@ -107,6 +112,11 @@ class ChatService:
                 "success": success,
                 "provider_name": llm_result.get("provider_name"),
                 "model": llm_result.get("model"),
+                "fallback_used": llm_result.get("fallback_used", False),
+                "primary_provider_name": llm_result.get("primary_provider_name"),
+                "primary_model": llm_result.get("primary_model"),
+                "fallback_reason": llm_result.get("fallback_reason"),
+                "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
                 "context_used": True,
                 "knowledge_context": execution.get("knowledge_context", {}),
             }

@@ -34,12 +34,23 @@ class LLMChatResponder:
             timeout=30.0,
         ))
 
+        routing_diagnostics = self._routing_diagnostics(response.raw)
         if response.success:
+            answer = response.content.strip() or "Ich habe verstanden."
+            if routing_diagnostics.get("fallback_used") and response.provider_name == "mock":
+                # The mock client echoes the full prompt. For user-facing chat this is noisy;
+                # keep the diagnostic details in execution metadata and return the friendly mock answer.
+                answer = self._mock_answer(task, context_summary=context_summary)
             return {
                 "success": True,
-                "answer": response.content.strip() or "Ich habe verstanden.",
+                "answer": answer,
                 "provider_name": response.provider_name,
                 "model": response.model,
+                "routing_diagnostics": routing_diagnostics,
+                "fallback_used": routing_diagnostics.get("fallback_used", False),
+                "primary_provider_name": routing_diagnostics.get("primary_provider_name"),
+                "primary_model": routing_diagnostics.get("primary_model"),
+                "fallback_reason": routing_diagnostics.get("fallback_reason"),
             }
 
         return {
@@ -48,6 +59,11 @@ class LLMChatResponder:
             "error": response.error,
             "provider_name": response.provider_name,
             "model": response.model,
+            "routing_diagnostics": routing_diagnostics,
+            "fallback_used": routing_diagnostics.get("fallback_used", False),
+            "primary_provider_name": routing_diagnostics.get("primary_provider_name"),
+            "primary_model": routing_diagnostics.get("primary_model"),
+            "fallback_reason": routing_diagnostics.get("fallback_reason"),
         }
 
     def _build_prompt(self, task: str, history: list[dict], context_summary: str | None = None) -> str:
@@ -79,3 +95,32 @@ class LLMChatResponder:
         if "was kannst" in text or "hilfe" in text:
             return "Ich kann Aufgaben planen, Tools ausführen, Skills nutzen, einfache Berechnungen erledigen und Gesprächskontext berücksichtigen."
         return "Ich habe dich verstanden. Ich nutze dabei den aktuellen Gesprächskontext."
+
+    def _routing_diagnostics(self, raw) -> dict:
+        if not isinstance(raw, dict):
+            return {"fallback_used": False}
+        trace = raw.get("pandora_routing_trace") or {}
+        primary = trace.get("primary") or {}
+        fallback = trace.get("fallback") or {}
+        primary_error = trace.get("primary_error")
+        fallback_used = bool(trace.get("fallback_used"))
+        return {
+            "decision": trace.get("decision") or ("fallback" if fallback_used else "primary"),
+            "fallback_used": fallback_used,
+            "requested_provider_name": trace.get("requested_provider_name"),
+            "requested_model": trace.get("requested_model"),
+            "primary_provider_name": primary.get("provider_name"),
+            "primary_provider_type": primary.get("provider_type"),
+            "primary_model": primary.get("model"),
+            "primary_reason": primary.get("reason"),
+            "primary_error": primary_error,
+            "fallback_provider_name": fallback.get("provider_name"),
+            "fallback_provider_type": fallback.get("provider_type"),
+            "fallback_model": fallback.get("model"),
+            "fallback_error": trace.get("fallback_error"),
+            "fallback_reason": (
+                f"Primary provider failed: {primary_error}"
+                if fallback_used and primary_error
+                else None
+            ),
+        }

@@ -175,7 +175,7 @@ def sanitize_tree(dst: Path) -> None:
 
 
 def run_tests(dst: Path) -> None:
-    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "tests/test_mvp21_3_skill_candidate_pipeline.py", "tests/test_mvp21_4_tool_improvement_pipeline.py", "tests/test_mvp21_5_capability_gap_pipeline.py", "tests/test_mvp21_6_proposal_review_inbox.py", "tests/test_mvp21_7_proposal_approval_workflow.py", "tests/test_mvp21_8_gui_approval_api.py", "tests/test_mvp21_9_minimal_web_gui.py", "tests/test_mvp22_0_operations_dashboard.py", "tests/test_mvp22_1_user_gui_navigation.py", "tests/test_mvp22_2_tool_center_gui.py", "tests/test_mvp22_3_skill_center_gui.py", "tests/test_mvp22_4_memory_explorer.py", "tests/test_mvp22_5_night_mode_dashboard.py", "tests/test_mvp22_6_llm_profile_center.py", "tests/test_mvp22_6_1_llm_routing_editor.py", "tests/test_mvp22_6_2_user_gui_routing_sync.py", "tests/test_mvp22_7_user_knowledge_base.py", "tests/test_mvp22_8_knowledge_context_injection.py", "tests/test_mvp22_9_knowledge_metadata_governance.py", "tests/test_mvp22_9_1_knowledge_governance_hardening.py", "-q"], cwd=dst, check=True)
+    subprocess.run([sys.executable, "-m", "pytest", "tests/test_mvp21_1_1_release_packaging.py", "tests/test_mvp21_2_maintenance_manager.py", "tests/test_mvp21_3_skill_candidate_pipeline.py", "tests/test_mvp21_4_tool_improvement_pipeline.py", "tests/test_mvp21_5_capability_gap_pipeline.py", "tests/test_mvp21_6_proposal_review_inbox.py", "tests/test_mvp21_7_proposal_approval_workflow.py", "tests/test_mvp21_8_gui_approval_api.py", "tests/test_mvp21_9_minimal_web_gui.py", "tests/test_mvp22_0_operations_dashboard.py", "tests/test_mvp22_1_user_gui_navigation.py", "tests/test_mvp22_2_tool_center_gui.py", "tests/test_mvp22_3_skill_center_gui.py", "tests/test_mvp22_4_memory_explorer.py", "tests/test_mvp22_5_night_mode_dashboard.py", "tests/test_mvp22_6_llm_profile_center.py", "tests/test_mvp22_6_1_llm_routing_editor.py", "tests/test_mvp22_6_2_user_gui_routing_sync.py", "tests/test_mvp22_7_user_knowledge_base.py", "tests/test_mvp22_8_knowledge_context_injection.py", "tests/test_mvp22_9_knowledge_metadata_governance.py", "tests/test_mvp22_9_1_knowledge_governance_hardening.py", "tests/test_mvp22_9_2_llm_fallback_diagnostics.py", "-q"], cwd=dst, check=True)
 
 
 def run_audit(dst: Path) -> dict[str, object]:
@@ -217,7 +217,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-22.9.1-knowledge-governance-hardening")
+    parser.add_argument("--version", default="mvp-22.9.2-llm-fallback-diagnostics")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()
