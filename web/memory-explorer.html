@@ -14,15 +14,20 @@
         <h1>Memory Explorer</h1>
         <p>Read-only Übersicht über Pandora Memory, Logs und Proposal-Artefakte.</p>
       </div>
-      <nav class="hero-actions" aria-label="Pandora Navigation">
-        <a class="badge link" href="/">User GUI</a>
-        <a class="badge link" href="/operations">Operations Dashboard</a>
-        <a class="badge link" href="/tools-center">Tool Center</a>
-        <a class="badge link" href="/skills-center">Skill Center</a>
-        <a class="badge link primary" href="/memory-explorer">Memory Explorer</a>
-        <a class="badge link" href="/approval">Approval Center</a>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link primary" href="/knowledge-base">Knowledge</a>
+        <a class="badge link" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
       </nav>
     </header>
+    <section class="badge-row" aria-label="Knowledge Unterbereiche">
+      <a class="badge link" href="/knowledge-base">Knowledge Base</a>
+      <a class="badge link" href="/knowledge-editor">Knowledge Editor</a>
+      <a class="badge link" href="/memory-explorer">Memory Explorer</a>
+    </section>
+
 
     <section class="summary-grid">
       <article class="card"><span class="label">Bereiche</span><strong id="areaCount">–</strong></article>
@@ -32,7 +37,7 @@
     </section>
 
     <section class="toolbar">
-      <button class="badge link primary" type="button" onclick="loadMemoryExplorer()">Aktualisieren</button>
+      <button class="badge link" type="button" onclick="loadMemoryExplorer()">Aktualisieren</button>
       <input id="searchInput" placeholder="Suche in Memory/Proposals ..." onkeydown="if(event.key==='Enter') searchMemory()" />
       <button class="badge link" type="button" onclick="searchMemory()">Suchen</button>
       <span id="statusText">Bereit</span>

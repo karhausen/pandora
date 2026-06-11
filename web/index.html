@@ -12,36 +12,26 @@
     <header class="hero">
       <div>
         <h1>Pandora</h1>
-        <p>Dein lokaler KI-Agent – Chat, Kontrolle und Wartung mit klaren Wegen.</p>
+        <p>Dein lokaler KI-Agent – Chat, Wissen, Fähigkeiten und Wartung mit klarer Struktur.</p>
+        <nav class="global-nav" aria-label="Hauptnavigation">
+          <a class="badge link primary" href="/">Chat</a>
+          <a class="badge link" href="/knowledge-base">Knowledge</a>
+          <a class="badge link" href="/capability-explorer">Capabilities</a>
+          <a class="badge link" href="/operations">Operations</a>
+          <a class="badge link" href="/llm-profiles">Profiles</a>
+        </nav>
       </div>
-      <nav class="hero-actions" aria-label="Pandora Navigation">
-        <a class="badge link primary" href="/operations">Operations Dashboard</a>
-        <a class="badge link" href="/tools-center">Tool Center</a>
-        <a class="badge link" href="/skills-center">Skill Center</a>
-        <a class="badge link" href="/memory-explorer">Memory Explorer</a>
-        <a class="badge link primary" href="/knowledge-base">Knowledge Base</a>
-        <a class="badge link primary" href="/capability-explorer">Capability Explorer</a>
-        <a class="badge link primary" href="/knowledge-editor">Knowledge Editor</a>
-        <a class="badge link" href="/llm-profiles">LLM & Profile Center</a>
-        <a class="badge link primary" href="/night-mode">Night Mode</a>
-        <a class="badge link" href="/approval">Approval Center</a>
-        <a class="badge link" href="/admin">Admin</a>
-      </nav>
     </header>
 
-
-    <section class="quick-nav badge-row" aria-label="Schnellzugriff">
-      <a class="badge link primary" href="/operations">Operations Dashboard</a>
-      <a class="badge link" href="/tools-center">Tool Center</a>
-      <a class="badge link" href="/skills-center">Skill Center</a>
-      <a class="badge link" href="/memory-explorer">Memory Explorer</a>
-      <a class="badge link primary" href="/knowledge-base">Knowledge Base</a>
-      <a class="badge link primary" href="/capability-explorer">Capability Explorer</a>
-      <a class="badge link" href="/llm-profiles">LLM & Profile Center</a>
-      <a class="badge link primary" href="/night-mode">Night Mode</a>
-      <a class="badge link" href="/approval">Approval Center</a>
-      <a class="badge link" href="/admin">Admin Dashboard</a>
+    <h2 class="page-section-title">Arbeitsbereiche</h2>
+    <section class="section-grid" aria-label="Pandora Arbeitsbereiche">
+      <a class="nav-card" href="/knowledge-base"><strong>Knowledge</strong><span>Wissen suchen, verwalten und mit dem Editor pflegen.</span></a>
+      <a class="nav-card" href="/capability-explorer"><strong>Capabilities</strong><span>Tools, Skills, Approval und Fähigkeitsgraph prüfen.</span></a>
+      <a class="nav-card" href="/operations"><strong>Operations</strong><span>Status, Maintenance, Night Mode und Reports steuern.</span></a>
+      <a class="nav-card" href="/llm-profiles"><strong>Profiles</strong><span>LLM-Profile, Providerstatus und Routing-Regeln verwalten.</span></a>
     </section>
+
+    <h2 class="page-section-title">Chat</h2>
 
     <section class="session-bar" id="sessionBar"><button onclick="newSession()">Neue Unterhaltung</button><select id="sessionSelect" onchange="switchSession()"></select></section>
 

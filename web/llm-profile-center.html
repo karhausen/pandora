@@ -15,11 +15,12 @@
         <h1>LLM & Profile Center</h1>
         <p>Profile, Provider und Routing sichtbar machen — ohne Secrets anzuzeigen.</p>
       </div>
-      <nav class="badge-row" aria-label="Navigation">
-        <a class="badge link" href="/">User-GUI</a>
-        <a class="badge link primary" href="/operations">Operations</a>
-        <a class="badge link" href="/night-mode">Night Mode</a>
-        <a class="badge link" href="/approval">Approval</a>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link" href="/knowledge-base">Knowledge</a>
+        <a class="badge link" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link primary" href="/llm-profiles">Profiles</a>
       </nav>
     </header>
 
@@ -75,7 +76,7 @@
       <div id="routes" class="route-grid editable"></div>
       <div class="editor-actions">
         <button class="badge link" onclick="previewRoutingChanges()">Preview</button>
-        <button class="badge link primary" onclick="applyRoutingChanges()">Änderungen speichern</button>
+        <button class="badge link" onclick="applyRoutingChanges()">Änderungen speichern</button>
         <button class="badge link" onclick="loadRoutingAudit()">Audit laden</button>
         <button class="badge link danger" onclick="rollbackRouting()">Letztes Backup zurückspielen</button>
       </div>

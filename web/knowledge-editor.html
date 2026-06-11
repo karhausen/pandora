@@ -14,13 +14,20 @@
         <h1>Knowledge Editor</h1>
         <p>Wissen kontrolliert anlegen, bearbeiten, verschieben und löschen – nur innerhalb von <code>user_knowledge/</code>.</p>
       </div>
-      <nav class="hero-actions" aria-label="Pandora Navigation">
-        <a class="badge link" href="/">User GUI</a>
-        <a class="badge link" href="/knowledge-base">Knowledge Base</a>
-        <a class="badge link primary" href="/knowledge-editor">Knowledge Editor</a>
-        <a class="badge link" href="/operations">Operations Dashboard</a>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link primary" href="/knowledge-base">Knowledge</a>
+        <a class="badge link" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
       </nav>
     </header>
+    <section class="badge-row" aria-label="Knowledge Unterbereiche">
+      <a class="badge link" href="/knowledge-base">Knowledge Base</a>
+      <a class="badge link" href="/knowledge-editor">Knowledge Editor</a>
+      <a class="badge link" href="/memory-explorer">Memory Explorer</a>
+    </section>
+
 
     <section class="summary-grid">
       <article class="card"><span class="label">Editor</span><strong id="editorEnabled">–</strong></article>
@@ -30,10 +37,10 @@
     </section>
 
     <section class="toolbar">
-      <button class="badge link primary" type="button" onclick="newMarkdown()">Neue Markdown-Datei</button>
+      <button class="badge link" type="button" onclick="newMarkdown()">Neue Markdown-Datei</button>
       <button class="badge link" type="button" onclick="createFolder()">Ordner anlegen</button>
       <button class="badge link" type="button" onclick="loadTree()">Baum aktualisieren</button>
-      <button class="badge link primary" type="button" onclick="saveFile()">Speichern</button>
+      <button class="badge link" type="button" onclick="saveFile()">Speichern</button>
       <button class="badge link" type="button" onclick="moveFile()">Verschieben</button>
       <button class="badge link danger" type="button" onclick="deleteCurrent()">Löschen</button>
       <span id="statusText">Bereit</span>
