@@ -44,6 +44,7 @@ RUNTIME_DIRS_TO_KEEP_EMPTY = {
     "proposals/nightly_reviews",
     "proposals/tool_improvements",
     "proposals/capability_gaps",
+    "proposals/capability_actions",
     "proposals/review_inbox",
     "skill_proposals",
     "tool_proposals",
@@ -217,7 +218,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-22.10-knowledge-editor-gui")
+    parser.add_argument("--version", default="mvp-23.3.1-capability-actions-integration")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()

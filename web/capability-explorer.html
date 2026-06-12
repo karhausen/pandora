@@ -56,6 +56,23 @@
       <div id="intelligenceList" class="intelligence-list empty">Noch keine Analyse geladen.</div>
     </section>
 
+
+    <section class="actions-panel card">
+      <div class="panel-heading">
+        <div>
+          <h2>Capability Actions</h2>
+          <p>Prüfbare nächste Schritte aus Capability Gaps. Aktionen landen als Vorschläge in der Review Inbox.</p>
+        </div>
+        <div class="badge-row">
+          <button class="badge link" type="button" onclick="rebuildActions()">Actions erzeugen</button>
+          <button class="badge link" type="button" onclick="loadActions()">Actions aktualisieren</button>
+          <a class="badge link" href="/approval">Review Inbox</a>
+        </div>
+      </div>
+      <div id="actionsSummary" class="badge-row"></div>
+      <div id="actionsList" class="actions-list empty">Noch keine Capability Actions geladen.</div>
+    </section>
+
     <section class="layout">
       <aside class="capability-list" id="capabilityList"></aside>
       <section class="capability-detail">

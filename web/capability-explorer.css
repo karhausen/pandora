@@ -44,3 +44,9 @@ pre { background: #020617; border: 1px solid var(--border); border-radius: 14px;
 .intelligence-item p { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
 .badge.warning { border-color: #f59e0b; color: #fbbf24; }
 @media (max-width: 900px) { .panel-heading { flex-direction: column; } .intelligence-list { grid-template-columns: 1fr; } }
+
+.actions-panel { margin-bottom: 18px; }
+.actions-list { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 12px; margin-top: 12px; }
+.action-item { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
+.action-item p { margin: 8px 0; color: var(--muted); font-size: 13px; }
+@media (max-width: 900px) { .actions-list { grid-template-columns: 1fr; } }

@@ -51,6 +51,7 @@ class ProposalReviewInbox:
         "nightly_review": PROPOSALS_DIR / "nightly_reviews",
         "maintenance_report": PROPOSALS_DIR / "maintenance_reports",
         "capability_gap": PROPOSALS_DIR / "capability_gaps",
+        "capability_action": PROPOSALS_DIR / "capability_actions",
         "tool_improvement": PROPOSALS_DIR / "tool_improvements",
         "skill_candidate": ROOT_DIR / "skill_proposals",
         "tool_proposal": ROOT_DIR / "tool_proposals",
@@ -202,6 +203,8 @@ class ProposalReviewInbox:
             data.get("title"),
             data.get("name"),
             data.get("capability"),
+            data.get("capability_label"),
+            data.get("action_type"),
             data.get("tool_id"),
             proposal.get("title"),
             proposal.get("name"),
@@ -224,7 +227,7 @@ class ProposalReviewInbox:
 
     def _summary(self, category: str, data: dict[str, Any]) -> str:
         proposal = data.get("proposal") if isinstance(data.get("proposal"), dict) else {}
-        for key in ("summary", "description", "reason", "expected_benefit"):
+        for key in ("summary", "description", "reason", "recommended_next_step", "expected_benefit"):
             value = data.get(key) or proposal.get(key)
             if value:
                 return str(value)[:280]

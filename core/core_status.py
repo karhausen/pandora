@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-23.2.1-gui-architecture-refactoring"
+PANDORA_CORE_VERSION = "mvp-23.3.1-capability-actions-integration"
 
 
 @dataclass(frozen=True)

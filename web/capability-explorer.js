@@ -20,6 +20,7 @@ async function loadDashboard() {
   renderSummary(graph);
   await loadCapabilities();
   await loadIntelligence(false);
+  await loadActions();
   setStatus('Capability Graph geladen');
 }
 
@@ -129,6 +130,7 @@ async function rebuildGraph() {
   renderSummary(payload);
   await loadCapabilities();
   await loadIntelligence(true);
+  await loadActions();
   setStatus('Capability Graph neu aufgebaut');
 }
 
@@ -163,6 +165,61 @@ function renderIntelligence(payload) {
       </div>
       <p>${escapeHtml((item.reasons || []).join(', '))}</p>
       <p><strong>Nächster Schritt:</strong> ${escapeHtml(item.recommended_next_step)}</p>
+    </article>
+  `).join('');
+}
+
+
+
+async function loadActions() {
+  const res = await fetch('/api/capabilities/actions?limit=20');
+  const payload = await res.json();
+  renderActions(payload);
+}
+
+async function rebuildActions() {
+  setStatus('Erzeuge Capability Actions ...');
+  const res = await fetch('/api/capabilities/actions/rebuild?limit=30&write=true', { method: 'POST' });
+  const payload = await res.json();
+  renderActions({ actions: payload.actions || [], count: payload.action_count || 0 });
+  setStatus('Capability Actions erzeugt und in Review Inbox gespeichert');
+}
+
+function renderActions(payload) {
+  const actions = payload.actions || [];
+  const counts = actions.reduce((acc, item) => {
+    const key = item.action_type || 'unknown';
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+  document.getElementById('actionsSummary').innerHTML = `
+    <span class="badge">Actions: ${escapeHtml(actions.length)}</span>
+    <span class="badge">Knowledge: ${escapeHtml(counts.knowledge_candidate || 0)}</span>
+    <span class="badge">Tools: ${escapeHtml(counts.tool_candidate || 0)}</span>
+    <span class="badge">Skills: ${escapeHtml(counts.skill_candidate || 0)}</span>
+  `;
+  const list = document.getElementById('actionsList');
+  if (!actions.length) {
+    list.innerHTML = '<div class="empty">Keine Capability Actions vorhanden. Nutze „Actions erzeugen“.</div>';
+    return;
+  }
+  list.innerHTML = actions.map(item => `
+    <article class="action-item">
+      <div class="intelligence-title">
+        <h3>${escapeHtml(item.capability_label || item.capability_id)}</h3>
+        <span class="badge ${item.priority === 'high' ? 'danger' : item.priority === 'medium' ? 'warning' : ''}">${escapeHtml(item.priority || 'low')}</span>
+      </div>
+      <div class="badge-row">
+        <span class="badge primary">${escapeHtml(item.action_type || 'action')}</span>
+        <span class="badge">${escapeHtml(item.status || 'pending_review')}</span>
+        <span class="badge">Risk: ${escapeHtml(item.risk || 'low')}</span>
+      </div>
+      <p>${escapeHtml(item.reason || '')}</p>
+      <p><strong>Nächster Schritt:</strong> ${escapeHtml(item.recommended_next_step || '')}</p>
+      <div class="badge-row">
+        <button class="badge link" type="button" onclick="showCapability('${escapeHtml(item.capability_id || '')}')">Capability öffnen</button>
+        <a class="badge link" href="/approval">In Review Inbox prüfen</a>
+      </div>
     </article>
   `).join('');
 }

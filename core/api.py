@@ -66,8 +66,9 @@ from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
 from .capability_gap_intelligence import CapabilityGapIntelligenceService
+from .capability_actions import CapabilityActionService
 
-app = FastAPI(title="Pandora Agent", version="23.2-capability-gap-intelligence")
+app = FastAPI(title="Pandora Agent", version="23.3.1-capability-actions-integration")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -476,6 +477,34 @@ def api_capability_intelligence(limit: int = 50):
 @app.post("/api/capabilities/intelligence/rebuild")
 def api_capability_intelligence_rebuild(limit: int = 50):
     return get_capability_intelligence_service().analyze(rebuild=True, limit=limit)
+
+
+
+def get_capability_action_service() -> CapabilityActionService:
+    return CapabilityActionService()
+
+
+@app.get("/api/capabilities/actions")
+def api_capability_actions(include_reviewed: bool = False, limit: int = 200):
+    return get_capability_action_service().list_actions(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.get("/api/capabilities/actions/status")
+def api_capability_actions_status():
+    return get_capability_action_service().status()
+
+
+@app.post("/api/capabilities/actions/rebuild")
+def api_capability_actions_rebuild(limit: int = 50, write: bool = True):
+    return get_capability_action_service().rebuild(limit=limit, write=write)
+
+
+@app.get("/api/capabilities/actions/{action_id:path}")
+def api_capability_action_show(action_id: str):
+    payload = get_capability_action_service().show(action_id)
+    if not payload.get("found"):
+        raise HTTPException(status_code=404, detail="capability action not found")
+    return payload
 
 @app.get("/api/capabilities/{capability:path}")
 def api_capability_show(capability: str):
