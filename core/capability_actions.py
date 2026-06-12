@@ -63,6 +63,22 @@ class CapabilityActionService:
         self.actions_dir = actions_dir
         self.intelligence = intelligence or CapabilityGapIntelligenceService()
 
+    def dashboard(self) -> dict[str, Any]:
+        listing = self.list_actions(include_reviewed=True, limit=10000)
+        actions = listing["actions"]
+        return {
+            "kind": "capability_action_dashboard",
+            "version": "mvp-23.4-capability-actions-ui-workflow-polish",
+            "generated_at": datetime.now(UTC).isoformat(),
+            "action_count": len(actions),
+            "open_count": sum(1 for a in actions if self._is_open_status(a.get("status"))),
+            "counts_by_type": self._count_by(actions, "action_type"),
+            "counts_by_priority": self._count_by(actions, "priority"),
+            "counts_by_status": self._count_by(actions, "status"),
+            "top_open_actions": [a for a in actions if self._is_open_status(a.get("status"))][:10],
+            "safety": self._safety(),
+        }
+
     def status(self) -> dict[str, Any]:
         actions = self.list_actions(include_reviewed=True, limit=10000)["actions"]
         counts: dict[str, int] = {}
@@ -72,7 +88,7 @@ class CapabilityActionService:
             by_priority[action.get("priority", "unknown")] = by_priority.get(action.get("priority", "unknown"), 0) + 1
         return {
             "kind": "capability_action_status",
-            "version": "mvp-23.3.2-capability-actions-cli-fix",
+            "version": "mvp-23.4-capability-actions-ui-workflow-polish",
             "actions_dir": str(self.actions_dir),
             "exists": self.actions_dir.exists(),
             "action_count": len(actions),
@@ -91,7 +107,7 @@ class CapabilityActionService:
                 self._write_action(action)
         return {
             "kind": "capability_action_rebuild_report",
-            "version": "mvp-23.3.2-capability-actions-cli-fix",
+            "version": "mvp-23.4-capability-actions-ui-workflow-polish",
             "created_at": created_at,
             "source_report": {
                 "kind": report.get("kind"),
@@ -104,24 +120,50 @@ class CapabilityActionService:
             "safety": self._safety(),
         }
 
-    def list_actions(self, *, include_reviewed: bool = False, limit: int = 200) -> dict[str, Any]:
+    def list_actions(
+        self,
+        *,
+        include_reviewed: bool = False,
+        limit: int = 200,
+        action_type: str | None = None,
+        priority: str | None = None,
+        status: str | None = None,
+        query: str | None = None,
+    ) -> dict[str, Any]:
         actions: list[dict[str, Any]] = []
         if self.actions_dir.exists():
             for path in sorted(self.actions_dir.rglob("proposal.json")):
                 data = self._read_json(path)
                 if not data:
                     continue
-                status = str(data.get("status") or "pending_review")
-                if status in {"reviewed", "rejected"} and not include_reviewed:
+                data = self._with_review_state(data, path)
+                if not include_reviewed and not self._is_open_status(data.get("status")):
                     continue
+                if action_type and str(data.get("action_type")) != action_type:
+                    continue
+                if priority and str(data.get("priority")) != priority:
+                    continue
+                if status and str(data.get("status")) != status:
+                    continue
+                if query:
+                    haystack = " ".join(str(data.get(k, "")) for k in ["id", "action_type", "capability_id", "capability_label", "reason", "recommended_next_step"]).lower()
+                    if query.lower() not in haystack:
+                        continue
                 data["source_file"] = str(path)
                 actions.append(data)
         actions.sort(key=lambda item: (self._priority_rank(item.get("priority")), item.get("created_at") or ""), reverse=True)
         return {
             "kind": "capability_action_list",
             "include_reviewed": include_reviewed,
+            "filters": {"action_type": action_type, "priority": priority, "status": status, "query": query},
+            "total_count": len(actions),
             "count": min(len(actions), limit),
             "actions": actions[:limit],
+            "summary": {
+                "by_type": self._count_by(actions, "action_type"),
+                "by_priority": self._count_by(actions, "priority"),
+                "by_status": self._count_by(actions, "status"),
+            },
             "safety": self._safety(),
         }
 
@@ -130,6 +172,39 @@ class CapabilityActionService:
             if action.get("id") == action_id:
                 return {"kind": "capability_action_detail", "found": True, "action": action, "safety": self._safety()}
         return {"kind": "capability_action_detail", "found": False, "id": action_id}
+
+    def decide(self, action_id: str, *, decision: str, note: str | None = None, decided_by: str = "user") -> dict[str, Any]:
+        allowed = {"reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"}
+        if decision not in allowed:
+            return {"kind": "capability_action_decision", "ok": False, "reason": f"decision must be one of {sorted(allowed)}", "action_id": action_id}
+        detail = self.show(action_id)
+        if not detail.get("found"):
+            return {"kind": "capability_action_decision", "ok": False, "reason": "action not found", "action_id": action_id}
+        action = detail["action"]
+        source = Path(action["source_file"])
+        payload = {
+            "kind": "review_state",
+            "item_id": action_id,
+            "decision": decision,
+            "note": note,
+            "reviewed_at": datetime.now(UTC).isoformat(),
+            "reviewed_by": decided_by,
+            "auto_changes_made": False,
+            "activation_performed": False,
+            "execution_allowed": False,
+            "requires_separate_activation": decision == "accepted_for_next_step",
+        }
+        state_path = source.parent / "review_state.json"
+        state_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        return {
+            "kind": "capability_action_decision",
+            "ok": True,
+            "action_id": action_id,
+            "decision": decision,
+            "written_to": str(state_path),
+            "state": payload,
+            "safety": self._safety(),
+        }
 
     def _write_action(self, action: dict[str, Any]) -> None:
         directory = self.actions_dir / self._safe_id(str(action["id"]))
@@ -208,6 +283,28 @@ class CapabilityActionService:
 
     def _safe_id(self, value: str) -> str:
         return value.replace(":", "_").replace("/", "_").replace(" ", "_").lower()
+
+    def _with_review_state(self, data: dict[str, Any], proposal_path: Path) -> dict[str, Any]:
+        state = self._read_json(proposal_path.parent / "review_state.json") or {}
+        result = dict(data)
+        if state.get("decision"):
+            result["status"] = state.get("decision")
+            result["review_state"] = state
+            result["reviewed_at"] = state.get("reviewed_at")
+            result["reviewed_by"] = state.get("reviewed_by")
+        else:
+            result["status"] = result.get("status") or "pending_review"
+        return result
+
+    def _is_open_status(self, status: Any) -> bool:
+        return str(status or "pending_review") in {"pending", "pending_review", "needs_work", "deferred"}
+
+    def _count_by(self, actions: list[dict[str, Any]], key: str) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for action in actions:
+            value = str(action.get(key) or "unknown")
+            counts[value] = counts.get(value, 0) + 1
+        return counts
 
     def _safety(self) -> dict[str, Any]:
         return {

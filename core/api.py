@@ -481,13 +481,38 @@ def api_capability_intelligence_rebuild(limit: int = 50):
 
 
 
+class CapabilityActionDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "web-gui"
+
+
 def get_capability_action_service() -> CapabilityActionService:
     return CapabilityActionService()
 
 
 @app.get("/api/capabilities/actions")
-def api_capability_actions(include_reviewed: bool = False, limit: int = 200):
-    return get_capability_action_service().list_actions(include_reviewed=include_reviewed, limit=limit)
+def api_capability_actions(
+    include_reviewed: bool = False,
+    limit: int = 200,
+    action_type: str | None = None,
+    priority: str | None = None,
+    status: str | None = None,
+    query: str | None = None,
+):
+    return get_capability_action_service().list_actions(
+        include_reviewed=include_reviewed,
+        limit=limit,
+        action_type=action_type,
+        priority=priority,
+        status=status,
+        query=query,
+    )
+
+
+@app.get("/api/capabilities/actions/dashboard")
+def api_capability_actions_dashboard():
+    return get_capability_action_service().dashboard()
 
 
 @app.get("/api/capabilities/actions/status")
@@ -505,6 +530,19 @@ def api_capability_action_show(action_id: str):
     payload = get_capability_action_service().show(action_id)
     if not payload.get("found"):
         raise HTTPException(status_code=404, detail="capability action not found")
+    return payload
+
+
+@app.post("/api/capabilities/actions/{action_id:path}/decision")
+def api_capability_action_decision(action_id: str, req: CapabilityActionDecisionRequest):
+    payload = get_capability_action_service().decide(
+        action_id,
+        decision=req.decision,
+        note=req.note,
+        decided_by=req.decided_by,
+    )
+    if not payload.get("ok"):
+        raise HTTPException(status_code=400, detail=payload)
     return payload
 
 @app.get("/api/capabilities/{capability:path}")

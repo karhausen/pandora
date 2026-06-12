@@ -172,7 +172,18 @@ function renderIntelligence(payload) {
 
 
 async function loadActions() {
-  const res = await fetch('/api/capabilities/actions?limit=20');
+  const params = new URLSearchParams({ limit: '80' });
+  const query = document.getElementById('actionQuery')?.value?.trim();
+  const type = document.getElementById('actionTypeFilter')?.value;
+  const priority = document.getElementById('actionPriorityFilter')?.value;
+  const status = document.getElementById('actionStatusFilter')?.value;
+  const includeReviewed = document.getElementById('includeReviewedActions')?.checked;
+  if (query) params.set('query', query);
+  if (type) params.set('action_type', type);
+  if (priority) params.set('priority', priority);
+  if (status) params.set('status', status);
+  if (includeReviewed || status) params.set('include_reviewed', 'true');
+  const res = await fetch(`/api/capabilities/actions?${params.toString()}`);
   const payload = await res.json();
   renderActions(payload);
 }
@@ -181,19 +192,22 @@ async function rebuildActions() {
   setStatus('Erzeuge Capability Actions ...');
   const res = await fetch('/api/capabilities/actions/rebuild?limit=30&write=true', { method: 'POST' });
   const payload = await res.json();
-  renderActions({ actions: payload.actions || [], count: payload.action_count || 0 });
+  await loadActions();
   setStatus('Capability Actions erzeugt und in Review Inbox gespeichert');
 }
 
 function renderActions(payload) {
   const actions = payload.actions || [];
+  const summary = payload.summary || {};
   const counts = actions.reduce((acc, item) => {
     const key = item.action_type || 'unknown';
     acc[key] = (acc[key] || 0) + 1;
     return acc;
   }, {});
+  const byStatus = summary.by_status || {};
   document.getElementById('actionsSummary').innerHTML = `
-    <span class="badge">Actions: ${escapeHtml(actions.length)}</span>
+    <span class="badge">Actions: ${escapeHtml(payload.total_count ?? actions.length)}</span>
+    <span class="badge warning">Pending: ${escapeHtml(byStatus.pending_review ?? byStatus.pending ?? 0)}</span>
     <span class="badge">Knowledge: ${escapeHtml(counts.knowledge_candidate || 0)}</span>
     <span class="badge">Tools: ${escapeHtml(counts.tool_candidate || 0)}</span>
     <span class="badge">Skills: ${escapeHtml(counts.skill_candidate || 0)}</span>
@@ -218,10 +232,38 @@ function renderActions(payload) {
       <p><strong>Nächster Schritt:</strong> ${escapeHtml(item.recommended_next_step || '')}</p>
       <div class="badge-row">
         <button class="badge link" type="button" onclick="showCapability('${escapeHtml(item.capability_id || '')}')">Capability öffnen</button>
-        <a class="badge link" href="/approval">In Review Inbox prüfen</a>
+        <button class="badge link" type="button" onclick="openActionDetail('${escapeHtml(item.id || '')}')">Details</button>
+        <button class="badge link" type="button" onclick="decideAction('${escapeHtml(item.id || '')}', 'accepted_for_next_step')">Nächsten Schritt erlauben</button>
+        <button class="badge link" type="button" onclick="decideAction('${escapeHtml(item.id || '')}', 'deferred')">Später</button>
+        <a class="badge link" href="/approval">Review Inbox</a>
       </div>
     </article>
   `).join('');
+}
+
+async function openActionDetail(actionId) {
+  if (!actionId) return;
+  const res = await fetch(`/api/capabilities/actions/${encodeURIComponent(actionId)}`);
+  const payload = await res.json();
+  document.getElementById('rawCapability').textContent = JSON.stringify(payload, null, 2);
+  setStatus(`Action ${actionId} geladen`);
+}
+
+async function decideAction(actionId, decision) {
+  if (!actionId) return;
+  const note = decision === 'accepted_for_next_step' ? 'Accepted from Capability Explorer.' : 'Deferred from Capability Explorer.';
+  const res = await fetch(`/api/capabilities/actions/${encodeURIComponent(actionId)}/decision`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ decision, note, decided_by: 'capability-explorer' })
+  });
+  const payload = await res.json();
+  if (!res.ok) {
+    setStatus(`Action Entscheidung fehlgeschlagen: ${payload.detail?.reason || res.status}`);
+    return;
+  }
+  await loadActions();
+  setStatus(`Action ${decision} gespeichert`);
 }
 
 window.addEventListener('DOMContentLoaded', loadDashboard);

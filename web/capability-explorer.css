@@ -50,3 +50,8 @@ pre { background: #020617; border: 1px solid var(--border); border-radius: 14px;
 .action-item { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 14px; padding: 12px; }
 .action-item p { margin: 8px 0; color: var(--muted); font-size: 13px; }
 @media (max-width: 900px) { .actions-list { grid-template-columns: 1fr; } }
+
+.action-filter-row { display: grid; grid-template-columns: minmax(220px, 1fr) repeat(3, minmax(150px, 190px)) auto; gap: 10px; align-items: center; margin: 12px 0; }
+.action-filter-row input, .action-filter-row select { background: var(--panel-soft); color: var(--text); border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.inline-check { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+@media (max-width: 900px) { .action-filter-row { grid-template-columns: 1fr; } }

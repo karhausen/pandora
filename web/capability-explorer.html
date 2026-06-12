@@ -64,12 +64,39 @@
           <p>Prüfbare nächste Schritte aus Capability Gaps. Aktionen landen als Vorschläge in der Review Inbox.</p>
         </div>
         <div class="badge-row">
-          <button class="badge link" type="button" onclick="rebuildActions()">Actions erzeugen</button>
-          <button class="badge link" type="button" onclick="loadActions()">Actions aktualisieren</button>
+          <button class="badge link primary" type="button" onclick="rebuildActions()">Actions erzeugen</button>
+          <button class="badge link" type="button" onclick="loadActions()">Aktualisieren</button>
           <a class="badge link" href="/approval">Review Inbox</a>
         </div>
       </div>
       <div id="actionsSummary" class="badge-row"></div>
+      <div class="action-filter-row">
+        <input id="actionQuery" type="search" placeholder="Actions suchen" oninput="loadActions()" />
+        <select id="actionTypeFilter" onchange="loadActions()">
+          <option value="">Alle Typen</option>
+          <option value="knowledge_candidate">Knowledge</option>
+          <option value="tool_candidate">Tool</option>
+          <option value="skill_candidate">Skill</option>
+          <option value="tool_improvement">Tool Improvement</option>
+          <option value="knowledge_improvement">Knowledge Improvement</option>
+        </select>
+        <select id="actionPriorityFilter" onchange="loadActions()">
+          <option value="">Alle Prioritäten</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <select id="actionStatusFilter" onchange="loadActions()">
+          <option value="">Offene Actions</option>
+          <option value="pending_review">Pending Review</option>
+          <option value="needs_work">Needs Work</option>
+          <option value="deferred">Deferred</option>
+          <option value="accepted_for_next_step">Accepted</option>
+          <option value="rejected">Rejected</option>
+          <option value="reviewed">Reviewed</option>
+        </select>
+        <label class="inline-check"><input id="includeReviewedActions" type="checkbox" onchange="loadActions()" /> abgeschlossene anzeigen</label>
+      </div>
       <div id="actionsList" class="actions-list empty">Noch keine Capability Actions geladen.</div>
     </section>
 

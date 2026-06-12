@@ -264,14 +264,27 @@ def cmd_capability_intelligence(args): _json(CapabilityGapIntelligenceService().
 def cmd_capability_actions_status(args):
     _json(CapabilityActionService().status())
 
+def cmd_capability_actions_dashboard(args):
+    _json(CapabilityActionService().dashboard())
+
 def cmd_capability_actions(args):
-    _json(CapabilityActionService().list_actions(include_reviewed=args.include_reviewed, limit=args.limit))
+    _json(CapabilityActionService().list_actions(
+        include_reviewed=args.include_reviewed,
+        limit=args.limit,
+        action_type=args.action_type,
+        priority=args.priority,
+        status=args.status,
+        query=args.query,
+    ))
 
 def cmd_capability_actions_rebuild(args):
     _json(CapabilityActionService().rebuild(limit=args.limit, write=not args.no_write))
 
 def cmd_capability_action_show(args):
     _json(CapabilityActionService().show(args.action_id))
+
+def cmd_capability_action_decide(args):
+    _json(CapabilityActionService().decide(args.action_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
 
 
 def cmd_registration_validate(args):
@@ -364,11 +377,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-intelligence"); p.add_argument("--rebuild", action="store_true"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_capability_intelligence)
 
     p = sub.add_parser("capability-actions-status"); p.set_defaults(func=cmd_capability_actions_status)
-    p = sub.add_parser("capability-actions"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_capability_actions)
+    p = sub.add_parser("capability-actions-dashboard"); p.set_defaults(func=cmd_capability_actions_dashboard)
+    p = sub.add_parser("capability-actions"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--limit", type=int, default=200); p.add_argument("--action-type"); p.add_argument("--priority"); p.add_argument("--status"); p.add_argument("--query"); p.set_defaults(func=cmd_capability_actions)
     p = sub.add_parser("capability-actions-rebuild"); p.add_argument("--limit", type=int, default=50); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_capability_actions_rebuild)
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
+    p = sub.add_parser("capability-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_capability_action_decide)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.3.3-registration-validation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.4-capability-actions-ui-workflow-polish"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
