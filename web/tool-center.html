@@ -14,14 +14,21 @@
         <h1>Tool Center</h1>
         <p>Installierte Tools prüfen, Status sehen und sichere Lifecycle-Aktionen auslösen.</p>
       </div>
-      <nav class="hero-actions" aria-label="Pandora Navigation">
-        <a class="badge link" href="/">User GUI</a>
-        <a class="badge link primary" href="/tools-center">Tool Center</a>
-        <a class="badge link" href="/operations">Operations Dashboard</a>
-        <a class="badge link" href="/memory-explorer">Memory Explorer</a>
-        <a class="badge link" href="/approval">Approval Center</a>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link" href="/knowledge-base">Knowledge</a>
+        <a class="badge link primary" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
       </nav>
     </header>
+    <section class="badge-row" aria-label="Capabilities Unterbereiche">
+      <a class="badge link" href="/capability-explorer">Capability Explorer</a>
+      <a class="badge link" href="/tools-center">Tool Center</a>
+      <a class="badge link" href="/skills-center">Skill Center</a>
+      <a class="badge link" href="/approval">Approval Center</a>
+    </section>
+
 
     <section class="summary-grid" id="summaryGrid">
       <article class="card"><span class="label">Tools</span><strong id="toolCount">–</strong></article>
@@ -31,7 +38,7 @@
     </section>
 
     <section class="toolbar">
-      <button class="badge link primary" type="button" onclick="loadToolCenter()">Aktualisieren</button>
+      <button class="badge link" type="button" onclick="loadToolCenter()">Aktualisieren</button>
       <select id="statusFilter" onchange="loadToolCenter()">
         <option value="">Alle Status</option>
         <option value="ACTIVE">ACTIVE</option>

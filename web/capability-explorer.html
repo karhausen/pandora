@@ -14,15 +14,21 @@
         <h1>Capability Explorer</h1>
         <p>Fähigkeiten, Tools, Skills, Wissensquellen und offene Lücken sichtbar miteinander verbinden.</p>
       </div>
-      <nav class="hero-actions" aria-label="Pandora Navigation">
-        <a class="badge link" href="/">User GUI</a>
-        <a class="badge link primary" href="/capability-explorer">Capability Explorer</a>
-        <a class="badge link" href="/knowledge-base">Knowledge Base</a>
-        <a class="badge link" href="/tools-center">Tool Center</a>
-        <a class="badge link" href="/skills-center">Skill Center</a>
-        <a class="badge link" href="/operations">Operations Dashboard</a>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link" href="/knowledge-base">Knowledge</a>
+        <a class="badge link primary" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
       </nav>
     </header>
+    <section class="badge-row" aria-label="Capabilities Unterbereiche">
+      <a class="badge link" href="/capability-explorer">Capability Explorer</a>
+      <a class="badge link" href="/tools-center">Tool Center</a>
+      <a class="badge link" href="/skills-center">Skill Center</a>
+      <a class="badge link" href="/approval">Approval Center</a>
+    </section>
+
 
     <section class="summary-grid">
       <article class="card"><span class="label">Capabilities</span><strong id="capabilityCount">–</strong></article>
@@ -33,7 +39,7 @@
 
     <section class="toolbar">
       <input id="queryInput" type="search" placeholder="Capability suchen, z. B. funktechnik" oninput="loadCapabilities()" />
-      <button class="badge link primary" type="button" onclick="rebuildGraph()">Graph neu aufbauen</button>
+      <button class="badge link" type="button" onclick="rebuildGraph()">Graph neu aufbauen</button>
       <button class="badge link" type="button" onclick="loadDashboard()">Aktualisieren</button>
       <span id="statusText">Bereit</span>
     </section>
