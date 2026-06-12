@@ -72,7 +72,7 @@ class CapabilityActionService:
             by_priority[action.get("priority", "unknown")] = by_priority.get(action.get("priority", "unknown"), 0) + 1
         return {
             "kind": "capability_action_status",
-            "version": "mvp-23.3.1-capability-actions-integration",
+            "version": "mvp-23.3.2-capability-actions-cli-fix",
             "actions_dir": str(self.actions_dir),
             "exists": self.actions_dir.exists(),
             "action_count": len(actions),
@@ -91,7 +91,7 @@ class CapabilityActionService:
                 self._write_action(action)
         return {
             "kind": "capability_action_rebuild_report",
-            "version": "mvp-23.3.1-capability-actions-integration",
+            "version": "mvp-23.3.2-capability-actions-cli-fix",
             "created_at": created_at,
             "source_report": {
                 "kind": report.get("kind"),

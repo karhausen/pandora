@@ -260,6 +260,18 @@ def cmd_capability_list(args): _json(CapabilityGraphService().list_capabilities(
 def cmd_capability_show(args): _json(CapabilityGraphService().show_capability(args.capability))
 def cmd_capability_intelligence(args): _json(CapabilityGapIntelligenceService().analyze(rebuild=args.rebuild, limit=args.limit))
 
+def cmd_capability_actions_status(args):
+    _json(CapabilityActionService().status())
+
+def cmd_capability_actions(args):
+    _json(CapabilityActionService().list_actions(include_reviewed=args.include_reviewed, limit=args.limit))
+
+def cmd_capability_actions_rebuild(args):
+    _json(CapabilityActionService().rebuild(limit=args.limit, write=not args.no_write))
+
+def cmd_capability_action_show(args):
+    _json(CapabilityActionService().show(args.action_id))
+
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
     from scripts.export_release import main as export_main
@@ -340,7 +352,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-actions-rebuild"); p.add_argument("--limit", type=int, default=50); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_capability_actions_rebuild)
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.3.1-capability-actions-integration"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.3.2-capability-actions-cli-fix"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)

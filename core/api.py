@@ -68,7 +68,7 @@ from .capability_graph import CapabilityGraphService
 from .capability_gap_intelligence import CapabilityGapIntelligenceService
 from .capability_actions import CapabilityActionService
 
-app = FastAPI(title="Pandora Agent", version="23.3.1-capability-actions-integration")
+app = FastAPI(title="Pandora Agent", version="23.3.2-capability-actions-cli-fix")
 
 
 class ToolProposalTaskRequest(BaseModel):
