@@ -67,8 +67,9 @@ from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
 from .capability_gap_intelligence import CapabilityGapIntelligenceService
 from .capability_actions import CapabilityActionService
+from .registration_validator import RegistrationValidator
 
-app = FastAPI(title="Pandora Agent", version="23.3.2-capability-actions-cli-fix")
+app = FastAPI(title="Pandora Agent", version="23.3.3-registration-validation")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -829,6 +830,16 @@ def gui_approval_decision(item_id: str, req: GuiApprovalDecisionRequest):
 @app.get("/api/gui/approval/audit")
 def gui_approval_audit(limit: int = 100):
     return get_gui_approval_service().audit(limit=limit)
+
+
+
+@app.get("/api/system/registration-validation")
+def api_registration_validation():
+    return RegistrationValidator().validate()
+
+@app.get("/api/system/registration-validation/cli")
+def api_registration_validation_cli():
+    return RegistrationValidator().validate_cli()
 
 @app.get("/status")
 def status():

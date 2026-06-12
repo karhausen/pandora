@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-23.3.2-capability-actions-cli-fix"
+PANDORA_CORE_VERSION = "mvp-23.3.3-registration-validation"
 
 
 @dataclass(frozen=True)

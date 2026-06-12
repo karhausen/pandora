@@ -49,6 +49,7 @@ from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
 from core.reality_check import RealityCheck
+from core.registration_validator import RegistrationValidator
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -272,6 +273,17 @@ def cmd_capability_actions_rebuild(args):
 def cmd_capability_action_show(args):
     _json(CapabilityActionService().show(args.action_id))
 
+
+def cmd_registration_validate(args):
+    report = RegistrationValidator().validate()
+    _json(report)
+    if args.strict and not report.get("ok", False):
+        raise SystemExit(2)
+
+def cmd_registration_validate_cli(args): _json(RegistrationValidator().validate_cli())
+def cmd_registration_validate_api(args): _json(RegistrationValidator().validate_api())
+def cmd_registration_validate_gui(args): _json(RegistrationValidator().validate_gui(api_routes=RegistrationValidator().validate_api().get("routes", [])))
+
 def cmd_release_audit(args): _json(release_audit(Path(args.root)))
 def cmd_release_export(args):
     from scripts.export_release import main as export_main
@@ -339,6 +351,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-profile-center-profiles"); p.set_defaults(func=cmd_llm_profile_center_profiles)
     p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
     p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
+    p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
+    p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)
+    p = sub.add_parser("registration-validate-api"); p.set_defaults(func=cmd_registration_validate_api)
+    p = sub.add_parser("registration-validate-gui"); p.set_defaults(func=cmd_registration_validate_gui)
     p = sub.add_parser("release-audit"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_audit)
 
     p = sub.add_parser("capability-status"); p.set_defaults(func=cmd_capability_status)
@@ -352,7 +368,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-actions-rebuild"); p.add_argument("--limit", type=int, default=50); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_capability_actions_rebuild)
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.3.2-capability-actions-cli-fix"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.3.3-registration-validation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
