@@ -71,7 +71,7 @@ from .registration_validator import RegistrationValidator
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from .obsidian_inbox_review import ObsidianInboxReviewService
 
-app = FastAPI(title="Pandora Agent", version="23.5.2-obsidian-inbox-review-workflow")
+app = FastAPI(title="Pandora Agent", version="23.5.3-obsidian-vault-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1312,6 +1312,11 @@ def web_capability_explorer():
     return FileResponse(WEB_DIR / "capability-explorer.html")
 
 
+@app.get("/obsidian-vault")
+def web_obsidian_vault():
+    return FileResponse(WEB_DIR / "obsidian-vault.html")
+
+
 @app.get("/web/capability-explorer.js")
 def web_capability_explorer_js():
     return FileResponse(WEB_DIR / "capability-explorer.js")
@@ -1340,6 +1345,16 @@ def web_knowledge_editor_js():
 @app.get("/web/knowledge-editor.css")
 def web_knowledge_editor_css():
     return FileResponse(WEB_DIR / "knowledge-editor.css")
+
+
+@app.get("/web/obsidian-vault.js")
+def web_obsidian_vault_js():
+    return FileResponse(WEB_DIR / "obsidian-vault.js")
+
+
+@app.get("/web/obsidian-vault.css")
+def web_obsidian_vault_css():
+    return FileResponse(WEB_DIR / "obsidian-vault.css")
 
 
 @app.get("/web/llm-profile-center.js")

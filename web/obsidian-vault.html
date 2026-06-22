@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Obsidian Vault</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/obsidian-vault.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Obsidian Vault</h1>
+        <p>Vault lesen, durchsuchen und kontrolliert in <code>Pandora_Inbox</code> schreiben.</p>
+      </div>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link primary" href="/knowledge-base">Knowledge</a>
+        <a class="badge link" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
+      </nav>
+    </header>
+
+    <section class="badge-row" aria-label="Knowledge Unterbereiche">
+      <a class="badge link" href="/knowledge-base">Knowledge Base</a>
+      <a class="badge link" href="/knowledge-editor">Knowledge Editor</a>
+      <a class="badge link" href="/memory-explorer">Memory Explorer</a>
+      <a class="badge link primary" href="/obsidian-vault">Obsidian Vault</a>
+    </section>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Status</span><strong id="vaultOk">–</strong></article>
+      <article class="card"><span class="label">Vault</span><strong id="vaultPath">–</strong></article>
+      <article class="card"><span class="label">Inbox</span><strong id="inboxStatus">–</strong></article>
+      <article class="card"><span class="label">Cloud</span><strong id="cloudStatus">–</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <button class="badge link primary" type="button" onclick="loadStatus()">Status prüfen</button>
+      <button class="badge link" type="button" onclick="ensureInbox()">Inbox anlegen</button>
+      <button class="badge link" type="button" onclick="reindexVault()">Index neu bauen</button>
+      <button class="badge link" type="button" onclick="loadInbox()">Inbox laden</button>
+      <span id="statusText">Bereit</span>
+    </section>
+
+    <section class="layout-grid">
+      <article class="panel">
+        <h2>Suche</h2>
+        <div class="form-row">
+          <input id="searchInput" placeholder="Suchbegriff, #tag oder Wikilink ..." />
+          <button type="button" onclick="searchVault()">Suchen</button>
+        </div>
+        <div id="searchResults" class="item-list"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Export nach Pandora_Inbox</h2>
+        <label>Titel<input id="exportTitle" placeholder="Titel der Notiz" /></label>
+        <label>Kategorie
+          <select id="exportCategory">
+            <option>Knowledge</option>
+            <option>Skills</option>
+            <option>Research</option>
+            <option>Drafts</option>
+          </select>
+        </label>
+        <label>Tags<input id="exportTags" placeholder="pandora, funktechnik" /></label>
+        <label>Vorgeschlagener Zielordner<input id="suggestedFolder" placeholder="Funktechnik/Messtechnik" /></label>
+        <label>Inhalt<textarea id="exportContent" rows="10" placeholder="# Überschrift\n\nText ..."></textarea></label>
+        <button class="badge link primary" type="button" onclick="exportNote()">In Inbox exportieren</button>
+        <div id="exportResult" class="result-box"></div>
+      </article>
+    </section>
+
+    <section class="layout-grid">
+      <article class="panel">
+        <h2>Pandora_Inbox Review</h2>
+        <div class="form-row">
+          <select id="inboxFilter">
+            <option value="">alle</option>
+            <option value="pending">pending</option>
+            <option value="reviewed">reviewed</option>
+            <option value="accepted_for_sorting">accepted_for_sorting</option>
+            <option value="needs_revision">needs_revision</option>
+            <option value="rejected">rejected</option>
+          </select>
+          <button type="button" onclick="loadInbox()">Aktualisieren</button>
+        </div>
+        <div id="inboxList" class="item-list"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Details</h2>
+        <div id="detailPanel" class="detail-panel">Wähle einen Suchtreffer oder Inbox-Eintrag aus.</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Raw Output</h2>
+      <pre id="rawOutput">{}</pre>
+    </section>
+  </main>
+  <script src="/web/obsidian-vault.js"></script>
+</body>
+</html>
