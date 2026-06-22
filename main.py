@@ -51,6 +51,7 @@ from core.capability_actions import CapabilityActionService
 from core.reality_check import RealityCheck
 from core.registration_validator import RegistrationValidator
 from core.obsidian_vault import ObsidianVaultService, ObsidianSafetyError
+from core.obsidian_inbox_review import ObsidianInboxReviewService
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -327,6 +328,19 @@ def cmd_obsidian_export(args):
 def cmd_obsidian_ensure_inbox(args):
     _obsidian_call(lambda: ObsidianVaultService().ensure_inbox())
 
+
+def cmd_obsidian_inbox_status(args):
+    _obsidian_call(lambda: ObsidianInboxReviewService().status())
+
+def cmd_obsidian_inbox_list(args):
+    _obsidian_call(lambda: ObsidianInboxReviewService().list_items(status=args.status, category=args.category, limit=args.limit))
+
+def cmd_obsidian_inbox_show(args):
+    _obsidian_call(lambda: ObsidianInboxReviewService().show_item(args.path))
+
+def cmd_obsidian_inbox_mark(args):
+    _obsidian_call(lambda: ObsidianInboxReviewService().mark_item(args.path, status=args.status, note=args.note, reviewed_by=args.reviewed_by))
+
 def cmd_registration_validate(args):
     report = RegistrationValidator().validate()
     _json(report)
@@ -358,7 +372,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.5.1")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.5.2")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -411,6 +425,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("obsidian-tags"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_tags)
     p = sub.add_parser("obsidian-export"); p.add_argument("--title", required=True); p.add_argument("--content"); p.add_argument("--file"); p.add_argument("--category", default="Knowledge", choices=["Knowledge", "Skills", "Research", "Drafts"]); p.add_argument("--tag", action="append"); p.add_argument("--suggested-folder"); p.set_defaults(func=cmd_obsidian_export)
     p = sub.add_parser("obsidian-ensure-inbox"); p.set_defaults(func=cmd_obsidian_ensure_inbox)
+
+    p = sub.add_parser("obsidian-inbox-status"); p.set_defaults(func=cmd_obsidian_inbox_status)
+    p = sub.add_parser("obsidian-inbox-list"); p.add_argument("--status"); p.add_argument("--category"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_inbox_list)
+    p = sub.add_parser("obsidian-inbox-show"); p.add_argument("path"); p.set_defaults(func=cmd_obsidian_inbox_show)
+    p = sub.add_parser("obsidian-inbox-mark"); p.add_argument("path"); p.add_argument("--status", required=True, choices=["pending", "reviewed", "accepted_for_sorting", "needs_revision", "rejected"]); p.add_argument("--note"); p.add_argument("--reviewed-by", default="user"); p.set_defaults(func=cmd_obsidian_inbox_mark)
 
     p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
     p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)

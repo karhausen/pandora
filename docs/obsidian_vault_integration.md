@@ -76,3 +76,39 @@ tags:
   - pandora
 ---
 ```
+
+## MVP 23.5.2 – Obsidian Inbox Review Workflow
+
+Pandora darf weiterhin nicht im Vault aufräumen, verschieben oder löschen. Neu ist ein kontrollierter Review-Workflow für Dateien unter `Pandora_Inbox/`.
+
+### CLI
+
+```bash
+python main.py obsidian-inbox-status
+python main.py obsidian-inbox-list
+python main.py obsidian-inbox-show Knowledge/Meine_Notiz.md
+python main.py obsidian-inbox-mark Knowledge/Meine_Notiz.md --status reviewed --note "geprüft"
+```
+
+Unterstützte Review-Status:
+
+```text
+pending
+reviewed
+accepted_for_sorting
+needs_revision
+rejected
+```
+
+### API
+
+```text
+GET  /api/obsidian/inbox/status
+GET  /api/obsidian/inbox/items
+GET  /api/obsidian/inbox/items/{item_path}
+POST /api/obsidian/inbox/items/{item_path}/mark
+```
+
+### Sicherheitsregel
+
+Pandora aktualisiert nur Metadaten von Markdown-Dateien innerhalb von `Pandora_Inbox/`. Verschieben in den eigentlichen Vault-Baum bleibt eine User-Aufgabe.

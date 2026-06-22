@@ -69,8 +69,9 @@ from .capability_gap_intelligence import CapabilityGapIntelligenceService
 from .capability_actions import CapabilityActionService
 from .registration_validator import RegistrationValidator
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
+from .obsidian_inbox_review import ObsidianInboxReviewService
 
-app = FastAPI(title="Pandora Agent", version="23.5.1-obsidian-connector-hardening")
+app = FastAPI(title="Pandora Agent", version="23.5.2-obsidian-inbox-review-workflow")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -229,6 +230,12 @@ class ObsidianExportRequest(BaseModel):
     suggested_folder: str | None = None
 
 
+class ObsidianInboxMarkRequest(BaseModel):
+    status: str
+    note: str | None = None
+    reviewed_by: str = "user"
+
+
 def _obsidian_api_call(func):
     try:
         return func()
@@ -307,6 +314,23 @@ def api_obsidian_export(req: ObsidianExportRequest):
         tags=req.tags,
         suggested_folder=req.suggested_folder,
     ))
+
+
+@app.get("/api/obsidian/inbox/status")
+def api_obsidian_inbox_status():
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().status())
+
+@app.get("/api/obsidian/inbox/items")
+def api_obsidian_inbox_items(status: str | None = None, category: str | None = None, limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().list_items(status=status, category=category, limit=limit))
+
+@app.get("/api/obsidian/inbox/items/{item_path:path}")
+def api_obsidian_inbox_item(item_path: str):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().show_item(item_path))
+
+@app.post("/api/obsidian/inbox/items/{item_path:path}/mark")
+def api_obsidian_inbox_mark(item_path: str, req: ObsidianInboxMarkRequest):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().mark_item(item_path, status=req.status, note=req.note, reviewed_by=req.reviewed_by))
 
 @app.get("/api/gui/knowledge/dashboard")
 def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):
