@@ -74,7 +74,7 @@ class ChatService:
             knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
             merged_context = context.summary
             if knowledge.get("context_text"):
-                merged_context = (merged_context + "\n\n" if merged_context else "") + "User Knowledge Base Kontext:\n" + knowledge["context_text"]
+                merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
             llm_result = self.chat_responder.respond(
                 task,
                 history=history,
@@ -104,6 +104,8 @@ class ChatService:
                     "target": knowledge.get("target"),
                     "cloud_context": knowledge.get("cloud_context"),
                     "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
+                    "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
+                    "obsidian": knowledge.get("obsidian", {}),
                     "route_target": knowledge.get("route_target", {}),
                 },
             }

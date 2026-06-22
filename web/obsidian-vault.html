@@ -56,6 +56,20 @@
       </article>
 
       <article class="panel">
+        <h2>Context Preview</h2>
+        <p class="muted">Zeigt, ob und welche Vault-Treffer in den Chat-Kontext übernommen würden.</p>
+        <div class="form-row">
+          <input id="contextInput" placeholder="Frage oder Suchkontext ..." />
+          <select id="contextTarget">
+            <option value="local_fast">lokal</option>
+            <option value="company_llm">company/cloud</option>
+          </select>
+          <button type="button" onclick="previewContext()">Preview</button>
+        </div>
+        <div id="contextPreview" class="item-list"></div>
+      </article>
+
+      <article class="panel">
         <h2>Export nach Pandora_Inbox</h2>
         <label>Titel<input id="exportTitle" placeholder="Titel der Notiz" /></label>
         <label>Kategorie

@@ -7,6 +7,7 @@ from typing import Any
 from .llm_config import LLMConfig
 from .model_router import ModelRouter
 from .user_knowledge_base import AREAS, UserKnowledgeBaseService
+from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 
 
 LOCAL_PROVIDER_NAMES = {"mock", "local_fast", "ollama"}
@@ -28,6 +29,7 @@ class KnowledgeContextService:
     max_files: int = 5
     max_chars_per_file: int = 1400
     max_total_chars: int = 6000
+    include_obsidian: bool = True
 
     def __post_init__(self) -> None:
         self.knowledge = self.knowledge or UserKnowledgeBaseService()
@@ -100,6 +102,11 @@ class KnowledgeContextService:
                 "size_bytes": item.get("size_bytes"),
             })
 
+        obsidian_payload = self._build_obsidian_context(query=query, cloud_context=cloud_context, remaining_files=max(0, (limit or self.max_files) - len(sources)), remaining_chars=max(0, self.max_total_chars - total_chars)) if self.include_obsidian else self._empty_obsidian_payload(cloud_context)
+        if obsidian_payload.get("context_text"):
+            snippets.append(obsidian_payload["context_text"])
+            sources.extend(obsidian_payload.get("sources", []))
+
         context_text = "\n\n---\n\n".join(snippets)
         return {
             "kind": "knowledge_context",
@@ -112,11 +119,82 @@ class KnowledgeContextService:
             "source_count": len(sources),
             "sources": sources,
             "blocked_local_only_count": len(blocked) if cloud_context else 0,
+            "blocked_obsidian_count": obsidian_payload.get("blocked_count", 0),
+            "obsidian": {k: v for k, v in obsidian_payload.items() if k != "context_text"},
             "blocked_local_only_sources": [
                 {"area": item.get("area"), "relative_path": item.get("relative_path"), "policy": item.get("policy")}
                 for item in blocked[:20]
             ],
-            "rule": "private_local_only is included only for local targets and never for cloud/company targets",
+            "rule": "private_local_only is included only for local targets; Obsidian context is included for cloud/company targets only when OBSIDIAN_CLOUD_ALLOWED=true",
+        }
+
+
+    def _build_obsidian_context(self, *, query: str, cloud_context: bool, remaining_files: int, remaining_chars: int) -> dict[str, Any]:
+        if remaining_files <= 0 or remaining_chars <= 0:
+            return self._empty_obsidian_payload(cloud_context)
+        try:
+            vault = ObsidianVaultService()
+            status = vault.status()
+            if not status.get("ok"):
+                return {**self._empty_obsidian_payload(cloud_context), "enabled": bool(status.get("config", {}).get("enabled")), "status_ok": False, "issues": status.get("issues", [])}
+            cloud_allowed = bool(status.get("config", {}).get("cloud_allowed"))
+            if cloud_context and not cloud_allowed:
+                return {
+                    **self._empty_obsidian_payload(cloud_context),
+                    "enabled": True,
+                    "status_ok": True,
+                    "cloud_allowed": False,
+                    "blocked_count": 1,
+                    "blocked_reason": "OBSIDIAN_CLOUD_ALLOWED=false",
+                }
+            search = vault.search(query=query, limit=remaining_files, include_content=True)
+        except (ObsidianSafetyError, Exception) as exc:
+            return {**self._empty_obsidian_payload(cloud_context), "error": str(exc)}
+
+        snippets: list[str] = []
+        sources: list[dict[str, Any]] = []
+        total = 0
+        for item in search.get("results", [])[:remaining_files]:
+            text = self._clip(str(item.get("content") or item.get("excerpt") or ""), self.max_chars_per_file)
+            if not text:
+                continue
+            rel = item.get("relative_path")
+            header = f"Quelle: obsidian/{rel} | Policy: {'cloud_allowed' if not cloud_context or search.get('cloud_allowed') else 'local_only'} | Cloud erlaubt: {bool(search.get('cloud_allowed'))}"
+            block = f"[{header}]\n{text}"
+            if total + len(block) > remaining_chars:
+                break
+            snippets.append(block)
+            total += len(block)
+            sources.append({
+                "source_type": "obsidian",
+                "relative_path": rel,
+                "title": item.get("title"),
+                "tags": item.get("tags", []),
+                "wikilinks": item.get("wikilinks", []),
+                "cloud_allowed": bool(search.get("cloud_allowed")),
+                "score": item.get("score"),
+            })
+        return {
+            "enabled": True,
+            "status_ok": True,
+            "cloud_allowed": bool(search.get("cloud_allowed")),
+            "query": query,
+            "source_count": len(sources),
+            "sources": sources,
+            "context_text": "\n\n---\n\n".join(snippets),
+            "blocked_count": 0,
+        }
+
+    def _empty_obsidian_payload(self, cloud_context: bool) -> dict[str, Any]:
+        return {
+            "enabled": False,
+            "status_ok": False,
+            "cloud_context": cloud_context,
+            "cloud_allowed": False,
+            "source_count": 0,
+            "sources": [],
+            "context_text": "",
+            "blocked_count": 0,
         }
 
     def _read_source(self, area: str, relative_path: str) -> str:

@@ -61,6 +61,34 @@ function showSearchResult(item) {
     <h4>Vorschau</h4><pre>${escapeHtml(item.excerpt || '')}</pre>
   `;
 }
+
+async function previewContext() {
+  const query = $('contextInput').value.trim() || $('searchInput').value.trim();
+  const provider = $('contextTarget').value;
+  if (!query) { setStatus('Bitte Context-Frage oder Suchbegriff eingeben.'); return; }
+  setStatus('Baue Obsidian Context Preview ...');
+  const data = await fetchJson(`/api/obsidian/context-preview?query=${encodeURIComponent(query)}&provider_name=${encodeURIComponent(provider)}&limit=5`);
+  raw(data);
+  const obs = data.obsidian || {};
+  const sources = data.sources || [];
+  const blocked = data.blocked_obsidian_count || obs.blocked_count || 0;
+  $('contextPreview').innerHTML = `
+    <div class="item">
+      <h3>${escapeHtml(data.cloud_context ? 'Cloud/Company Kontext' : 'Lokaler Kontext')}</h3>
+      <div class="badge-row">${badge('Quellen ' + sources.length, 'primary')}${blocked ? badge('blockiert ' + blocked) : ''}${badge(obs.cloud_allowed ? 'cloud erlaubt' : 'local only')}</div>
+      <p>${escapeHtml(obs.blocked_reason || data.rule || '')}</p>
+    </div>
+    ${sources.length ? sources.map(src => `
+      <div class="item">
+        <h3>${escapeHtml(src.title || src.relative_path)}</h3>
+        <p>${escapeHtml(src.relative_path)}</p>
+        <div class="badge-row">${(src.tags || []).slice(0,5).map(t => badge('#'+t)).join('')}${badge('Score ' + (src.score ?? 0))}</div>
+      </div>
+    `).join('') : '<div class="item">Keine Obsidian-Quelle im Kontext. Prüfe Vault-Status oder Cloud-Policy.</div>'}
+  `;
+  setStatus(`Context Preview: ${sources.length} Quellen, ${blocked} blockiert`);
+}
+
 async function exportNote() {
   const tags = $('exportTags').value.split(',').map(t => t.trim()).filter(Boolean);
   const payload = {

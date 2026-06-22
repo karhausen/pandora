@@ -45,6 +45,7 @@ from core.night_mode_dashboard import NightModeDashboardService
 from core.llm_profile_center import LLMProfileCenterService
 from core.user_knowledge_base import UserKnowledgeBaseService
 from core.knowledge_governance import KnowledgeGovernanceService
+from core.knowledge_context import KnowledgeContextService
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -310,6 +311,20 @@ def cmd_obsidian_search(args):
 def cmd_obsidian_tags(args):
     _obsidian_call(lambda: ObsidianVaultService().tags(limit=args.limit))
 
+def cmd_obsidian_context_preview(args):
+    payload = KnowledgeContextService(max_files=args.limit).build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit)
+    _json({
+        "kind": "obsidian_context_preview",
+        "ok": True,
+        "query": args.query,
+        "target": payload.get("target"),
+        "cloud_context": payload.get("cloud_context"),
+        "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
+        "obsidian": payload.get("obsidian", {}),
+        "sources": [src for src in payload.get("sources", []) if src.get("source_type") == "obsidian"],
+        "rule": "Obsidian context is included for cloud/company targets only when OBSIDIAN_CLOUD_ALLOWED=true",
+    })
+
 def cmd_obsidian_export(args):
     content = args.content or ""
     if args.file:
@@ -423,6 +438,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("obsidian-index"); p.add_argument("--limit", type=int, default=10000); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_obsidian_index)
     p = sub.add_parser("obsidian-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=20); p.add_argument("--include-content", action="store_true"); p.set_defaults(func=cmd_obsidian_search)
     p = sub.add_parser("obsidian-tags"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_tags)
+    p = sub.add_parser("obsidian-context-preview"); p.add_argument("query"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.set_defaults(func=cmd_obsidian_context_preview)
     p = sub.add_parser("obsidian-export"); p.add_argument("--title", required=True); p.add_argument("--content"); p.add_argument("--file"); p.add_argument("--category", default="Knowledge", choices=["Knowledge", "Skills", "Research", "Drafts"]); p.add_argument("--tag", action="append"); p.add_argument("--suggested-folder"); p.set_defaults(func=cmd_obsidian_export)
     p = sub.add_parser("obsidian-ensure-inbox"); p.set_defaults(func=cmd_obsidian_ensure_inbox)
 

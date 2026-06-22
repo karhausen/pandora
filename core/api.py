@@ -71,7 +71,7 @@ from .registration_validator import RegistrationValidator
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from .obsidian_inbox_review import ObsidianInboxReviewService
 
-app = FastAPI(title="Pandora Agent", version="23.5.3-obsidian-vault-gui")
+app = FastAPI(title="Pandora Agent", version="23.5.4-obsidian-context-integration")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -296,6 +296,26 @@ def api_obsidian_reindex(limit: int = 10000, write: bool = True):
 @app.get("/api/obsidian/search")
 def api_obsidian_search(query: str, limit: int = 20, include_content: bool = False):
     return _obsidian_api_call(lambda: ObsidianVaultService().search(query, limit=limit, include_content=include_content))
+
+
+@app.get("/api/obsidian/context-preview")
+def api_obsidian_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    # Reuse the same policy-safe context builder that the chat path uses.
+    payload = KnowledgeContextService(max_files=limit).build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+    obsidian = payload.get("obsidian", {})
+    return {
+        "kind": "obsidian_context_preview",
+        "ok": True,
+        "query": query,
+        "target": payload.get("target"),
+        "cloud_context": payload.get("cloud_context"),
+        "obsidian": obsidian,
+        "obsidian_source_count": obsidian.get("source_count", 0),
+        "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
+        "context_chars": payload.get("context_chars", 0),
+        "sources": [src for src in payload.get("sources", []) if src.get("source_type") == "obsidian"],
+        "rule": "Obsidian context is included for cloud/company targets only when OBSIDIAN_CLOUD_ALLOWED=true",
+    }
 
 @app.get("/api/obsidian/tags")
 def api_obsidian_tags(limit: int = 200):

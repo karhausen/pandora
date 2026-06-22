@@ -2,4 +2,8 @@
 
 ### [[Pandora]]
 
- - [] Obsidian Integration
+- [ ] Obsidian Integration
+- [ ] Testen
+
+### [[Wichtig]]
+
