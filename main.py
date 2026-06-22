@@ -50,6 +50,7 @@ from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
 from core.reality_check import RealityCheck
 from core.registration_validator import RegistrationValidator
+from core.obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -287,6 +288,45 @@ def cmd_capability_action_decide(args):
     _json(CapabilityActionService().decide(args.action_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
 
 
+
+
+def _obsidian_call(func):
+    try:
+        _json(func())
+    except ObsidianSafetyError as exc:
+        _json({"ok": False, "error": str(exc), "kind": "obsidian_error"})
+        raise SystemExit(2)
+
+def cmd_obsidian_status(args):
+    _json(ObsidianVaultService().status())
+
+def cmd_obsidian_index(args):
+    _obsidian_call(lambda: ObsidianVaultService().index(limit=args.limit, write=not args.no_write))
+
+def cmd_obsidian_search(args):
+    _obsidian_call(lambda: ObsidianVaultService().search(args.query, limit=args.limit, include_content=args.include_content))
+
+def cmd_obsidian_tags(args):
+    _obsidian_call(lambda: ObsidianVaultService().tags(limit=args.limit))
+
+def cmd_obsidian_export(args):
+    content = args.content or ""
+    if args.file:
+        content = Path(args.file).read_text(encoding="utf-8")
+    tags = []
+    for item in args.tag or []:
+        tags.extend([part.strip() for part in item.split(",") if part.strip()])
+    _obsidian_call(lambda: ObsidianVaultService().export_markdown(
+        title=args.title,
+        content=content,
+        category=args.category,
+        tags=tags,
+        suggested_folder=args.suggested_folder,
+    ))
+
+def cmd_obsidian_ensure_inbox(args):
+    _obsidian_call(lambda: ObsidianVaultService().ensure_inbox())
+
 def cmd_registration_validate(args):
     report = RegistrationValidator().validate()
     _json(report)
@@ -318,7 +358,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.5.1")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -364,6 +404,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("llm-profile-center-profiles"); p.set_defaults(func=cmd_llm_profile_center_profiles)
     p = sub.add_parser("llm-profile-center-providers"); p.set_defaults(func=cmd_llm_profile_center_providers)
     p = sub.add_parser("llm-profile-center-routes"); p.set_defaults(func=cmd_llm_profile_center_routes)
+
+    p = sub.add_parser("obsidian-status"); p.set_defaults(func=cmd_obsidian_status)
+    p = sub.add_parser("obsidian-index"); p.add_argument("--limit", type=int, default=10000); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_obsidian_index)
+    p = sub.add_parser("obsidian-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=20); p.add_argument("--include-content", action="store_true"); p.set_defaults(func=cmd_obsidian_search)
+    p = sub.add_parser("obsidian-tags"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_tags)
+    p = sub.add_parser("obsidian-export"); p.add_argument("--title", required=True); p.add_argument("--content"); p.add_argument("--file"); p.add_argument("--category", default="Knowledge", choices=["Knowledge", "Skills", "Research", "Drafts"]); p.add_argument("--tag", action="append"); p.add_argument("--suggested-folder"); p.set_defaults(func=cmd_obsidian_export)
+    p = sub.add_parser("obsidian-ensure-inbox"); p.set_defaults(func=cmd_obsidian_ensure_inbox)
+
     p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
     p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)
     p = sub.add_parser("registration-validate-api"); p.set_defaults(func=cmd_registration_validate_api)

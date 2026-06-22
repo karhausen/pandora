@@ -300,3 +300,7 @@ Der Capability Explorer ist unter `/capability-explorer` erreichbar und zeigt Be
 ## Aktueller UI-Stand
 
 MVP 23.2.1 führt eine klare GUI-Architektur ein: Chat, Knowledge, Capabilities, Operations und Profiles. Neue Seiten sollen künftig einem dieser Bereiche zugeordnet werden.
+
+## Obsidian Vault
+
+Pandora can read an Obsidian vault and export new notes only into `Pandora_Inbox`. Configure it through `.env`; see `docs/obsidian_vault_integration.md`.

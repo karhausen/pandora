@@ -68,8 +68,9 @@ from .capability_graph import CapabilityGraphService
 from .capability_gap_intelligence import CapabilityGapIntelligenceService
 from .capability_actions import CapabilityActionService
 from .registration_validator import RegistrationValidator
+from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 
-app = FastAPI(title="Pandora Agent", version="23.3.3-registration-validation")
+app = FastAPI(title="Pandora Agent", version="23.5.1-obsidian-connector-hardening")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -220,6 +221,21 @@ class ChatSessionCreateRequest(BaseModel):
     title: str | None = None
 
 
+class ObsidianExportRequest(BaseModel):
+    title: str
+    content: str = ""
+    category: str = "Knowledge"
+    tags: list[str] = []
+    suggested_folder: str | None = None
+
+
+def _obsidian_api_call(func):
+    try:
+        return func()
+    except ObsidianSafetyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 class UserRunRequest(BaseModel):
     task: str
     provider_name: str | None = None
@@ -259,6 +275,38 @@ class GuiSkillActionRequest(BaseModel):
 def get_user_knowledge_service() -> UserKnowledgeBaseService:
     return UserKnowledgeBaseService()
 
+
+
+
+@app.get("/api/obsidian/status")
+def api_obsidian_status():
+    return ObsidianVaultService().status()
+
+@app.post("/api/obsidian/reindex")
+def api_obsidian_reindex(limit: int = 10000, write: bool = True):
+    return _obsidian_api_call(lambda: ObsidianVaultService().index(limit=limit, write=write))
+
+@app.get("/api/obsidian/search")
+def api_obsidian_search(query: str, limit: int = 20, include_content: bool = False):
+    return _obsidian_api_call(lambda: ObsidianVaultService().search(query, limit=limit, include_content=include_content))
+
+@app.get("/api/obsidian/tags")
+def api_obsidian_tags(limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianVaultService().tags(limit=limit))
+
+@app.post("/api/obsidian/ensure-inbox")
+def api_obsidian_ensure_inbox():
+    return _obsidian_api_call(lambda: ObsidianVaultService().ensure_inbox())
+
+@app.post("/api/obsidian/export")
+def api_obsidian_export(req: ObsidianExportRequest):
+    return _obsidian_api_call(lambda: ObsidianVaultService().export_markdown(
+        title=req.title,
+        content=req.content,
+        category=req.category,
+        tags=req.tags,
+        suggested_folder=req.suggested_folder,
+    ))
 
 @app.get("/api/gui/knowledge/dashboard")
 def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):
