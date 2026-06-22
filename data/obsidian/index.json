@@ -1,0 +1,73 @@
+{
+  "kind": "obsidian_index",
+  "ok": true,
+  "vault": "C:\\GitHub\\pandora\\00_vault",
+  "file_count": 3,
+  "tag_count": 0,
+  "wikilink_count": 5,
+  "cloud_allowed": false,
+  "files": [
+    {
+      "relative_path": "commands.md",
+      "title": "Wichtige Befehle",
+      "tags": [],
+      "wikilinks": [
+        "Core",
+        "Maintenance"
+      ],
+      "word_count": 162,
+      "excerpt": "--- tags: - docs - commands --- # Wichtige Befehle ## Start ```bash python main.py status python main.py api --host 127.0.0.1 --port 8000 ``` ## [[Core]] ```bash python main.py control-status python main.py heartbeat ``` ## [[Maintenance]] und Night Mode ```bash python main.py maintenance-status python main.py maintena",
+      "modified_at": "2026-06-22T12:36:40.242045+00:00",
+      "sha256": "48d18dc64d4723b33d7721cb0cea722cab440a8bb555c7b24b2b206d177e3501"
+    },
+    {
+      "relative_path": "Pandora_Inbox/Knowledge/Inbox-Test.md",
+      "title": "Inbox-Test",
+      "tags": [],
+      "wikilinks": [
+        "Inbox"
+      ],
+      "word_count": 32,
+      "excerpt": "--- title: Inbox-Test generated_by: pandora generated_at: 2026-06-22T12:56:03.269851+00:00 review_status: pending cloud_allowed: false suggested_folder: Wissen tags: - pandora - Anleitung --- # Inbox-Test ### Dies sollte in der [[Inbox]] ankommen [ ] hat funktioniert",
+      "modified_at": "2026-06-22T12:56:03.270760+00:00",
+      "sha256": "fb2cec45a501417502dc728802cf5681d152406135144bd5d9a258f8d311b357"
+    },
+    {
+      "relative_path": "Test.md",
+      "title": "Test File",
+      "tags": [],
+      "wikilinks": [
+        "Pandora",
+        "Wichtig"
+      ],
+      "word_count": 16,
+      "excerpt": "# Test File ### [[Pandora]] - [ ] Obsidian Integration - [ ] Testen ### [[Wichtig]]",
+      "modified_at": "2026-06-22T12:52:27.037988+00:00",
+      "sha256": "34b938716bdcf22d4b47303041564415d020e44c9ab1a34db071709959b75903"
+    }
+  ],
+  "top_tags": [],
+  "top_wikilinks": [
+    [
+      "Core",
+      1
+    ],
+    [
+      "Inbox",
+      1
+    ],
+    [
+      "Maintenance",
+      1
+    ],
+    [
+      "Pandora",
+      1
+    ],
+    [
+      "Wichtig",
+      1
+    ]
+  ],
+  "generated_at": "2026-06-22T12:59:06.038758+00:00"
+}
