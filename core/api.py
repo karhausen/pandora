@@ -71,6 +71,7 @@ from .registration_validator import RegistrationValidator
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from .obsidian_inbox_review import ObsidianInboxReviewService
 from .obsidian_import_candidates import ObsidianImportCandidateService
+from .obsidian_import_execution import ObsidianImportExecutionService
 
 app = FastAPI(title="Pandora Agent", version="23.5.5-obsidian-knowledge-import-candidates")
 
@@ -243,6 +244,12 @@ class ObsidianImportCandidateDecisionRequest(BaseModel):
     decided_by: str = "user"
 
 
+class ObsidianImportExecuteRequest(BaseModel):
+    confirm: bool = False
+    overwrite: bool = False
+    executed_by: str = "user"
+
+
 def _obsidian_api_call(func):
     try:
         return func()
@@ -380,6 +387,22 @@ def api_obsidian_import_candidate(candidate_id: str):
 @app.post("/api/obsidian/import-candidates/{candidate_id:path}/decision")
 def api_obsidian_import_candidate_decision(candidate_id: str, req: ObsidianImportCandidateDecisionRequest):
     return _obsidian_api_call(lambda: ObsidianImportCandidateService().decide(candidate_id, decision=req.decision, note=req.note, decided_by=req.decided_by))
+
+@app.get("/api/obsidian/import-executions/status")
+def api_obsidian_import_executions_status():
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().status())
+
+@app.get("/api/obsidian/import-executions")
+def api_obsidian_import_executions(limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().list_executions(limit=limit))
+
+@app.get("/api/obsidian/import-candidates/{candidate_id:path}/execution-plan")
+def api_obsidian_import_candidate_execution_plan(candidate_id: str, overwrite: bool = False):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite))
+
+@app.post("/api/obsidian/import-candidates/{candidate_id:path}/execute")
+def api_obsidian_import_candidate_execute(candidate_id: str, req: ObsidianImportExecuteRequest):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().execute(candidate_id, confirm=req.confirm, overwrite=req.overwrite, executed_by=req.executed_by))
 
 @app.get("/api/gui/knowledge/dashboard")
 def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):

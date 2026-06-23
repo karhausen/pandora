@@ -304,3 +304,14 @@ MVP 23.2.1 führt eine klare GUI-Architektur ein: Chat, Knowledge, Capabilities,
 ## Obsidian Vault
 
 Pandora can read an Obsidian vault and export new notes only into `Pandora_Inbox`. Configure it through `.env`; see `docs/obsidian_vault_integration.md`.
+
+
+## MVP 23.5.6 – Obsidian Import Execution Plan
+
+Obsidian-Import-Kandidaten können jetzt kontrolliert in `user_knowledge/` übernommen werden. Die Ausführung benötigt einen akzeptierten Kandidaten und `--confirm`. Obsidian bleibt read-only.
+
+```bash
+python main.py obsidian-import-plan <candidate_id>
+python main.py obsidian-import-execute <candidate_id> --confirm
+python main.py obsidian-import-execution-list
+```

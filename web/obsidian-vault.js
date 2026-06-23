@@ -219,6 +219,13 @@ async function showImportCandidate(id) {
       <input id="candidateNote" placeholder="Notiz" />
       <button type="button" onclick="markImportCandidate('${escapeHtml(c.id)}')">Entscheidung speichern</button>
     </div>
+    <h4>Import Execution</h4>
+    <div class="form-row" style="margin-top:.8rem;">
+      <label><input id="importOverwrite" type="checkbox" /> overwrite</label>
+      <button type="button" onclick="previewImportExecution('${escapeHtml(c.id)}')">Plan prüfen</button>
+      <button class="badge link primary" type="button" onclick="executeImportCandidate('${escapeHtml(c.id)}')">Import ausführen</button>
+    </div>
+    <div id="importExecutionResult" class="result-box"></div>
   ` : '<div class="item">Kandidat nicht gefunden.</div>';
   setStatus(data.found ? 'Import-Kandidat geladen' : 'Nicht gefunden');
 }
@@ -235,3 +242,34 @@ async function markImportCandidate(id) {
 }
 
 window.addEventListener('DOMContentLoaded', async () => { try { await loadImportCandidates(); } catch (err) {} });
+
+async function previewImportExecution(id) {
+  const overwrite = $('importOverwrite')?.checked ? 'true' : 'false';
+  setStatus('Prüfe Import-Ausführungsplan ...');
+  const data = await fetchJson(`/api/obsidian/import-candidates/${encodeURIComponent(id)}/execution-plan?overwrite=${overwrite}`);
+  raw(data);
+  const errors = data.errors || [];
+  const warnings = data.warnings || [];
+  $('importExecutionResult').innerHTML = `
+    <div class="badge-row">${badge(data.allowed_to_execute ? 'ausführbar' : 'nicht ausführbar', data.allowed_to_execute ? 'primary' : '')}${badge(data.candidate_status || 'status')}${badge(data.target?.area || '')}</div>
+    <p><strong>Ziel:</strong> <code>${escapeHtml(data.target?.relative_path || '')}</code></p>
+    ${errors.length ? '<h4>Fehler</h4><pre>' + escapeHtml(errors.join('\n')) + '</pre>' : ''}
+    ${warnings.length ? '<h4>Warnungen</h4><pre>' + escapeHtml(warnings.join('\n')) + '</pre>' : ''}
+  `;
+  setStatus(data.allowed_to_execute ? 'Import-Plan ist ausführbar' : 'Import-Plan braucht Review');
+}
+
+async function executeImportCandidate(id) {
+  const overwrite = Boolean($('importOverwrite')?.checked);
+  if (!confirm('Import wirklich in user_knowledge schreiben? Obsidian wird nicht verändert.')) return;
+  setStatus('Führe kontrollierten Import aus ...');
+  const data = await fetchJson(`/api/obsidian/import-candidates/${encodeURIComponent(id)}/execute`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({confirm:true, overwrite, executed_by:'user'})
+  });
+  raw(data);
+  $('importExecutionResult').innerHTML = data.ok
+    ? `${badge('importiert', 'primary')} <code>${escapeHtml(data.target?.relative_path || '')}</code>`
+    : `<span class="danger-text">${escapeHtml(data.reason || data.detail || data.error || 'Import fehlgeschlagen')}</span>`;
+  setStatus(data.ok ? 'Import abgeschlossen' : 'Import nicht ausgeführt');
+}

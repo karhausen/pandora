@@ -54,6 +54,7 @@ from core.registration_validator import RegistrationValidator
 from core.obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from core.obsidian_inbox_review import ObsidianInboxReviewService
 from core.obsidian_import_candidates import ObsidianImportCandidateService
+from core.obsidian_import_execution import ObsidianImportExecutionService
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -374,6 +375,20 @@ def cmd_obsidian_import_candidate_show(args):
 def cmd_obsidian_import_candidate_mark(args):
     _obsidian_call(lambda: ObsidianImportCandidateService().decide(args.candidate_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
 
+
+
+def cmd_obsidian_import_execution_status(args):
+    _obsidian_call(lambda: ObsidianImportExecutionService().status())
+
+def cmd_obsidian_import_execution_list(args):
+    _obsidian_call(lambda: ObsidianImportExecutionService().list_executions(limit=args.limit))
+
+def cmd_obsidian_import_plan(args):
+    _obsidian_call(lambda: ObsidianImportExecutionService().build_plan(args.candidate_id, overwrite=args.overwrite))
+
+def cmd_obsidian_import_execute(args):
+    _obsidian_call(lambda: ObsidianImportExecutionService().execute(args.candidate_id, confirm=args.confirm, overwrite=args.overwrite, executed_by=args.executed_by))
+
 def cmd_registration_validate(args):
     report = RegistrationValidator().validate()
     _json(report)
@@ -471,6 +486,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("obsidian-import-candidates-list"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--target-area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("--status"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_import_candidates_list)
     p = sub.add_parser("obsidian-import-candidate-show"); p.add_argument("candidate_id"); p.set_defaults(func=cmd_obsidian_import_candidate_show)
     p = sub.add_parser("obsidian-import-candidate-mark"); p.add_argument("candidate_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_obsidian_import_candidate_mark)
+
+    p = sub.add_parser("obsidian-import-execution-status"); p.set_defaults(func=cmd_obsidian_import_execution_status)
+    p = sub.add_parser("obsidian-import-execution-list"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_import_execution_list)
+    p = sub.add_parser("obsidian-import-plan"); p.add_argument("candidate_id"); p.add_argument("--overwrite", action="store_true"); p.set_defaults(func=cmd_obsidian_import_plan)
+    p = sub.add_parser("obsidian-import-execute"); p.add_argument("candidate_id"); p.add_argument("--confirm", action="store_true"); p.add_argument("--overwrite", action="store_true"); p.add_argument("--executed-by", default="user"); p.set_defaults(func=cmd_obsidian_import_execute)
 
     p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
     p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)
