@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Obsidian Import Review</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/obsidian-import-review.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Obsidian Import Review</h1>
+        <p>Prüfe Vault-Notizen, plane sichere Importe und übernimm nur freigegebene Kandidaten in <code>user_knowledge/</code>.</p>
+      </div>
+      <nav class="global-nav" aria-label="Hauptnavigation">
+        <a class="badge link" href="/">Chat</a>
+        <a class="badge link primary" href="/knowledge-base">Knowledge</a>
+        <a class="badge link" href="/capability-explorer">Capabilities</a>
+        <a class="badge link" href="/operations">Operations</a>
+        <a class="badge link" href="/llm-profiles">Profiles</a>
+      </nav>
+    </header>
+
+    <section class="badge-row" aria-label="Knowledge Unterbereiche">
+      <a class="badge link" href="/knowledge-base">Knowledge Base</a>
+      <a class="badge link" href="/knowledge-editor">Knowledge Editor</a>
+      <a class="badge link" href="/memory-explorer">Memory Explorer</a>
+      <a class="badge link" href="/obsidian-vault">Obsidian Vault</a>
+      <a class="badge link primary" href="/obsidian-import-review">Import Review</a>
+    </section>
+
+    <section class="summary-grid">
+      <article class="card"><span class="label">Kandidaten</span><strong id="candidateCount">–</strong></article>
+      <article class="card"><span class="label">Ausgeführt</span><strong id="executionCount">–</strong></article>
+      <article class="card"><span class="label">Sicherheit</span><strong>Inbox/Knowledge only</strong></article>
+      <article class="card"><span class="label">Status</span><strong id="statusText">Bereit</strong></article>
+    </section>
+
+    <section class="toolbar">
+      <input id="queryInput" placeholder="Suche: Titel, Tag, Pfad ..." />
+      <select id="areaFilter">
+        <option value="">alle Ziele</option>
+        <option value="public">public</option>
+        <option value="restricted_cloud_allowed">restricted_cloud_allowed</option>
+        <option value="private_local_only">private_local_only</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">alle Status</option>
+        <option value="pending_review">pending_review</option>
+        <option value="accepted_for_next_step">accepted_for_next_step</option>
+        <option value="needs_work">needs_work</option>
+        <option value="deferred">deferred</option>
+        <option value="rejected">rejected</option>
+        <option value="reviewed">reviewed</option>
+      </select>
+      <button class="badge link primary" type="button" onclick="loadDashboard()">Aktualisieren</button>
+      <button class="badge link" type="button" onclick="buildCandidates()">Kandidaten erzeugen</button>
+    </section>
+
+    <section class="layout-grid">
+      <article class="panel">
+        <h2>Import-Kandidaten</h2>
+        <p class="muted">Keine automatische Übernahme. Import wird erst nach Entscheidung und Confirm ausgeführt.</p>
+        <div id="candidateList" class="item-list"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Review & Import-Plan</h2>
+        <div id="detailPanel" class="detail-panel">Wähle einen Kandidaten aus.</div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Audit / letzte Importe</h2>
+      <div id="executionList" class="item-list"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Raw Output</h2>
+      <pre id="rawOutput">{}</pre>
+    </section>
+  </main>
+  <script src="/web/obsidian-import-review.js"></script>
+</body>
+</html>

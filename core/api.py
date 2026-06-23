@@ -73,7 +73,7 @@ from .obsidian_inbox_review import ObsidianInboxReviewService
 from .obsidian_import_candidates import ObsidianImportCandidateService
 from .obsidian_import_execution import ObsidianImportExecutionService
 
-app = FastAPI(title="Pandora Agent", version="23.5.5-obsidian-knowledge-import-candidates")
+app = FastAPI(title="Pandora Agent", version="23.5.8-obsidian-import-review-gui")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -402,6 +402,60 @@ def api_obsidian_import_candidate_execution_plan(candidate_id: str, overwrite: b
 
 @app.post("/api/obsidian/import-candidates/{candidate_id:path}/execute")
 def api_obsidian_import_candidate_execute(candidate_id: str, req: ObsidianImportExecuteRequest):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().execute(candidate_id, confirm=req.confirm, overwrite=req.overwrite, executed_by=req.executed_by))
+
+
+@app.get("/api/obsidian/import-review")
+def api_obsidian_import_review(include_reviewed: bool = True, target_area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    """GUI-friendly aggregate view for Obsidian import candidates."""
+    candidates = ObsidianImportCandidateService().list_candidates(
+        include_reviewed=include_reviewed,
+        target_area=target_area,
+        status=status,
+        query=query,
+        limit=limit,
+    )
+    executions = ObsidianImportExecutionService().list_executions(limit=limit)
+    return {
+        "kind": "obsidian_import_review_dashboard",
+        "ok": True,
+        "candidates": candidates.get("candidates", []),
+        "candidate_summary": candidates.get("summary", {}),
+        "candidate_count": candidates.get("total_count", candidates.get("count", 0)),
+        "executions": executions.get("executions", []),
+        "execution_count": executions.get("count", 0),
+        "safety": {
+            "obsidian_read_only": True,
+            "imports_write_user_knowledge_only": True,
+            "requires_accepted_candidate": True,
+            "requires_confirm": True,
+            "overwrite_default": False,
+        },
+    }
+
+@app.get("/api/obsidian/import-review/{candidate_id:path}")
+def api_obsidian_import_review_detail(candidate_id: str, overwrite: bool = False):
+    detail = ObsidianImportCandidateService().show(candidate_id)
+    plan = ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite) if detail.get("found") else None
+    return {
+        "kind": "obsidian_import_review_detail",
+        "found": detail.get("found", False),
+        "candidate": detail.get("candidate"),
+        "source_preview": detail.get("source_preview"),
+        "execution_plan": plan,
+        "safety": detail.get("safety", {}),
+    }
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/decision")
+def api_obsidian_import_review_decision(candidate_id: str, req: ObsidianImportCandidateDecisionRequest):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().decide(candidate_id, decision=req.decision, note=req.note, decided_by=req.decided_by))
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/plan")
+def api_obsidian_import_review_plan(candidate_id: str, overwrite: bool = False):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite))
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/execute")
+def api_obsidian_import_review_execute(candidate_id: str, req: ObsidianImportExecuteRequest):
     return _obsidian_api_call(lambda: ObsidianImportExecutionService().execute(candidate_id, confirm=req.confirm, overwrite=req.overwrite, executed_by=req.executed_by))
 
 @app.get("/api/gui/knowledge/dashboard")
@@ -1389,6 +1443,11 @@ def web_obsidian_vault():
     return FileResponse(WEB_DIR / "obsidian-vault.html")
 
 
+@app.get("/obsidian-import-review")
+def web_obsidian_import_review():
+    return FileResponse(WEB_DIR / "obsidian-import-review.html")
+
+
 @app.get("/web/capability-explorer.js")
 def web_capability_explorer_js():
     return FileResponse(WEB_DIR / "capability-explorer.js")
@@ -1427,6 +1486,15 @@ def web_obsidian_vault_js():
 @app.get("/web/obsidian-vault.css")
 def web_obsidian_vault_css():
     return FileResponse(WEB_DIR / "obsidian-vault.css")
+
+
+@app.get("/web/obsidian-import-review.js")
+def web_obsidian_import_review_js():
+    return FileResponse(WEB_DIR / "obsidian-import-review.js")
+
+@app.get("/web/obsidian-import-review.css")
+def web_obsidian_import_review_css():
+    return FileResponse(WEB_DIR / "obsidian-import-review.css")
 
 
 @app.get("/web/llm-profile-center.js")
