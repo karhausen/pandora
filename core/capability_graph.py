@@ -12,6 +12,7 @@ from .knowledge_metadata import normalize_metadata
 from .tool_registry import ToolRegistry
 from .skill_registry import SkillRegistry
 from .user_knowledge_base import UserKnowledgeBaseService, AREAS
+from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 
 CAPABILITY_GRAPH_DIR = ROOT_DIR / "data" / "capability_graph"
 GRAPH_FILE = CAPABILITY_GRAPH_DIR / "graph.json"
@@ -110,11 +111,12 @@ class CapabilityGraphService:
         self._collect_tools(add_node, add_edge)
         self._collect_skills(add_node, add_edge)
         self._collect_knowledge(add_node, add_edge)
+        self._collect_obsidian(add_node, add_edge)
         self._collect_capability_gaps(add_node, add_edge)
 
         graph = {
             "kind": "capability_graph",
-            "version": "mvp-23.1-capability-explorer-gui",
+            "version": "mvp-23.5.7-obsidian-capability-graph-integration",
             "updated_at": datetime.now(UTC).isoformat(),
             "nodes": [node.as_dict() for node in sorted(nodes.values(), key=lambda item: (item.type, item.label.lower()))],
             "edges": [edge.as_dict() for edge in sorted(edges.values(), key=lambda item: (item.source, item.relation, item.target))],
@@ -213,6 +215,58 @@ class CapabilityGraphService:
                     cap = capability_id(label)
                     add_node(CapabilityNode(cap, label, "capability", "user_knowledge"))
                     add_edge(CapabilityEdge(cap, node_id, "has_knowledge", weight=2 if label in (metadata.get("tags") or []) else 1))
+
+
+    def _collect_obsidian(self, add_node, add_edge) -> None:
+        """Collect Obsidian notes as read-only capability graph sources.
+
+        Obsidian is optional. Disabled or unavailable vaults must never break the
+        capability graph rebuild. The graph stores only file metadata, tags,
+        wikilinks and short excerpts from the index record; it never writes back
+        to the vault and never changes Obsidian content.
+        """
+        try:
+            vault = ObsidianVaultService()
+            status = vault.status()
+            if not status.get("ok"):
+                return
+            index = vault.index(limit=5000, write=False)
+        except (ObsidianSafetyError, OSError, ValueError):
+            return
+        except Exception:
+            # Graph rebuild is a maintenance operation. A broken optional source
+            # should be visible via obsidian-status, but must not block all other
+            # capability sources.
+            return
+
+        for item in index.get("files", []) or []:
+            rel = str(item.get("relative_path") or "")
+            if not rel:
+                continue
+            node_id = f"obsidian:{rel}"
+            title = str(item.get("title") or Path(rel).stem)
+            tags = list(item.get("tags") or [])
+            wikilinks = list(item.get("wikilinks") or [])
+            add_node(CapabilityNode(node_id, title, "obsidian_note", "obsidian_vault", {
+                "relative_path": rel,
+                "cloud_allowed": bool(index.get("cloud_allowed", False)),
+                "tags": tags,
+                "wikilinks": wikilinks,
+                "word_count": item.get("word_count", 0),
+                "modified_at": item.get("modified_at"),
+                "sha256": item.get("sha256"),
+                "read_only": True,
+            }))
+            labels: list[str] = []
+            labels.extend(tags)
+            labels.extend(wikilinks)
+            labels.extend(self._path_labels(rel))
+            labels.extend(self._keywords([title, item.get("excerpt", "")])[:5])
+            for label in self._dedupe_labels(labels)[:16]:
+                cap = capability_id(label)
+                add_node(CapabilityNode(cap, label, "capability", "obsidian_vault"))
+                weight = 3 if label in tags or label in wikilinks else 1
+                add_edge(CapabilityEdge(cap, node_id, "has_obsidian_note", weight=weight, metadata={"source": "obsidian_vault"}))
 
     def _collect_capability_gaps(self, add_node, add_edge) -> None:
         gaps_dir = ROOT_DIR / "proposals" / "capability_gaps"
