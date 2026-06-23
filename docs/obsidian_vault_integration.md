@@ -112,3 +112,9 @@ POST /api/obsidian/inbox/items/{item_path}/mark
 ### Sicherheitsregel
 
 Pandora aktualisiert nur Metadaten von Markdown-Dateien innerhalb von `Pandora_Inbox/`. Verschieben in den eigentlichen Vault-Baum bleibt eine User-Aufgabe.
+
+## Import-Kandidaten
+
+Ab MVP 23.5.5 kann Pandora aus Vault-Notizen Review-Kandidaten für die interne Knowledge Base erzeugen. Diese Kandidaten sind Vorschläge, keine automatischen Importe.
+
+Siehe: `docs/obsidian_import_candidates.md`.

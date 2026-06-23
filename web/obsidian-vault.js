@@ -159,3 +159,79 @@ async function markInboxItem(path) {
   setStatus(data.ok ? 'Review-Status gespeichert' : 'Speichern fehlgeschlagen');
 }
 window.addEventListener('DOMContentLoaded', async () => { await loadStatus(); await loadInbox(); });
+
+async function buildImportCandidates() {
+  const query = $('importCandidateQuery')?.value?.trim() || '';
+  setStatus('Erzeuge Obsidian Import-Kandidaten ...');
+  const url = `/api/obsidian/import-candidates/build?limit=50&write=true${query ? '&query=' + encodeURIComponent(query) : ''}`;
+  const data = await fetchJson(url, {method:'POST'});
+  raw(data);
+  await loadImportCandidates();
+  setStatus(data.ok === false ? (data.detail || data.error || 'Fehler') : `${data.candidate_count || 0} Import-Kandidaten erzeugt`);
+}
+
+async function loadImportCandidates() {
+  setStatus('Lade Obsidian Import-Kandidaten ...');
+  const area = $('importCandidateArea')?.value || '';
+  const status = $('importCandidateStatus')?.value || '';
+  const query = $('importCandidateQuery')?.value?.trim() || '';
+  const params = new URLSearchParams({limit:'200'});
+  if (area) params.set('target_area', area);
+  if (status) params.set('status', status);
+  if (query) params.set('query', query);
+  const data = await fetchJson('/api/obsidian/import-candidates?' + params.toString());
+  raw(data);
+  const items = data.candidates || [];
+  $('importCandidates').innerHTML = items.length ? items.map(item => `
+    <button class="item" type="button" onclick="showImportCandidate('${escapeHtml(item.id)}')">
+      <h3>${escapeHtml(item.title)} ${badge(item.priority || 'medium', 'primary')}</h3>
+      <p>${escapeHtml(item.source_relative_path)}</p>
+      <div class="badge-row">${badge(item.target_area || 'target')}${badge(item.status || 'pending_review')}${item.suggested_folder ? badge('→ ' + item.suggested_folder) : ''}</div>
+      <p>${escapeHtml(item.reason || item.summary || '')}</p>
+    </button>
+  `).join('') : '<div class="item">Keine Import-Kandidaten.</div>';
+  setStatus(`${items.length} Import-Kandidaten`);
+}
+
+async function showImportCandidate(id) {
+  setStatus('Lade Import-Kandidat ...');
+  const data = await fetchJson(`/api/obsidian/import-candidates/${encodeURIComponent(id)}`);
+  raw(data);
+  const c = data.candidate || {};
+  const preview = data.source_preview || {};
+  $('importCandidateDetail').innerHTML = data.found ? `
+    <h3>${escapeHtml(c.title)}</h3>
+    <div class="badge-row">${badge(c.target_area, 'primary')}${badge(c.status || 'pending_review')}${badge(c.source_relative_path || '')}</div>
+    <h4>Vorgeschlagener Zielpfad</h4>
+    <p><code>${escapeHtml(c.proposed_target_path || '')}</code></p>
+    <h4>Metadaten</h4>
+    <pre>${escapeHtml(JSON.stringify(c.proposed_metadata || {}, null, 2))}</pre>
+    <h4>Quelle Vorschau</h4>
+    <pre>${escapeHtml(preview.content_preview || c.summary || '')}</pre>
+    <div class="form-row" style="margin-top:.8rem;">
+      <select id="candidateDecision">
+        <option value="accepted_for_next_step">accepted_for_next_step</option>
+        <option value="reviewed">reviewed</option>
+        <option value="needs_work">needs_work</option>
+        <option value="deferred">deferred</option>
+        <option value="rejected">rejected</option>
+      </select>
+      <input id="candidateNote" placeholder="Notiz" />
+      <button type="button" onclick="markImportCandidate('${escapeHtml(c.id)}')">Entscheidung speichern</button>
+    </div>
+  ` : '<div class="item">Kandidat nicht gefunden.</div>';
+  setStatus(data.found ? 'Import-Kandidat geladen' : 'Nicht gefunden');
+}
+
+async function markImportCandidate(id) {
+  const payload = {decision: $('candidateDecision').value, note: $('candidateNote').value || null, decided_by:'user'};
+  setStatus('Speichere Import-Kandidaten-Entscheidung ...');
+  const data = await fetchJson(`/api/obsidian/import-candidates/${encodeURIComponent(id)}/decision`, {
+    method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+  });
+  raw(data);
+  await loadImportCandidates();
+  setStatus(data.ok ? 'Entscheidung gespeichert' : 'Entscheidung fehlgeschlagen');
+}
+
+window.addEventListener('DOMContentLoaded', async () => { try { await loadImportCandidates(); } catch (err) {} });

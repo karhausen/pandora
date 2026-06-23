@@ -45,6 +45,7 @@ RUNTIME_DIRS_TO_KEEP_EMPTY = {
     "proposals/tool_improvements",
     "proposals/capability_gaps",
     "proposals/capability_actions",
+    "proposals/obsidian_import_candidates",
     "proposals/review_inbox",
     "skill_proposals",
     "tool_proposals",

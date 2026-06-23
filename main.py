@@ -53,6 +53,7 @@ from core.reality_check import RealityCheck
 from core.registration_validator import RegistrationValidator
 from core.obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from core.obsidian_inbox_review import ObsidianInboxReviewService
+from core.obsidian_import_candidates import ObsidianImportCandidateService
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -356,6 +357,23 @@ def cmd_obsidian_inbox_show(args):
 def cmd_obsidian_inbox_mark(args):
     _obsidian_call(lambda: ObsidianInboxReviewService().mark_item(args.path, status=args.status, note=args.note, reviewed_by=args.reviewed_by))
 
+
+
+def cmd_obsidian_import_candidates_status(args):
+    _obsidian_call(lambda: ObsidianImportCandidateService().status())
+
+def cmd_obsidian_import_candidates_build(args):
+    _obsidian_call(lambda: ObsidianImportCandidateService().build(query=args.query, limit=args.limit, write=not args.no_write))
+
+def cmd_obsidian_import_candidates_list(args):
+    _obsidian_call(lambda: ObsidianImportCandidateService().list_candidates(include_reviewed=args.include_reviewed, target_area=args.target_area, status=args.status, query=args.query, limit=args.limit))
+
+def cmd_obsidian_import_candidate_show(args):
+    _obsidian_call(lambda: ObsidianImportCandidateService().show(args.candidate_id))
+
+def cmd_obsidian_import_candidate_mark(args):
+    _obsidian_call(lambda: ObsidianImportCandidateService().decide(args.candidate_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
+
 def cmd_registration_validate(args):
     report = RegistrationValidator().validate()
     _json(report)
@@ -446,6 +464,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("obsidian-inbox-list"); p.add_argument("--status"); p.add_argument("--category"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_inbox_list)
     p = sub.add_parser("obsidian-inbox-show"); p.add_argument("path"); p.set_defaults(func=cmd_obsidian_inbox_show)
     p = sub.add_parser("obsidian-inbox-mark"); p.add_argument("path"); p.add_argument("--status", required=True, choices=["pending", "reviewed", "accepted_for_sorting", "needs_revision", "rejected"]); p.add_argument("--note"); p.add_argument("--reviewed-by", default="user"); p.set_defaults(func=cmd_obsidian_inbox_mark)
+
+
+    p = sub.add_parser("obsidian-import-candidates-status"); p.set_defaults(func=cmd_obsidian_import_candidates_status)
+    p = sub.add_parser("obsidian-import-candidates-build"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=50); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_obsidian_import_candidates_build)
+    p = sub.add_parser("obsidian-import-candidates-list"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--target-area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("--status"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_import_candidates_list)
+    p = sub.add_parser("obsidian-import-candidate-show"); p.add_argument("candidate_id"); p.set_defaults(func=cmd_obsidian_import_candidate_show)
+    p = sub.add_parser("obsidian-import-candidate-mark"); p.add_argument("candidate_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_obsidian_import_candidate_mark)
 
     p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
     p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)

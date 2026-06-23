@@ -70,8 +70,9 @@ from .capability_actions import CapabilityActionService
 from .registration_validator import RegistrationValidator
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from .obsidian_inbox_review import ObsidianInboxReviewService
+from .obsidian_import_candidates import ObsidianImportCandidateService
 
-app = FastAPI(title="Pandora Agent", version="23.5.4-obsidian-context-integration")
+app = FastAPI(title="Pandora Agent", version="23.5.5-obsidian-knowledge-import-candidates")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -236,6 +237,12 @@ class ObsidianInboxMarkRequest(BaseModel):
     reviewed_by: str = "user"
 
 
+class ObsidianImportCandidateDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+
 def _obsidian_api_call(func):
     try:
         return func()
@@ -351,6 +358,28 @@ def api_obsidian_inbox_item(item_path: str):
 @app.post("/api/obsidian/inbox/items/{item_path:path}/mark")
 def api_obsidian_inbox_mark(item_path: str, req: ObsidianInboxMarkRequest):
     return _obsidian_api_call(lambda: ObsidianInboxReviewService().mark_item(item_path, status=req.status, note=req.note, reviewed_by=req.reviewed_by))
+
+
+
+@app.get("/api/obsidian/import-candidates/status")
+def api_obsidian_import_candidates_status():
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().status())
+
+@app.post("/api/obsidian/import-candidates/build")
+def api_obsidian_import_candidates_build(query: str | None = None, limit: int = 50, write: bool = True):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().build(query=query, limit=limit, write=write))
+
+@app.get("/api/obsidian/import-candidates")
+def api_obsidian_import_candidates(include_reviewed: bool = False, target_area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().list_candidates(include_reviewed=include_reviewed, target_area=target_area, status=status, query=query, limit=limit))
+
+@app.get("/api/obsidian/import-candidates/{candidate_id:path}")
+def api_obsidian_import_candidate(candidate_id: str):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().show(candidate_id))
+
+@app.post("/api/obsidian/import-candidates/{candidate_id:path}/decision")
+def api_obsidian_import_candidate_decision(candidate_id: str, req: ObsidianImportCandidateDecisionRequest):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().decide(candidate_id, decision=req.decision, note=req.note, decided_by=req.decided_by))
 
 @app.get("/api/gui/knowledge/dashboard")
 def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):

@@ -52,6 +52,7 @@ class ProposalReviewInbox:
         "maintenance_report": PROPOSALS_DIR / "maintenance_reports",
         "capability_gap": PROPOSALS_DIR / "capability_gaps",
         "capability_action": PROPOSALS_DIR / "capability_actions",
+        "obsidian_import_candidate": PROPOSALS_DIR / "obsidian_import_candidates",
         "tool_improvement": PROPOSALS_DIR / "tool_improvements",
         "skill_candidate": ROOT_DIR / "skill_proposals",
         "tool_proposal": ROOT_DIR / "tool_proposals",

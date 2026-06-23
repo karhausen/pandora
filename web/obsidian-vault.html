@@ -111,6 +111,41 @@
       </article>
     </section>
 
+
+    <section class="layout-grid">
+      <article class="panel">
+        <h2>Import-Kandidaten</h2>
+        <p class="muted">Pandora schlägt Vault-Notizen vor, die in die interne Knowledge Base übernommen werden könnten. Es wird nichts automatisch importiert.</p>
+        <div class="form-row">
+          <input id="importCandidateQuery" placeholder="optional: Suchbegriff" />
+          <button type="button" onclick="buildImportCandidates()">Kandidaten erzeugen</button>
+          <button type="button" onclick="loadImportCandidates()">Laden</button>
+        </div>
+        <div class="form-row">
+          <select id="importCandidateArea">
+            <option value="">alle Ziele</option>
+            <option value="public">public</option>
+            <option value="restricted_cloud_allowed">restricted_cloud_allowed</option>
+            <option value="private_local_only">private_local_only</option>
+          </select>
+          <select id="importCandidateStatus">
+            <option value="">alle offenen</option>
+            <option value="pending_review">pending_review</option>
+            <option value="accepted_for_next_step">accepted_for_next_step</option>
+            <option value="needs_work">needs_work</option>
+            <option value="rejected">rejected</option>
+            <option value="reviewed">reviewed</option>
+          </select>
+        </div>
+        <div id="importCandidates" class="item-list"></div>
+      </article>
+
+      <article class="panel">
+        <h2>Import-Kandidat Details</h2>
+        <div id="importCandidateDetail" class="detail-panel">Wähle einen Import-Kandidaten aus.</div>
+      </article>
+    </section>
+
     <section class="panel">
       <h2>Raw Output</h2>
       <pre id="rawOutput">{}</pre>
