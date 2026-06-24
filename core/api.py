@@ -80,7 +80,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="23.5.8-obsidian-import-review-gui")
+app = FastAPI(title="Pandora Agent", version="24.0-learning-engine-foundation")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1433,6 +1433,21 @@ def web_action_inbox_css():
     return FileResponse(WEB_DIR / "action-inbox.css")
 
 
+
+
+@app.get("/learning")
+def web_learning():
+    return FileResponse(WEB_DIR / "learning.html")
+
+@app.get("/web/learning.js")
+def web_learning_js():
+    return FileResponse(WEB_DIR / "learning.js")
+
+@app.get("/web/learning.css")
+def web_learning_css():
+    return FileResponse(WEB_DIR / "learning.css")
+
+
 @app.get("/approval")
 def web_approval():
     return FileResponse(WEB_DIR / "approval.html")
@@ -1640,6 +1655,38 @@ def learning_strategies():
 @app.get("/learning/events")
 def learning_events(limit: int = 20):
     return {"events": LearningEngine().learning_events(limit)}
+
+
+
+
+@app.get("/api/learning/status")
+def api_learning_status():
+    return LearningEngine().status()
+
+
+@app.get("/api/learning/metrics")
+def api_learning_metrics(rebuild: bool = False):
+    return LearningEngine().metrics(rebuild=rebuild)
+
+
+@app.get("/api/learning/patterns")
+def api_learning_patterns(rebuild: bool = False):
+    return LearningEngine().patterns(rebuild=rebuild)
+
+
+@app.get("/api/learning/events")
+def api_learning_events(limit: int = 100, event_type: str | None = None):
+    return {"kind": "learning_events", "events": LearningEngine().events(limit=limit, event_type=event_type)}
+
+
+@app.post("/api/learning/collect")
+def api_learning_collect(req: LearnRequest):
+    return LearningEngine().collect(limit=req.limit, write=True)
+
+
+@app.post("/api/learning/rebuild")
+def api_learning_rebuild(req: LearnRequest):
+    return LearningEngine().rebuild(limit=req.limit, write=True)
 
 
 @app.post("/docs/generate")

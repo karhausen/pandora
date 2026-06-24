@@ -204,6 +204,12 @@ def cmd_failures(args): _json(LearningEngine().failures())
 def cmd_recommendations(args): _json(LearningEngine().recommendations())
 def cmd_strategies(args): _json(LearningEngine().strategies())
 def cmd_learning_events(args): _json({"events": LearningEngine().learning_events(args.limit)})
+def cmd_learning_status(args): _json(LearningEngine().status())
+def cmd_learning_collect(args): _json(LearningEngine().collect(limit=args.limit, write=not args.no_write))
+def cmd_learning_rebuild(args): _json(LearningEngine().rebuild(limit=args.limit, write=not args.no_write))
+def cmd_learning_metrics(args): _json(LearningEngine().metrics(rebuild=args.rebuild))
+def cmd_learning_patterns(args): _json(LearningEngine().patterns(rebuild=args.rebuild))
+def cmd_learning_events_v24(args): _json({"kind": "learning_events", "events": LearningEngine().events(limit=args.limit, event_type=args.type)})
 def cmd_docs_generate(args): _json(DocumentationGenerator().generate())
 def cmd_architecture_report(args): _json(DocumentationGenerator().architecture_report())
 def cmd_governance_check(args): _json(Governance().check())
@@ -438,7 +444,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 23.5.2")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 24.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -536,7 +542,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
     p = sub.add_parser("capability-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_capability_action_decide)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-23.4-capability-actions-ui-workflow-polish"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.0-learning-engine-foundation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -637,6 +643,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("recommendations"); p.set_defaults(func=cmd_recommendations)
     p = sub.add_parser("strategies"); p.set_defaults(func=cmd_strategies)
     p = sub.add_parser("learning-events"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_learning_events)
+    p = sub.add_parser("learning-status"); p.set_defaults(func=cmd_learning_status)
+    p = sub.add_parser("learning-collect"); p.add_argument("--limit", type=int, default=500); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_learning_collect)
+    p = sub.add_parser("learning-rebuild"); p.add_argument("--limit", type=int, default=500); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_learning_rebuild)
+    p = sub.add_parser("learning-metrics"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_metrics)
+    p = sub.add_parser("learning-patterns"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_patterns)
+    p = sub.add_parser("learning-events-v24"); p.add_argument("--limit", type=int, default=100); p.add_argument("--type"); p.set_defaults(func=cmd_learning_events_v24)
 
     p = sub.add_parser("docs-generate"); p.set_defaults(func=cmd_docs_generate)
     p = sub.add_parser("architecture-report"); p.set_defaults(func=cmd_architecture_report)

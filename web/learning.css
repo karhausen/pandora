@@ -1,0 +1,10 @@
+body { background: var(--bg); color: var(--text); }
+.app { max-width: 1180px; margin: 0 auto; padding: 28px; }
+.panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-top: 16px; box-shadow: var(--shadow); }
+.toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0; }
+.toolbar button { border: 1px solid var(--border); border-radius: 999px; padding: 10px 14px; background: var(--accent); color: white; cursor: pointer; }
+pre { white-space: pre-wrap; overflow: auto; background: rgba(0,0,0,.22); border-radius: 12px; padding: 12px; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+.data-table th { color: var(--muted); font-size: 0.85rem; }

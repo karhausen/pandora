@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Learning</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/learning.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Learning Engine</h1>
+        <p>Observe-only Lernschicht: Pandora sammelt Ereignisse, berechnet Metriken und verändert nichts automatisch.</p>
+        <nav class="global-nav" aria-label="Hauptnavigation">
+          <a class="badge link" href="/">Chat</a>
+          <a class="badge link" href="/action-inbox">Action Inbox</a>
+          <a class="badge link" href="/knowledge-base">Knowledge</a>
+          <a class="badge link" href="/capability-explorer">Capabilities</a>
+          <a class="badge link" href="/operations">Operations</a>
+          <a class="badge link primary" href="/learning">Learning</a>
+        </nav>
+      </div>
+    </header>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <h2>Status</h2>
+        <pre id="statusBox">Lade ...</pre>
+      </article>
+      <article class="panel">
+        <h2>Metriken</h2>
+        <pre id="metricsBox">Lade ...</pre>
+      </article>
+    </section>
+
+    <section class="toolbar">
+      <button onclick="collectLearning()">Events sammeln</button>
+      <button onclick="rebuildLearning()">Metriken neu berechnen</button>
+      <button onclick="loadLearning()">Aktualisieren</button>
+    </section>
+
+    <section class="panel">
+      <h2>Patterns</h2>
+      <pre id="patternsBox">Lade ...</pre>
+    </section>
+
+    <section class="panel">
+      <h2>Letzte Events</h2>
+      <table class="data-table">
+        <thead><tr><th>Typ</th><th>Quelle</th><th>Bereich</th><th>Resultat</th><th>Titel</th></tr></thead>
+        <tbody id="eventsBody"></tbody>
+      </table>
+    </section>
+  </main>
+  <script src="/web/learning.js"></script>
+</body>
+</html>

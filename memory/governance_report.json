@@ -1,17 +1,1 @@
-{
-  "ok": true,
-  "issues": [],
-  "warnings": [
-    "README may be missing section: Quickstart"
-  ],
-  "checked_at": "2026-06-24T09:35:58.484389+00:00",
-  "protected_files": [
-    "activation_manager.py",
-    "config.py",
-    "core_version_manager.py",
-    "heartbeat.py",
-    "recovery.py",
-    "rollback_manager.py",
-    "security.py"
-  ]
-}
+{}

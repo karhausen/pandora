@@ -1,4 +1,22 @@
-# Pandora Agent
+# Pandora
+
+## MVP 24.0 – Learning Engine Foundation
+
+Pandora besitzt jetzt eine observe-only Learning Engine. Sie sammelt Ereignisse aus Action Inbox und Review-Workflows, berechnet Metriken und Patterns, führt aber keine automatischen Änderungen aus.
+
+Wichtige Befehle:
+
+```bash
+python main.py learning-status
+python main.py learning-collect
+python main.py learning-rebuild
+python main.py learning-metrics
+python main.py learning-patterns
+python main.py learning-events-v24
+```
+
+GUI: `http://127.0.0.1:8000/learning`
+ Agent
 
 Pandora ist ein lokaler, modularer KI-Assistent mit kontrollierter Agentenarchitektur.
 Der Core ist die Schaltzentrale: Er nimmt Aufgaben an, entscheidet über Routing, nutzt LLMs, Tools, Skills und Memory, schützt sensible Daten und erzeugt nachvollziehbare Vorschläge für Wachstum.

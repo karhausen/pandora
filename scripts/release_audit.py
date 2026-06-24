@@ -34,6 +34,7 @@ RUNTIME_DIRS = {
     "proposals/maintenance_reports",
     "proposals/nightly_reviews",
     "proposals/tool_improvements",
+    "data/learning",
 }
 
 BLOCKED_SUFFIXES = {
