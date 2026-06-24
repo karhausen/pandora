@@ -72,6 +72,13 @@ from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
 from .obsidian_inbox_review import ObsidianInboxReviewService
 from .obsidian_import_candidates import ObsidianImportCandidateService
 from .obsidian_import_execution import ObsidianImportExecutionService
+from .unified_action_inbox import UnifiedActionInboxService
+
+
+class UnifiedActionDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
 
 app = FastAPI(title="Pandora Agent", version="23.5.8-obsidian-import-review-gui")
 
@@ -1370,6 +1377,25 @@ def skill_activation_log(limit: int = 20):
     return {"activations": SkillActivationManager().list_log(limit)}
 
 
+
+
+@app.get("/api/actions/dashboard")
+def api_unified_action_dashboard(limit: int = 500):
+    return UnifiedActionInboxService().dashboard(limit=limit)
+
+@app.get("/api/actions")
+def api_unified_actions(include_done: bool = False, area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    return UnifiedActionInboxService().list_actions(include_done=include_done, area=area, status=status, query=query, limit=limit)
+
+@app.get("/api/actions/{action_id}")
+def api_unified_action_detail(action_id: str):
+    return UnifiedActionInboxService().show(action_id)
+
+@app.post("/api/actions/{action_id}/decision")
+def api_unified_action_decision(action_id: str, req: UnifiedActionDecisionRequest):
+    return UnifiedActionInboxService().decide(action_id, decision=req.decision, note=req.note, decided_by=req.decided_by)
+
+
 @app.get("/")
 def web_index():
     return FileResponse(WEB_DIR / "index.html")
@@ -1386,6 +1412,25 @@ def web_css():
 @app.get("/web/shared.css")
 def web_shared_css():
     return FileResponse(WEB_DIR / "shared.css")
+
+
+
+
+@app.get("/action-inbox")
+def web_action_inbox():
+    return FileResponse(WEB_DIR / "action-inbox.html")
+
+@app.get("/action-inbox/{action_id}")
+def web_action_detail(action_id: str):
+    return FileResponse(WEB_DIR / "action-inbox.html")
+
+@app.get("/web/action-inbox.js")
+def web_action_inbox_js():
+    return FileResponse(WEB_DIR / "action-inbox.js")
+
+@app.get("/web/action-inbox.css")
+def web_action_inbox_css():
+    return FileResponse(WEB_DIR / "action-inbox.css")
 
 
 @app.get("/approval")

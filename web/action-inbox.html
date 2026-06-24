@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Action Inbox</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/action-inbox.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Action Inbox</h1>
+        <p>Zentrale Arbeitsliste für alles, was du prüfen, freigeben, zurückstellen oder nacharbeiten musst.</p>
+        <nav class="global-nav" aria-label="Hauptnavigation">
+          <a class="badge link" href="/">Chat</a>
+          <a class="badge link" href="/knowledge-base">Knowledge</a>
+          <a class="badge link" href="/capability-explorer">Capabilities</a>
+          <a class="badge link" href="/operations">Operations</a>
+          <a class="badge link" href="/llm-profiles">Profiles</a>
+          <a class="badge link primary" href="/action-inbox">Action Inbox</a>
+        </nav>
+      </div>
+      <div class="hero-actions compact">
+        <button id="refreshBtn">Aktualisieren</button>
+      </div>
+    </header>
+
+    <section class="summary-grid" id="summaryGrid">
+      <div class="summary-card"><span>Offen</span><strong id="openCount">–</strong></div>
+      <div class="summary-card warn"><span>Fehlerhaft</span><strong id="failedCount">–</strong></div>
+      <div class="summary-card"><span>Erledigt</span><strong id="doneCount">–</strong></div>
+      <div class="summary-card"><span>Gesamt</span><strong id="totalCount">–</strong></div>
+    </section>
+
+    <section class="filters">
+      <input id="queryInput" placeholder="Suchen nach Titel, Bereich, Status ..." />
+      <select id="areaFilter">
+        <option value="">Alle Bereiche</option>
+        <option>Obsidian</option>
+        <option>Capabilities</option>
+        <option>Tools</option>
+        <option>Skills</option>
+        <option>Knowledge</option>
+        <option>Operations</option>
+        <option>Night Mode</option>
+        <option>Core</option>
+      </select>
+      <button id="applyFilters">Filtern</button>
+    </section>
+
+    <section id="listView">
+      <h2 class="page-section-title">Offene Actions</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bezeichnung</th><th>Bereich</th><th>Action to do</th><th>Priorität</th><th>Status</th><th>Letzter Fehler</th><th>Erstellt</th><th></th></tr></thead>
+          <tbody id="openTable"></tbody>
+        </table>
+      </div>
+
+      <h2 class="page-section-title">Erledigte Actions</h2>
+      <div class="table-wrap muted-table">
+        <table>
+          <thead><tr><th>Bezeichnung</th><th>Bereich</th><th>Ergebnis</th><th>Erledigt am</th><th>Details</th></tr></thead>
+          <tbody id="doneTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="detailView" class="hidden detail-grid">
+      <div class="detail-header">
+        <button id="backBtn">← Zur Inbox</button>
+        <h2 id="detailTitle">Action</h2>
+        <span id="detailStatus" class="badge">Status</span>
+      </div>
+
+      <article class="panel">
+        <h3>Zusammenfassung</h3>
+        <div id="summaryBox" class="kv"></div>
+      </article>
+
+      <article class="panel">
+        <h3>Warum schlägt Pandora das vor?</h3>
+        <p id="reasonBox"></p>
+      </article>
+
+      <article class="panel">
+        <h3>Geplante Aktion</h3>
+        <pre id="planBox">{}</pre>
+      </article>
+
+      <article class="panel">
+        <h3>Entscheidung</h3>
+        <div class="decision-row">
+          <select id="decisionSelect">
+            <option value="reviewed">Erledigt / Reviewed</option>
+            <option value="accepted_for_next_step">Nächsten Schritt erlauben</option>
+            <option value="needs_work">Nacharbeit nötig</option>
+            <option value="deferred">Später prüfen</option>
+            <option value="rejected">Ablehnen</option>
+          </select>
+          <input id="decisionNote" placeholder="Notiz optional" />
+          <button id="decisionBtn">Entscheidung speichern</button>
+        </div>
+        <p class="hint">Die Inbox schreibt nur Review-Status. Ausführung/Import/Installation bleibt in den spezialisierten Workflows.</p>
+      </article>
+
+      <article class="panel">
+        <h3>Fehler</h3>
+        <div id="errorsBox"></div>
+      </article>
+
+      <article class="panel">
+        <h3>Logs</h3>
+        <div id="logsBox" class="timeline"></div>
+      </article>
+
+      <article class="panel">
+        <h3>Artefakte</h3>
+        <div id="artifactsBox"></div>
+      </article>
+
+      <details class="panel">
+        <summary>Rohdaten anzeigen</summary>
+        <pre id="rawBox">{}</pre>
+      </details>
+    </section>
+  </main>
+  <script src="/web/action-inbox.js"></script>
+</body>
+</html>
