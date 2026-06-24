@@ -40,6 +40,7 @@ from .config_manager import ConfigManager
 from .learning_engine import LearningEngine
 from .learning_insights import LearningInsightService
 from .learning_feedback_loop import LearningFeedbackLoop
+from .learning_pattern_detector import LearningPatternDetector
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .llm_profile_manager import LLMProfileManager
@@ -82,7 +83,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.2-learning-feedback-loop")
+app = FastAPI(title="Pandora Agent", version="24.3-learning-pattern-detection")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1734,6 +1735,34 @@ def api_learning_feedback_report(limit: int = 200):
 @app.post("/api/learning/feedback/{action_id}/record")
 def api_learning_feedback_record(action_id: str, payload: dict[str, str]):
     return LearningFeedbackLoop().record_decision(action_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"), source="api")
+
+
+
+
+@app.get("/api/learning/pattern-detection/status")
+def api_learning_pattern_status():
+    return LearningPatternDetector().status()
+
+
+@app.get("/api/learning/pattern-detection")
+def api_learning_patterns_detect(include_reviewed: bool = False, limit: int = 100):
+    return LearningPatternDetector().list_patterns(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/learning/pattern-detection/rebuild")
+def api_learning_patterns_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningPatternDetector().rebuild(limit=int(payload.get("limit", 2000)), write=bool(payload.get("write", True)))
+
+
+@app.get("/api/learning/pattern-detection/{pattern_id}")
+def api_learning_pattern_detail(pattern_id: str):
+    return LearningPatternDetector().show(pattern_id)
+
+
+@app.post("/api/learning/pattern-detection/{pattern_id}/decision")
+def api_learning_pattern_decision(pattern_id: str, payload: dict[str, str]):
+    return LearningPatternDetector().decide(pattern_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
 
 
 @app.post("/docs/generate")
