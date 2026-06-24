@@ -57,6 +57,7 @@ class ProposalReviewInbox:
         "skill_candidate": ROOT_DIR / "skill_proposals",
         "tool_proposal": ROOT_DIR / "tool_proposals",
         "core_improvement": PROPOSALS_DIR / "improvements",
+        "learning_insight": PROPOSALS_DIR / "learning_insights",
     }
 
     def __init__(self, *, root_dir: Path = ROOT_DIR, scan_dirs: dict[str, Path] | None = None):

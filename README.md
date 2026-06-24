@@ -1,6 +1,6 @@
 # Pandora
 
-## MVP 24.0 – Learning Engine Foundation
+## MVP 24.1 – Learning Engine Foundation
 
 Pandora besitzt jetzt eine observe-only Learning Engine. Sie sammelt Ereignisse aus Action Inbox und Review-Workflows, berechnet Metriken und Patterns, führt aber keine automatischen Änderungen aus.
 
@@ -332,4 +332,12 @@ Obsidian-Import-Kandidaten können jetzt kontrolliert in `user_knowledge/` über
 python main.py obsidian-import-plan <candidate_id>
 python main.py obsidian-import-execute <candidate_id> --confirm
 python main.py obsidian-import-execution-list
+```
+
+
+## Learning Insights
+
+```bash
+python main.py learning-insights --rebuild
+python main.py learning-insight-status
 ```

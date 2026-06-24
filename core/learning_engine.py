@@ -19,6 +19,7 @@ from .tool_skill_ranker import ToolSkillRanker
 from .learning_storage import LearningStorage
 from .learning_collector import LearningCollector
 from .learning_metrics import LearningMetrics
+from .learning_insights import LearningInsightService
 
 
 class LearningEngine:
@@ -30,6 +31,7 @@ class LearningEngine:
         self.strategy_memory = StrategyMemory()
         self.storage = LearningStorage()
         self.metrics_engine = LearningMetrics()
+        self.insight_engine = LearningInsightService(storage=self.storage)
         LEARNING_EVENTS_FILE.parent.mkdir(parents=True, exist_ok=True)
 
     def learn_from_journal(self, limit: int = 200) -> LearningSummary:
@@ -89,7 +91,7 @@ class LearningEngine:
         storage_status = self.storage.status()
         return {
             "kind": "learning_status",
-            "version": "mvp-24.0-learning-engine-foundation",
+            "version": "mvp-24.1-learning-insights",
             "storage": storage_status,
             "metrics_available": self.storage.metrics_file.exists(),
             "patterns_available": self.storage.patterns_file.exists(),
@@ -112,7 +114,7 @@ class LearningEngine:
             self.storage.write_patterns(patterns)
         return {
             "kind": "learning_rebuild_result",
-            "version": "mvp-24.0-learning-engine-foundation",
+            "version": "mvp-24.1-learning-insights",
             "collection": collection,
             "metrics": metrics,
             "patterns": patterns,
@@ -143,6 +145,22 @@ class LearningEngine:
             if events:
                 patterns = self.metrics_engine.patterns(events)
         return patterns
+
+
+    def insights(self, rebuild: bool = False, write: bool = True) -> dict:
+        """Return or rebuild reviewable learning insights. Still observe-only."""
+        if rebuild:
+            return self.insight_engine.rebuild(write=write)
+        listing = self.insight_engine.list_insights(include_reviewed=True, limit=200)
+        if listing.get("total_count", 0) == 0:
+            return self.insight_engine.rebuild(write=False)
+        return listing
+
+    def learning_insight_status(self) -> dict:
+        return self.insight_engine.status()
+
+    def learning_insight_decide(self, insight_id: str, *, decision: str, note: str | None = None) -> dict:
+        return self.insight_engine.decide(insight_id, decision=decision, note=note)
 
     def safety(self) -> dict:
         return {

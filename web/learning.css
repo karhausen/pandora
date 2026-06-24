@@ -8,3 +8,7 @@ pre { white-space: pre-wrap; overflow: auto; background: rgba(0,0,0,.22); border
 .data-table { width: 100%; border-collapse: collapse; }
 .data-table th, .data-table td { padding: 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
 .data-table th { color: var(--muted); font-size: 0.85rem; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.mini-card { border: 1px solid var(--border); border-radius: 14px; padding: 1rem; background: var(--panel-2, rgba(255,255,255,0.04)); }
+.mini-card h3 { margin-top: 0; }
+.muted { color: var(--muted); }

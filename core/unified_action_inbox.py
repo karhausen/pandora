@@ -30,6 +30,7 @@ AREA_LABELS = {
     "core_improvement": "Core",
     "nightly_review": "Night Mode",
     "maintenance_report": "Operations",
+    "learning_insight": "Learning",
 }
 
 

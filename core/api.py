@@ -38,6 +38,7 @@ from .changelog_manager import ChangelogManager
 from .cloud_expert import CloudExpert
 from .config_manager import ConfigManager
 from .learning_engine import LearningEngine
+from .learning_insights import LearningInsightService
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .llm_profile_manager import LLMProfileManager
@@ -80,7 +81,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.0-learning-engine-foundation")
+app = FastAPI(title="Pandora Agent", version="24.1-learning-insights")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1687,6 +1688,28 @@ def api_learning_collect(req: LearnRequest):
 @app.post("/api/learning/rebuild")
 def api_learning_rebuild(req: LearnRequest):
     return LearningEngine().rebuild(limit=req.limit, write=True)
+
+
+@app.get("/api/learning/insights")
+def api_learning_insights(rebuild: bool = False, write: bool = True):
+    if rebuild:
+        return LearningInsightService().rebuild(write=write)
+    return LearningInsightService().list_insights(include_reviewed=True, limit=200)
+
+
+@app.get("/api/learning/insights/status")
+def api_learning_insight_status():
+    return LearningInsightService().status()
+
+
+@app.get("/api/learning/insights/{insight_id}")
+def api_learning_insight_detail(insight_id: str):
+    return LearningInsightService().show(insight_id)
+
+
+@app.post("/api/learning/insights/{insight_id}/decision")
+def api_learning_insight_decision(insight_id: str, payload: dict[str, str]):
+    return LearningInsightService().decide(insight_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
 
 
 @app.post("/docs/generate")

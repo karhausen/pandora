@@ -38,7 +38,14 @@
     <section class="toolbar">
       <button onclick="collectLearning()">Events sammeln</button>
       <button onclick="rebuildLearning()">Metriken neu berechnen</button>
+      <button onclick="rebuildInsights()">Insights erzeugen</button>
       <button onclick="loadLearning()">Aktualisieren</button>
+    </section>
+
+    <section class="panel">
+      <h2>Learning Insights</h2>
+      <p class="muted">Reviewbare Hinweise aus Learning Events. Keine automatische Ausführung.</p>
+      <div id="insightsBox" class="cards"></div>
     </section>
 
     <section class="panel">

@@ -27,6 +27,7 @@ from core.documentation_generator import DocumentationGenerator
 from core.governance import Governance
 from core.heartbeat import Heartbeat
 from core.learning_engine import LearningEngine
+from core.learning_insights import LearningInsightService
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
@@ -210,6 +211,11 @@ def cmd_learning_rebuild(args): _json(LearningEngine().rebuild(limit=args.limit,
 def cmd_learning_metrics(args): _json(LearningEngine().metrics(rebuild=args.rebuild))
 def cmd_learning_patterns(args): _json(LearningEngine().patterns(rebuild=args.rebuild))
 def cmd_learning_events_v24(args): _json({"kind": "learning_events", "events": LearningEngine().events(limit=args.limit, event_type=args.type)})
+
+def cmd_learning_insights(args): _json(LearningInsightService().rebuild(limit=args.limit, write=not args.no_write) if args.rebuild else LearningInsightService().list_insights(include_reviewed=args.include_reviewed, limit=args.limit))
+def cmd_learning_insight_status(args): _json(LearningInsightService().status())
+def cmd_learning_insight_show(args): _json(LearningInsightService().show(args.insight_id))
+def cmd_learning_insight_decide(args): _json(LearningInsightService().decide(args.insight_id, decision=args.decision, note=args.note))
 def cmd_docs_generate(args): _json(DocumentationGenerator().generate())
 def cmd_architecture_report(args): _json(DocumentationGenerator().architecture_report())
 def cmd_governance_check(args): _json(Governance().check())
@@ -542,7 +548,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
     p = sub.add_parser("capability-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_capability_action_decide)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.0-learning-engine-foundation"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.1-learning-insights"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -649,6 +655,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("learning-metrics"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_metrics)
     p = sub.add_parser("learning-patterns"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_patterns)
     p = sub.add_parser("learning-events-v24"); p.add_argument("--limit", type=int, default=100); p.add_argument("--type"); p.set_defaults(func=cmd_learning_events_v24)
+
+    p = sub.add_parser("learning-insights"); p.add_argument("--limit", type=int, default=100); p.add_argument("--rebuild", action="store_true"); p.add_argument("--no-write", action="store_true"); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_learning_insights)
+    p = sub.add_parser("learning-insight-status"); p.set_defaults(func=cmd_learning_insight_status)
+    p = sub.add_parser("learning-insight-show"); p.add_argument("insight_id"); p.set_defaults(func=cmd_learning_insight_show)
+    p = sub.add_parser("learning-insight-decide"); p.add_argument("insight_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.set_defaults(func=cmd_learning_insight_decide)
 
     p = sub.add_parser("docs-generate"); p.set_defaults(func=cmd_docs_generate)
     p = sub.add_parser("architecture-report"); p.set_defaults(func=cmd_architecture_report)
