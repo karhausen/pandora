@@ -5,16 +5,18 @@ async function fetchJson(url, options) {
 }
 function show(id, data) { document.getElementById(id).textContent = JSON.stringify(data, null, 2); }
 async function loadLearning() {
-  const [status, metrics, patterns, events, insights] = await Promise.all([
+  const [status, metrics, patterns, events, insights, feedback] = await Promise.all([
     fetchJson('/api/learning/status'),
     fetchJson('/api/learning/metrics'),
     fetchJson('/api/learning/patterns'),
     fetchJson('/api/learning/events?limit=50'),
-    fetchJson('/api/learning/insights')
+    fetchJson('/api/learning/insights'),
+    fetchJson('/api/learning/feedback/report')
   ]);
   show('statusBox', status);
   show('metricsBox', metrics);
   show('patternsBox', patterns);
+  show('feedbackBox', feedback);
   renderInsights(insights.insights || insights.insights === undefined ? (insights.insights || insights.insights || []) : []);
   const body = document.getElementById('eventsBody');
   body.innerHTML = '';
@@ -56,5 +58,11 @@ async function rebuildInsights() {
 }
 async function decideInsight(id, decision) {
   await fetchJson(`/api/learning/insights/${encodeURIComponent(id)}/decision`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({decision})});
+  await loadLearning();
+}
+
+async function collectFeedback() {
+  const result = await fetchJson('/api/learning/feedback/collect', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({limit: 1000, write: true})});
+  alert(`Feedback Events: ${result.written_count || 0}`);
   await loadLearning();
 }

@@ -39,6 +39,7 @@ from .cloud_expert import CloudExpert
 from .config_manager import ConfigManager
 from .learning_engine import LearningEngine
 from .learning_insights import LearningInsightService
+from .learning_feedback_loop import LearningFeedbackLoop
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .llm_profile_manager import LLMProfileManager
@@ -81,7 +82,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.1-learning-insights")
+app = FastAPI(title="Pandora Agent", version="24.2-learning-feedback-loop")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1710,6 +1711,29 @@ def api_learning_insight_detail(insight_id: str):
 @app.post("/api/learning/insights/{insight_id}/decision")
 def api_learning_insight_decision(insight_id: str, payload: dict[str, str]):
     return LearningInsightService().decide(insight_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+
+
+@app.get("/api/learning/feedback/status")
+def api_learning_feedback_status():
+    return LearningFeedbackLoop().status()
+
+
+@app.post("/api/learning/feedback/collect")
+def api_learning_feedback_collect(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningFeedbackLoop().collect(limit=int(payload.get("limit", 1000)), write=bool(payload.get("write", True)))
+
+
+@app.get("/api/learning/feedback/report")
+def api_learning_feedback_report(limit: int = 200):
+    return LearningFeedbackLoop().report(limit=limit)
+
+
+@app.post("/api/learning/feedback/{action_id}/record")
+def api_learning_feedback_record(action_id: str, payload: dict[str, str]):
+    return LearningFeedbackLoop().record_decision(action_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"), source="api")
 
 
 @app.post("/docs/generate")

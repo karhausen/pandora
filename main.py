@@ -28,6 +28,7 @@ from core.governance import Governance
 from core.heartbeat import Heartbeat
 from core.learning_engine import LearningEngine
 from core.learning_insights import LearningInsightService
+from core.learning_feedback_loop import LearningFeedbackLoop
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
@@ -211,6 +212,13 @@ def cmd_learning_rebuild(args): _json(LearningEngine().rebuild(limit=args.limit,
 def cmd_learning_metrics(args): _json(LearningEngine().metrics(rebuild=args.rebuild))
 def cmd_learning_patterns(args): _json(LearningEngine().patterns(rebuild=args.rebuild))
 def cmd_learning_events_v24(args): _json({"kind": "learning_events", "events": LearningEngine().events(limit=args.limit, event_type=args.type)})
+
+
+
+def cmd_learning_feedback_status(args): _json(LearningFeedbackLoop().status())
+def cmd_learning_feedback_collect(args): _json(LearningFeedbackLoop().collect(limit=args.limit, write=not args.no_write))
+def cmd_learning_feedback_report(args): _json(LearningFeedbackLoop().report(limit=args.limit))
+def cmd_learning_feedback_record(args): _json(LearningFeedbackLoop().record_decision(args.action_id, decision=args.decision, note=args.note, source="cli"))
 
 def cmd_learning_insights(args): _json(LearningInsightService().rebuild(limit=args.limit, write=not args.no_write) if args.rebuild else LearningInsightService().list_insights(include_reviewed=args.include_reviewed, limit=args.limit))
 def cmd_learning_insight_status(args): _json(LearningInsightService().status())
@@ -548,7 +556,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
     p = sub.add_parser("capability-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_capability_action_decide)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.1-learning-insights"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.2-learning-feedback-loop"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -655,6 +663,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("learning-metrics"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_metrics)
     p = sub.add_parser("learning-patterns"); p.add_argument("--rebuild", action="store_true"); p.set_defaults(func=cmd_learning_patterns)
     p = sub.add_parser("learning-events-v24"); p.add_argument("--limit", type=int, default=100); p.add_argument("--type"); p.set_defaults(func=cmd_learning_events_v24)
+
+
+    p = sub.add_parser("learning-feedback-status"); p.set_defaults(func=cmd_learning_feedback_status)
+    p = sub.add_parser("learning-feedback-collect"); p.add_argument("--limit", type=int, default=1000); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_learning_feedback_collect)
+    p = sub.add_parser("learning-feedback-report"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_learning_feedback_report)
+    p = sub.add_parser("learning-feedback-record"); p.add_argument("action_id"); p.add_argument("--decision", required=True); p.add_argument("--note"); p.set_defaults(func=cmd_learning_feedback_record)
 
     p = sub.add_parser("learning-insights"); p.add_argument("--limit", type=int, default=100); p.add_argument("--rebuild", action="store_true"); p.add_argument("--no-write", action="store_true"); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_learning_insights)
     p = sub.add_parser("learning-insight-status"); p.set_defaults(func=cmd_learning_insight_status)

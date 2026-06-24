@@ -1,6 +1,6 @@
 # Pandora
 
-## MVP 24.1 – Learning Engine Foundation
+## MVP 24.2 – Learning Feedback Loop
 
 Pandora besitzt jetzt eine observe-only Learning Engine. Sie sammelt Ereignisse aus Action Inbox und Review-Workflows, berechnet Metriken und Patterns, führt aber keine automatischen Änderungen aus.
 

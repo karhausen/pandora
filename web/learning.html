@@ -43,6 +43,13 @@
     </section>
 
     <section class="panel">
+      <h2>Feedback Loop</h2>
+      <p class="muted">Aus User-Entscheidungen werden observe-only Feedback Events. Pandora führt dadurch nichts automatisch aus.</p>
+      <button onclick="collectFeedback()">Feedback einsammeln</button>
+      <pre id="feedbackBox">Lade ...</pre>
+    </section>
+
+    <section class="panel">
       <h2>Learning Insights</h2>
       <p class="muted">Reviewbare Hinweise aus Learning Events. Keine automatische Ausführung.</p>
       <div id="insightsBox" class="cards"></div>
