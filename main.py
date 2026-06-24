@@ -30,6 +30,7 @@ from core.learning_engine import LearningEngine
 from core.learning_insights import LearningInsightService
 from core.learning_feedback_loop import LearningFeedbackLoop
 from core.learning_pattern_detector import LearningPatternDetector
+from core.learning_pattern_actions import LearningPatternActionService
 from core.llm_config import LLMConfig
 from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
@@ -230,6 +231,11 @@ def cmd_learning_pattern_status(args): _json(LearningPatternDetector().status())
 def cmd_learning_patterns_detect(args): _json(LearningPatternDetector().rebuild(limit=args.limit, write=not args.no_write) if args.rebuild else LearningPatternDetector().list_patterns(include_reviewed=args.include_reviewed, limit=args.limit))
 def cmd_learning_pattern_show(args): _json(LearningPatternDetector().show(args.pattern_id))
 def cmd_learning_pattern_decide(args): _json(LearningPatternDetector().decide(args.pattern_id, decision=args.decision, note=args.note))
+
+def cmd_learning_pattern_action_status(args): _json(LearningPatternActionService().status())
+def cmd_learning_pattern_actions(args): _json(LearningPatternActionService().rebuild(limit=args.limit, write=not args.no_write, rebuild_patterns=args.rebuild_patterns) if args.rebuild else LearningPatternActionService().list_actions(include_reviewed=args.include_reviewed, limit=args.limit))
+def cmd_learning_pattern_action_show(args): _json(LearningPatternActionService().show(args.action_id))
+def cmd_learning_pattern_action_decide(args): _json(LearningPatternActionService().decide(args.action_id, decision=args.decision, note=args.note))
 def cmd_docs_generate(args): _json(DocumentationGenerator().generate())
 def cmd_architecture_report(args): _json(DocumentationGenerator().architecture_report())
 def cmd_governance_check(args): _json(Governance().check())
@@ -562,7 +568,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("capability-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_capability_action_show)
     p = sub.add_parser("capability-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_capability_action_decide)
 
-    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.3-learning-pattern-detection"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
+    p = sub.add_parser("release-export"); p.add_argument("--version", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output"); p.add_argument("--skip-tests", action="store_true"); p.set_defaults(func=cmd_release_export)
     p = sub.add_parser("api"); p.add_argument("--host", default="127.0.0.1"); p.add_argument("--port", type=int, default=8000); p.add_argument("--reload", action="store_true"); p.set_defaults(func=cmd_api)
     p = sub.add_parser("heartbeat"); p.set_defaults(func=cmd_heartbeat)
     p = sub.add_parser("tools"); p.set_defaults(func=cmd_tools)
@@ -685,6 +691,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("learning-patterns-detect"); p.add_argument("--limit", type=int, default=2000); p.add_argument("--rebuild", action="store_true"); p.add_argument("--no-write", action="store_true"); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_learning_patterns_detect)
     p = sub.add_parser("learning-pattern-show"); p.add_argument("pattern_id"); p.set_defaults(func=cmd_learning_pattern_show)
     p = sub.add_parser("learning-pattern-decide"); p.add_argument("pattern_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.set_defaults(func=cmd_learning_pattern_decide)
+
+    p = sub.add_parser("learning-pattern-action-status"); p.set_defaults(func=cmd_learning_pattern_action_status)
+    p = sub.add_parser("learning-pattern-actions"); p.add_argument("--limit", type=int, default=2000); p.add_argument("--rebuild", action="store_true"); p.add_argument("--rebuild-patterns", action="store_true"); p.add_argument("--no-write", action="store_true"); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_learning_pattern_actions)
+    p = sub.add_parser("learning-pattern-action-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_learning_pattern_action_show)
+    p = sub.add_parser("learning-pattern-action-decide"); p.add_argument("action_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.set_defaults(func=cmd_learning_pattern_action_decide)
 
     p = sub.add_parser("docs-generate"); p.set_defaults(func=cmd_docs_generate)
     p = sub.add_parser("architecture-report"); p.set_defaults(func=cmd_architecture_report)

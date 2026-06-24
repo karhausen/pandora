@@ -31,6 +31,7 @@ AREA_LABELS = {
     "nightly_review": "Night Mode",
     "maintenance_report": "Operations",
     "learning_insight": "Learning",
+    "learning_pattern_action": "Learning",
 }
 
 

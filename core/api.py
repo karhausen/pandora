@@ -41,6 +41,7 @@ from .learning_engine import LearningEngine
 from .learning_insights import LearningInsightService
 from .learning_feedback_loop import LearningFeedbackLoop
 from .learning_pattern_detector import LearningPatternDetector
+from .learning_pattern_actions import LearningPatternActionService
 from .llm_config import LLMConfig
 from .llm_runtime import LLMRuntime
 from .llm_profile_manager import LLMProfileManager
@@ -83,7 +84,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.3-learning-pattern-detection")
+app = FastAPI(title="Pandora Agent", version="24.4-learning-pattern-actions")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1764,6 +1765,37 @@ def api_learning_pattern_detail(pattern_id: str):
 def api_learning_pattern_decision(pattern_id: str, payload: dict[str, str]):
     return LearningPatternDetector().decide(pattern_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
 
+
+
+
+@app.get("/api/learning/pattern-actions/status")
+def api_learning_pattern_action_status():
+    return LearningPatternActionService().status()
+
+
+@app.get("/api/learning/pattern-actions")
+def api_learning_pattern_actions(include_reviewed: bool = False, limit: int = 100):
+    return LearningPatternActionService().list_actions(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/learning/pattern-actions/rebuild")
+def api_learning_pattern_actions_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningPatternActionService().rebuild(
+        limit=int(payload.get("limit", 2000)),
+        write=bool(payload.get("write", True)),
+        rebuild_patterns=bool(payload.get("rebuild_patterns", False)),
+    )
+
+
+@app.get("/api/learning/pattern-actions/{action_id}")
+def api_learning_pattern_action_detail(action_id: str):
+    return LearningPatternActionService().show(action_id)
+
+
+@app.post("/api/learning/pattern-actions/{action_id}/decision")
+def api_learning_pattern_action_decision(action_id: str, payload: dict[str, str]):
+    return LearningPatternActionService().decide(action_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
 
 @app.post("/docs/generate")
 def docs_generate():

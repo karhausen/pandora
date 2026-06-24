@@ -49,6 +49,7 @@ RUNTIME_DIRS_TO_KEEP_EMPTY = {
     "proposals/obsidian_import_executions",
     "proposals/review_inbox",
     "data/learning",
+    "proposals/learning_pattern_actions",
     "skill_proposals",
     "tool_proposals",
 }
@@ -221,7 +222,7 @@ def zip_tree(dst: Path, zip_path: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Create a sanitized Pandora release ZIP.")
-    parser.add_argument("--version", default="mvp-23.3.1-capability-actions-integration")
+    parser.add_argument("--version", default="mvp-24.4-learning-pattern-actions")
     parser.add_argument("--output", default=None)
     parser.add_argument("--skip-tests", action="store_true")
     args = parser.parse_args()

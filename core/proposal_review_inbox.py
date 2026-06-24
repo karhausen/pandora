@@ -58,6 +58,7 @@ class ProposalReviewInbox:
         "tool_proposal": ROOT_DIR / "tool_proposals",
         "core_improvement": PROPOSALS_DIR / "improvements",
         "learning_insight": PROPOSALS_DIR / "learning_insights",
+        "learning_pattern_action": PROPOSALS_DIR / "learning_pattern_actions",
     }
 
     def __init__(self, *, root_dir: Path = ROOT_DIR, scan_dirs: dict[str, Path] | None = None):
