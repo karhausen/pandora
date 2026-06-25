@@ -1,8 +1,8 @@
 {
   "kind": "pandora_release_manifest",
-  "version": "mvp-24.8-night-review-engine",
-  "based_on": "mvp-24.7-workflow-dashboard",
-  "build_time": "2026-06-25T08:28:38.917178Z",
+  "version": "24.8.1",
+  "based_on": "24.8",
+  "build_time": "2026-06-25T09:59:31.350369Z",
   "file_count": 412,
   "content_sha256": "f099d9211dcd5cff05cf9db0e03a57cb99996e1d86a09e8651640a0b237a5800",
   "tests": {},
@@ -22,5 +22,10 @@
     "Night Review GUI",
     "Night Review CLI/API"
   ],
-  "release_type": "full"
+  "release_type": "full",
+  "name": "MVP 24.8.1 - Night Review Web Route Fix",
+  "fixes": [
+    "Ensures /night-review web route is included and tested",
+    "Adds web route diagnostics endpoint"
+  ]
 }

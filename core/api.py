@@ -88,7 +88,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.7-workflow-dashboard")
+app = FastAPI(title="Pandora Agent", version="24.8.1-night-review-web-route-fix")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1468,6 +1468,18 @@ def api_workflow_dashboard_detail(workflow_id: str):
 @app.get("/api/release/status")
 def api_release_status(root: str = "."):
     return ReleaseManager(root).status()
+
+@app.get("/api/system/web-routes")
+def api_system_web_routes():
+    routes = []
+    for r in app.routes:
+        path = getattr(r, "path", None)
+        methods = sorted(getattr(r, "methods", []) or [])
+        name = getattr(r, "name", None)
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/workflow-dashboard", "/action-inbox", "/operations"}):
+            routes.append({"path": path, "methods": methods, "name": name})
+    return {"version": app.version, "routes": routes}
+
 
 @app.get("/api/release/audit")
 def api_release_audit(root: str = "."):

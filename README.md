@@ -1,3 +1,19 @@
+# Pandora MVP 24.8.1 - Night Review Web Route Fix
+
+Dieses Release basiert auf MVP 24.8 und korrigiert/prüft die Webroute `/night-review`.
+
+Start:
+
+```bash
+python main.py api --host 127.0.0.1 --port 8000
+```
+
+Dann öffnen:
+
+```text
+http://127.0.0.1:8000/night-review
+```
+
 # Pandora
 
 ## MVP 24.2 – Learning Feedback Loop
