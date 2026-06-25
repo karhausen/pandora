@@ -1,0 +1,35 @@
+{
+  "capability": "weather_lookup",
+  "tool_id": "weather_lookup",
+  "name": "Weather Lookup",
+  "description": "Fetches current weather information for a location via a configured weather API.",
+  "input_schema": {
+    "location": "str"
+  },
+  "output_schema": {
+    "location": "str",
+    "temperature": "float",
+    "condition": "str",
+    "source": "str"
+  },
+  "security_level": "LIMITED",
+  "requires_network": true,
+  "requires_filesystem": false,
+  "requires_shell": false,
+  "dependencies": [],
+  "test_cases": [
+    {
+      "name": "missing_location",
+      "input": {},
+      "expected_error": "location is required"
+    }
+  ],
+  "implementation_notes": [
+    "Use an explicitly configured weather API endpoint/key, not hard-coded credentials."
+  ],
+  "risk_notes": [
+    "Network access required. API key must come from environment/config."
+  ],
+  "source": "fallback_after_llm_error",
+  "confidence": 0.65
+}

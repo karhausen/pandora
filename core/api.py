@@ -63,6 +63,7 @@ from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
 from .night_mode_dashboard import NightModeDashboardService
 from .night_review_engine import NightReviewEngine
+from .review_scheduler import ReviewSchedulerService
 from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
@@ -88,7 +89,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.8.1-night-review-web-route-fix")
+app = FastAPI(title="Pandora Agent", version="24.9-review-scheduler-manual-run-center")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1449,6 +1450,29 @@ def api_night_review_recommendations(include_reviewed: bool = False, limit: int 
 def api_night_review_decide(recommendation_id: str, payload: dict[str, str]):
     return NightReviewEngine().decide_recommendation(recommendation_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
 
+
+@app.get("/api/review-scheduler/status")
+def api_review_scheduler_status():
+    return ReviewSchedulerService().status()
+
+@app.post("/api/review-scheduler/run")
+def api_review_scheduler_run(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return ReviewSchedulerService().run_manual(
+        limit=int(payload.get("limit") or 0) or None,
+        write=bool(payload.get("write", True)),
+        create_actions=bool(payload.get("create_actions", True)),
+    )
+
+@app.post("/api/review-scheduler/run-if-due")
+def api_review_scheduler_run_if_due(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return ReviewSchedulerService().run_if_due(force=bool(payload.get("force", False)))
+
+@app.get("/api/review-scheduler/history")
+def api_review_scheduler_history(limit: int = 50):
+    return ReviewSchedulerService().history(limit=limit)
+
 @app.get("/api/workflow-dashboard/status")
 def api_workflow_dashboard_status():
     return WorkflowDashboardService().status()
@@ -1476,7 +1500,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/workflow-dashboard", "/action-inbox", "/operations"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -1538,6 +1562,19 @@ def web_night_review_js():
 @app.get("/web/night-review.css")
 def web_night_review_css():
     return FileResponse(WEB_DIR / "night-review.css")
+
+
+@app.get("/review-scheduler")
+def web_review_scheduler():
+    return FileResponse(WEB_DIR / "review-scheduler.html")
+
+@app.get("/web/review-scheduler.js")
+def web_review_scheduler_js():
+    return FileResponse(WEB_DIR / "review-scheduler.js")
+
+@app.get("/web/review-scheduler.css")
+def web_review_scheduler_css():
+    return FileResponse(WEB_DIR / "review-scheduler.css")
 
 @app.get("/workflow-dashboard")
 def web_workflow_dashboard():

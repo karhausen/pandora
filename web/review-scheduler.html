@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Review Scheduler</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/review-scheduler.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Review Scheduler</h1>
+      <p>Geplante oder manuelle Night Reviews – kontrolliert, protokolliert und ohne versteckte Hintergrund-Automatik.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/action-inbox">Action Inbox</a>
+      <a class="badge link" href="/workflow-dashboard">Workflows</a>
+      <a class="badge link primary" href="/operations">Operations</a>
+      <a class="badge link" href="/night-review">Night Review</a>
+    </nav>
+  </header>
+
+  <section class="badge-row" aria-label="Operations Unterbereiche">
+    <a class="badge link" href="/operations">Operations Dashboard</a>
+    <a class="badge link" href="/night-review">Night Review</a>
+    <a class="badge link primary" href="/review-scheduler">Review Scheduler</a>
+    <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
+    <a class="badge link" href="/action-inbox">Action Inbox</a>
+  </section>
+
+  <main class="layout">
+    <section class="card wide">
+      <div class="card-head">
+        <div>
+          <h2>Status</h2>
+          <p>Zeigt Konfiguration, Due-Status und letzten Lauf.</p>
+        </div>
+        <button onclick="loadStatus()">Aktualisieren</button>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+      <pre id="statusBox">Lade...</pre>
+    </section>
+
+    <section class="card">
+      <h2>Manuell starten</h2>
+      <p>Startet Night Review direkt. Es werden nur Reports und reviewbare Actions erzeugt.</p>
+      <div class="row">
+        <input id="manualLimit" type="number" min="1" value="200" />
+        <label><input id="manualWrite" type="checkbox" checked /> Schreiben</label>
+        <label><input id="manualActions" type="checkbox" checked /> Actions erzeugen</label>
+      </div>
+      <button onclick="runManual()">Night Review jetzt starten</button>
+      <pre id="manualBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Geplanten Lauf prüfen</h2>
+      <p>Für Cron/Task Scheduler/Docker: führt nur aus, wenn laut Konfiguration fällig.</p>
+      <div class="row">
+        <button onclick="runIfDue(false)">Run if due</button>
+        <button onclick="runIfDue(true)">Force run</button>
+      </div>
+      <pre id="dueBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card wide">
+      <h2>Historie</h2>
+      <button onclick="loadHistory()">Historie laden</button>
+      <div id="historyList" class="item-list">Noch keine Daten.</div>
+    </section>
+  </main>
+  <script src="/web/review-scheduler.js"></script>
+</body>
+</html>

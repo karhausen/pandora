@@ -1,7 +1,7 @@
 {
   "kind": "pandora_release_manifest",
-  "version": "24.8.1",
-  "based_on": "24.8",
+  "version": "mvp-24.9-review-scheduler-manual-run-center",
+  "based_on": "mvp-24.8.1-night-review-web-route-fix",
   "build_time": "2026-06-25T09:59:31.350369Z",
   "file_count": 412,
   "content_sha256": "f099d9211dcd5cff05cf9db0e03a57cb99996e1d86a09e8651640a0b237a5800",
@@ -17,15 +17,25 @@
   "complete_project_release": true,
   "type": "full_release",
   "features": [
-    "Night Review Engine",
-    "Night Review Recommendations",
-    "Night Review GUI",
-    "Night Review CLI/API"
+    "Review Scheduler status",
+    "Manual Night Review run center",
+    "Run-if-due endpoint",
+    "Scheduler history",
+    "Web GUI /review-scheduler"
   ],
-  "release_type": "full",
+  "release_type": "complete_project_release",
   "name": "MVP 24.8.1 - Night Review Web Route Fix",
   "fixes": [
     "Ensures /night-review web route is included and tested",
     "Adds web route diagnostics endpoint"
+  ],
+  "build_time_utc": "2026-06-25T10:16:06.855125Z",
+  "checks": [
+    "python main.py --help",
+    "python main.py api --help",
+    "python main.py review-scheduler-status",
+    "python main.py review-scheduler-run --no-write --no-actions",
+    "registration-validate --strict",
+    "pytest tests/test_mvp24_9_review_scheduler.py"
   ]
 }
