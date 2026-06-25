@@ -60,6 +60,8 @@ from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
 from .operations_cockpit import OperationsCockpitService
 from .operations_health import OperationsHealthService
+from .operations_issue_detector import OperationsIssueDetector
+from .operations_issue_actions import OperationsIssueActionService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
@@ -91,7 +93,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.11-operations-health-system-diagnostics")
+app = FastAPI(title="Pandora Agent", version="24.12-operations-issue-actions")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -913,6 +915,10 @@ def get_operations_cockpit_service() -> OperationsCockpitService:
 def get_operations_health_service() -> OperationsHealthService:
     return OperationsHealthService()
 
+def get_operations_issue_service() -> OperationsIssueActionService:
+    return OperationsIssueActionService()
+
+
 
 @app.get("/api/gui/operations-health/status")
 def gui_operations_health_status():
@@ -923,6 +929,48 @@ def gui_operations_health_status():
 def gui_operations_health_checks():
     service = get_operations_health_service()
     return {"kind": "operations_health_checks", "checks": service.run_checks(), "safety": service.safety()}
+
+
+@app.get("/api/operations/issues")
+def api_operations_issues(include_reviewed: bool = False, limit: int = 200):
+    return get_operations_issue_service().list_actions(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.get("/api/operations/issues/scan")
+def api_operations_issue_scan():
+    return OperationsIssueDetector().scan()
+
+
+@app.get("/api/operations/issues/{issue_id}")
+def api_operations_issue_show(issue_id: str):
+    detail = OperationsIssueDetector().show(issue_id)
+    if not detail.get("found"):
+        action = get_operations_issue_service().show(issue_id)
+        if action.get("found"):
+            return action
+    return detail
+
+
+@app.post("/api/operations/issues/create-actions")
+def api_operations_issue_create_actions():
+    return get_operations_issue_service().create_actions(write=True)
+
+
+@app.get("/api/gui/operations-issues/dashboard")
+def gui_operations_issues_dashboard(include_reviewed: bool = False, limit: int = 200):
+    service = get_operations_issue_service()
+    return {
+        "kind": "operations_issues_dashboard",
+        "status": service.status(),
+        "scan": service.scan(),
+        "actions": service.list_actions(include_reviewed=include_reviewed, limit=limit),
+        "safety": service.status().get("safety", {}),
+    }
+
+
+@app.post("/api/gui/operations-issues/create-actions")
+def gui_operations_issues_create_actions():
+    return get_operations_issue_service().create_actions(write=True)
 
 @app.get("/api/gui/operations-cockpit/dashboard")
 def gui_operations_cockpit_dashboard(limit: int = 100):
@@ -1539,7 +1587,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -2300,6 +2348,21 @@ def coordinator_decide(req: CoordinatorRunRequest):
 @app.get("/coordinator/logs")
 def coordinator_logs(limit: int = 20):
     return {"logs": CoordinatorAgent().logs(limit)}
+
+
+@app.get("/operations-issues")
+def operations_issues_page():
+    return FileResponse(WEB_DIR / "operations-issues.html")
+
+
+@app.get("/web/operations-issues.js")
+def operations_issues_js():
+    return FileResponse(WEB_DIR / "operations-issues.js")
+
+
+@app.get("/web/operations-issues.css")
+def operations_issues_css():
+    return FileResponse(WEB_DIR / "operations-issues.css")
 
 
 @app.get("/operations-health")

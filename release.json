@@ -1,6 +1,6 @@
 {
-  "version": "24.11",
-  "based_on": "24.10-operations-cockpit-cleanup",
+  "version": "24.12",
+  "based_on": "24.11",
   "features": [
     "Operations health diagnostics",
     "Read-only service checks",
@@ -17,6 +17,6 @@
     "pytest tests/test_mvp24_11_operations_health.py"
   ],
   "audit": "OK",
-  "name": "MVP 24.11 – Operations Health & System Diagnostics",
+  "name": "Operations Issue Actions",
   "build_time": "2026-06-25T11:33:58.401962Z"
 }

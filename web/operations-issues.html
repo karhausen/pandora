@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandora Operations Cockpit</title>
+  <title>Pandora Operations Issues</title>
   <link rel="stylesheet" href="/web/shared.css" />
-  <link rel="stylesheet" href="/web/operations-cockpit.css" />
+  <link rel="stylesheet" href="/web/operations-issues.css" />
 </head>
 <body>
   <header class="topbar">
     <div>
-      <h1>Pandora Operations Cockpit</h1>
-      <p>Eine zentrale Leitstelle für Actions, Workflows, Night Review, Scheduler und Release-Status.</p>
+      <h1>Operations Issues</h1>
+      <p>Technische Probleme erkennen und als prüfbare Actions in die Unified Action Inbox überführen.</p>
     </div>
     <nav class="global-nav" aria-label="Hauptnavigation">
       <a class="badge link" href="/">Chat</a>
@@ -24,56 +24,39 @@
   </header>
 
   <section class="badge-row" aria-label="Operations Unterbereiche">
-    <a class="badge link primary" href="/operations-cockpit">Operations Cockpit</a>
+    <a class="badge link" href="/operations-cockpit">Operations Cockpit</a>
     <a class="badge link" href="/operations-health">Health</a>
-    <a class="badge link" href="/operations-issues">Issues</a>
+    <a class="badge link primary" href="/operations-issues">Issues</a>
     <a class="badge link" href="/action-inbox">Action Inbox</a>
     <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
     <a class="badge link" href="/night-review">Night Review</a>
     <a class="badge link" href="/review-scheduler">Review Scheduler</a>
-    <a class="badge link" href="/operations">Classic Operations</a>
   </section>
 
   <main class="layout">
     <section class="card wide hero">
       <div class="card-head">
         <div>
-          <h2>Aktueller Betriebszustand</h2>
+          <h2>Issue Status</h2>
           <p id="headlineText">Lade...</p>
         </div>
-        <button onclick="loadCockpit()">Aktualisieren</button>
+        <div class="row">
+          <button onclick="loadDashboard()">Aktualisieren</button>
+          <button onclick="createActions()">Actions erzeugen</button>
+        </div>
       </div>
       <div id="summaryCards" class="summary-grid"></div>
     </section>
 
     <section class="card wide">
-      <h2>Was braucht Aufmerksamkeit?</h2>
-      <div id="attentionList" class="attention-list"></div>
+      <h2>Erkannte Issues</h2>
+      <div id="issueList" class="issue-list"></div>
     </section>
 
-    <section class="card">
-      <h2>Schnellzugriff</h2>
-      <div id="quickLinks" class="quick-links"></div>
-    </section>
-
-    <section class="card">
-      <h2>Night Review</h2>
-      <p>Vorschau ohne Schreiben oder Actions.</p>
-      <div class="row">
-        <input id="nightLimit" type="number" value="200" min="1" />
-        <button onclick="nightPreview()">Preview</button>
-      </div>
-      <pre id="nightBox">Noch nicht ausgeführt.</pre>
-    </section>
-
-    <section class="card">
-      <h2>Scheduler Run</h2>
-      <p>Manueller Night-Review-Lauf über den Scheduler. Erzeugt nur reviewbare Actions.</p>
-      <div class="row">
-        <input id="schedulerLimit" type="number" value="200" min="1" />
-        <button onclick="schedulerRun()">Manuell starten</button>
-      </div>
-      <pre id="schedulerBox">Noch nicht ausgeführt.</pre>
+    <section class="card wide">
+      <h2>Erzeugte Issue Actions</h2>
+      <p>Diese Actions erscheinen auch in der Unified Action Inbox.</p>
+      <div id="actionList" class="issue-list"></div>
     </section>
 
     <section class="card wide">
@@ -82,6 +65,6 @@
     </section>
   </main>
 
-  <script src="/web/operations-cockpit.js"></script>
+  <script src="/web/operations-issues.js"></script>
 </body>
 </html>

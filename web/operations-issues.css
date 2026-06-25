@@ -1,0 +1,12 @@
+body { background: var(--bg); color: var(--text); }
+.layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding: 1rem; }
+.card.wide { grid-column: 1 / -1; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; }
+.issue-list { display: flex; flex-direction: column; gap: .7rem; }
+.issue { display: grid; grid-template-columns: 1.6fr .5fr 1.2fr; gap: .75rem; align-items: start; padding: .85rem; border: 1px solid var(--border); border-radius: 14px; background: var(--panel); }
+.issue.warn { border-color: var(--warning); }
+.issue.danger { border-color: var(--danger); }
+.detail { color: var(--muted); font-size: .9rem; margin-top: .25rem; }
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+pre { white-space: pre-wrap; max-height: 420px; overflow: auto; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .issue { grid-template-columns: 1fr; } }
