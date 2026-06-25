@@ -77,6 +77,8 @@ from .obsidian_inbox_review import ObsidianInboxReviewService
 from .obsidian_import_candidates import ObsidianImportCandidateService
 from .obsidian_import_execution import ObsidianImportExecutionService
 from .unified_action_inbox import UnifiedActionInboxService
+from .action_workflow import ActionWorkflowService
+from .release_manager import ReleaseManager
 
 
 class UnifiedActionDecisionRequest(BaseModel):
@@ -84,7 +86,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.4-learning-pattern-actions")
+app = FastAPI(title="Pandora Agent", version="24.6-action-workflow-chains")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1398,6 +1400,33 @@ def api_unified_action_detail(action_id: str):
 @app.post("/api/actions/{action_id}/decision")
 def api_unified_action_decision(action_id: str, req: UnifiedActionDecisionRequest):
     return UnifiedActionInboxService().decide(action_id, decision=req.decision, note=req.note, decided_by=req.decided_by)
+
+
+
+
+@app.get("/api/workflows")
+def api_workflows():
+    return ActionWorkflowService().list_workflows()
+
+@app.get("/api/workflows/status")
+def api_workflow_status():
+    return ActionWorkflowService().status()
+
+@app.get("/api/workflows/{workflow_id}")
+def api_workflow_detail(workflow_id: str):
+    return ActionWorkflowService().show_workflow(workflow_id)
+
+@app.post("/api/workflows/{workflow_id}/continue")
+def api_workflow_continue(workflow_id: str):
+    return {"kind": "action_workflow_continue", "ok": False, "reason": "Continue by approving the current action in the Action Inbox.", "workflow": ActionWorkflowService().show_workflow(workflow_id)}
+
+@app.get("/api/release/status")
+def api_release_status(root: str = "."):
+    return ReleaseManager(root).status()
+
+@app.get("/api/release/audit")
+def api_release_audit(root: str = "."):
+    return ReleaseManager(root).audit()
 
 
 @app.get("/")

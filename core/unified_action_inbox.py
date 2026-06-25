@@ -7,16 +7,17 @@ from pathlib import Path
 from typing import Any
 
 from .proposal_review_inbox import ProposalReviewInbox
+from .action_workflow import ActionWorkflowService
 from .config import PROPOSALS_DIR
 
 OPEN_STATUSES = {
     "pending", "pending_review", "open", "new", "needs_work", "needs_attention",
-    "failed", "error", "retry_required", "deferred", "accepted_for_next_step",
+    "failed", "error", "retry_required", "deferred",
     "accepted_for_sorting", "review_required",
 }
 DONE_STATUSES = {
     "reviewed", "rejected", "done", "completed", "imported", "archived", "closed",
-    "approved", "accepted",
+    "approved", "accepted", "accepted_for_next_step",
 }
 FAILED_STATUSES = {"failed", "error", "needs_work", "retry_required", "needs_attention"}
 
@@ -32,6 +33,7 @@ AREA_LABELS = {
     "maintenance_report": "Operations",
     "learning_insight": "Learning",
     "learning_pattern_action": "Learning",
+    "workflow_action": "Workflows",
 }
 
 
@@ -64,6 +66,24 @@ class UnifiedAction:
     def is_open(self) -> bool:
         return not self.is_done
 
+    def _workflow_id(self) -> str | None:
+        try:
+            data = json.loads(Path(self.source_file).read_text(encoding="utf-8"))
+            return data.get("workflow_id")
+        except Exception:
+            return None
+
+    def _workflow_step(self) -> str | None:
+        try:
+            data = json.loads(Path(self.source_file).read_text(encoding="utf-8"))
+            idx = data.get("workflow_step_index")
+            total = data.get("workflow_total_steps")
+            if isinstance(idx, int) and isinstance(total, int):
+                return f"{idx + 1}/{total}"
+            return data.get("workflow_step_key")
+        except Exception:
+            return None
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
@@ -79,6 +99,8 @@ class UnifiedAction:
             "source_file": self.source_file,
             "summary": self.summary,
             "last_error": self.last_error,
+            "workflow_id": self._workflow_id(),
+            "workflow_step": self._workflow_step(),
             "is_failed": self.is_failed,
             "is_open": self.is_open,
             "is_done": self.is_done,
@@ -96,6 +118,7 @@ class UnifiedActionInboxService:
 
     def __init__(self, *, review_inbox: ProposalReviewInbox | None = None) -> None:
         self.review_inbox = review_inbox or ProposalReviewInbox()
+        self.workflow_service = ActionWorkflowService()
 
     def dashboard(self, *, limit: int = 500) -> dict[str, Any]:
         actions = self.list_actions(include_done=True, limit=limit)["actions"]
@@ -194,6 +217,7 @@ class UnifiedActionInboxService:
             "artifacts": artifacts,
             "content": content,
             "review_state": review_state,
+            "workflow": self.workflow_service.timeline_for_action(action, content),
             "allowed_decisions": ["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"],
             "safety": self._safety(),
         }
@@ -218,8 +242,10 @@ class UnifiedActionInboxService:
             "activation_performed": False,
             "handled_via": "unified_action_inbox",
         }
+        workflow_result = self.workflow_service.handle_decision(action=action, content=self._read_json(source) or {}, decision=decision, note=note)
+        payload["workflow_result"] = workflow_result
         state_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-        return {"kind": "unified_action_decision", "ok": True, "id": action_id, "decision": decision, "written_to": str(state_path), "state": payload}
+        return {"kind": "unified_action_decision", "ok": True, "id": action_id, "decision": decision, "written_to": str(state_path), "state": payload, "workflow_result": workflow_result}
 
     def _from_review_item(self, item: Any) -> UnifiedAction:
         data = self._read_json(Path(item.source_file)) or {}
@@ -259,6 +285,8 @@ class UnifiedActionInboxService:
             return None
 
     def _action_to_do(self, category: str, data: dict[str, Any], status: str) -> str:
+        if data.get("action_to_do"):
+            return str(data.get("action_to_do"))
         if status in FAILED_STATUSES:
             return "Fehler prüfen und nächsten Schritt entscheiden"
         mapping = {

@@ -25,6 +25,7 @@ function rowOpen(item) {
   return `<tr class="${item.is_failed ? 'failed' : ''}">
     <td><strong>${esc(item.title)}</strong><br><small>${esc(item.category)}</small></td>
     <td>${esc(item.area)}</td>
+    <td>${item.workflow_id ? `<span class="badge">${esc(item.workflow_id)}</span><br><small>${esc(item.workflow_step || "")}</small>` : '<span class="muted">–</span>'}</td>
     <td>${esc(item.action_to_do)}</td>
     <td class="priority-${esc(String(item.priority).toLowerCase())}">${esc(item.priority)}</td>
     <td>${renderStatus(item)}</td>
@@ -63,9 +64,16 @@ async function loadDashboard() {
   $('failedCount').textContent = open.filter(i => i.is_failed).length;
   $('doneCount').textContent = done.length;
   $('totalCount').textContent = open.length + done.length;
-  $('openTable').innerHTML = open.length ? open.map(rowOpen).join('') : '<tr><td colspan="8" class="muted">Keine offenen Actions.</td></tr>';
+  $('openTable').innerHTML = open.length ? open.map(rowOpen).join('') : '<tr><td colspan="9" class="muted">Keine offenen Actions.</td></tr>';
   $('doneTable').innerHTML = done.length ? done.map(rowDone).join('') : '<tr><td colspan="5" class="muted">Noch keine erledigten Actions.</td></tr>';
   document.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openDetail(btn.dataset.open)));
+}
+
+function renderWorkflow(workflow) {
+  const rows = (workflow && workflow.timeline) || [];
+  if (!rows.length) return '<p class="muted">Noch keine Workflow-Kette vorhanden.</p>';
+  return `<div class="workflow-id">${esc(workflow.workflow_id || '')} · Schritt ${esc(workflow.current_step || '')}/${esc(workflow.total_steps || '')}</div>` +
+    rows.map(r => `<div class="wf-step ${esc(r.state)}"><span>${esc(r.index)}.</span><strong>${esc(r.title)}</strong><em>${esc(r.state)}</em></div>`).join('');
 }
 
 function kv(obj) {
@@ -85,6 +93,7 @@ async function openDetail(id) {
   $('detailStatus').className = `badge ${action.is_failed ? 'danger' : action.is_done ? '' : 'primary'}`;
   $('summaryBox').innerHTML = kv(data.summary);
   $('reasonBox').textContent = data.reason || 'Keine Begründung vorhanden.';
+  $('workflowBox').innerHTML = renderWorkflow(data.workflow);
   $('planBox').textContent = JSON.stringify(data.planned_action || {}, null, 2);
   $('errorsBox').innerHTML = (data.errors || []).length ? data.errors.map(e => `<div class="error-entry"><strong>${esc(e.source || 'error')}</strong><br>${esc(e.message)}</div>`).join('') : '<p class="muted">Keine Fehler gemeldet.</p>';
   $('logsBox').innerHTML = (data.logs || []).map(l => `<div class="log-entry"><strong>${esc(l.time || 'ohne Zeit')}</strong> <span class="muted">${esc(l.level || '')}</span><br>${esc(l.message || JSON.stringify(l))}${l.note ? `<br><em>${esc(l.note)}</em>` : ''}</div>`).join('');

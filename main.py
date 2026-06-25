@@ -60,6 +60,8 @@ from core.obsidian_inbox_review import ObsidianInboxReviewService
 from core.obsidian_import_candidates import ObsidianImportCandidateService
 from core.obsidian_import_execution import ObsidianImportExecutionService
 from core.unified_action_inbox import UnifiedActionInboxService
+from core.action_workflow import ActionWorkflowService
+from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
 from core.skill_activation_manager import SkillActivationManager
@@ -439,6 +441,16 @@ def cmd_action_inbox_show(args):
 def cmd_action_inbox_decide(args):
     _json(UnifiedActionInboxService().decide(args.action_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
 
+def cmd_workflow_status(args): _json(ActionWorkflowService().status())
+def cmd_workflow_list(args): _json(ActionWorkflowService().list_workflows())
+def cmd_workflow_show(args): _json(ActionWorkflowService().show_workflow(args.workflow_id))
+def cmd_workflow_continue(args):
+    _json({"kind": "action_workflow_continue", "ok": False, "reason": "Use action-inbox-decide <action_id> --decision accepted_for_next_step to create the next controlled step.", "workflow": ActionWorkflowService().show_workflow(args.workflow_id)})
+
+def cmd_release_status(args): _json(ReleaseManager(Path(args.root)).status())
+def cmd_release_clean(args): _json(ReleaseManager(Path(args.root)).clean())
+def cmd_release_build(args): _json(ReleaseManager(Path(args.root)).build(version=args.version, output=args.output, based_on=args.based_on, skip_audit=args.skip_audit))
+
 def cmd_registration_validate(args):
     report = RegistrationValidator().validate()
     _json(report)
@@ -548,6 +560,16 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("action-inbox-list"); p.add_argument("--include-done", action="store_true"); p.add_argument("--area"); p.add_argument("--status"); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_action_inbox_list)
     p = sub.add_parser("action-inbox-show"); p.add_argument("action_id"); p.set_defaults(func=cmd_action_inbox_show)
     p = sub.add_parser("action-inbox-decide"); p.add_argument("action_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_action_inbox_decide)
+
+
+    p = sub.add_parser("workflow-status"); p.set_defaults(func=cmd_workflow_status)
+    p = sub.add_parser("workflow-list"); p.set_defaults(func=cmd_workflow_list)
+    p = sub.add_parser("workflow-show"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_show)
+    p = sub.add_parser("workflow-continue"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_continue)
+
+    p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
+    p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
+    p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
 
     p = sub.add_parser("registration-validate"); p.add_argument("--strict", action="store_true"); p.set_defaults(func=cmd_registration_validate)
     p = sub.add_parser("registration-validate-cli"); p.set_defaults(func=cmd_registration_validate_cli)

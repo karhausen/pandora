@@ -1,4 +1,18 @@
 {
-  "version": "24.5.1",
-  "based_on": "24.4"
+  "kind": "pandora_release_manifest",
+  "version": "mvp-24.6-action-workflow-chains",
+  "based_on": "mvp-24.5.1-release-management-build-system",
+  "build_time": "2026-06-25T08:01:37.006440+00:00",
+  "file_count": 412,
+  "content_sha256": "f099d9211dcd5cff05cf9db0e03a57cb99996e1d86a09e8651640a0b237a5800",
+  "tests": {},
+  "audit": {
+    "kind": "release_audit",
+    "ok": true,
+    "root": "/mnt/data/pandora_agent_mvp_24_6_action_workflow_chains_build",
+    "error_count": 0,
+    "warning_count": 0,
+    "findings": []
+  },
+  "complete_project_release": true
 }

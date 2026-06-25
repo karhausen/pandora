@@ -12,7 +12,7 @@ from .model_router import ModelRouter
 from .skill_registry import SkillRegistry
 from .tool_registry import ToolRegistry
 
-PANDORA_CORE_VERSION = "mvp-24.2-learning-feedback-loop"
+PANDORA_CORE_VERSION = "mvp-24.6-action-workflow-chains"
 
 
 @dataclass(frozen=True)

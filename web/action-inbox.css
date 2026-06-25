@@ -44,3 +44,10 @@ pre { white-space: pre-wrap; word-break: break-word; background: rgba(0,0,0,.22)
 .error-entry { border-color: #ef4444; }
 a { color: #93c5fd; }
 @media (max-width: 760px) { .app { padding: 16px; } .hero { display:block; } .kv { grid-template-columns: 1fr; } }
+
+.workflow-timeline { display: grid; gap: 0.55rem; }
+.workflow-id { color: var(--muted); margin-bottom: 0.35rem; }
+.wf-step { display: grid; grid-template-columns: 2rem 1fr auto; gap: 0.6rem; align-items: center; padding: 0.65rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,0.03); }
+.wf-step.current { border-color: var(--accent); background: rgba(125, 211, 252, 0.08); }
+.wf-step.done { opacity: 0.72; }
+.wf-step em { color: var(--muted); font-style: normal; font-size: 0.85rem; }

@@ -341,3 +341,8 @@ python main.py obsidian-import-execution-list
 python main.py learning-insights --rebuild
 python main.py learning-insight-status
 ```
+
+
+## MVP 24.6 – Action Workflow Chains
+
+Die Unified Action Inbox erzeugt bei `accepted_for_next_step` kontrollierte Folge-Actions. Dadurch wandert ein abgeschlossener Schritt in Done, während der nächste sichere Prüfschritt automatisch in der Inbox erscheint. Es wird weiterhin nichts ohne explizite Bestätigung ausgeführt.
