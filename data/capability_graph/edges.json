@@ -1,0 +1,142 @@
+[
+  {
+    "source": "cap:arithmetic",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:calculator",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:converts",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:converts",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echo",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echo",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echo_then_upper",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echoes",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:evaluates",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:expressions",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:input",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:input",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:returns",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:safely",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:text",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:text",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:text",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:then",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:upper",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:uppercase",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  }
+]

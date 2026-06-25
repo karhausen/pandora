@@ -62,6 +62,7 @@ from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
 from .night_mode_dashboard import NightModeDashboardService
+from .night_review_engine import NightReviewEngine
 from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
@@ -1422,6 +1423,32 @@ def api_workflow_continue(workflow_id: str):
     return {"kind": "action_workflow_continue", "ok": False, "reason": "Continue by approving the current action in the Action Inbox.", "workflow": ActionWorkflowService().show_workflow(workflow_id)}
 
 
+
+@app.get("/api/night-review/status")
+def api_night_review_status():
+    return NightReviewEngine().status()
+
+@app.post("/api/night-review/run")
+def api_night_review_run(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return NightReviewEngine().run(limit=int(payload.get("limit", 200)), write=bool(payload.get("write", True)), create_actions=bool(payload.get("create_actions", True)))
+
+@app.get("/api/night-review/reports")
+def api_night_review_reports(limit: int = 50):
+    return NightReviewEngine().list_reports(limit=limit)
+
+@app.get("/api/night-review/reports/{report_id}")
+def api_night_review_show(report_id: str):
+    return NightReviewEngine().show_report(report_id)
+
+@app.get("/api/night-review/recommendations")
+def api_night_review_recommendations(include_reviewed: bool = False, limit: int = 100):
+    return NightReviewEngine().list_recommendations(include_reviewed=include_reviewed, limit=limit)
+
+@app.post("/api/night-review/recommendations/{recommendation_id}/decision")
+def api_night_review_decide(recommendation_id: str, payload: dict[str, str]):
+    return NightReviewEngine().decide_recommendation(recommendation_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
 @app.get("/api/workflow-dashboard/status")
 def api_workflow_dashboard_status():
     return WorkflowDashboardService().status()
@@ -1486,6 +1513,19 @@ def web_action_inbox_css():
 
 
 
+
+
+@app.get("/night-review")
+def web_night_review():
+    return FileResponse(WEB_DIR / "night-review.html")
+
+@app.get("/web/night-review.js")
+def web_night_review_js():
+    return FileResponse(WEB_DIR / "night-review.js")
+
+@app.get("/web/night-review.css")
+def web_night_review_css():
+    return FileResponse(WEB_DIR / "night-review.css")
 
 @app.get("/workflow-dashboard")
 def web_workflow_dashboard():

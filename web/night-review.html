@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Night Review Engine</title>
+  <link rel="stylesheet" href="/web/night-review.css" />
+  <link rel="stylesheet" href="/web/shared.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Night Review Engine</h1>
+      <p>Nachtauswertung: Muster, Workflows, Governance und Empfehlungen – ohne automatische Änderungen.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/action-inbox">Action Inbox</a>
+      <a class="badge link" href="/knowledge-base">Knowledge</a>
+      <a class="badge link" href="/capability-explorer">Capabilities</a>
+      <a class="badge link" href="/workflow-dashboard">Workflows</a>
+      <a class="badge link primary" href="/operations">Operations</a>
+      <a class="badge link" href="/learning">Learning</a>
+    </nav>
+  </header>
+  <section class="badge-row" aria-label="Operations Unterbereiche">
+    <a class="badge link" href="/operations">Operations Dashboard</a>
+    <a class="badge link" href="/night-mode">Night Mode</a>
+    <a class="badge link primary" href="/night-review">Night Review</a>
+    <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
+    <a class="badge link" href="/action-inbox">Action Inbox</a>
+  </section>
+
+  <main class="layout">
+    <section class="card wide">
+      <div class="card-head">
+        <div>
+          <h2>Übersicht</h2>
+          <p>Night Review erzeugt prüfbare Empfehlungen für die Unified Action Inbox.</p>
+        </div>
+        <button onclick="loadDashboard()">Aktualisieren</button>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Night Review starten</h2>
+      <p>Schreibt einen Report und erzeugt reviewbare Empfehlungen. Keine automatische Ausführung.</p>
+      <div class="row">
+        <input id="runLimit" type="number" value="200" min="1" />
+        <label><input id="writeRun" type="checkbox" checked /> Schreiben</label>
+        <label><input id="createActions" type="checkbox" checked /> Actions erzeugen</label>
+        <button onclick="runNightReview()">Starten</button>
+      </div>
+      <pre id="runBox">Noch nicht ausgeführt.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Empfehlungen</h2>
+      <div class="row"><button onclick="loadRecommendations()">Empfehlungen laden</button></div>
+      <div id="recommendationList" class="item-list">Noch keine Daten.</div>
+    </section>
+
+    <section class="card">
+      <h2>Reports</h2>
+      <div class="row"><button onclick="loadReports()">Reports laden</button></div>
+      <div id="reportList" class="item-list">Noch keine Daten.</div>
+    </section>
+
+    <section class="card wide">
+      <h2>Details</h2>
+      <pre id="detailBox">Wähle einen Report oder eine Empfehlung.</pre>
+    </section>
+
+    <section class="card wide">
+      <h2>Rohdaten</h2>
+      <pre id="dashboardBox">Noch keine Daten.</pre>
+    </section>
+  </main>
+  <script src="/web/night-review.js"></script>
+</body>
+</html>

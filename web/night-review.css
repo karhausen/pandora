@@ -1,0 +1,23 @@
+body { background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, sans-serif; margin: 0; padding: 24px; }
+.topbar { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:16px; }
+.topbar h1 { margin:0 0 6px; }
+.topbar p, small { color: var(--muted); }
+.layout { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }
+.card { background: var(--panel); border:1px solid var(--border); border-radius:18px; padding:18px; }
+.card.wide { grid-column: 1 / -1; }
+.card-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-start; }
+.summary-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap:12px; }
+.summary { background: var(--panel-soft); border:1px solid var(--border); border-radius:16px; padding:14px; }
+.summary .label { color: var(--muted); font-size:13px; }
+.summary .value { font-size:24px; font-weight:800; margin-top:4px; }
+.summary.ok { border-color:#16a34a; } .summary.warn { border-color:#f59e0b; } .summary.danger { border-color:#dc2626; }
+.row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
+button { background:#2563eb; color:white; border:0; border-radius:12px; padding:9px 12px; font-weight:700; cursor:pointer; }
+input { background: var(--panel-soft); color: var(--text); border:1px solid var(--border); border-radius:10px; padding:8px; }
+pre { background:#020617; color:#d1d5db; border:1px solid var(--border); border-radius:14px; padding:12px; overflow:auto; max-height:420px; }
+.item-list { display:flex; flex-direction:column; gap:10px; }
+.item { display:flex; justify-content:space-between; gap:12px; align-items:center; background: var(--panel-soft); border:1px solid var(--border); border-radius:14px; padding:12px; cursor:pointer; }
+.item:hover { border-color: var(--accent); }
+.item strong { display:block; } .item small { display:block; margin-top:4px; }
+.pill { border:1px solid var(--border); border-radius:999px; padding:5px 8px; color:var(--text); }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .topbar { flex-direction:column; } }

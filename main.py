@@ -46,6 +46,7 @@ from core.tool_center import ToolCenterService
 from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
 from core.night_mode_dashboard import NightModeDashboardService
+from core.night_review_engine import NightReviewEngine
 from core.llm_profile_center import LLMProfileCenterService
 from core.user_knowledge_base import UserKnowledgeBaseService
 from core.knowledge_governance import KnowledgeGovernanceService
@@ -280,6 +281,14 @@ def cmd_memory_explorer_areas(args): _json(MemoryExplorerService().areas())
 def cmd_memory_explorer_area(args): _json(MemoryExplorerService().list_area(args.area, limit=args.limit))
 def cmd_memory_explorer_show(args): _json(MemoryExplorerService().show_file(args.area, args.path, max_lines=args.max_lines))
 def cmd_memory_explorer_search(args): _json(MemoryExplorerService().search(query=args.query, limit=args.limit))
+
+def cmd_night_review_status(args): _json(NightReviewEngine().status())
+def cmd_night_review_run(args): _json(NightReviewEngine().run(limit=args.limit, write=not args.no_write, create_actions=not args.no_actions))
+def cmd_night_review_reports(args): _json(NightReviewEngine().list_reports(limit=args.limit))
+def cmd_night_review_show(args): _json(NightReviewEngine().show_report(args.report_id))
+def cmd_night_review_recommendations(args): _json(NightReviewEngine().list_recommendations(include_reviewed=args.include_reviewed, limit=args.limit))
+def cmd_night_review_decide(args): _json(NightReviewEngine().decide_recommendation(args.recommendation_id, decision=args.decision, note=args.note))
+
 def cmd_night_mode_dashboard(args): _json(NightModeDashboardService().dashboard(limit=args.limit))
 def cmd_night_mode_reports(args): _json(NightModeDashboardService().reports(limit=args.limit))
 def cmd_night_mode_show(args): _json(NightModeDashboardService().show_report(args.report_id))
@@ -513,6 +522,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("memory-explorer-area"); p.add_argument("area", choices=["memory", "proposals"]); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_memory_explorer_area)
     p = sub.add_parser("memory-explorer-show"); p.add_argument("area", choices=["memory", "proposals"]); p.add_argument("path"); p.add_argument("--max-lines", type=int, default=120); p.set_defaults(func=cmd_memory_explorer_show)
     p = sub.add_parser("memory-explorer-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_memory_explorer_search)
+
+    p = sub.add_parser("night-review-status"); p.set_defaults(func=cmd_night_review_status)
+    p = sub.add_parser("night-review-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--no-write", action="store_true"); p.add_argument("--no-actions", action="store_true"); p.set_defaults(func=cmd_night_review_run)
+    p = sub.add_parser("night-review-reports"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_night_review_reports)
+    p = sub.add_parser("night-review-show"); p.add_argument("report_id"); p.set_defaults(func=cmd_night_review_show)
+    p = sub.add_parser("night-review-recommendations"); p.add_argument("--limit", type=int, default=100); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_night_review_recommendations)
+    p = sub.add_parser("night-review-decide"); p.add_argument("recommendation_id"); p.add_argument("--decision", default="reviewed", choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.set_defaults(func=cmd_night_review_decide)
     p = sub.add_parser("night-mode-dashboard"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_night_mode_dashboard)
     p = sub.add_parser("night-mode-reports"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_night_mode_reports)
     p = sub.add_parser("night-mode-show"); p.add_argument("report_id"); p.set_defaults(func=cmd_night_mode_show)
