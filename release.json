@@ -1,12 +1,11 @@
 {
-  "version": "24.12",
-  "based_on": "24.11",
+  "version": "mvp-25.0-guided-self-improvement-foundation",
+  "based_on": "mvp-24.12-operations-issue-actions",
   "features": [
-    "Operations health diagnostics",
-    "Read-only service checks",
-    "Registration and web route checks",
-    "Operations Health GUI",
-    "CLI/API integration"
+    "Guided Self-Improvement Service",
+    "Guided Improvement GUI",
+    "Guided Improvement CLI/API",
+    "Unified Action Inbox integration"
   ],
   "checks": [
     "python main.py --help",
@@ -18,5 +17,6 @@
   ],
   "audit": "OK",
   "name": "Operations Issue Actions",
-  "build_time": "2026-06-25T11:33:58.401962Z"
+  "build_time": "2026-06-25T11:33:58.401962Z",
+  "release_type": "complete_project_release"
 }

@@ -62,6 +62,7 @@ class ProposalReviewInbox:
         "workflow_action": PROPOSALS_DIR / "action_workflows",
         "night_review_action": PROPOSALS_DIR / "night_review_recommendations",
         "operations_issue_action": PROPOSALS_DIR / "operations_issue_actions",
+        "guided_self_improvement": PROPOSALS_DIR / "guided_self_improvement",
     }
 
     def __init__(self, *, root_dir: Path = ROOT_DIR, scan_dirs: dict[str, Path] | None = None):

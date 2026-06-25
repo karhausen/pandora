@@ -36,6 +36,7 @@ AREA_LABELS = {
     "workflow_action": "Workflows",
     "night_review_action": "Night Mode",
     "operations_issue_action": "Operations",
+    "guided_self_improvement": "Improvement",
 }
 
 

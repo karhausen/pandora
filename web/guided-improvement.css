@@ -1,0 +1,8 @@
+body { background: var(--bg); color: var(--text); }
+.recommendation-list { display: grid; gap: 12px; }
+.recommendation-item { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 16px; padding: 14px; }
+.recommendation-item h3 { margin: 0 0 8px; }
+.recommendation-meta { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.detail-box { background: var(--panel-soft); border: 1px solid var(--border); border-radius: 16px; padding: 14px; white-space: pre-wrap; }
+button { cursor: pointer; }
+pre { white-space: pre-wrap; }

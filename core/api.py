@@ -62,6 +62,7 @@ from .operations_cockpit import OperationsCockpitService
 from .operations_health import OperationsHealthService
 from .operations_issue_detector import OperationsIssueDetector
 from .operations_issue_actions import OperationsIssueActionService
+from .guided_self_improvement import GuidedSelfImprovementService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
@@ -918,6 +919,9 @@ def get_operations_health_service() -> OperationsHealthService:
 def get_operations_issue_service() -> OperationsIssueActionService:
     return OperationsIssueActionService()
 
+def get_guided_self_improvement_service() -> GuidedSelfImprovementService:
+    return GuidedSelfImprovementService()
+
 
 
 @app.get("/api/gui/operations-health/status")
@@ -971,6 +975,50 @@ def gui_operations_issues_dashboard(include_reviewed: bool = False, limit: int =
 @app.post("/api/gui/operations-issues/create-actions")
 def gui_operations_issues_create_actions():
     return get_operations_issue_service().create_actions(write=True)
+
+
+
+@app.get("/api/guided-improvement/status")
+def api_guided_improvement_status():
+    return get_guided_self_improvement_service().status()
+
+
+@app.get("/api/guided-improvement/recommendations")
+def api_guided_improvements(include_reviewed: bool = False, limit: int = 200):
+    return get_guided_self_improvement_service().list_recommendations(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/guided-improvement/rebuild")
+def api_guided_improvement_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return get_guided_self_improvement_service().rebuild(write=bool(payload.get("write", True)), limit=int(payload.get("limit", 200)))
+
+
+@app.get("/api/guided-improvement/recommendations/{recommendation_id}")
+def api_guided_improvement_show(recommendation_id: str):
+    return get_guided_self_improvement_service().show(recommendation_id)
+
+
+@app.post("/api/guided-improvement/recommendations/{recommendation_id}/decision")
+def api_guided_improvement_decide(recommendation_id: str, payload: dict[str, str]):
+    return get_guided_self_improvement_service().decide(recommendation_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+@app.get("/api/gui/guided-improvement/dashboard")
+def gui_guided_improvement_dashboard(include_reviewed: bool = False, limit: int = 200):
+    service = get_guided_self_improvement_service()
+    return {
+        "kind": "guided_self_improvement_dashboard",
+        "status": service.status(),
+        "recommendations": service.list_recommendations(include_reviewed=include_reviewed, limit=limit),
+        "safety": service.status().get("safety", {}),
+    }
+
+
+@app.post("/api/gui/guided-improvement/rebuild")
+def gui_guided_improvement_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return get_guided_self_improvement_service().rebuild(write=bool(payload.get("write", True)), limit=int(payload.get("limit", 200)))
 
 @app.get("/api/gui/operations-cockpit/dashboard")
 def gui_operations_cockpit_dashboard(limit: int = 100):
@@ -1587,7 +1635,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -2364,6 +2412,22 @@ def operations_issues_js():
 def operations_issues_css():
     return FileResponse(WEB_DIR / "operations-issues.css")
 
+
+
+
+@app.get("/guided-improvement")
+def guided_improvement_page():
+    return FileResponse(WEB_DIR / "guided-improvement.html")
+
+
+@app.get("/web/guided-improvement.js")
+def guided_improvement_js():
+    return FileResponse(WEB_DIR / "guided-improvement.js")
+
+
+@app.get("/web/guided-improvement.css")
+def guided_improvement_css():
+    return FileResponse(WEB_DIR / "guided-improvement.css")
 
 @app.get("/operations-health")
 def operations_health_page():

@@ -46,6 +46,7 @@ from core.operations_cockpit import OperationsCockpitService
 from core.operations_health import OperationsHealthService
 from core.operations_issue_detector import OperationsIssueDetector
 from core.operations_issue_actions import OperationsIssueActionService
+from core.guided_self_improvement import GuidedSelfImprovementService
 from core.tool_center import ToolCenterService
 from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
@@ -285,6 +286,12 @@ def cmd_operations_issue_list(args): _json(OperationsIssueActionService().list_a
 def cmd_operations_issue_show(args): _json(OperationsIssueActionService().show(args.id))
 def cmd_operations_issue_create_actions(args): _json(OperationsIssueActionService().create_actions(write=not args.no_write))
 
+
+def cmd_guided_improvement_status(args): _json(GuidedSelfImprovementService().status())
+def cmd_guided_improvements(args): _json(GuidedSelfImprovementService().rebuild(write=not args.no_write, limit=args.limit) if args.rebuild else GuidedSelfImprovementService().list_recommendations(include_reviewed=args.include_reviewed, limit=args.limit))
+def cmd_guided_improvement_show(args): _json(GuidedSelfImprovementService().show(args.id))
+def cmd_guided_improvement_decide(args): _json(GuidedSelfImprovementService().decide(args.id, decision=args.decision, note=args.note))
+
 def cmd_operations_dashboard(args): _json(OperationsDashboardService().summary(limit=args.limit))
 def cmd_operations_preview(args): _json(OperationsDashboardService().maintenance_preview(limit=args.limit, window_start=args.window_start, window_end=args.window_end))
 def cmd_operations_run(args): _json(OperationsDashboardService().run_maintenance(limit=args.limit, force=args.force, window_start=args.window_start, window_end=args.window_end))
@@ -518,7 +525,7 @@ def cmd_stability_report(args): _json(RealityCheck().report())
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 24.12")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 25.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -542,6 +549,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("operations-issue-list"); p.add_argument("--include-reviewed", action="store_true"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_operations_issue_list)
     p = sub.add_parser("operations-issue-show"); p.add_argument("id"); p.set_defaults(func=cmd_operations_issue_show)
     p = sub.add_parser("operations-issue-create-actions"); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_operations_issue_create_actions)
+    p = sub.add_parser("guided-improvement-status"); p.set_defaults(func=cmd_guided_improvement_status)
+    p = sub.add_parser("guided-improvements"); p.add_argument("--limit", type=int, default=200); p.add_argument("--rebuild", action="store_true"); p.add_argument("--no-write", action="store_true"); p.add_argument("--include-reviewed", action="store_true"); p.set_defaults(func=cmd_guided_improvements)
+    p = sub.add_parser("guided-improvement-show"); p.add_argument("id"); p.set_defaults(func=cmd_guided_improvement_show)
+    p = sub.add_parser("guided-improvement-decide"); p.add_argument("id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "rejected", "needs_work", "deferred"]); p.add_argument("--note"); p.set_defaults(func=cmd_guided_improvement_decide)
     p = sub.add_parser("operations-dashboard"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_operations_dashboard)
     p = sub.add_parser("operations-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_preview)
     p = sub.add_parser("operations-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_run)

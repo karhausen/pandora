@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Guided Self-Improvement</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/guided-improvement.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Guided Self-Improvement</h1>
+      <p>Kontrollierte Verbesserungsvorschläge aus Learning, Night Review, Capability Graph und Operations Health.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/knowledge-base">Knowledge</a>
+      <a class="badge link" href="/capability-explorer">Capabilities</a>
+      <a class="badge link" href="/workflow-dashboard">Workflows</a>
+      <a class="badge link primary" href="/operations-cockpit">Operations</a>
+      <a class="badge link" href="/llm-profiles">Profiles</a>
+    </nav>
+  </header>
+
+  <section class="badge-row" aria-label="Operations Unterbereiche">
+    <a class="badge link" href="/operations-cockpit">Operations Cockpit</a>
+    <a class="badge link" href="/action-inbox">Action Inbox</a>
+    <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
+    <a class="badge link" href="/night-review">Night Review</a>
+    <a class="badge link" href="/operations-health">Health</a>
+    <a class="badge link" href="/operations-issues">Issues</a>
+    <a class="badge link primary" href="/guided-improvement">Guided Improvement</a>
+  </section>
+
+  <main class="layout">
+    <section class="card wide hero">
+      <div class="card-head">
+        <div>
+          <h2>Status</h2>
+          <p id="headlineText">Lade...</p>
+        </div>
+        <div class="row">
+          <button onclick="loadDashboard()">Aktualisieren</button>
+          <button onclick="rebuildRecommendations()">Vorschläge erzeugen</button>
+        </div>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+      <p class="muted">Sicherheitsregel: Pandora erzeugt nur prüfbare Vorschläge. Keine automatische Code-, Tool-, Skill- oder Knowledge-Änderung.</p>
+    </section>
+
+    <section class="card wide">
+      <h2>Offene Verbesserungsvorschläge</h2>
+      <div id="recommendationList" class="recommendation-list"></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Details</h2>
+      <div id="detailBox" class="detail-box">Noch kein Vorschlag ausgewählt.</div>
+    </section>
+
+    <section class="card wide">
+      <h2>Rohdaten</h2>
+      <pre id="rawBox">Noch keine Daten.</pre>
+    </section>
+  </main>
+
+  <script src="/web/guided-improvement.js"></script>
+</body>
+</html>
