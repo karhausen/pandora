@@ -42,6 +42,7 @@ from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
 from core.proposal_review_inbox import ProposalReviewInbox
 from core.proposal_approval_workflow import ProposalApprovalWorkflow
 from core.operations_dashboard import OperationsDashboardService
+from core.operations_cockpit import OperationsCockpitService
 from core.tool_center import ToolCenterService
 from core.skill_center import SkillCenterService
 from core.memory_explorer import MemoryExplorerService
@@ -269,6 +270,11 @@ def cmd_maintenance_run(args):
         window_start=args.window_start,
         window_end=args.window_end,
     ))
+
+def cmd_operations_cockpit(args): _json(OperationsCockpitService().dashboard(limit=args.limit))
+def cmd_operations_cockpit_night_preview(args): _json(OperationsCockpitService().run_night_review_preview(limit=args.limit))
+def cmd_operations_cockpit_scheduler_run(args): _json(OperationsCockpitService().run_scheduler_manual(limit=args.limit, write=not args.no_write, create_actions=not args.no_actions))
+
 def cmd_operations_dashboard(args): _json(OperationsDashboardService().summary(limit=args.limit))
 def cmd_operations_preview(args): _json(OperationsDashboardService().maintenance_preview(limit=args.limit, window_start=args.window_start, window_end=args.window_end))
 def cmd_operations_run(args): _json(OperationsDashboardService().run_maintenance(limit=args.limit, force=args.force, window_start=args.window_start, window_end=args.window_end))
@@ -515,6 +521,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("maintenance-status"); p.set_defaults(func=cmd_maintenance_status)
     p = sub.add_parser("maintenance-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_maintenance_run)
 
+
+    p = sub.add_parser("operations-cockpit"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_operations_cockpit)
+    p = sub.add_parser("operations-cockpit-night-preview"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_operations_cockpit_night_preview)
+    p = sub.add_parser("operations-cockpit-scheduler-run"); p.add_argument("--limit", type=int); p.add_argument("--no-write", action="store_true"); p.add_argument("--no-actions", action="store_true"); p.set_defaults(func=cmd_operations_cockpit_scheduler_run)
     p = sub.add_parser("operations-dashboard"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_operations_dashboard)
     p = sub.add_parser("operations-preview"); p.add_argument("--limit", type=int, default=200); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_preview)
     p = sub.add_parser("operations-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--force", action="store_true"); p.add_argument("--window-start", default="02:00"); p.add_argument("--window-end", default="05:00"); p.set_defaults(func=cmd_operations_run)

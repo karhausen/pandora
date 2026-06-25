@@ -58,6 +58,7 @@ from .proposal_review_inbox import ProposalReviewInbox
 from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
+from .operations_cockpit import OperationsCockpitService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
@@ -89,7 +90,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.9-review-scheduler-manual-run-center")
+app = FastAPI(title="Pandora Agent", version="24.10-operations-cockpit-cleanup")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -902,6 +903,27 @@ def get_operations_dashboard_service() -> OperationsDashboardService:
     return OperationsDashboardService()
 
 
+def get_operations_cockpit_service() -> OperationsCockpitService:
+    return OperationsCockpitService()
+
+
+@app.get("/api/gui/operations-cockpit/dashboard")
+def gui_operations_cockpit_dashboard(limit: int = 100):
+    return get_operations_cockpit_service().dashboard(limit=limit)
+
+
+@app.post("/api/gui/operations-cockpit/night-review-preview")
+def gui_operations_cockpit_night_review_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_cockpit_service().run_night_review_preview(limit=req.limit)
+
+
+@app.post("/api/gui/operations-cockpit/scheduler-run")
+def gui_operations_cockpit_scheduler_run(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_cockpit_service().run_scheduler_manual(limit=req.limit, write=True, create_actions=True)
+
+
 @app.get("/api/gui/operations/dashboard")
 def gui_operations_dashboard(limit: int = 50):
     return get_operations_dashboard_service().summary(limit=limit)
@@ -1500,7 +1522,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -1605,6 +1627,19 @@ def web_learning_css():
 def web_approval():
     return FileResponse(WEB_DIR / "approval.html")
 
+
+
+@app.get("/operations-cockpit")
+def web_operations_cockpit():
+    return FileResponse(WEB_DIR / "operations-cockpit.html")
+
+@app.get("/web/operations-cockpit.js")
+def web_operations_cockpit_js():
+    return FileResponse(WEB_DIR / "operations-cockpit.js")
+
+@app.get("/web/operations-cockpit.css")
+def web_operations_cockpit_css():
+    return FileResponse(WEB_DIR / "operations-cockpit.css")
 
 @app.get("/operations")
 def web_operations():

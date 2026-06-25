@@ -1,41 +1,20 @@
 {
-  "kind": "pandora_release_manifest",
-  "version": "mvp-24.9.1-review-scheduler-gui-theme-fix",
-  "based_on": "mvp-24.8.1-night-review-web-route-fix",
-  "build_time": "2026-06-25T09:59:31.350369Z",
-  "file_count": 412,
-  "content_sha256": "f099d9211dcd5cff05cf9db0e03a57cb99996e1d86a09e8651640a0b237a5800",
-  "tests": {},
-  "audit": {
-    "kind": "release_audit",
-    "ok": true,
-    "root": "/mnt/data/pandora_agent_mvp_24_6_action_workflow_chains_build",
-    "error_count": 0,
-    "warning_count": 0,
-    "findings": []
-  },
-  "complete_project_release": true,
-  "type": "full_release",
+  "version": "mvp-24.10-operations-cockpit-cleanup",
+  "based_on": "mvp-24.9.1-review-scheduler-gui-theme-fix",
   "features": [
-    "Review Scheduler status",
-    "Manual Night Review run center",
-    "Run-if-due endpoint",
-    "Scheduler history",
-    "Web GUI /review-scheduler"
+    "Operations Cockpit central dashboard",
+    "Operations Cockpit API",
+    "Operations Cockpit GUI",
+    "CLI operations-cockpit commands",
+    "Night Review preview and Scheduler run from Cockpit"
   ],
-  "release_type": "complete_project_release",
-  "name": "MVP 24.9.1 – Review Scheduler GUI Theme Fix",
-  "fixes": [
-    "Ensures /night-review web route is included and tested",
-    "Adds web route diagnostics endpoint"
-  ],
-  "build_time_utc": "2026-06-25T10:16:06.855125Z",
   "checks": [
     "python main.py --help",
     "python main.py api --help",
-    "python main.py review-scheduler-status",
-    "python main.py review-scheduler-run --no-write --no-actions",
-    "registration-validate --strict",
-    "pytest tests/test_mvp24_9_review_scheduler.py"
-  ]
+    "python main.py operations-cockpit",
+    "python main.py registration-validate --strict",
+    "pytest tests/test_mvp24_10_operations_cockpit.py",
+    "FastAPI route smoke tests"
+  ],
+  "audit": "OK"
 }

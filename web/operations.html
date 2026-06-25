@@ -18,12 +18,12 @@
         <a class="badge link" href="/knowledge-base">Knowledge</a>
         <a class="badge link" href="/capability-explorer">Capabilities</a>
         <a class="badge link" href="/workflow-dashboard">Workflows</a>
-        <a class="badge link primary" href="/operations">Operations</a>
+        <a class="badge link primary" href="/operations-cockpit">Operations</a>
         <a class="badge link" href="/llm-profiles">Profiles</a>
       </nav>
   </header>
     <section class="badge-row" aria-label="Operations Unterbereiche">
-      <a class="badge link" href="/operations">Operations Dashboard</a>
+      <a class="badge link" href="/operations-cockpit">Operations Dashboard</a>
       <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
       <a class="badge link" href="/night-mode">Night Mode</a>
       <a class="badge link" href="/night-review">Night Review</a>
@@ -39,7 +39,7 @@
           <h2>Übersicht</h2>
           <p>Diese Ansicht führt keine Core-Änderungen und keine Tool-/Skill-Aktivierungen aus.</p>
         </div>
-        <button onclick="loadDashboard()">Aktualisieren</button>
+        <div class="badge" id="statusBadge">Lade...</div><button onclick="loadDashboard()">Aktualisieren</button>
       </div>
       <div id="summaryCards" class="summary-grid"></div>
     </section>
