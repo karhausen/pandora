@@ -9,6 +9,7 @@ from .workflow_dashboard import WorkflowDashboardService
 from .night_review_engine import NightReviewEngine
 from .review_scheduler import ReviewSchedulerService
 from .release_manager import ReleaseManager
+from .operations_health import OperationsHealthService
 
 
 class OperationsCockpitService:
@@ -30,6 +31,7 @@ class OperationsCockpitService:
         self.night_review = NightReviewEngine()
         self.scheduler = ReviewSchedulerService()
         self.release = ReleaseManager()
+        self.health = OperationsHealthService()
 
     def dashboard(self, *, limit: int = 100) -> dict[str, Any]:
         ops = self._safe(lambda: self.operations.summary(limit=limit), default={})
@@ -38,10 +40,12 @@ class OperationsCockpitService:
         scheduler = self._safe(lambda: self.scheduler.status(), default={})
         night = self._safe(lambda: self.night_review.status(), default={})
         release = self._safe(lambda: self.release.status(), default={})
+        health = self._safe(lambda: self.health.status(), default={})
 
         inbox_counts = inbox.get("counts", {}) if isinstance(inbox, dict) else {}
         workflow_counts = workflow.get("counts", {}) if isinstance(workflow, dict) else {}
         scheduler_due = scheduler.get("due", {}) if isinstance(scheduler, dict) else {}
+        health_counts = health.get("counts", {}) if isinstance(health, dict) else {}
         night_counts = night.get("counts", {}) if isinstance(night, dict) else {}
 
         blocked_workflows = int(workflow_counts.get("blocked", 0) or 0)
@@ -58,6 +62,10 @@ class OperationsCockpitService:
             attention.append({"level": "warn", "title": "Offene Actions", "count": open_actions, "target": "/action-inbox"})
         if due:
             attention.append({"level": "warn", "title": "Night Review fällig", "count": 1, "target": "/review-scheduler"})
+        if int(health_counts.get("error", 0) or 0):
+            attention.append({"level": "danger", "title": "Systemdiagnose Fehler", "count": int(health_counts.get("error", 0) or 0), "target": "/operations-health"})
+        elif int(health_counts.get("warning", 0) or 0):
+            attention.append({"level": "warn", "title": "Systemdiagnose Warnungen", "count": int(health_counts.get("warning", 0) or 0), "target": "/operations-health"})
 
         return {
             "kind": "operations_cockpit_dashboard",
@@ -75,6 +83,7 @@ class OperationsCockpitService:
             },
             "attention": attention,
             "quick_links": [
+                {"label": "Operations Health", "href": "/operations-health", "area": "Operations"},
                 {"label": "Action Inbox", "href": "/action-inbox", "area": "Actions"},
                 {"label": "Workflow Dashboard", "href": "/workflow-dashboard", "area": "Workflows"},
                 {"label": "Night Review", "href": "/night-review", "area": "Night"},
@@ -88,6 +97,7 @@ class OperationsCockpitService:
                 "night_review": night,
                 "review_scheduler": scheduler,
                 "release": release,
+                "health": health,
             },
             "safety": self.safety(),
         }

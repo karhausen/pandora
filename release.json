@@ -1,20 +1,22 @@
 {
-  "version": "mvp-24.10-operations-cockpit-cleanup",
-  "based_on": "mvp-24.9.1-review-scheduler-gui-theme-fix",
+  "version": "24.11",
+  "based_on": "24.10-operations-cockpit-cleanup",
   "features": [
-    "Operations Cockpit central dashboard",
-    "Operations Cockpit API",
-    "Operations Cockpit GUI",
-    "CLI operations-cockpit commands",
-    "Night Review preview and Scheduler run from Cockpit"
+    "Operations health diagnostics",
+    "Read-only service checks",
+    "Registration and web route checks",
+    "Operations Health GUI",
+    "CLI/API integration"
   ],
   "checks": [
     "python main.py --help",
     "python main.py api --help",
-    "python main.py operations-cockpit",
-    "python main.py registration-validate --strict",
-    "pytest tests/test_mvp24_10_operations_cockpit.py",
-    "FastAPI route smoke tests"
+    "python main.py api starts",
+    "python main.py operations-health",
+    "registration-validate --strict",
+    "pytest tests/test_mvp24_11_operations_health.py"
   ],
-  "audit": "OK"
+  "audit": "OK",
+  "name": "MVP 24.11 – Operations Health & System Diagnostics",
+  "build_time": "2026-06-25T11:33:58.401962Z"
 }

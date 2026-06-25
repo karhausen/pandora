@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Operations Health</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/operations-health.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Operations Health</h1>
+      <p>Systemdiagnose für Projektstruktur, Services, Registration und Webrouten.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/knowledge-base">Knowledge</a>
+      <a class="badge link" href="/capability-explorer">Capabilities</a>
+      <a class="badge link" href="/workflow-dashboard">Workflows</a>
+      <a class="badge link primary" href="/operations-cockpit">Operations</a>
+      <a class="badge link" href="/llm-profiles">Profiles</a>
+    </nav>
+  </header>
+
+  <section class="badge-row" aria-label="Operations Unterbereiche">
+    <a class="badge link" href="/operations-cockpit">Operations Cockpit</a>
+    <a class="badge link primary" href="/operations-health">Health</a>
+    <a class="badge link" href="/action-inbox">Action Inbox</a>
+    <a class="badge link" href="/workflow-dashboard">Workflow Dashboard</a>
+    <a class="badge link" href="/night-review">Night Review</a>
+    <a class="badge link" href="/review-scheduler">Review Scheduler</a>
+  </section>
+
+  <main class="layout">
+    <section class="card wide hero">
+      <div class="card-head">
+        <div>
+          <h2>Health Status</h2>
+          <p id="headlineText">Lade Diagnose...</p>
+        </div>
+        <button onclick="loadHealth()">Aktualisieren</button>
+      </div>
+      <div id="summaryCards" class="summary-grid"></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Checks</h2>
+      <div id="checkList" class="check-list"></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Empfohlene nächste Schritte</h2>
+      <div id="recommendations" class="check-list"></div>
+    </section>
+
+    <section class="card wide">
+      <h2>Rohdaten</h2>
+      <pre id="rawBox">Noch keine Daten.</pre>
+    </section>
+  </main>
+
+  <script src="/web/operations-health.js"></script>
+</body>
+</html>

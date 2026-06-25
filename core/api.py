@@ -59,6 +59,7 @@ from .proposal_approval_workflow import ProposalApprovalWorkflow
 from .gui_approval_api import GuiApprovalApiService
 from .operations_dashboard import OperationsDashboardService
 from .operations_cockpit import OperationsCockpitService
+from .operations_health import OperationsHealthService
 from .tool_center import ToolCenterService
 from .skill_center import SkillCenterService
 from .memory_explorer import MemoryExplorerService
@@ -90,7 +91,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.10-operations-cockpit-cleanup")
+app = FastAPI(title="Pandora Agent", version="24.11-operations-health-system-diagnostics")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -907,6 +908,22 @@ def get_operations_cockpit_service() -> OperationsCockpitService:
     return OperationsCockpitService()
 
 
+
+
+def get_operations_health_service() -> OperationsHealthService:
+    return OperationsHealthService()
+
+
+@app.get("/api/gui/operations-health/status")
+def gui_operations_health_status():
+    return get_operations_health_service().status()
+
+
+@app.get("/api/gui/operations-health/checks")
+def gui_operations_health_checks():
+    service = get_operations_health_service()
+    return {"kind": "operations_health_checks", "checks": service.run_checks(), "safety": service.safety()}
+
 @app.get("/api/gui/operations-cockpit/dashboard")
 def gui_operations_cockpit_dashboard(limit: int = 100):
     return get_operations_cockpit_service().dashboard(limit=limit)
@@ -1522,7 +1539,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -2283,3 +2300,18 @@ def coordinator_decide(req: CoordinatorRunRequest):
 @app.get("/coordinator/logs")
 def coordinator_logs(limit: int = 20):
     return {"logs": CoordinatorAgent().logs(limit)}
+
+
+@app.get("/operations-health")
+def operations_health_page():
+    return FileResponse(WEB_DIR / "operations-health.html")
+
+
+@app.get("/web/operations-health.js")
+def operations_health_js():
+    return FileResponse(WEB_DIR / "operations-health.js")
+
+
+@app.get("/web/operations-health.css")
+def operations_health_css():
+    return FileResponse(WEB_DIR / "operations-health.css")
