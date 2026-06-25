@@ -1,8 +1,8 @@
 {
   "kind": "pandora_release_manifest",
-  "version": "mvp-24.6-action-workflow-chains",
-  "based_on": "mvp-24.5.1-release-management-build-system",
-  "build_time": "2026-06-25T08:01:37.006440+00:00",
+  "version": "mvp-24.7-workflow-dashboard",
+  "based_on": "mvp-24.6-action-workflow-chains",
+  "build_time": "2026-06-25T08:28:38.917178Z",
   "file_count": 412,
   "content_sha256": "f099d9211dcd5cff05cf9db0e03a57cb99996e1d86a09e8651640a0b237a5800",
   "tests": {},
@@ -14,5 +14,11 @@
     "warning_count": 0,
     "findings": []
   },
-  "complete_project_release": true
+  "complete_project_release": true,
+  "type": "full_release",
+  "features": [
+    "Workflow Dashboard",
+    "central workflow status overview",
+    "read-only workflow timeline"
+  ]
 }

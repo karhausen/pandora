@@ -61,6 +61,7 @@ from core.obsidian_import_candidates import ObsidianImportCandidateService
 from core.obsidian_import_execution import ObsidianImportExecutionService
 from core.unified_action_inbox import UnifiedActionInboxService
 from core.action_workflow import ActionWorkflowService
+from core.workflow_dashboard import WorkflowDashboardService
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -447,6 +448,10 @@ def cmd_workflow_show(args): _json(ActionWorkflowService().show_workflow(args.wo
 def cmd_workflow_continue(args):
     _json({"kind": "action_workflow_continue", "ok": False, "reason": "Use action-inbox-decide <action_id> --decision accepted_for_next_step to create the next controlled step.", "workflow": ActionWorkflowService().show_workflow(args.workflow_id)})
 
+def cmd_workflow_dashboard_status(args): _json(WorkflowDashboardService().status())
+def cmd_workflow_dashboard_list(args): _json(WorkflowDashboardService().list_workflows(state=args.state, query=args.query, limit=args.limit))
+def cmd_workflow_dashboard_show(args): _json(WorkflowDashboardService().show(args.workflow_id))
+
 def cmd_release_status(args): _json(ReleaseManager(Path(args.root)).status())
 def cmd_release_clean(args): _json(ReleaseManager(Path(args.root)).clean())
 def cmd_release_build(args): _json(ReleaseManager(Path(args.root)).build(version=args.version, output=args.output, based_on=args.based_on, skip_audit=args.skip_audit))
@@ -566,6 +571,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("workflow-list"); p.set_defaults(func=cmd_workflow_list)
     p = sub.add_parser("workflow-show"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_show)
     p = sub.add_parser("workflow-continue"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_continue)
+
+    p = sub.add_parser("workflow-dashboard-status"); p.set_defaults(func=cmd_workflow_dashboard_status)
+    p = sub.add_parser("workflow-dashboard-list"); p.add_argument("--state", choices=["active", "blocked", "finished", "empty"]); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_workflow_dashboard_list)
+    p = sub.add_parser("workflow-dashboard-show"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_dashboard_show)
 
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)

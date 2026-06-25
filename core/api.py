@@ -78,6 +78,7 @@ from .obsidian_import_candidates import ObsidianImportCandidateService
 from .obsidian_import_execution import ObsidianImportExecutionService
 from .unified_action_inbox import UnifiedActionInboxService
 from .action_workflow import ActionWorkflowService
+from .workflow_dashboard import WorkflowDashboardService
 from .release_manager import ReleaseManager
 
 
@@ -86,7 +87,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.6-action-workflow-chains")
+app = FastAPI(title="Pandora Agent", version="24.7-workflow-dashboard")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1420,6 +1421,23 @@ def api_workflow_detail(workflow_id: str):
 def api_workflow_continue(workflow_id: str):
     return {"kind": "action_workflow_continue", "ok": False, "reason": "Continue by approving the current action in the Action Inbox.", "workflow": ActionWorkflowService().show_workflow(workflow_id)}
 
+
+@app.get("/api/workflow-dashboard/status")
+def api_workflow_dashboard_status():
+    return WorkflowDashboardService().status()
+
+@app.get("/api/workflow-dashboard")
+def api_workflow_dashboard(limit: int = 200):
+    return WorkflowDashboardService().dashboard(limit=limit)
+
+@app.get("/api/workflow-dashboard/workflows")
+def api_workflow_dashboard_workflows(state: str | None = None, query: str | None = None, limit: int = 200):
+    return WorkflowDashboardService().list_workflows(state=state, query=query, limit=limit)
+
+@app.get("/api/workflow-dashboard/workflows/{workflow_id}")
+def api_workflow_dashboard_detail(workflow_id: str):
+    return WorkflowDashboardService().show(workflow_id)
+
 @app.get("/api/release/status")
 def api_release_status(root: str = "."):
     return ReleaseManager(root).status()
@@ -1467,6 +1485,19 @@ def web_action_inbox_css():
 
 
 
+
+
+@app.get("/workflow-dashboard")
+def web_workflow_dashboard():
+    return FileResponse(WEB_DIR / "workflow-dashboard.html")
+
+@app.get("/web/workflow-dashboard.js")
+def web_workflow_dashboard_js():
+    return FileResponse(WEB_DIR / "workflow-dashboard.js")
+
+@app.get("/web/workflow-dashboard.css")
+def web_workflow_dashboard_css():
+    return FileResponse(WEB_DIR / "workflow-dashboard.css")
 
 @app.get("/learning")
 def web_learning():

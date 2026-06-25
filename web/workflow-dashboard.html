@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Workflow Dashboard</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/workflow-dashboard.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <h1>Workflow Dashboard</h1>
+        <p>Zentrale Übersicht über aktive, blockierte und abgeschlossene Pandora-Workflows.</p>
+        <nav class="global-nav" aria-label="Hauptnavigation">
+          <a class="badge link" href="/">Chat</a>
+          <a class="badge link" href="/action-inbox">Action Inbox</a>
+          <a class="badge link" href="/knowledge-base">Knowledge</a>
+          <a class="badge link" href="/capability-explorer">Capabilities</a>
+          <a class="badge link primary" href="/workflow-dashboard">Workflows</a>
+          <a class="badge link" href="/operations">Operations</a>
+          <a class="badge link" href="/learning">Learning</a>
+        </nav>
+      </div>
+      <div class="hero-actions compact"><button id="refreshBtn">Aktualisieren</button></div>
+    </header>
+
+    <section class="summary-grid">
+      <div class="summary-card"><span>Aktiv</span><strong id="activeCount">–</strong></div>
+      <div class="summary-card warn"><span>Blockiert</span><strong id="blockedCount">–</strong></div>
+      <div class="summary-card"><span>Abgeschlossen</span><strong id="finishedCount">–</strong></div>
+      <div class="summary-card"><span>Offene Actions</span><strong id="openActionCount">–</strong></div>
+    </section>
+
+    <section class="filters">
+      <input id="queryInput" placeholder="Workflow, Schritt, Status suchen ..." />
+      <select id="stateFilter">
+        <option value="">Alle Zustände</option>
+        <option value="active">Aktiv</option>
+        <option value="blocked">Blockiert</option>
+        <option value="finished">Abgeschlossen</option>
+        <option value="empty">Leer</option>
+      </select>
+      <button id="applyFilters">Filtern</button>
+      <a class="badge link" href="/action-inbox">Zur Action Inbox</a>
+    </section>
+
+    <section id="listView">
+      <h2 class="page-section-title">Workflows</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workflow</th><th>Status</th><th>Fortschritt</th><th>Aktueller Schritt</th><th>Nächste Aktion</th><th>Aktualisiert</th><th></th></tr></thead>
+          <tbody id="workflowTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="detailView" class="hidden detail-grid">
+      <div class="detail-header">
+        <button id="backBtn">← Zur Übersicht</button>
+        <h2 id="detailTitle">Workflow</h2>
+        <span id="detailState" class="badge">Status</span>
+      </div>
+      <article class="panel">
+        <h3>Nächste User-Aktion</h3>
+        <p id="nextActionBox"></p>
+      </article>
+      <article class="panel">
+        <h3>Timeline</h3>
+        <div id="timelineBox" class="timeline"></div>
+      </article>
+      <article class="panel">
+        <h3>Rohdaten</h3>
+        <pre id="rawBox">{}</pre>
+      </article>
+    </section>
+  </main>
+  <script src="/web/workflow-dashboard.js"></script>
+</body>
+</html>
