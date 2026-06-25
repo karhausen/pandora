@@ -1,6 +1,6 @@
 {
   "kind": "pandora_release_manifest",
-  "version": "mvp-24.9-review-scheduler-manual-run-center",
+  "version": "mvp-24.9.1-review-scheduler-gui-theme-fix",
   "based_on": "mvp-24.8.1-night-review-web-route-fix",
   "build_time": "2026-06-25T09:59:31.350369Z",
   "file_count": 412,
@@ -24,7 +24,7 @@
     "Web GUI /review-scheduler"
   ],
   "release_type": "complete_project_release",
-  "name": "MVP 24.8.1 - Night Review Web Route Fix",
+  "name": "MVP 24.9.1 – Review Scheduler GUI Theme Fix",
   "fixes": [
     "Ensures /night-review web route is included and tested",
     "Adds web route diagnostics endpoint"
