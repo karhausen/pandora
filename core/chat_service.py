@@ -104,6 +104,52 @@ class ChatService:
                     plan=plan,
                     execution=execution,
                 )
+
+            # Vault topic questions are factual index queries. Answer them directly
+            # from Pandora's Obsidian index so the GUI chat does not depend on an
+            # LLM guessing whether it has local file access. The LLM can still be
+            # used for broader follow-up questions with the same context.
+            if self._asks_for_vault_topics(task) and obsidian_diag.get("topics"):
+                answer = self._format_vault_topics_answer(obsidian_diag)
+                success = True
+                plan = {}
+                execution = {
+                    "success": True,
+                    "final_output": {"message": answer},
+                    "mode": "cognitive_context_direct_answer",
+                    "provider_name": None,
+                    "model": None,
+                    "error": None,
+                    "context_used": True,
+                    "knowledge_context": {
+                        "source_count": knowledge.get("source_count", 0),
+                        "sources": knowledge.get("sources", []),
+                        "target": knowledge.get("target"),
+                        "cloud_context": knowledge.get("cloud_context"),
+                        "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
+                        "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
+                        "obsidian": obsidian_diag,
+                        "route_target": knowledge.get("route_target", {}),
+                        "cognitive_context": knowledge,
+                    },
+                }
+                metadata = {"mode": "cognitive_context_direct_answer", "success": True, "context_used": True, "knowledge_context": execution.get("knowledge_context", {})}
+                assistant_message = self.store.add_message(
+                    session.session_id,
+                    "assistant",
+                    answer,
+                    metadata=metadata,
+                ) if save else None
+                return ChatRunResult(
+                    session_id=session.session_id,
+                    success=success,
+                    answer=answer,
+                    user_message=user_message,
+                    assistant_message=assistant_message,
+                    plan=plan,
+                    execution=execution,
+                )
+
             if knowledge.get("context_text"):
                 merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
             llm_result = self.chat_responder.respond(
@@ -175,6 +221,47 @@ class ChatService:
     def _asks_for_vault(self, task: str) -> bool:
         q = (task or "").lower()
         return "vault" in q or "obsidian" in q
+
+    def _asks_for_vault_topics(self, task: str) -> bool:
+        q = (task or "").lower()
+        return self._asks_for_vault(task) and any(word in q for word in ["topic", "topics", "themen", "thema", "tags", "schwerpunkte"])
+
+    def _format_vault_topics_answer(self, obsidian_diag: dict) -> str:
+        topics = obsidian_diag.get("topics") or {}
+
+        def fmt_pairs(values, prefix=""):
+            items = []
+            for value in values or []:
+                if isinstance(value, (list, tuple)) and len(value) >= 2:
+                    items.append(f"- {prefix}{value[0]} ({value[1]})")
+                elif isinstance(value, dict):
+                    name = value.get("name") or value.get("tag") or value.get("folder") or value.get("link")
+                    count = value.get("count")
+                    if name:
+                        items.append(f"- {prefix}{name}" + (f" ({count})" if count is not None else ""))
+            return items
+
+        tag_lines = fmt_pairs(topics.get("tags"), prefix="#")
+        link_lines = fmt_pairs(topics.get("wikilinks"), prefix="[[")
+        link_lines = [line + "]]" if line.startswith("- [[") and not line.endswith(")") and not line.endswith("]]") else line for line in link_lines]
+        # The previous comprehension cannot safely append closing brackets when a
+        # count is present; build wikilinks explicitly for clean output.
+        link_lines = []
+        for item in topics.get("wikilinks") or []:
+            if isinstance(item, (list, tuple)) and len(item) >= 2:
+                link_lines.append(f"- [[{item[0]}]] ({item[1]})")
+        folder_lines = fmt_pairs(topics.get("folders"))
+
+        lines = ["Ich habe deinen Obsidian-Vault über den Pandora-Connector ausgewertet. Erkannte Topics:", ""]
+        lines.append("**Top-Tags**")
+        lines.extend(tag_lines[:15] or ["- keine Tags gefunden"])
+        lines.append("")
+        lines.append("**Top-Wikilinks**")
+        lines.extend(link_lines[:15] or ["- keine Wikilinks gefunden"])
+        lines.append("")
+        lines.append("**Top-Ordner**")
+        lines.extend(folder_lines[:15] or ["- keine Ordner gefunden"])
+        return "\n".join(lines)
 
     def create_session(self, title: str | None = None) -> dict:
         return self.store.create(title=title).model_dump(mode="json")

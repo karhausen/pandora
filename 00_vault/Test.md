@@ -1,10 +1,16 @@
+```yaml
 ---
+title: Test
+tags:
+  - test
+visibility: public
 cloud_allowed: false
 company_allowed: true
-
-tags:
-  #docs #commands
+priority: high
+owner: thomas
+last_reviewed: 2026-06-26
 ---
+```
 
 # Test File
 

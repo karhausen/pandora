@@ -524,8 +524,8 @@ class ChatRunResult(BaseModel):
     session_id: str
     success: bool
     answer: str
-    user_message: ChatMessage
-    assistant_message: ChatMessage
+    user_message: ChatMessage | None = None
+    assistant_message: ChatMessage | None = None
     plan: dict[str, Any] = Field(default_factory=dict)
     execution: dict[str, Any] = Field(default_factory=dict)
 
