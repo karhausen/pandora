@@ -1,21 +1,27 @@
 {
-  "version": "25.2.1-obsidian-index-json-datetime-hotfix",
-  "name": "MVP 25.2.1 - Obsidian Index JSON Datetime Hotfix",
-  "based_on": "25.2-context-builder-completion",
-  "feature": "Obsidian Index JSON Datetime Serialization Hotfix",
+  "version": "25.2.2-gui-chat-obsidian-context-regression-fix",
+  "name": "MVP 25.2.2 - GUI Chat Obsidian Context Regression Fix",
+  "based_on": "25.2.1-obsidian-index-json-datetime-hotfix",
+  "feature": "Restores GUI chat access to Obsidian Vault context for latest-note questions",
   "features": [
     "Deterministisches Context Ranking vor LLM-Übergabe",
     "Globales Context Token/Zeichen-Budget mit Diagnostik",
     "Duplicate Removal über Quellen-ID und Text-Fingerprint",
     "Einheitliche Source-Ranks und Budget-Metadaten im Cognitive Context",
     "Regressionstests für Ranking, Budget und Duplikatfilter",
-    "Obsidian index write serialisiert YAML date/datetime/time Metadaten JSON-sicher"
+    "Obsidian index write serialisiert YAML date/datetime/time Metadaten JSON-sicher",
+    "GUI-Chat beantwortet Fragen nach der letzten Obsidian-Notiz wieder deterministisch aus dem Vault-Kontext",
+    "Knowledge Context erkennt Latest-Note-Queries und priorisiert die zuletzt geänderte Vault-Notiz",
+    "Context Ranker verarbeitet ISO-Datetime-Werte bei modified_at robust",
+    "Regressionstests für GUI-Chat -> Cognitive Context -> Obsidian Vault Pipeline"
   ],
   "notes": [
     "LLMs lesen weiterhin keine Dateien selbst; Pandora sammelt, bewertet und begrenzt Kontext vor der Übergabe.",
     "MVP 25.1.3 Frontmatter Governance & Validation bleibt enthalten.",
     "Der Cognitive Layer ist damit bereit für Working Memory und Goal Manager in den nächsten MVPs.",
-    "Behebt 500 Internal Server Error bei /api/obsidian/reindex, wenn YAML Frontmatter Datumswerte enthält."
+    "Behebt 500 Internal Server Error bei /api/obsidian/reindex, wenn YAML Frontmatter Datumswerte enthält.",
+    "Behebt Regression aus MVP 25.2: Bei Mock/Fallback-Chat wurde Vault-Kontext zwar vorbereitet, aber für Fragen wie „Was war meine letzte Notiz?“ nicht zuverlässig nutzerverständlich beantwortet.",
+    "Die direkte Antwort bleibt policy-safe: LLM liest keine Dateien; Pandora liest und formatiert den erlaubten Kontext."
   ],
-  "build_time": "2026-06-26T13:15:07.247497Z"
+  "build_time": "2026-06-26T13:29:32.627930Z"
 }

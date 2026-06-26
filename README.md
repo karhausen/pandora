@@ -1,3 +1,16 @@
+# Pandora MVP 25.2.2 – GUI Chat Obsidian Context Regression Fix
+
+Dieses Hotfix-Release stellt den GUI-Chat-Zugriff auf den Obsidian-Vault wieder her. Fragen wie `Was war meine letzte Notiz?` werden wieder über Pandoras Cognitive Context Pipeline beantwortet. Das LLM liest weiterhin keine Dateien selbst; Pandora ermittelt die zulässige Vault-Notiz deterministisch und übergibt beziehungsweise formatiert nur vorbereiteten Kontext.
+
+Gefixt in MVP 25.2.2:
+
+- Latest-Note-Erkennung für Obsidian-Fragen
+- direkte GUI-Chat-Antwort aus dem vorbereiteten Vault-Kontext
+- Regressionstest für `Was war meine letzte Notiz?`
+- robuster Context-Ranker für ISO-`modified_at`-Zeitstempel
+
+---
+
 # Pandora MVP 25.2 – Context Builder Completion
 
 Dieses Release vervollständigt den ersten Cognitive-Context-Baustein. Pandora sammelt Kontext weiterhin selbst, übergibt dem LLM aber jetzt einen deterministisch priorisierten, deduplizierten und budgetierten Kontext.

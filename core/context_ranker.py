@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Any
@@ -106,11 +107,24 @@ class ContextRanker:
             title_score = sum(3 for term in query_terms if term and term in str(item.source.get("title") or item.source.get("name") or "").lower())
             tag_score = sum(3 for term in query_terms if term and any(term in str(tag).lower() for tag in (item.source.get("tags") or [])))
             existing = float(item.source.get("score") or item.base_score or 0.0)
-            recency = min(float(item.source.get("modified_at") or 0.0) / 10_000_000_000, 1.0)
+            recency = self._recency_score(item.source.get("modified_at"))
             final_score = existing + term_score + title_score + tag_score + item.policy_rank + recency
             new_source = {**item.source, "context_score": round(final_score, 3)}
             ranked.append(ContextCandidate(item.source_type, item.source_id, item.header, self._clip(item.text, self.max_chars_per_file), new_source, final_score, item.policy_rank))
         return sorted(ranked, key=lambda item: (-float(item.base_score), item.source_type, item.source_id))
+
+    def _recency_score(self, value: Any) -> float:
+        if value in (None, ""):
+            return 0.0
+        if isinstance(value, (int, float)):
+            return min(float(value) / 10_000_000_000, 1.0)
+        if isinstance(value, str):
+            try:
+                dt = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                return min(max(dt.timestamp(), 0.0) / 2_000_000_000, 1.0)
+            except Exception:
+                return 0.0
+        return 0.0
 
     def _source_payload(self, item: ContextCandidate, rank: int) -> dict[str, Any]:
         payload = {**item.source}

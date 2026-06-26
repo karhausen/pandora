@@ -184,6 +184,9 @@ class KnowledgeContextService:
             if self._looks_like_vault_topics_query(query):
                 search = vault.index(limit=10000, write=False)
                 return self._obsidian_topics_payload(search, cloud_context=cloud_context, company_context=company_context, remaining_chars=remaining_chars)
+            if self._looks_like_latest_note_query(query):
+                index = vault.index(limit=10000, write=False)
+                return self._obsidian_latest_note_payload(vault, index, cloud_context=cloud_context, company_context=company_context, remaining_chars=remaining_chars)
             search = vault.search(query=query, limit=remaining_files, include_content=True)
         except (ObsidianSafetyError, Exception) as exc:
             return {**self._empty_obsidian_payload(cloud_context, company_context=company_context), "error": str(exc)}
@@ -228,6 +231,67 @@ class KnowledgeContextService:
             "blocked_count": 0,
         }
 
+
+
+    def _looks_like_latest_note_query(self, query: str) -> bool:
+        q = (query or "").lower()
+        has_note = any(word in q for word in ["notiz", "note", "notes", "eintrag", "markdown"])
+        has_latest = any(word in q for word in ["letzte", "letzter", "letzten", "zuletzt", "neueste", "neuste", "aktuellste", "latest", "recent", "newest"])
+        return has_note and has_latest
+
+    def _obsidian_latest_note_payload(self, vault: ObsidianVaultService, index: dict[str, Any], *, cloud_context: bool, company_context: bool, remaining_chars: int) -> dict[str, Any]:
+        files = list(index.get("files", []) or [])
+        files.sort(key=lambda item: str(item.get("modified_at") or ""), reverse=True)
+        if not files:
+            return {
+                "enabled": True,
+                "status_ok": True,
+                "company_allowed": bool(index.get("company_allowed")),
+                "cloud_allowed": bool(index.get("cloud_allowed")),
+                "query": "latest_note",
+                "source_count": 0,
+                "sources": [],
+                "source_texts": [],
+                "context_text": "",
+                "blocked_count": 0,
+                "latest_note": None,
+            }
+        latest = files[0]
+        rel = str(latest.get("relative_path") or "")
+        try:
+            text = vault._safe_vault_file(rel).read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            text = str(latest.get("excerpt") or "")
+        text = self._clip(text, min(self.max_chars_per_file, max(0, remaining_chars)))
+        source = {
+            "source_type": "obsidian",
+            "relative_path": rel,
+            "title": latest.get("title"),
+            "tags": latest.get("tags", []),
+            "wikilinks": latest.get("wikilinks", []),
+            "company_allowed": bool(latest.get("company_allowed", index.get("company_allowed"))),
+            "cloud_allowed": bool(latest.get("cloud_allowed", index.get("cloud_allowed"))),
+            "modified_at": latest.get("modified_at"),
+            "score": 999,
+        }
+        policy_label = "local_only" if not cloud_context else ("company_allowed" if company_context else "cloud_allowed")
+        header = f"Quelle: obsidian/{rel} | Typ: letzte Notiz | Policy: {policy_label} | Company erlaubt: {source['company_allowed']} | Cloud erlaubt: {source['cloud_allowed']}"
+        block = f"[{header}]\n{text}" if text else ""
+        if len(block) > remaining_chars:
+            block = block[:remaining_chars].rstrip() + "\n...[gekürzt]"
+        return {
+            "enabled": True,
+            "status_ok": True,
+            "company_allowed": bool(index.get("company_allowed")),
+            "cloud_allowed": bool(index.get("cloud_allowed")),
+            "query": "latest_note",
+            "source_count": 1,
+            "sources": [source],
+            "source_texts": [text] if text else [],
+            "context_text": block,
+            "blocked_count": 0,
+            "latest_note": source,
+        }
 
     def _looks_like_vault_topics_query(self, query: str) -> bool:
         q = (query or "").lower()
