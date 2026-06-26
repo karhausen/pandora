@@ -37,3 +37,28 @@ def test_valid_frontmatter_uses_yaml_lists_and_booleans(tmp_path):
     assert rec["cloud_allowed"] is False
     assert rec["company_allowed"] is True
     assert rec["metadata"]["_frontmatter_valid"] is True
+
+
+def test_yaml_dates_are_json_serializable_when_index_is_written(tmp_path):
+    note = tmp_path / "dated.md"
+    note.write_text("""---
+title: Dated Note
+created: 2026-06-26
+reviewed_at: 2026-06-26T12:30:00Z
+tags:
+  - pandora
+cloud_allowed: false
+company_allowed: true
+---
+
+# Dated Note
+""", encoding="utf-8")
+    svc = make_service(tmp_path)
+
+    idx = svc.index(write=True)
+
+    assert idx["ok"] is True
+    assert (tmp_path / "data" / "obsidian" / "index.json").exists()
+    rec = idx["files"][0]
+    assert rec["metadata"]["created"] == "2026-06-26"
+    assert isinstance(rec["metadata"]["reviewed_at"], str)

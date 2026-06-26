@@ -1,19 +1,21 @@
 {
-  "version": "25.2-context-builder-completion",
-  "name": "MVP 25.2 - Context Builder Completion",
-  "based_on": "25.1.3-frontmatter-governance-validation",
-  "feature": "Context Builder Completion",
+  "version": "25.2.1-obsidian-index-json-datetime-hotfix",
+  "name": "MVP 25.2.1 - Obsidian Index JSON Datetime Hotfix",
+  "based_on": "25.2-context-builder-completion",
+  "feature": "Obsidian Index JSON Datetime Serialization Hotfix",
   "features": [
     "Deterministisches Context Ranking vor LLM-Übergabe",
     "Globales Context Token/Zeichen-Budget mit Diagnostik",
     "Duplicate Removal über Quellen-ID und Text-Fingerprint",
     "Einheitliche Source-Ranks und Budget-Metadaten im Cognitive Context",
-    "Regressionstests für Ranking, Budget und Duplikatfilter"
+    "Regressionstests für Ranking, Budget und Duplikatfilter",
+    "Obsidian index write serialisiert YAML date/datetime/time Metadaten JSON-sicher"
   ],
   "notes": [
     "LLMs lesen weiterhin keine Dateien selbst; Pandora sammelt, bewertet und begrenzt Kontext vor der Übergabe.",
     "MVP 25.1.3 Frontmatter Governance & Validation bleibt enthalten.",
-    "Der Cognitive Layer ist damit bereit für Working Memory und Goal Manager in den nächsten MVPs."
+    "Der Cognitive Layer ist damit bereit für Working Memory und Goal Manager in den nächsten MVPs.",
+    "Behebt 500 Internal Server Error bei /api/obsidian/reindex, wenn YAML Frontmatter Datumswerte enthält."
   ],
-  "build_time": "2026-06-26T12:54:44.679381Z"
+  "build_time": "2026-06-26T13:15:07.247497Z"
 }
