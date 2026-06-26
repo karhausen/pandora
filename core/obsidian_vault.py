@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import yaml
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -297,70 +298,145 @@ class ObsidianVaultService:
         return text
 
     def _extract_frontmatter(self, text: str) -> dict[str, Any]:
-        """Extract a small, safe subset of YAML frontmatter.
+        """Parse YAML frontmatter with PyYAML and never crash indexing.
 
-        Obsidian notes often contain mixed frontmatter such as boolean fields
-        (``cloud_allowed: false``) and list fields (``tags:`` followed by
-        ``- tag``). The previous parser could crash when a list item appeared
-        after a scalar/boolean key because it blindly appended to the current
-        value. This parser is intentionally tolerant: malformed list items are
-        ignored instead of taking down indexing/import-candidate generation.
+        Obsidian frontmatter is YAML. Earlier Pandora versions used a small
+        hand-written parser which could mis-handle malformed combinations such
+        as ``company_allowed: true`` followed by indented list items. From this
+        release on PyYAML is the source of truth and parse problems are carried
+        as metadata warnings so Governance/Operations can surface them.
         """
+        block = self._frontmatter_block(text)
+        if block is None:
+            return {}
+        lint_error = self._lint_frontmatter_block(block)
+        if lint_error:
+            return {
+                "_frontmatter_valid": False,
+                "_frontmatter_error": lint_error,
+                "_frontmatter_raw_excerpt": block[:500],
+            }
+        try:
+            loaded = yaml.safe_load(block) if block.strip() else {}
+        except yaml.YAMLError as exc:
+            return {
+                "_frontmatter_valid": False,
+                "_frontmatter_error": self._format_yaml_error(exc),
+                "_frontmatter_raw_excerpt": block[:500],
+            }
+        if loaded is None:
+            loaded = {}
+        if not isinstance(loaded, dict):
+            return {
+                "_frontmatter_valid": False,
+                "_frontmatter_error": f"YAML frontmatter must be a mapping/object, got {type(loaded).__name__}",
+                "_frontmatter_raw_excerpt": block[:500],
+            }
+        data = dict(loaded)
+        data.setdefault("_frontmatter_valid", True)
+        return data
+
+    def _frontmatter_block(self, text: str) -> str | None:
         if not text.startswith("---"):
-            return {}
-        parts = text.split("---", 2)
-        if len(parts) < 3:
-            return {}
+            return None
+        # Frontmatter marker must be on its own first line. Use line based
+        # parsing so '---' inside the note body does not confuse metadata.
+        lines = text.splitlines()
+        if not lines or lines[0].strip() != "---":
+            return None
+        for idx in range(1, len(lines)):
+            if lines[idx].strip() == "---":
+                return "\n".join(lines[1:idx])
+        return None
 
-        raw = parts[1]
-        data: dict[str, Any] = {}
-        current_key: str | None = None
+    def _lint_frontmatter_block(self, block: str) -> str | None:
+        """Catch common Obsidian/YAML mistakes PyYAML may coerce silently.
 
-        def _parse_scalar(raw_value: str) -> Any:
-            value = raw_value.strip().strip('"').strip("'")
-            lower = value.lower()
-            if lower in {"true", "false"}:
-                return lower == "true"
-            if value.startswith("[") and value.endswith("]"):
-                inner = value[1:-1].strip()
-                if not inner:
-                    return []
-                return [part.strip().strip('"').strip("'") for part in inner.split(",") if part.strip()]
-            return value
-
-        for line in raw.splitlines():
+        PyYAML can sometimes parse malformed-looking indented list items after
+        a scalar key as part of the scalar value instead of raising. For Pandora
+        governance we prefer to flag these as warnings because they almost
+        always indicate that list items were accidentally attached to the wrong
+        key.
+        """
+        last_key: str | None = None
+        last_key_had_scalar = False
+        for line_no, line in enumerate(block.splitlines(), start=1):
             stripped = line.strip()
             if not stripped or stripped.startswith("#"):
                 continue
-
-            if stripped.startswith("-"):
-                if not current_key:
-                    continue
-                existing = data.get(current_key)
-                if not isinstance(existing, list):
-                    # Invalid or ambiguous YAML for our lightweight parser.
-                    # Keep the original scalar value and skip the stray list item.
-                    continue
-                existing.append(stripped.split("-", 1)[1].strip().strip('"').strip("'"))
+            if re.match(r"^\s+-\s+", line):
+                if last_key_had_scalar:
+                    return f"line {line_no}: list item appears below scalar key '{last_key}'"
                 continue
+            if ":" in line and not line.startswith((" ", "\t")):
+                key, value = line.split(":", 1)
+                last_key = key.strip()
+                last_key_had_scalar = bool(value.strip())
+            elif line.startswith((" ", "\t")) and re.match(r"^\s+-\s+", line) and last_key_had_scalar:
+                return f"line {line_no}: list item appears below scalar key '{last_key}'"
+        return None
 
-            if ":" not in line:
+    def _format_yaml_error(self, exc: yaml.YAMLError) -> str:
+        mark = getattr(exc, "problem_mark", None)
+        problem = getattr(exc, "problem", None) or str(exc).splitlines()[0]
+        if mark is not None:
+            return f"line {mark.line + 1}, column {mark.column + 1}: {problem}"
+        return str(exc).splitlines()[0]
+
+    def validate_frontmatter(self, *, limit: int = 10000) -> dict[str, Any]:
+        """Validate Obsidian YAML frontmatter and return governance warnings."""
+        vault = self._require_vault()
+        issues: list[dict[str, Any]] = []
+        scanned = 0
+        for path in sorted(vault.rglob("*.md")):
+            if self._is_ignored(path):
                 continue
-
-            key, raw_value = line.split(":", 1)
-            key = key.strip()
-            value = raw_value.strip()
-            if not key:
-                current_key = None
+            rel = path.relative_to(vault).as_posix()
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            block = self._frontmatter_block(text)
+            if block is None:
+                scanned += 1
                 continue
-
-            if value == "":
-                data[key] = []
+            scanned += 1
+            metadata = self._extract_frontmatter(text)
+            if metadata.get("_frontmatter_valid") is False:
+                issues.append({
+                    "severity": "warning",
+                    "kind": "invalid_yaml_frontmatter",
+                    "relative_path": rel,
+                    "message": metadata.get("_frontmatter_error") or "Invalid YAML frontmatter",
+                    "recommendation": "Open the note in Knowledge/Obsidian Editor and repair the YAML header before indexing or import.",
+                })
             else:
-                data[key] = _parse_scalar(value)
-            current_key = key
-
-        return data
+                tags = metadata.get("tags")
+                if tags is not None and not isinstance(tags, (list, str)):
+                    issues.append({
+                        "severity": "warning",
+                        "kind": "invalid_tags_type",
+                        "relative_path": rel,
+                        "message": f"tags should be a list or comma-separated string, got {type(tags).__name__}",
+                        "recommendation": "Use 'tags:\n  - tag1' or 'tags: [tag1, tag2]'.",
+                    })
+                for key in ("cloud_allowed", "company_allowed"):
+                    value = metadata.get(key)
+                    if value is not None and not isinstance(value, bool):
+                        issues.append({
+                            "severity": "info",
+                            "kind": "policy_value_not_boolean",
+                            "relative_path": rel,
+                            "message": f"{key} should be true/false, got {type(value).__name__}",
+                            "recommendation": f"Set '{key}: true' or '{key}: false'.",
+                        })
+            if scanned >= limit:
+                break
+        return {
+            "kind": "obsidian_frontmatter_validation",
+            "ok": not any(item.get("severity") == "error" for item in issues),
+            "scanned": scanned,
+            "issue_count": len(issues),
+            "issues": issues,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
 
     def _metadata_tags(self, metadata: dict[str, Any]) -> list[str]:
         value = metadata.get("tags", [])

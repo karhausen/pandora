@@ -357,6 +357,10 @@ def api_obsidian_context_preview(query: str, provider_name: str | None = None, m
 def api_obsidian_tags(limit: int = 200):
     return _obsidian_api_call(lambda: ObsidianVaultService().tags(limit=limit))
 
+@app.get("/api/obsidian/frontmatter/validate")
+def api_obsidian_frontmatter_validate(limit: int = 10000):
+    return _obsidian_api_call(lambda: ObsidianVaultService().validate_frontmatter(limit=limit))
+
 @app.post("/api/obsidian/ensure-inbox")
 def api_obsidian_ensure_inbox():
     return _obsidian_api_call(lambda: ObsidianVaultService().ensure_inbox())

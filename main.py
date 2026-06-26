@@ -406,6 +406,10 @@ def cmd_obsidian_context_preview(args):
         "rule": "Obsidian context: local=allowed, company requires OBSIDIAN_COMPANY_ALLOWED=true, public cloud requires OBSIDIAN_CLOUD_ALLOWED=true",
     })
 
+
+def cmd_obsidian_validate(args):
+    _obsidian_call(lambda: ObsidianVaultService().validate_frontmatter(limit=args.limit))
+
 def cmd_obsidian_export(args):
     content = args.content or ""
     if args.file:
@@ -610,6 +614,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("obsidian-index"); p.add_argument("--limit", type=int, default=10000); p.add_argument("--no-write", action="store_true"); p.set_defaults(func=cmd_obsidian_index)
     p = sub.add_parser("obsidian-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=20); p.add_argument("--include-content", action="store_true"); p.set_defaults(func=cmd_obsidian_search)
     p = sub.add_parser("obsidian-tags"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_obsidian_tags)
+    p = sub.add_parser("obsidian-validate"); p.add_argument("--limit", type=int, default=10000); p.set_defaults(func=cmd_obsidian_validate)
     p = sub.add_parser("obsidian-context-preview"); p.add_argument("query"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.set_defaults(func=cmd_obsidian_context_preview)
     p = sub.add_parser("obsidian-export"); p.add_argument("--title", required=True); p.add_argument("--content"); p.add_argument("--file"); p.add_argument("--category", default="Knowledge", choices=["Knowledge", "Skills", "Research", "Drafts"]); p.add_argument("--tag", action="append"); p.add_argument("--suggested-folder"); p.set_defaults(func=cmd_obsidian_export)
     p = sub.add_parser("obsidian-ensure-inbox"); p.set_defaults(func=cmd_obsidian_ensure_inbox)

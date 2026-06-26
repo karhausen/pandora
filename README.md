@@ -1,3 +1,5 @@
+# Pandora MVP 25.1.3
+
 # Pandora MVP 24.8.1 - Night Review Web Route Fix
 
 Dieses Release basiert auf MVP 24.8 und korrigiert/prüft die Webroute `/night-review`.
@@ -362,3 +364,12 @@ python main.py learning-insight-status
 ## MVP 24.6 – Action Workflow Chains
 
 Die Unified Action Inbox erzeugt bei `accepted_for_next_step` kontrollierte Folge-Actions. Dadurch wandert ein abgeschlossener Schritt in Done, während der nächste sichere Prüfschritt automatisch in der Inbox erscheint. Es wird weiterhin nichts ohne explizite Bestätigung ausgeführt.
+
+
+## Obsidian Frontmatter Validation
+
+```bash
+python main.py obsidian-validate
+```
+
+Uses PyYAML and reports malformed YAML as governance warnings instead of crashing indexing.
