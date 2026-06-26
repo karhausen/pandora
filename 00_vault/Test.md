@@ -2,7 +2,7 @@
 ---
 title: Test
 tags:
-  - test
+  test
 visibility: public
 cloud_allowed: false
 company_allowed: true

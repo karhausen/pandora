@@ -3,8 +3,8 @@
 ---
 title: Pandora Commands
 tags:
-  - pandora
-  - commands
+  pandora
+  commands
 visibility: public
 cloud_allowed: false
 company_allowed: true

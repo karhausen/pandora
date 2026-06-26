@@ -1,12 +1,11 @@
 ---
 tags:
-
-cloud_allowed: false
-company_allowed: true
-  
   - docs
   - notiz
   - pandora
+cloud_allowed: false
+company_allowed: true
+  
 ---
 
 # Projekt: 

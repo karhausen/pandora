@@ -297,34 +297,69 @@ class ObsidianVaultService:
         return text
 
     def _extract_frontmatter(self, text: str) -> dict[str, Any]:
+        """Extract a small, safe subset of YAML frontmatter.
+
+        Obsidian notes often contain mixed frontmatter such as boolean fields
+        (``cloud_allowed: false``) and list fields (``tags:`` followed by
+        ``- tag``). The previous parser could crash when a list item appeared
+        after a scalar/boolean key because it blindly appended to the current
+        value. This parser is intentionally tolerant: malformed list items are
+        ignored instead of taking down indexing/import-candidate generation.
+        """
         if not text.startswith("---"):
             return {}
         parts = text.split("---", 2)
         if len(parts) < 3:
             return {}
+
         raw = parts[1]
         data: dict[str, Any] = {}
         current_key: str | None = None
+
+        def _parse_scalar(raw_value: str) -> Any:
+            value = raw_value.strip().strip('"').strip("'")
+            lower = value.lower()
+            if lower in {"true", "false"}:
+                return lower == "true"
+            if value.startswith("[") and value.endswith("]"):
+                inner = value[1:-1].strip()
+                if not inner:
+                    return []
+                return [part.strip().strip('"').strip("'") for part in inner.split(",") if part.strip()]
+            return value
+
         for line in raw.splitlines():
-            if not line.strip():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
                 continue
-            if line.startswith("  -") and current_key:
-                data.setdefault(current_key, []).append(line.split("-", 1)[1].strip())
+
+            if stripped.startswith("-"):
+                if not current_key:
+                    continue
+                existing = data.get(current_key)
+                if not isinstance(existing, list):
+                    # Invalid or ambiguous YAML for our lightweight parser.
+                    # Keep the original scalar value and skip the stray list item.
+                    continue
+                existing.append(stripped.split("-", 1)[1].strip().strip('"').strip("'"))
                 continue
+
             if ":" not in line:
                 continue
-            key, value = line.split(":", 1)
+
+            key, raw_value = line.split(":", 1)
             key = key.strip()
-            value = value.strip().strip('"').strip("'")
+            value = raw_value.strip()
+            if not key:
+                current_key = None
+                continue
+
             if value == "":
-                data[key] = [] if key == "tags" else ""
-                current_key = key
-            elif value.lower() in {"true", "false"}:
-                data[key] = value.lower() == "true"
-                current_key = key
+                data[key] = []
             else:
-                data[key] = value
-                current_key = key
+                data[key] = _parse_scalar(value)
+            current_key = key
+
         return data
 
     def _metadata_tags(self, metadata: dict[str, Any]) -> list[str]:

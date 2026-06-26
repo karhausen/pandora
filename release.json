@@ -1,16 +1,16 @@
 {
-  "version": "25.1.1",
-  "name": "MVP 25.1.1 - GUI Chat Cognitive Context Fix",
+  "version": "25.1.2",
+  "name": "MVP 25.1.2 - Obsidian Frontmatter Parser Fix",
   "features": [
-    "Policy-safe cognitive context before LLM calls",
-    "Obsidian local/company/cloud policy split",
-    "Vault topics context for Obsidian topic questions",
-    "Clear blocked-context diagnostics for company_llm/public cloud"
+    "Robuster Obsidian-Frontmatter-Parser",
+    "Fix für YAML-Listen nach Boolean/Scalar-Feldern",
+    "Import-Candidate Build stürzt bei gemischten Metadaten nicht mehr ab",
+    "Regressionstest für Frontmatter-Metadaten"
   ],
-  "based_on": "25.1",
+  "based_on": "25.1.1",
   "notes": [
-    "GUI chat path now answers Obsidian vault topic queries via Cognitive Context Builder",
-    "Vault topic questions are answered directly from the Obsidian index when context is allowed",
-    "ChatRunResult supports save=false test/API runs"
+    "Behebt AttributeError: bool object has no attribute append in core/obsidian_vault.py",
+    "Toleriert fehlerhafte/ungewöhnliche Obsidian-Frontmatter-Zeilen, ohne den Vault-Index zu blockieren",
+    "MVP 25.1.1 Cognitive Context Fix bleibt enthalten"
   ]
 }

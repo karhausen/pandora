@@ -3,7 +3,7 @@
 ---
 title: Funktechnik
 tags:
-  - funktechnik
+  funktechnik
 visibility: public
 cloud_allowed: false
 company_allowed: true
