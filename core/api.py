@@ -73,6 +73,7 @@ from .llm_profile_center import LLMProfileCenterService
 from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
+from .cognitive_context_builder import CognitiveContextBuilder
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -94,7 +95,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="24.12-operations-issue-actions")
+app = FastAPI(title="Pandora Agent", version="25.1-cognitive-context-builder")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -349,7 +350,7 @@ def api_obsidian_context_preview(query: str, provider_name: str | None = None, m
         "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
         "context_chars": payload.get("context_chars", 0),
         "sources": [src for src in payload.get("sources", []) if src.get("source_type") == "obsidian"],
-        "rule": "Obsidian context is included for cloud/company targets only when OBSIDIAN_CLOUD_ALLOWED=true",
+        "rule": "Obsidian context: local=allowed, company requires OBSIDIAN_COMPANY_ALLOWED=true, public cloud requires OBSIDIAN_CLOUD_ALLOWED=true",
     }
 
 @app.get("/api/obsidian/tags")
@@ -625,6 +626,16 @@ def gui_knowledge_editor_delete(req: KnowledgeEditorDeleteRequest):
 
 def get_knowledge_context_service() -> KnowledgeContextService:
     return KnowledgeContextService()
+
+
+@app.get("/api/cognitive/context/status")
+def api_cognitive_context_status():
+    return CognitiveContextBuilder().status()
+
+@app.get("/api/cognitive/context/preview")
+def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    return CognitiveContextBuilder().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
 
 
 @app.get("/api/gui/knowledge/context-injection-preview")

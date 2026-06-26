@@ -4,7 +4,7 @@ from .chat_response_router import ChatResponseRouter
 from .chat_session_store import ChatSessionStore
 from .conversation_memory import ConversationMemory
 from .llm_chat_responder import LLMChatResponder
-from .knowledge_context import KnowledgeContextService
+from .cognitive_context_builder import CognitiveContextBuilder
 from .models import ChatRunResult
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .user_response import UserResponseFormatter
@@ -18,7 +18,7 @@ class ChatService:
         self.router = ChatResponseRouter()
         self.chat_responder = LLMChatResponder()
         self.memory = ConversationMemory()
-        self.knowledge_context = KnowledgeContextService()
+        self.knowledge_context = CognitiveContextBuilder()
 
     async def run(
         self,
@@ -73,6 +73,37 @@ class ChatService:
             context = self.memory.build_context(session.session_id, current_session.messages)
             knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
             merged_context = context.summary
+            obsidian_diag = knowledge.get("diagnostics", {}).get("obsidian", {})
+            if obsidian_diag.get("blocked_reason") and self._asks_for_vault(task):
+                answer = obsidian_diag.get("user_message") or f"Obsidian-Kontext wurde blockiert: {obsidian_diag.get('blocked_reason')}"
+                success = True
+                plan = {}
+                execution = {
+                    "success": True,
+                    "final_output": {"message": answer},
+                    "mode": "cognitive_context_policy",
+                    "provider_name": None,
+                    "model": None,
+                    "error": None,
+                    "context_used": False,
+                    "knowledge_context": knowledge.get("diagnostics", {}).get("knowledge_context", knowledge),
+                }
+                metadata = {"mode": "cognitive_context_policy", "success": True, "knowledge_context": execution.get("knowledge_context", {})}
+                assistant_message = self.store.add_message(
+                    session.session_id,
+                    "assistant",
+                    answer,
+                    metadata=metadata,
+                ) if save else None
+                return ChatRunResult(
+                    session_id=session.session_id,
+                    success=success,
+                    answer=answer,
+                    user_message=user_message,
+                    assistant_message=assistant_message,
+                    plan=plan,
+                    execution=execution,
+                )
             if knowledge.get("context_text"):
                 merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
             llm_result = self.chat_responder.respond(
@@ -105,8 +136,9 @@ class ChatService:
                     "cloud_context": knowledge.get("cloud_context"),
                     "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
                     "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
-                    "obsidian": knowledge.get("obsidian", {}),
+                    "obsidian": knowledge.get("diagnostics", {}).get("obsidian", {}),
                     "route_target": knowledge.get("route_target", {}),
+                    "cognitive_context": knowledge,
                 },
             }
             metadata = {
@@ -139,6 +171,10 @@ class ChatService:
             plan=plan,
             execution=execution,
         )
+
+    def _asks_for_vault(self, task: str) -> bool:
+        q = (task or "").lower()
+        return "vault" in q or "obsidian" in q
 
     def create_session(self, title: str | None = None) -> dict:
         return self.store.create(title=title).model_dump(mode="json")

@@ -1,7 +1,6 @@
 ---
 tags:
-  - docs
-  - commands
+  #docs #commands
 ---
 
 # Wichtige Befehle

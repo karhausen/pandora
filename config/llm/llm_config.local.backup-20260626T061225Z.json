@@ -1,0 +1,65 @@
+{
+  "active_profile": "company",
+  "model_routes": {
+    "chat": {
+      "provider": "company_llm",
+      "model": "qwen-36-27b",
+      "reason": "Fast local model for normal chat."
+    },
+    "code_review": {
+      "provider": "cloud_expert",
+      "model": "company-default-model",
+      "reason": "Code review should use the active profile cloud expert."
+    },
+    "core_review": {
+      "provider": "cloud_expert",
+      "model": "company-default-model",
+      "reason": "Architecture/core review should use the active profile cloud expert."
+    },
+    "maintenance": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Model route for maintenance: local_fast -> local_fast"
+    },
+    "night_mode": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Model route for night_mode: local_fast -> local_fast"
+    },
+    "planning": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Fast local model for simple planning."
+    },
+    "reflection": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Local model is sufficient for reflection."
+    },
+    "skill_generation": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Model route for skill_generation: local_fast -> local_fast"
+    },
+    "skill_review": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Model route for skill_review: local_fast -> local_fast"
+    },
+    "tool_design": {
+      "provider": "cloud_expert",
+      "model": "company-default-model",
+      "reason": "Tool contract/design should use the active profile cloud expert."
+    },
+    "tool_generation": {
+      "provider": "cloud_expert",
+      "model": "company-default-model",
+      "reason": "Tool and code generation should use the active profile cloud expert."
+    },
+    "tool_selection": {
+      "provider": "local_fast",
+      "model": "qwen/qwen3-1.7b",
+      "reason": "Fast local model for capability gating/tool selection."
+    }
+  }
+}

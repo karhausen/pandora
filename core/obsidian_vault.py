@@ -38,6 +38,7 @@ class ObsidianConfig:
     inbox_dir: str
     mode: str
     cloud_allowed: bool
+    company_allowed: bool
 
     @classmethod
     def load(cls, root_dir: Path = ROOT) -> "ObsidianConfig":
@@ -55,6 +56,7 @@ class ObsidianConfig:
             inbox_dir=inbox_dir or "Pandora_Inbox",
             mode=get("OBSIDIAN_MODE", "read_write_inbox_only") or "read_write_inbox_only",
             cloud_allowed=_env_bool(get("OBSIDIAN_CLOUD_ALLOWED", "false")),
+            company_allowed=_env_bool(get("OBSIDIAN_COMPANY_ALLOWED", "false")),
         )
 
     def public_dict(self) -> dict[str, Any]:
@@ -66,6 +68,7 @@ class ObsidianConfig:
             "inbox_dir": self.inbox_dir,
             "mode": self.mode,
             "cloud_allowed": self.cloud_allowed,
+            "company_allowed": self.company_allowed,
         }
 
 
@@ -169,6 +172,7 @@ class ObsidianVaultService:
             "tag_count": len(tags),
             "wikilink_count": len(links),
             "cloud_allowed": self.config.cloud_allowed,
+            "company_allowed": self.config.company_allowed,
             "files": files,
             "top_tags": sorted(tags.items(), key=lambda kv: (-kv[1], kv[0]))[:50],
             "top_wikilinks": sorted(links.items(), key=lambda kv: (-kv[1], kv[0]))[:50],
@@ -193,7 +197,7 @@ class ObsidianVaultService:
             score = sum(3 if term in rec["title"].lower() else 1 for term in terms if term in hay)
             if score <= 0:
                 continue
-            item = {k: rec[k] for k in ["relative_path", "title", "tags", "wikilinks", "word_count", "modified_at", "sha256"]}
+            item = {k: rec[k] for k in ["relative_path", "title", "tags", "wikilinks", "word_count", "modified_at", "sha256", "metadata", "company_allowed", "cloud_allowed"]}
             item["score"] = score
             item["excerpt"] = rec.get("excerpt", "")
             if include_content:
@@ -207,6 +211,7 @@ class ObsidianVaultService:
             "query": query,
             "result_count": len(results[:limit]),
             "cloud_allowed": self.config.cloud_allowed,
+            "company_allowed": self.config.company_allowed,
             "results": results[:limit],
         }
 
@@ -246,6 +251,7 @@ class ObsidianVaultService:
             f"generated_at: {datetime.now(timezone.utc).isoformat()}",
             "review_status: pending",
             "cloud_allowed: false",
+            "company_allowed: false",
             f"suggested_folder: {suggested_folder or ''}",
             "tags:",
         ]
@@ -264,20 +270,77 @@ class ObsidianVaultService:
         }
 
     def _file_record(self, path: Path, rel: str, text: str) -> dict[str, Any]:
-        title = self._extract_title(text) or Path(rel).stem
-        tags = sorted(set(re.findall(r"(?<!\w)#([A-Za-z0-9_/-]+)", text)))
+        metadata = self._extract_frontmatter(text)
+        title = str(metadata.get("title") or self._extract_title(text) or Path(rel).stem)
+        tags = sorted(set(re.findall(r"(?<!\w)#([A-Za-z0-9_/-]+)", text)) | set(self._metadata_tags(metadata)))
         wikilinks = sorted(set(match.strip() for match in re.findall(r"\[\[([^\]]+)\]\]", text)))
-        cleaned = re.sub(r"\s+", " ", text).strip()
+        cleaned = re.sub(r"\s+", " ", self._strip_frontmatter(text)).strip()
         return {
             "relative_path": rel,
             "title": title,
             "tags": tags,
             "wikilinks": wikilinks,
+            "metadata": metadata,
+            "company_allowed": self._metadata_bool(metadata.get("company_allowed"), self.config.company_allowed),
+            "cloud_allowed": self._metadata_bool(metadata.get("cloud_allowed"), self.config.cloud_allowed),
             "word_count": len(cleaned.split()) if cleaned else 0,
             "excerpt": cleaned[:320],
             "modified_at": datetime.fromtimestamp(path.stat().st_mtime, timezone.utc).isoformat(),
             "sha256": hashlib.sha256(text.encode("utf-8", errors="ignore")).hexdigest(),
         }
+
+    def _strip_frontmatter(self, text: str) -> str:
+        if text.startswith("---"):
+            parts = text.split("---", 2)
+            if len(parts) == 3:
+                return parts[2]
+        return text
+
+    def _extract_frontmatter(self, text: str) -> dict[str, Any]:
+        if not text.startswith("---"):
+            return {}
+        parts = text.split("---", 2)
+        if len(parts) < 3:
+            return {}
+        raw = parts[1]
+        data: dict[str, Any] = {}
+        current_key: str | None = None
+        for line in raw.splitlines():
+            if not line.strip():
+                continue
+            if line.startswith("  -") and current_key:
+                data.setdefault(current_key, []).append(line.split("-", 1)[1].strip())
+                continue
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if value == "":
+                data[key] = [] if key == "tags" else ""
+                current_key = key
+            elif value.lower() in {"true", "false"}:
+                data[key] = value.lower() == "true"
+                current_key = key
+            else:
+                data[key] = value
+                current_key = key
+        return data
+
+    def _metadata_tags(self, metadata: dict[str, Any]) -> list[str]:
+        value = metadata.get("tags", [])
+        if isinstance(value, list):
+            return [str(v).strip().lstrip("#") for v in value if str(v).strip()]
+        if isinstance(value, str):
+            return [part.strip().lstrip("#") for part in value.split(",") if part.strip()]
+        return []
+
+    def _metadata_bool(self, value: Any, default: bool) -> bool:
+        if isinstance(value, bool):
+            return value
+        if value is None or value == "":
+            return default
+        return str(value).strip().lower() in {"1", "true", "yes", "on", "enabled"}
 
     def _extract_title(self, text: str) -> str | None:
         for line in text.splitlines():

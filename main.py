@@ -57,6 +57,7 @@ from core.llm_profile_center import LLMProfileCenterService
 from core.user_knowledge_base import UserKnowledgeBaseService
 from core.knowledge_governance import KnowledgeGovernanceService
 from core.knowledge_context import KnowledgeContextService
+from core.cognitive_context_builder import CognitiveContextBuilder
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -387,6 +388,10 @@ def cmd_obsidian_search(args):
 def cmd_obsidian_tags(args):
     _obsidian_call(lambda: ObsidianVaultService().tags(limit=args.limit))
 
+def cmd_cognitive_context_status(args): _json(CognitiveContextBuilder().status())
+
+def cmd_cognitive_context_preview(args): _json(CognitiveContextBuilder().build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit))
+
 def cmd_obsidian_context_preview(args):
     payload = KnowledgeContextService(max_files=args.limit).build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit)
     _json({
@@ -398,7 +403,7 @@ def cmd_obsidian_context_preview(args):
         "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
         "obsidian": payload.get("obsidian", {}),
         "sources": [src for src in payload.get("sources", []) if src.get("source_type") == "obsidian"],
-        "rule": "Obsidian context is included for cloud/company targets only when OBSIDIAN_CLOUD_ALLOWED=true",
+        "rule": "Obsidian context: local=allowed, company requires OBSIDIAN_COMPANY_ALLOWED=true, public cloud requires OBSIDIAN_CLOUD_ALLOWED=true",
     })
 
 def cmd_obsidian_export(args):
@@ -591,6 +596,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("knowledge-show"); p.add_argument("area", choices=["public", "restricted_cloud_allowed", "private_local_only"]); p.add_argument("path"); p.add_argument("--max-lines", type=int, default=160); p.set_defaults(func=cmd_knowledge_show)
     p = sub.add_parser("knowledge-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.add_argument("--cloud-context", action="store_true"); p.set_defaults(func=cmd_knowledge_search)
     p = sub.add_parser("knowledge-context-preview"); p.add_argument("query"); p.add_argument("--target", default="local", choices=["local", "cloud", "company", "company_llm"]); p.add_argument("--limit", type=int, default=10); p.set_defaults(func=cmd_knowledge_context_preview)
+    p = sub.add_parser("cognitive-context-status"); p.set_defaults(func=cmd_cognitive_context_status)
+    p = sub.add_parser("cognitive-context-preview"); p.add_argument("query"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.set_defaults(func=cmd_cognitive_context_preview)
     p = sub.add_parser("knowledge-governance-status"); p.set_defaults(func=cmd_knowledge_governance_status)
     p = sub.add_parser("knowledge-governance-run"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_governance_run)
     p = sub.add_parser("knowledge-metadata-audit"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_metadata_audit)

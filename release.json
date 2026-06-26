@@ -1,22 +1,10 @@
 {
-  "version": "mvp-25.0-guided-self-improvement-foundation",
-  "based_on": "mvp-24.12-operations-issue-actions",
+  "version": "25.1",
+  "name": "Cognitive Context Builder",
   "features": [
-    "Guided Self-Improvement Service",
-    "Guided Improvement GUI",
-    "Guided Improvement CLI/API",
-    "Unified Action Inbox integration"
-  ],
-  "checks": [
-    "python main.py --help",
-    "python main.py api --help",
-    "python main.py api starts",
-    "python main.py operations-health",
-    "registration-validate --strict",
-    "pytest tests/test_mvp24_11_operations_health.py"
-  ],
-  "audit": "OK",
-  "name": "Operations Issue Actions",
-  "build_time": "2026-06-25T11:33:58.401962Z",
-  "release_type": "complete_project_release"
+    "Policy-safe cognitive context before LLM calls",
+    "Obsidian local/company/cloud policy split",
+    "Vault topics context for Obsidian topic questions",
+    "Clear blocked-context diagnostics for company_llm/public cloud"
+  ]
 }
