@@ -1,10 +1,10 @@
 {
   "sessions": [
     {
-      "session_id": "chat_691469e01f81",
-      "title": "Was war meine letzte Notiz?",
-      "created_at": "2026-06-26T13:31:07.326743+00:00",
-      "updated_at": "2026-06-26T13:31:07.326743+00:00",
+      "session_id": "chat_8c4ab50de419",
+      "title": "Was sind die Topics in meinem Vault?",
+      "created_at": "2026-06-26T13:31:07.376177+00:00",
+      "updated_at": "2026-06-26T13:31:07.376177+00:00",
       "message_count": 0
     },
     {
@@ -22,11 +22,11 @@
       "message_count": 0
     },
     {
-      "session_id": "chat_8c4ab50de419",
-      "title": "Was sind die Topics in meinem Vault?",
-      "created_at": "2026-06-26T13:31:07.376177+00:00",
-      "updated_at": "2026-06-26T13:31:07.376177+00:00",
-      "message_count": 0
+      "session_id": "chat_691469e01f81",
+      "title": "Was war meine letzte Notiz?",
+      "created_at": "2026-06-26T13:31:07.326743+00:00",
+      "updated_at": "2026-06-26T13:43:12.456563+00:00",
+      "message_count": 12
     }
   ]
 }
