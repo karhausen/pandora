@@ -1,3 +1,26 @@
+# Pandora MVP 25.2 – Context Builder Completion
+
+Dieses Release vervollständigt den ersten Cognitive-Context-Baustein. Pandora sammelt Kontext weiterhin selbst, übergibt dem LLM aber jetzt einen deterministisch priorisierten, deduplizierten und budgetierten Kontext.
+
+Neu in MVP 25.2:
+
+- Context Ranking für User Knowledge und Obsidian-Kontext
+- Token-/Zeichen-Budget mit Diagnostik
+- Duplicate Removal über Quellen-ID und Text-Fingerprint
+- `context_rank`, `context_score` und Budget-Metadaten in den Quellen
+- Regressionstests für Ranking, Budget und Duplikatfilter
+
+Wichtige Befehle:
+
+```bash
+python main.py cognitive-context-status
+python main.py cognitive-context-preview "Pandora Kontext" --limit 5
+python main.py registration-validate --strict
+python main.py release-audit .
+```
+
+---
+
 # Pandora MVP 25.1.3
 
 # Pandora MVP 24.8.1 - Night Review Web Route Fix

@@ -8,6 +8,7 @@ from .llm_config import LLMConfig
 from .model_router import ModelRouter
 from .user_knowledge_base import AREAS, UserKnowledgeBaseService
 from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
+from .context_ranker import ContextCandidate, ContextRanker
 
 
 LOCAL_PROVIDER_NAMES = {"mock", "local_fast", "ollama"}
@@ -83,10 +84,8 @@ class KnowledgeContextService:
         full_result = self.knowledge.search(query=query, limit=200, cloud_context=False) if cloud_context else result
         blocked = [item for item in full_result.get("results", []) if not item.get("cloud_allowed")]
 
-        snippets: list[str] = []
-        sources: list[dict[str, Any]] = []
-        total_chars = 0
-        for item in result.get("results", [])[: limit or self.max_files]:
+        candidates: list[ContextCandidate] = []
+        for item in result.get("results", [])[: max(limit or self.max_files, self.max_files)]:
             area = item["area"]
             rel = item["relative_path"]
             text = self._read_source(area, rel)
@@ -94,26 +93,37 @@ class KnowledgeContextService:
             if not excerpt:
                 continue
             header = f"Quelle: user_knowledge/{area}/{rel} | Policy: {item.get('policy')} | Cloud erlaubt: {bool(item.get('cloud_allowed'))}"
-            block = f"[{header}]\n{excerpt}"
-            if total_chars + len(block) > self.max_total_chars:
-                break
-            snippets.append(block)
-            total_chars += len(block)
-            sources.append({
+            source = {
+                "source_type": "user_knowledge",
                 "area": area,
                 "relative_path": rel,
                 "policy": item.get("policy"),
                 "cloud_allowed": bool(item.get("cloud_allowed")),
                 "name": item.get("name"),
+                "title": (item.get("metadata") or {}).get("title") or item.get("name"),
+                "tags": (item.get("metadata") or {}).get("tags", []),
                 "size_bytes": item.get("size_bytes"),
-            })
+                "modified_at": item.get("modified_at"),
+                "score": item.get("score", 0),
+            }
+            candidates.append(ContextCandidate("user_knowledge", f"user_knowledge/{area}/{rel}", header, excerpt, source, float(item.get("score") or 0), 2 if item.get("cloud_allowed") else 1))
 
-        obsidian_payload = self._build_obsidian_context(query=query, cloud_context=cloud_context, company_context=company_context, remaining_files=max(0, (limit or self.max_files) - len(sources)), remaining_chars=max(0, self.max_total_chars - total_chars)) if self.include_obsidian else self._empty_obsidian_payload(cloud_context, company_context=company_context)
-        if obsidian_payload.get("context_text"):
-            snippets.append(obsidian_payload["context_text"])
-            sources.extend(obsidian_payload.get("sources", []))
+        obsidian_payload = self._build_obsidian_context(query=query, cloud_context=cloud_context, company_context=company_context, remaining_files=max(1, limit or self.max_files), remaining_chars=self.max_total_chars) if self.include_obsidian else self._empty_obsidian_payload(cloud_context, company_context=company_context)
+        for source, text in zip(obsidian_payload.get("sources", []), obsidian_payload.get("source_texts", [])):
+            rel = source.get("relative_path")
+            policy_label = 'local_only' if not cloud_context else ('company_allowed' if company_context else 'cloud_allowed')
+            header = f"Quelle: obsidian/{rel} | Policy: {policy_label} | Company erlaubt: {bool(source.get('company_allowed'))} | Cloud erlaubt: {bool(source.get('cloud_allowed'))}"
+            candidates.append(ContextCandidate("obsidian", f"obsidian/{rel}", header, self._clip(text, self.max_chars_per_file), source, float(source.get("score") or 0), 2 if source.get("cloud_allowed") or source.get("company_allowed") else 1))
+        if obsidian_payload.get("context_text") and not obsidian_payload.get("source_texts"):
+            # Topic summaries are already aggregated and should remain one context block.
+            for source in obsidian_payload.get("sources", []):
+                rel = source.get("relative_path")
+                header = "Quelle: obsidian/index | Typ: Vault Topics"
+                candidates.append(ContextCandidate("obsidian", f"obsidian/{rel}", header, obsidian_payload.get("context_text", ""), source, float(source.get("score") or 0), 2))
 
-        context_text = "\n\n---\n\n".join(snippets)
+        ranked_context = ContextRanker(max_total_chars=self.max_total_chars, max_chars_per_file=self.max_chars_per_file, max_sources=limit or self.max_files).build(query=query, candidates=candidates)
+        context_text = ranked_context["context_text"]
+        sources = ranked_context["sources"]
         return {
             "kind": "knowledge_context",
             "query": query,
@@ -125,6 +135,7 @@ class KnowledgeContextService:
             "context_chars": len(context_text),
             "source_count": len(sources),
             "sources": sources,
+            "ranking": ranked_context.get("ranking", {}),
             "blocked_local_only_count": len(blocked) if cloud_context else 0,
             "blocked_obsidian_count": obsidian_payload.get("blocked_count", 0),
             "obsidian": {k: v for k, v in obsidian_payload.items() if k != "context_text"},
@@ -178,6 +189,7 @@ class KnowledgeContextService:
             return {**self._empty_obsidian_payload(cloud_context, company_context=company_context), "error": str(exc)}
 
         snippets: list[str] = []
+        source_texts: list[str] = []
         sources: list[dict[str, Any]] = []
         total = 0
         for item in search.get("results", [])[:remaining_files]:
@@ -191,6 +203,7 @@ class KnowledgeContextService:
             if total + len(block) > remaining_chars:
                 break
             snippets.append(block)
+            source_texts.append(text)
             total += len(block)
             sources.append({
                 "source_type": "obsidian",
@@ -210,6 +223,7 @@ class KnowledgeContextService:
             "query": query,
             "source_count": len(sources),
             "sources": sources,
+            "source_texts": source_texts,
             "context_text": "\n\n---\n\n".join(snippets),
             "blocked_count": 0,
         }

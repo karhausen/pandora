@@ -39,12 +39,14 @@ class CognitiveContextBuilder:
             "context_chars": payload.get("context_chars", 0),
             "sources": payload.get("sources", []),
             "source_count": payload.get("source_count", 0),
+            "ranking": payload.get("ranking", {}),
             "policy": payload.get("policy", {}),
             "diagnostics": {
                 "knowledge_context": payload,
                 "blocked_local_only_count": payload.get("blocked_local_only_count", 0),
                 "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
                 "obsidian": payload.get("obsidian", {}),
+                "ranking": payload.get("ranking", {}),
             },
         }
 
@@ -57,5 +59,6 @@ class CognitiveContextBuilder:
             "chat_route": route.model_dump(mode="json"),
             "target": target,
             "providers": ["user_knowledge", "obsidian_vault", "conversation_memory"],
+            "completion_features": ["context_ranking", "token_budget", "duplicate_removal", "source_diagnostics"],
             "policy_levels": ["local_only", "company_allowed", "cloud_allowed"],
         }
