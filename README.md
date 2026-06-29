@@ -1,5 +1,27 @@
 # Pandora MVP 25.1.3
 
+## MVP 25.5 – Python Orchestrator
+
+MVP 25.5 ergänzt die Cognitive Pipeline um eine Python-seitige Kontrollschicht.
+Der Orchestrator nimmt Empfehlungen aus Request Interpreter und Capability Analyzer entgegen, validiert Quellenräume, Tools, Skills, Capability-Gaps und Freigabepflichten und erzeugt daraus einen prüfbaren Plan.
+
+Wichtig: Der Orchestrator führt nichts aus, liest keine Dateien, erzeugt keinen Code und aktiviert keine Tools. Er bereitet nur kontrollierte nächste Schritte vor.
+
+CLI:
+
+```bash
+python main.py python-orchestrator-status
+python main.py python-orchestrate "Was war meine letzte Notiz?"
+```
+
+API:
+
+```text
+/api/cognitive/python-orchestrator/status
+/api/cognitive/python-orchestrator/preview
+```
+
+
 # Pandora MVP 24.8.1 - Night Review Web Route Fix
 
 Dieses Release basiert auf MVP 24.8 und korrigiert/prüft die Webroute `/night-review`.

@@ -17,3 +17,4 @@ last_reviewed: 2026-06-29
 ## [[Test-Prompts]]
 - Was steht in meinem Vault?
 - Bitte eine kurze Zusammenfassung zum Pandora-Projekt.
+- Welche Test-Prompts habe ich?

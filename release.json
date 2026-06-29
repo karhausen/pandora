@@ -1,22 +1,23 @@
 {
-  "version": "25.4-capability-analyzer",
-  "name": "MVP 25.4 - Capability Analyzer",
-  "feature": "Capability Analyzer",
-  "based_on": "25.3-request-interpreter",
+  "version": "25.5-python-orchestrator",
+  "name": "MVP 25.5 - Python Orchestrator",
+  "feature": "Python Orchestrator",
+  "based_on": "25.4-capability-analyzer",
   "features": [
-    "Neuer core/capability_analyzer.py als Python-seitige Diagnose-Schicht nach dem Request Interpreter",
-    "Strukturierte Erkennung von Tool-, Skill-, Knowledge- und Core-Gaps",
-    "Validierung von empfohlenen Tools und Skills gegen reale Registries",
-    "Empfohlene Aktionen und Prioritäten für den späteren Python Orchestrator",
-    "Integration in CognitiveContextBuilder-Diagnostik ohne Tool-Ausführung und ohne Vault-Regressionsänderung",
-    "Neue CLI-Befehle capability-analyzer-status und capability-analyze",
-    "Neue API-Endpunkte /api/cognitive/capability-analyzer/status und /preview",
-    "Regressionstests für Gap-Diagnose, Kontext-Lookup und CognitiveContextBuilder-Integration"
+    "Neuer core/python_orchestrator.py als Python-seitige Kontrollschicht nach dem Capability Analyzer",
+    "Validierung von Quellenräumen gegen Profil/Policy local, company und cloud",
+    "Validierung empfohlener Tools und Skills ohne Ausführung",
+    "Übersetzung von Tool-, Skill-, Knowledge- und Core-Gaps in reviewbare nächste Schritte",
+    "Freigabepflicht für Tool Factory, Skill-, Knowledge- und Core-Proposals",
+    "Integration in CognitiveContextBuilder-Diagnostik ohne Änderung des Vault-Lesepfads",
+    "Neue CLI-Befehle python-orchestrator-status und python-orchestrate",
+    "Neue API-Endpunkte /api/cognitive/python-orchestrator/status und /preview",
+    "Regressionstests für sichere Kontext-Lookups, Tool-Gaps, Cloud-Policy-Blocking und CognitiveContextBuilder-Integration"
   ],
   "notes": [
-    "MVP 25.4 führt noch keine Tool Factory automatisch aus.",
-    "Der Analyzer erzeugt keine Tools und aktiviert keine Tools.",
-    "Capability-Gaps werden nur diagnostiziert und als reviewbare Empfehlungen vorbereitet."
+    "MVP 25.5 führt weiterhin keine Tools automatisch aus.",
+    "Der Orchestrator erzeugt keinen Code und aktiviert keine Tools.",
+    "Alle verändernden Aktionen bleiben review- und freigabepflichtig."
   ],
   "build_time": "2026-06-29T00:00:00Z"
 }

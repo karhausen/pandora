@@ -76,6 +76,7 @@ from .knowledge_context import KnowledgeContextService
 from .cognitive_context_builder import CognitiveContextBuilder
 from .request_interpreter import RequestInterpreter
 from .capability_analyzer import CapabilityAnalyzer
+from .python_orchestrator import PythonOrchestrator
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -97,7 +98,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.4-capability-analyzer")
+app = FastAPI(title="Pandora Agent", version="25.5-python-orchestrator")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -653,6 +654,14 @@ def api_capability_analyzer_status():
 @app.get("/api/cognitive/capability-analyzer/preview")
 def api_capability_analyzer_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return CapabilityAnalyzer().analyze(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/python-orchestrator/status")
+def api_python_orchestrator_status():
+    return PythonOrchestrator().status()
+
+@app.get("/api/cognitive/python-orchestrator/preview")
+def api_python_orchestrator_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return PythonOrchestrator().plan(query, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/context/preview")
 def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):

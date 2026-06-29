@@ -60,6 +60,7 @@ from core.knowledge_context import KnowledgeContextService
 from core.cognitive_context_builder import CognitiveContextBuilder
 from core.request_interpreter import RequestInterpreter
 from core.capability_analyzer import CapabilityAnalyzer
+from core.python_orchestrator import PythonOrchestrator
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -400,6 +401,10 @@ def cmd_capability_analyzer_status(args): _json(CapabilityAnalyzer().status())
 
 def cmd_capability_analyze(args): _json(CapabilityAnalyzer().analyze(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
+def cmd_python_orchestrator_status(args): _json(PythonOrchestrator().status())
+
+def cmd_python_orchestrate(args): _json(PythonOrchestrator().plan(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def cmd_cognitive_context_preview(args): _json(CognitiveContextBuilder().build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit))
 
 def cmd_obsidian_context_preview(args):
@@ -615,6 +620,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("capability-analyzer-status"); p.set_defaults(func=cmd_capability_analyzer_status)
     p = sub.add_parser("capability-analyze"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_capability_analyze)
+    p = sub.add_parser("python-orchestrator-status"); p.set_defaults(func=cmd_python_orchestrator_status)
+    p = sub.add_parser("python-orchestrate"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_python_orchestrate)
     p = sub.add_parser("cognitive-context-preview"); p.add_argument("query"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.set_defaults(func=cmd_cognitive_context_preview)
     p = sub.add_parser("knowledge-governance-status"); p.set_defaults(func=cmd_knowledge_governance_status)
     p = sub.add_parser("knowledge-governance-run"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_governance_run)
