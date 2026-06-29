@@ -5,6 +5,7 @@ from typing import Any
 
 from .knowledge_context import KnowledgeContextService
 from .request_interpreter import RequestInterpreter
+from .capability_analyzer import CapabilityAnalyzer
 from .llm_config import LLMConfig
 from .model_router import ModelRouter
 
@@ -22,16 +23,19 @@ class CognitiveContextBuilder:
     knowledge_context: KnowledgeContextService | None = None
     llm_config: LLMConfig | None = None
     request_interpreter: RequestInterpreter | None = None
+    capability_analyzer: CapabilityAnalyzer | None = None
 
     def __post_init__(self) -> None:
         self.llm_config = self.llm_config or LLMConfig()
         self.knowledge_context = self.knowledge_context or KnowledgeContextService(llm_config=self.llm_config)
         self.request_interpreter = self.request_interpreter or RequestInterpreter(llm_config=self.llm_config)
+        self.capability_analyzer = self.capability_analyzer or CapabilityAnalyzer(request_interpreter=self.request_interpreter)
 
     def build_for_chat(self, query: str, *, provider_name: str | None = None, model: str | None = None, limit: int | None = None) -> dict[str, Any]:
         route = ModelRouter(self.llm_config).route("chat", provider_name_override=provider_name, model_override=model)
         target = self.knowledge_context.target_for_provider(route.provider_name, model=route.model, route=route.model_dump(mode="json"))
         interpretation = self.request_interpreter.interpret(query, provider_name=provider_name, model=model)
+        capability_analysis = self.capability_analyzer.analyze(query, interpretation=interpretation)
         payload = self.knowledge_context.build(query=query, target=target["target"], limit=limit, route_target=target)
         return {
             "kind": "cognitive_context",
@@ -39,6 +43,7 @@ class CognitiveContextBuilder:
             "purpose": "chat",
             "route_target": target,
             "request_interpretation": interpretation,
+            "capability_analysis": capability_analysis,
             "target": payload.get("target"),
             "context_text": payload.get("context_text", ""),
             "context_chars": payload.get("context_chars", 0),
@@ -49,6 +54,7 @@ class CognitiveContextBuilder:
             "diagnostics": {
                 "knowledge_context": payload,
                 "request_interpretation": interpretation,
+                "capability_analysis": capability_analysis,
                 "blocked_local_only_count": payload.get("blocked_local_only_count", 0),
                 "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
                 "obsidian": payload.get("obsidian", {}),
@@ -66,6 +72,7 @@ class CognitiveContextBuilder:
             "target": target,
             "providers": ["user_knowledge", "obsidian_vault", "conversation_memory"],
             "request_interpreter": self.request_interpreter.status(),
-            "pipeline": ["request_interpretation", "collect_candidates", "rank", "duplicate_removal", "budget", "prompt_context"],
+            "capability_analyzer": self.capability_analyzer.status(),
+            "pipeline": ["request_interpretation", "capability_analysis", "collect_candidates", "rank", "duplicate_removal", "budget", "prompt_context"],
             "policy_levels": ["local_only", "company_allowed", "cloud_allowed"],
         }

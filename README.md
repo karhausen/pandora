@@ -393,3 +393,33 @@ python main.py obsidian-validate
 ```
 
 Uses PyYAML and reports malformed YAML as governance warnings instead of crashing indexing.
+
+## MVP 25.4 – Capability Analyzer
+
+MVP 25.4 ergänzt die Cognitive Pipeline um eine Diagnose-Schicht nach dem Request Interpreter.
+
+Der Capability Analyzer erkennt strukturiert:
+
+- Tool Gaps
+- Skill Gaps
+- Knowledge Gaps
+- Core Gaps
+- empfohlene Aktionen und Prioritäten
+
+Er führt keine Tools aus, erzeugt keinen Code und aktiviert nichts automatisch. Änderungen bleiben review-, test-, governance- und freigabepflichtig.
+
+CLI:
+
+```bash
+python main.py capability-analyzer-status
+python main.py capability-analyze "Analysiere historische Aktienkurse" --provider-name mock
+```
+
+API:
+
+```text
+GET /api/cognitive/capability-analyzer/status
+GET /api/cognitive/capability-analyzer/preview?query=...
+```
+
+Doku: `docs/capability_analyzer.md`

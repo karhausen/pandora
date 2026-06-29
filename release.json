@@ -1,21 +1,22 @@
 {
-  "version": "25.3-request-interpreter",
-  "name": "MVP 25.3 - Request Interpreter",
-  "feature": "Request Interpreter",
-  "based_on": "25.2-context-builder-completion",
+  "version": "25.4-capability-analyzer",
+  "name": "MVP 25.4 - Capability Analyzer",
+  "feature": "Capability Analyzer",
+  "based_on": "25.3-request-interpreter",
   "features": [
-    "Neuer core/request_interpreter.py als semantische Voranalyse für den Cognitive Core",
-    "LLM-gestützte Empfehlungen für Intent, Quellenräume, Tools, Skills und Capability-Gaps",
-    "Strikte Trennung: LLM empfiehlt nur; Python validiert und handelt",
-    "Heuristischer Fallback, falls keine valide LLM-JSON-Interpretation verfügbar ist",
-    "Integration in CognitiveContextBuilder-Diagnostik ohne Bruch des bestehenden Chat-/Obsidian-Flows",
-    "Neue CLI-Befehle request-interpreter-status und request-interpret",
-    "Regressionstests für Request Interpreter und Context Builder Integration"
+    "Neuer core/capability_analyzer.py als Python-seitige Diagnose-Schicht nach dem Request Interpreter",
+    "Strukturierte Erkennung von Tool-, Skill-, Knowledge- und Core-Gaps",
+    "Validierung von empfohlenen Tools und Skills gegen reale Registries",
+    "Empfohlene Aktionen und Prioritäten für den späteren Python Orchestrator",
+    "Integration in CognitiveContextBuilder-Diagnostik ohne Tool-Ausführung und ohne Vault-Regressionsänderung",
+    "Neue CLI-Befehle capability-analyzer-status und capability-analyze",
+    "Neue API-Endpunkte /api/cognitive/capability-analyzer/status und /preview",
+    "Regressionstests für Gap-Diagnose, Kontext-Lookup und CognitiveContextBuilder-Integration"
   ],
   "notes": [
-    "MVP 25.3 führt noch keine autonome Tool-Ausführung und keine automatische Tool-Erzeugung aus.",
-    "Der Interpreter liest keine Dateien und führt keine Tools aus.",
-    "Capability-Gaps werden nur strukturiert empfohlen; Review, Tests, Governance und User-Freigabe bleiben Pflicht."
+    "MVP 25.4 führt noch keine Tool Factory automatisch aus.",
+    "Der Analyzer erzeugt keine Tools und aktiviert keine Tools.",
+    "Capability-Gaps werden nur diagnostiziert und als reviewbare Empfehlungen vorbereitet."
   ],
   "build_time": "2026-06-29T00:00:00Z"
 }

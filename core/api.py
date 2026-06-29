@@ -75,6 +75,7 @@ from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
 from .cognitive_context_builder import CognitiveContextBuilder
 from .request_interpreter import RequestInterpreter
+from .capability_analyzer import CapabilityAnalyzer
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -96,7 +97,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.3-request-interpreter")
+app = FastAPI(title="Pandora Agent", version="25.4-capability-analyzer")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -644,6 +645,14 @@ def api_request_interpreter_status():
 @app.get("/api/cognitive/request-interpreter/preview")
 def api_request_interpreter_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return RequestInterpreter().interpret(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/capability-analyzer/status")
+def api_capability_analyzer_status():
+    return CapabilityAnalyzer().status()
+
+@app.get("/api/cognitive/capability-analyzer/preview")
+def api_capability_analyzer_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CapabilityAnalyzer().analyze(query, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/context/preview")
 def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
