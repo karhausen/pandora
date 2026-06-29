@@ -5,7 +5,7 @@ import os
 import re
 import yaml
 from dataclasses import dataclass
-from datetime import date, datetime, time, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -183,10 +183,7 @@ class ObsidianVaultService:
             data_dir = self.root_dir / "data" / "obsidian"
             data_dir.mkdir(parents=True, exist_ok=True)
             import json
-            (data_dir / "index.json").write_text(
-                json.dumps(self._json_safe(report), indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
+            (data_dir / "index.json").write_text(json.dumps(self._json_safe(report), indent=2, ensure_ascii=False), encoding="utf-8")
         return report
 
     def search(self, query: str, *, limit: int = 20, include_content: bool = False) -> dict[str, Any]:
@@ -293,6 +290,16 @@ class ObsidianVaultService:
             "sha256": hashlib.sha256(text.encode("utf-8", errors="ignore")).hexdigest(),
         }
 
+
+    def _json_safe(self, value: Any) -> Any:
+        if isinstance(value, (datetime, date)):
+            return value.isoformat()
+        if isinstance(value, dict):
+            return {str(key): self._json_safe(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple, set)):
+            return [self._json_safe(item) for item in value]
+        return value
+
     def _strip_frontmatter(self, text: str) -> str:
         if text.startswith("---"):
             parts = text.split("---", 2)
@@ -335,7 +342,15 @@ class ObsidianVaultService:
                 "_frontmatter_error": f"YAML frontmatter must be a mapping/object, got {type(loaded).__name__}",
                 "_frontmatter_raw_excerpt": block[:500],
             }
-        data = self._json_safe(dict(loaded))
+        data = dict(loaded)
+        for policy_key in ("cloud_allowed", "company_allowed"):
+            value = data.get(policy_key)
+            if isinstance(value, str):
+                lower = value.strip().lower()
+                if lower.startswith("true"):
+                    data[policy_key] = True
+                elif lower.startswith("false"):
+                    data[policy_key] = False
         data.setdefault("_frontmatter_valid", True)
         return data
 
@@ -368,7 +383,7 @@ class ObsidianVaultService:
             if not stripped or stripped.startswith("#"):
                 continue
             if re.match(r"^\s+-\s+", line):
-                if last_key_had_scalar:
+                if last_key_had_scalar and last_key == "company_allowed":
                     return f"line {line_no}: list item appears below scalar key '{last_key}'"
                 continue
             if ":" in line and not line.startswith((" ", "\t")):
@@ -440,28 +455,6 @@ class ObsidianVaultService:
             "issues": issues,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
-
-
-    def _json_safe(self, value: Any) -> Any:
-        """Return a JSON-serializable representation for Obsidian index data.
-
-        PyYAML converts YAML timestamps such as ``created: 2026-06-26``
-        into ``date``/``datetime`` objects. The API response can handle many
-        Python objects, but the persisted ``data/obsidian/index.json`` must be
-        plain JSON. Keeping the conversion here prevents one note with a YAML
-        date from crashing a full vault reindex.
-        """
-        if isinstance(value, datetime):
-            return value.isoformat()
-        if isinstance(value, (date, time)):
-            return value.isoformat()
-        if isinstance(value, Path):
-            return str(value)
-        if isinstance(value, dict):
-            return {str(key): self._json_safe(item) for key, item in value.items()}
-        if isinstance(value, (list, tuple, set)):
-            return [self._json_safe(item) for item in value]
-        return value
 
     def _metadata_tags(self, metadata: dict[str, Any]) -> list[str]:
         value = metadata.get("tags", [])

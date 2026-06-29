@@ -14,6 +14,7 @@ DIRS_TO_EMPTY = [
     ROOT / "memory" / "task_executions",
     ROOT / "memory" / "reasoning",
     ROOT / "sandbox" / "runs",
+    ROOT / "sandbox" / "tmp",
     ROOT / "tool_proposals",
     ROOT / "skill_proposals",
     ROOT / "proposals" / "improvements",
@@ -23,20 +24,18 @@ FILES_TO_RESET = {
     ROOT / "memory" / "chat_sessions.json": '{\n  "sessions": []\n}\n',
     ROOT / "memory" / "conversation_memory.json": '{\n  "facts": {}\n}\n',
     ROOT / "memory" / "tool_usage_stats.json": "{}\n",
+    ROOT / "memory" / "coordinator_log.jsonl": "",
+    ROOT / "memory" / "planner_agent_log.jsonl": "",
+    ROOT / "memory" / "worker_agent_log.jsonl": "",
+    ROOT / "memory" / "sandbox_log.jsonl": "",
+    ROOT / "memory" / "conversation_memory_log.jsonl": "",
+    ROOT / "memory" / "capability_event_log.jsonl": "",
+    ROOT / "memory" / "capability_workflow_log.jsonl": "",
+    ROOT / "memory" / "tool_generation_log.jsonl": "",
+    ROOT / "memory" / "tool_lifecycle_log.jsonl": "",
+    ROOT / "memory" / "reality_check_log.jsonl": "",
 }
 
-FILES_TO_REMOVE = [
-    ROOT / "memory" / "governance_report.json",
-]
-
-
-
-
-def remove_path(path: Path) -> None:
-    if path.is_dir():
-        shutil.rmtree(path)
-    elif path.exists():
-        path.unlink()
 
 def empty_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
@@ -64,8 +63,6 @@ def reset_tool_registry_to_base_tools() -> None:
 
 
 def main() -> None:
-    for runtime_path in [ROOT / "sandbox" / "tmp", ROOT / "sandbox" / "runs"]:
-        remove_path(runtime_path)
     for pattern in ["__pycache__", ".pytest_cache"]:
         for path in ROOT.rglob(pattern):
             if path.is_dir():
@@ -85,11 +82,6 @@ def main() -> None:
     for path in DIRS_TO_EMPTY:
         empty_dir(path)
     reset_tool_registry_to_base_tools()
-    for path in ROOT.rglob("*.jsonl"):
-        if "memory" in path.parts:
-            remove_path(path)
-    for path in FILES_TO_REMOVE:
-        remove_path(path)
     for path, content in FILES_TO_RESET.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding="utf-8")

@@ -80,50 +80,60 @@ class KnowledgeContextService:
         normalized_target = (target or "local").strip().lower()
         cloud_context = normalized_target in {"cloud", "company", "company_llm", "cloud_llm", "openai"}
         company_context = normalized_target in {"company", "company_llm"}
-        result = self.knowledge.search(query=query, limit=limit or self.max_files, cloud_context=cloud_context)
+        max_items = limit or self.max_files
+
+        result = self.knowledge.search(query=query, limit=max_items, cloud_context=cloud_context)
         full_result = self.knowledge.search(query=query, limit=200, cloud_context=False) if cloud_context else result
         blocked = [item for item in full_result.get("results", []) if not item.get("cloud_allowed")]
 
         candidates: list[ContextCandidate] = []
-        for item in result.get("results", [])[: max(limit or self.max_files, self.max_files)]:
+        for item in result.get("results", [])[:max_items]:
             area = item["area"]
             rel = item["relative_path"]
-            text = self._read_source(area, rel)
-            excerpt = self._clip(text, self.max_chars_per_file)
-            if not excerpt:
+            text = self._clip(self._read_source(area, rel), self.max_chars_per_file)
+            if not text:
                 continue
-            header = f"Quelle: user_knowledge/{area}/{rel} | Policy: {item.get('policy')} | Cloud erlaubt: {bool(item.get('cloud_allowed'))}"
-            source = {
-                "source_type": "user_knowledge",
-                "area": area,
-                "relative_path": rel,
-                "policy": item.get("policy"),
-                "cloud_allowed": bool(item.get("cloud_allowed")),
-                "name": item.get("name"),
-                "title": (item.get("metadata") or {}).get("title") or item.get("name"),
-                "tags": (item.get("metadata") or {}).get("tags", []),
-                "size_bytes": item.get("size_bytes"),
-                "modified_at": item.get("modified_at"),
-                "score": item.get("score", 0),
-            }
-            candidates.append(ContextCandidate("user_knowledge", f"user_knowledge/{area}/{rel}", header, excerpt, source, float(item.get("score") or 0), 2 if item.get("cloud_allowed") else 1))
+            candidates.append(ContextCandidate(
+                source_type="user_knowledge",
+                source_id=f"{area}/{rel}",
+                title=str(item.get("name") or rel),
+                text=text,
+                metadata={
+                    "area": area,
+                    "relative_path": rel,
+                    "policy": item.get("policy"),
+                    "cloud_allowed": bool(item.get("cloud_allowed")),
+                    "name": item.get("name"),
+                    "size_bytes": item.get("size_bytes"),
+                    "score": item.get("score", 0),
+                },
+                base_score=float(item.get("score") or 0),
+            ))
 
-        obsidian_payload = self._build_obsidian_context(query=query, cloud_context=cloud_context, company_context=company_context, remaining_files=max(1, limit or self.max_files), remaining_chars=self.max_total_chars) if self.include_obsidian else self._empty_obsidian_payload(cloud_context, company_context=company_context)
-        for source, text in zip(obsidian_payload.get("sources", []), obsidian_payload.get("source_texts", [])):
-            rel = source.get("relative_path")
-            policy_label = 'local_only' if not cloud_context else ('company_allowed' if company_context else 'cloud_allowed')
-            header = f"Quelle: obsidian/{rel} | Policy: {policy_label} | Company erlaubt: {bool(source.get('company_allowed'))} | Cloud erlaubt: {bool(source.get('cloud_allowed'))}"
-            candidates.append(ContextCandidate("obsidian", f"obsidian/{rel}", header, self._clip(text, self.max_chars_per_file), source, float(source.get("score") or 0), 2 if source.get("cloud_allowed") or source.get("company_allowed") else 1))
-        if obsidian_payload.get("context_text") and not obsidian_payload.get("source_texts"):
-            # Topic summaries are already aggregated and should remain one context block.
-            for source in obsidian_payload.get("sources", []):
-                rel = source.get("relative_path")
-                header = "Quelle: obsidian/index | Typ: Vault Topics"
-                candidates.append(ContextCandidate("obsidian", f"obsidian/{rel}", header, obsidian_payload.get("context_text", ""), source, float(source.get("score") or 0), 2))
+        obsidian_payload = self._build_obsidian_context(
+            query=query,
+            cloud_context=cloud_context,
+            company_context=company_context,
+            remaining_files=max_items,
+            remaining_chars=self.max_total_chars,
+        ) if self.include_obsidian else self._empty_obsidian_payload(cloud_context, company_context=company_context)
 
-        ranked_context = ContextRanker(max_total_chars=self.max_total_chars, max_chars_per_file=self.max_chars_per_file, max_sources=limit or self.max_files).build(query=query, candidates=candidates)
-        context_text = ranked_context["context_text"]
-        sources = ranked_context["sources"]
+        for item in obsidian_payload.get("candidate_items", []):
+            candidates.append(item)
+
+        ranker = ContextRanker(max_total_chars=self.max_total_chars, max_chars_per_item=self.max_chars_per_file, max_items=max_items)
+        ranked = ranker.select(query=query, candidates=candidates)
+        context_text = ranked.get("context_text", "")
+        sources = ranked.get("sources", [])
+
+        # Backward compatibility: topic queries are answered directly from the
+        # Obsidian diagnostics in ChatService. Keep the topic context intact when
+        # the ranker has no candidates (for example when only the index summary exists).
+        if not context_text and obsidian_payload.get("context_text"):
+            context_text = obsidian_payload.get("context_text", "")
+            sources = obsidian_payload.get("sources", [])
+
+        context_diagnostics = ranked.get("diagnostics", {})
         return {
             "kind": "knowledge_context",
             "query": query,
@@ -135,10 +145,10 @@ class KnowledgeContextService:
             "context_chars": len(context_text),
             "source_count": len(sources),
             "sources": sources,
-            "ranking": ranked_context.get("ranking", {}),
             "blocked_local_only_count": len(blocked) if cloud_context else 0,
             "blocked_obsidian_count": obsidian_payload.get("blocked_count", 0),
-            "obsidian": {k: v for k, v in obsidian_payload.items() if k != "context_text"},
+            "obsidian": {k: v for k, v in obsidian_payload.items() if k not in {"context_text", "candidate_items"}},
+            "context_ranking": context_diagnostics,
             "blocked_local_only_sources": [
                 {"area": item.get("area"), "relative_path": item.get("relative_path"), "policy": item.get("policy")}
                 for item in blocked[:20]
@@ -146,6 +156,7 @@ class KnowledgeContextService:
             "policy": {"target": normalized_target, "local": "all local user knowledge + obsidian allowed", "company": "private_local_only blocked; obsidian requires OBSIDIAN_COMPANY_ALLOWED=true or per-note company_allowed=true", "cloud": "private_local_only blocked; obsidian requires OBSIDIAN_CLOUD_ALLOWED=true or per-note cloud_allowed=true"},
             "rule": "private_local_only is included only for local targets; Obsidian context is included for company targets only when company_allowed; public cloud requires cloud_allowed",
         }
+
 
 
     def _build_obsidian_context(self, *, query: str, cloud_context: bool, company_context: bool = False, remaining_files: int, remaining_chars: int) -> dict[str, Any]:
@@ -184,31 +195,33 @@ class KnowledgeContextService:
             if self._looks_like_vault_topics_query(query):
                 search = vault.index(limit=10000, write=False)
                 return self._obsidian_topics_payload(search, cloud_context=cloud_context, company_context=company_context, remaining_chars=remaining_chars)
-            if self._looks_like_latest_note_query(query):
-                index = vault.index(limit=10000, write=False)
-                return self._obsidian_latest_note_payload(vault, index, cloud_context=cloud_context, company_context=company_context, remaining_chars=remaining_chars)
-            search = vault.search(query=query, limit=remaining_files, include_content=True)
+            if self._looks_like_last_note_query(query):
+                search = vault.index(limit=10000, write=False)
+                search["results"] = sorted(search.get("files", []), key=lambda item: str(item.get("modified_at") or ""), reverse=True)[:remaining_files]
+                search["kind"] = "obsidian_latest_notes"
+                search["query"] = query
+            else:
+                search = vault.search(query=query, limit=remaining_files, include_content=True)
         except (ObsidianSafetyError, Exception) as exc:
             return {**self._empty_obsidian_payload(cloud_context, company_context=company_context), "error": str(exc)}
 
         snippets: list[str] = []
-        source_texts: list[str] = []
         sources: list[dict[str, Any]] = []
+        candidates: list[ContextCandidate] = []
         total = 0
         for item in search.get("results", [])[:remaining_files]:
-            text = self._clip(str(item.get("content") or item.get("excerpt") or ""), self.max_chars_per_file)
+            rel = item.get("relative_path")
+            content = item.get("content")
+            if content is None and rel:
+                try:
+                    content = vault._safe_vault_file(str(rel)).read_text(encoding="utf-8", errors="ignore")
+                except Exception:
+                    content = item.get("excerpt") or ""
+            text = self._clip(str(content or item.get("excerpt") or ""), self.max_chars_per_file)
             if not text:
                 continue
-            rel = item.get("relative_path")
             policy_label = 'local_only' if not cloud_context else ('company_allowed' if company_context else 'cloud_allowed')
-            header = f"Quelle: obsidian/{rel} | Policy: {policy_label} | Company erlaubt: {bool(item.get('company_allowed'))} | Cloud erlaubt: {bool(item.get('cloud_allowed'))}"
-            block = f"[{header}]\n{text}"
-            if total + len(block) > remaining_chars:
-                break
-            snippets.append(block)
-            source_texts.append(text)
-            total += len(block)
-            sources.append({
+            source_meta = {
                 "source_type": "obsidian",
                 "relative_path": rel,
                 "title": item.get("title"),
@@ -216,8 +229,25 @@ class KnowledgeContextService:
                 "wikilinks": item.get("wikilinks", []),
                 "company_allowed": bool(item.get("company_allowed", search.get("company_allowed"))),
                 "cloud_allowed": bool(item.get("cloud_allowed", search.get("cloud_allowed"))),
-                "score": item.get("score"),
-            })
+                "modified_at": item.get("modified_at"),
+                "sha256": item.get("sha256"),
+                "score": item.get("score", 0),
+                "policy": policy_label,
+            }
+            header = f"Quelle: obsidian/{rel} | Policy: {policy_label} | Company erlaubt: {bool(source_meta['company_allowed'])} | Cloud erlaubt: {bool(source_meta['cloud_allowed'])}"
+            block = f"[{header}]\n{text}"
+            if total + len(block) <= remaining_chars:
+                snippets.append(block)
+                total += len(block)
+                sources.append(source_meta)
+            candidates.append(ContextCandidate(
+                source_type="obsidian",
+                source_id=str(rel),
+                title=str(item.get("title") or rel),
+                text=text,
+                metadata=source_meta,
+                base_score=float(item.get("score") or (10 if search.get("kind") == "obsidian_latest_notes" else 0)),
+            ))
         return {
             "enabled": True,
             "status_ok": True,
@@ -226,72 +256,16 @@ class KnowledgeContextService:
             "query": query,
             "source_count": len(sources),
             "sources": sources,
-            "source_texts": source_texts,
+            "candidate_items": candidates,
             "context_text": "\n\n---\n\n".join(snippets),
             "blocked_count": 0,
         }
 
 
-
-    def _looks_like_latest_note_query(self, query: str) -> bool:
+    def _looks_like_last_note_query(self, query: str) -> bool:
         q = (query or "").lower()
-        has_note = any(word in q for word in ["notiz", "note", "notes", "eintrag", "markdown"])
-        has_latest = any(word in q for word in ["letzte", "letzter", "letzten", "zuletzt", "neueste", "neuste", "aktuellste", "latest", "recent", "newest"])
-        return has_note and has_latest
-
-    def _obsidian_latest_note_payload(self, vault: ObsidianVaultService, index: dict[str, Any], *, cloud_context: bool, company_context: bool, remaining_chars: int) -> dict[str, Any]:
-        files = list(index.get("files", []) or [])
-        files.sort(key=lambda item: str(item.get("modified_at") or ""), reverse=True)
-        if not files:
-            return {
-                "enabled": True,
-                "status_ok": True,
-                "company_allowed": bool(index.get("company_allowed")),
-                "cloud_allowed": bool(index.get("cloud_allowed")),
-                "query": "latest_note",
-                "source_count": 0,
-                "sources": [],
-                "source_texts": [],
-                "context_text": "",
-                "blocked_count": 0,
-                "latest_note": None,
-            }
-        latest = files[0]
-        rel = str(latest.get("relative_path") or "")
-        try:
-            text = vault._safe_vault_file(rel).read_text(encoding="utf-8", errors="ignore")
-        except Exception:
-            text = str(latest.get("excerpt") or "")
-        text = self._clip(text, min(self.max_chars_per_file, max(0, remaining_chars)))
-        source = {
-            "source_type": "obsidian",
-            "relative_path": rel,
-            "title": latest.get("title"),
-            "tags": latest.get("tags", []),
-            "wikilinks": latest.get("wikilinks", []),
-            "company_allowed": bool(latest.get("company_allowed", index.get("company_allowed"))),
-            "cloud_allowed": bool(latest.get("cloud_allowed", index.get("cloud_allowed"))),
-            "modified_at": latest.get("modified_at"),
-            "score": 999,
-        }
-        policy_label = "local_only" if not cloud_context else ("company_allowed" if company_context else "cloud_allowed")
-        header = f"Quelle: obsidian/{rel} | Typ: letzte Notiz | Policy: {policy_label} | Company erlaubt: {source['company_allowed']} | Cloud erlaubt: {source['cloud_allowed']}"
-        block = f"[{header}]\n{text}" if text else ""
-        if len(block) > remaining_chars:
-            block = block[:remaining_chars].rstrip() + "\n...[gekürzt]"
-        return {
-            "enabled": True,
-            "status_ok": True,
-            "company_allowed": bool(index.get("company_allowed")),
-            "cloud_allowed": bool(index.get("cloud_allowed")),
-            "query": "latest_note",
-            "source_count": 1,
-            "sources": [source],
-            "source_texts": [text] if text else [],
-            "context_text": block,
-            "blocked_count": 0,
-            "latest_note": source,
-        }
+        last_markers = ["letzte notiz", "letzten notiz", "last note", "zuletzt geschrieben", "letzte idee", "letzter gedanke", "neueste notiz"]
+        return any(marker in q for marker in last_markers)
 
     def _looks_like_vault_topics_query(self, query: str) -> bool:
         q = (query or "").lower()

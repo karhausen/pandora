@@ -1,39 +1,3 @@
-# Pandora MVP 25.2.2 – GUI Chat Obsidian Context Regression Fix
-
-Dieses Hotfix-Release stellt den GUI-Chat-Zugriff auf den Obsidian-Vault wieder her. Fragen wie `Was war meine letzte Notiz?` werden wieder über Pandoras Cognitive Context Pipeline beantwortet. Das LLM liest weiterhin keine Dateien selbst; Pandora ermittelt die zulässige Vault-Notiz deterministisch und übergibt beziehungsweise formatiert nur vorbereiteten Kontext.
-
-Gefixt in MVP 25.2.2:
-
-- Latest-Note-Erkennung für Obsidian-Fragen
-- direkte GUI-Chat-Antwort aus dem vorbereiteten Vault-Kontext
-- Regressionstest für `Was war meine letzte Notiz?`
-- robuster Context-Ranker für ISO-`modified_at`-Zeitstempel
-
----
-
-# Pandora MVP 25.2 – Context Builder Completion
-
-Dieses Release vervollständigt den ersten Cognitive-Context-Baustein. Pandora sammelt Kontext weiterhin selbst, übergibt dem LLM aber jetzt einen deterministisch priorisierten, deduplizierten und budgetierten Kontext.
-
-Neu in MVP 25.2:
-
-- Context Ranking für User Knowledge und Obsidian-Kontext
-- Token-/Zeichen-Budget mit Diagnostik
-- Duplicate Removal über Quellen-ID und Text-Fingerprint
-- `context_rank`, `context_score` und Budget-Metadaten in den Quellen
-- Regressionstests für Ranking, Budget und Duplikatfilter
-
-Wichtige Befehle:
-
-```bash
-python main.py cognitive-context-status
-python main.py cognitive-context-preview "Pandora Kontext" --limit 5
-python main.py registration-validate --strict
-python main.py release-audit .
-```
-
----
-
 # Pandora MVP 25.1.3
 
 # Pandora MVP 24.8.1 - Night Review Web Route Fix
@@ -53,6 +17,10 @@ http://127.0.0.1:8000/night-review
 ```
 
 # Pandora
+
+## MVP 25.2 – Context Builder Completion
+
+Pandora erweitert den Cognitive Context Builder um Ranking, Duplicate Removal, Budget-/Context-Packing und Diagnosedaten. Der bestehende GUI-Chat-/Obsidian-Pfad aus MVP 25.1.3 bleibt erhalten. Details: `docs/context_builder_completion.md`.
 
 ## MVP 24.2 – Learning Feedback Loop
 

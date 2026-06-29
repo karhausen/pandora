@@ -1,12 +1,1 @@
-{
-  "calculator": {
-    "tool_id": "calculator",
-    "executions": 1,
-    "successes": 1,
-    "failures": 0,
-    "last_used": "2026-06-26T13:35:59.774508+00:00",
-    "last_success": true,
-    "last_error": null,
-    "total_execution_time": 0.147723
-  }
-}
+{}

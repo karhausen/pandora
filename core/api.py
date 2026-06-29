@@ -95,7 +95,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.2-context-builder-completion")
+app = FastAPI(title="Pandora Agent", version="25.1-cognitive-context-builder")
 
 
 class ToolProposalTaskRequest(BaseModel):

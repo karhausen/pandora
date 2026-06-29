@@ -105,47 +105,6 @@ class ChatService:
                     execution=execution,
                 )
 
-            if self._asks_for_latest_note(task) and obsidian_diag.get("latest_note"):
-                answer = self._format_latest_note_answer(obsidian_diag)
-                success = True
-                plan = {}
-                execution = {
-                    "success": True,
-                    "final_output": {"message": answer},
-                    "mode": "cognitive_context_direct_answer",
-                    "provider_name": None,
-                    "model": None,
-                    "error": None,
-                    "context_used": True,
-                    "knowledge_context": {
-                        "source_count": knowledge.get("source_count", 0),
-                        "sources": knowledge.get("sources", []),
-                        "target": knowledge.get("target"),
-                        "cloud_context": knowledge.get("cloud_context"),
-                        "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
-                        "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
-                        "obsidian": obsidian_diag,
-                        "route_target": knowledge.get("route_target", {}),
-                        "cognitive_context": knowledge,
-                    },
-                }
-                metadata = {"mode": "cognitive_context_direct_answer", "success": True, "context_used": True, "knowledge_context": execution.get("knowledge_context", {})}
-                assistant_message = self.store.add_message(
-                    session.session_id,
-                    "assistant",
-                    answer,
-                    metadata=metadata,
-                ) if save else None
-                return ChatRunResult(
-                    session_id=session.session_id,
-                    success=success,
-                    answer=answer,
-                    user_message=user_message,
-                    assistant_message=assistant_message,
-                    plan=plan,
-                    execution=execution,
-                )
-
             # Vault topic questions are factual index queries. Answer them directly
             # from Pandora's Obsidian index so the GUI chat does not depend on an
             # LLM guessing whether it has local file access. The LLM can still be
@@ -263,36 +222,9 @@ class ChatService:
         q = (task or "").lower()
         return "vault" in q or "obsidian" in q
 
-    def _asks_for_latest_note(self, task: str) -> bool:
-        q = (task or "").lower()
-        has_note = any(word in q for word in ["notiz", "note", "notes", "eintrag", "markdown"])
-        has_latest = any(word in q for word in ["letzte", "letzter", "letzten", "zuletzt", "neueste", "neuste", "aktuellste", "latest", "recent", "newest"])
-        return has_note and has_latest
-
     def _asks_for_vault_topics(self, task: str) -> bool:
         q = (task or "").lower()
         return self._asks_for_vault(task) and any(word in q for word in ["topic", "topics", "themen", "thema", "tags", "schwerpunkte"])
-
-    def _format_latest_note_answer(self, obsidian_diag: dict) -> str:
-        latest = obsidian_diag.get("latest_note") or {}
-        title = latest.get("title") or latest.get("relative_path") or "unbekannt"
-        rel = latest.get("relative_path") or "unbekannter Pfad"
-        modified = latest.get("modified_at") or "unbekannt"
-        context_text = ""
-        source_texts = obsidian_diag.get("source_texts") or []
-        if source_texts:
-            context_text = str(source_texts[0]).strip()
-        lines = [
-            "Deine letzte Obsidian-Notiz ist:",
-            "",
-            f"**{title}**",
-            f"Pfad: `{rel}`",
-            f"Geändert: {modified}",
-        ]
-        if context_text:
-            preview = context_text[:900].strip()
-            lines.extend(["", "Auszug:", "", preview])
-        return "\n".join(lines)
 
     def _format_vault_topics_answer(self, obsidian_diag: dict) -> str:
         topics = obsidian_diag.get("topics") or {}

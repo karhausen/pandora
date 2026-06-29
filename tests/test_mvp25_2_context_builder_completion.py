@@ -1,36 +1,93 @@
+from __future__ import annotations
+
+import asyncio
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from core.cognitive_context_builder import CognitiveContextBuilder
+from core.context_ranker import ContextCandidate, ContextRanker
+from core.coordinator_agent import CoordinatorAgent
 from core.knowledge_context import KnowledgeContextService
-from core.user_knowledge_base import UserKnowledgeBaseService
+from core.obsidian_vault import ObsidianVaultService
 
 
-def _write(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(text, encoding="utf-8")
+def test_context_ranker_ranks_deduplicates_and_respects_budget():
+    ranker = ContextRanker(max_total_chars=260, max_chars_per_item=120, max_items=2)
+    candidates = [
+        ContextCandidate("user_knowledge", "old.md", "Alt", "irrelevanter alter Text", {"modified_at": "2020-01-01T00:00:00+00:00"}),
+        ContextCandidate("obsidian", "pandora.md", "Pandora Cognitive Layer", "Pandora Cognitive Layer Ranking Budget Duplicate Removal", {"modified_at": datetime.now(timezone.utc).isoformat(), "score": 5}, base_score=5),
+        ContextCandidate("obsidian", "copy.md", "Kopie", "Pandora Cognitive Layer Ranking Budget Duplicate Removal", {"modified_at": datetime.now(timezone.utc).isoformat(), "score": 5}, base_score=5),
+    ]
+
+    result = ranker.select(query="Pandora Cognitive Layer", candidates=candidates)
+
+    assert result["source_count"] <= 2
+    assert result["diagnostics"]["duplicates_removed"] == 1
+    assert result["sources"][0]["source_type"] == "obsidian"
+    assert result["sources"][0]["context_rank"] == 1
+    assert result["context_chars"] <= 260
 
 
-def test_context_builder_exposes_ranking_budget_and_deduplication(tmp_path: Path):
-    root = tmp_path / "user_knowledge"
-    body = "Pandora Context Ranking Test. Funkgeraet Messtechnik Flughafen. " * 40
-    _write(root / "public" / "a.md", "---\ntitle: Ranking A\ntags: [pandora, funk]\ncloud_allowed: true\n---\n" + body)
-    _write(root / "public" / "b.md", "---\ntitle: Ranking B\ntags: [pandora, funk]\ncloud_allowed: true\n---\n" + body)
-    _write(root / "restricted_cloud_allowed" / "c.md", "---\ntitle: Andere Notiz\ncloud_allowed: true\n---\nPandora Context Ranking anderer Inhalt")
+def test_context_builder_keeps_gui_vault_topic_direct_answer_path(tmp_path, monkeypatch):
+    vault = tmp_path / "Vault"
+    (vault / "Funktechnik").mkdir(parents=True)
+    (vault / "Funktechnik" / "Spektrum.md").write_text(
+        "# Spektrumanalyse\n#funktechnik #pandora\nSiehe [[Messtechnik]].\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OBSIDIAN_VAULT_ENABLED", "true")
+    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(vault))
+    monkeypatch.setenv("OBSIDIAN_INBOX_DIR", "Pandora_Inbox")
+    monkeypatch.setenv("OBSIDIAN_COMPANY_ALLOWED", "true")
+    monkeypatch.setenv("OBSIDIAN_CLOUD_ALLOWED", "false")
 
-    knowledge = UserKnowledgeBaseService(root_dir=root)
-    context = KnowledgeContextService(knowledge=knowledge, include_obsidian=False, max_total_chars=900, max_chars_per_file=420, max_files=5)
-    payload = context.build(query="Pandora", target="cloud", limit=5)
+    result = asyncio.run(CoordinatorAgent().run("Was sind die Topics in meinem Vault?", save=False))
+
+    assert result.success is True
+    assert result.execution.get("mode") == "cognitive_context_direct_answer"
+    assert "#funktechnik" in result.answer
+    assert "[[Messtechnik]]" in result.answer
+    assert result.execution.get("context_used") is True
+
+
+def test_context_builder_latest_note_query_uses_obsidian_context(tmp_path, monkeypatch):
+    vault = tmp_path / "Vault"
+    vault.mkdir(parents=True)
+    old_note = vault / "Alte Notiz.md"
+    new_note = vault / "Letzte Notiz.md"
+    old_note.write_text("# Alte Notiz\nNicht aktuell.\n", encoding="utf-8")
+    new_note.write_text("# Letzte Notiz\nPandora soll den Cognitive Core hybrid aufbauen.\n", encoding="utf-8")
+    old_ts = (datetime.now(timezone.utc) - timedelta(days=2)).timestamp()
+    new_ts = datetime.now(timezone.utc).timestamp()
+    import os
+    os.utime(old_note, (old_ts, old_ts))
+    os.utime(new_note, (new_ts, new_ts))
+    monkeypatch.setenv("OBSIDIAN_VAULT_ENABLED", "true")
+    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(vault))
+    monkeypatch.setenv("OBSIDIAN_INBOX_DIR", "Pandora_Inbox")
+    monkeypatch.setenv("OBSIDIAN_COMPANY_ALLOWED", "true")
+    monkeypatch.setenv("OBSIDIAN_CLOUD_ALLOWED", "false")
+
+    payload = KnowledgeContextService().build_for_chat("Was war meine letzte Notiz?", provider_name="local_fast")
 
     assert payload["source_count"] >= 1
-    assert payload["context_chars"] <= 900
-    assert payload["ranking"]["candidate_count"] >= 2
-    assert payload["ranking"]["duplicate_removed_count"] >= 1
-    assert payload["ranking"]["token_budget"]["estimated_tokens"] > 0
-    assert all("context_rank" in source for source in payload["sources"])
+    assert "Letzte Notiz.md" in payload["context_text"]
+    assert "Cognitive Core hybrid" in payload["context_text"]
+    assert payload["context_ranking"]["selected_count"] >= 1
 
 
-def test_cognitive_context_builder_status_lists_completion_features():
-    status = CognitiveContextBuilder().status()
-    assert "context_ranking" in status["completion_features"]
-    assert "token_budget" in status["completion_features"]
-    assert "duplicate_removal" in status["completion_features"]
+def test_obsidian_index_json_serializes_yaml_dates(tmp_path, monkeypatch):
+    vault = tmp_path / "Vault"
+    vault.mkdir(parents=True)
+    (vault / "Date Note.md").write_text(
+        "---\ndate: 2026-06-29\ncloud_allowed: false\ncompany_allowed: true\n---\n# Date Note\nYAML date test.\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("OBSIDIAN_VAULT_ENABLED", "true")
+    monkeypatch.setenv("OBSIDIAN_VAULT_PATH", str(vault))
+    monkeypatch.setenv("OBSIDIAN_INBOX_DIR", "Pandora_Inbox")
+
+    service = ObsidianVaultService(root_dir=tmp_path)
+    report = service.index(limit=10000, write=True)
+
+    assert report["ok"] is True
+    assert (tmp_path / "data" / "obsidian" / "index.json").exists()
