@@ -1,21 +1,21 @@
 {
-  "version": "25.2-context-builder-completion",
-  "name": "MVP 25.2 - Context Builder Completion",
-  "feature": "Context Builder Completion",
-  "based_on": "25.1.3-frontmatter-governance-validation",
+  "version": "25.3-request-interpreter",
+  "name": "MVP 25.3 - Request Interpreter",
+  "feature": "Request Interpreter",
+  "based_on": "25.2-context-builder-completion",
   "features": [
-    "Deterministisches Context Ranking mit ContextRanker",
-    "Duplicate Removal für vorbereitete Kontext-Kandidaten",
-    "Budget-/Context-Packing mit Diagnosemetadaten",
-    "Context-Ranking-Diagnostik in CognitiveContextBuilder Payload",
-    "Regression-Schutz für GUI-Chat-Obsidian-Topics",
-    "Obsidian-Latest-Note-Kontext für Fragen nach letzter Notiz",
-    "JSON-sicherer Obsidian-Index bei YAML date/datetime Frontmatter"
+    "Neuer core/request_interpreter.py als semantische Voranalyse für den Cognitive Core",
+    "LLM-gestützte Empfehlungen für Intent, Quellenräume, Tools, Skills und Capability-Gaps",
+    "Strikte Trennung: LLM empfiehlt nur; Python validiert und handelt",
+    "Heuristischer Fallback, falls keine valide LLM-JSON-Interpretation verfügbar ist",
+    "Integration in CognitiveContextBuilder-Diagnostik ohne Bruch des bestehenden Chat-/Obsidian-Flows",
+    "Neue CLI-Befehle request-interpreter-status und request-interpret",
+    "Regressionstests für Request Interpreter und Context Builder Integration"
   ],
   "notes": [
-    "Der öffentliche Chat-/GUI-/API-Flow aus MVP 25.1.3 bleibt erhalten.",
-    "LLMs lesen weiterhin keine Dateien selbst; Python sammelt und validiert Kontext.",
-    "MVP 25.2 wurde neu auf Basis der originalen MVP 25.1.3 ZIP gebaut. Frühere fehlerhafte 25.2-Zwischenstände wurden nicht als Basis verwendet."
+    "MVP 25.3 führt noch keine autonome Tool-Ausführung und keine automatische Tool-Erzeugung aus.",
+    "Der Interpreter liest keine Dateien und führt keine Tools aus.",
+    "Capability-Gaps werden nur strukturiert empfohlen; Review, Tests, Governance und User-Freigabe bleiben Pflicht."
   ],
   "build_time": "2026-06-29T00:00:00Z"
 }

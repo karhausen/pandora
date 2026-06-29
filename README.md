@@ -18,6 +18,22 @@ http://127.0.0.1:8000/night-review
 
 # Pandora
 
+
+## MVP 25.3 – Request Interpreter
+
+Pandora besitzt nun eine erste semantische Cognitive-Core-Schicht. Der `RequestInterpreter` fragt das LLM nicht nach einer Antwort, sondern nach einer strukturierten Empfehlung: Intent, relevante Quellenräume, mögliche Tools/Skills, Capability-Gaps, Confidence und nächster Schritt.
+
+Wichtig: Der Interpreter liest keine Dateien, führt keine Tools aus und trifft keine finale Entscheidung. Python validiert alle Empfehlungen über Governance, Policies und spätere Orchestrierung.
+
+Wichtige Befehle:
+
+```bash
+python main.py request-interpreter-status
+python main.py request-interpret "Was war meine letzte Notiz?" --provider-name mock
+```
+
+Details: `docs/request_interpreter.md`.
+
 ## MVP 25.2 – Context Builder Completion
 
 Pandora erweitert den Cognitive Context Builder um Ranking, Duplicate Removal, Budget-/Context-Packing und Diagnosedaten. Der bestehende GUI-Chat-/Obsidian-Pfad aus MVP 25.1.3 bleibt erhalten. Details: `docs/context_builder_completion.md`.

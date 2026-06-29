@@ -74,6 +74,7 @@ from .llm_routing_editor import LLMRoutingEditorService
 from .user_knowledge_base import UserKnowledgeBaseService
 from .knowledge_context import KnowledgeContextService
 from .cognitive_context_builder import CognitiveContextBuilder
+from .request_interpreter import RequestInterpreter
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -95,7 +96,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.1-cognitive-context-builder")
+app = FastAPI(title="Pandora Agent", version="25.3-request-interpreter")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -635,6 +636,14 @@ def get_knowledge_context_service() -> KnowledgeContextService:
 @app.get("/api/cognitive/context/status")
 def api_cognitive_context_status():
     return CognitiveContextBuilder().status()
+
+@app.get("/api/cognitive/request-interpreter/status")
+def api_request_interpreter_status():
+    return RequestInterpreter().status()
+
+@app.get("/api/cognitive/request-interpreter/preview")
+def api_request_interpreter_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return RequestInterpreter().interpret(query, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/context/preview")
 def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):

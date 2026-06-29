@@ -58,6 +58,7 @@ from core.user_knowledge_base import UserKnowledgeBaseService
 from core.knowledge_governance import KnowledgeGovernanceService
 from core.knowledge_context import KnowledgeContextService
 from core.cognitive_context_builder import CognitiveContextBuilder
+from core.request_interpreter import RequestInterpreter
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -390,6 +391,10 @@ def cmd_obsidian_tags(args):
 
 def cmd_cognitive_context_status(args): _json(CognitiveContextBuilder().status())
 
+def cmd_request_interpreter_status(args): _json(RequestInterpreter().status())
+
+def cmd_request_interpret(args): _json(RequestInterpreter().interpret(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def cmd_cognitive_context_preview(args): _json(CognitiveContextBuilder().build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit))
 
 def cmd_obsidian_context_preview(args):
@@ -601,6 +606,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("knowledge-search"); p.add_argument("query"); p.add_argument("--limit", type=int, default=50); p.add_argument("--cloud-context", action="store_true"); p.set_defaults(func=cmd_knowledge_search)
     p = sub.add_parser("knowledge-context-preview"); p.add_argument("query"); p.add_argument("--target", default="local", choices=["local", "cloud", "company", "company_llm"]); p.add_argument("--limit", type=int, default=10); p.set_defaults(func=cmd_knowledge_context_preview)
     p = sub.add_parser("cognitive-context-status"); p.set_defaults(func=cmd_cognitive_context_status)
+    p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)
+    p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("cognitive-context-preview"); p.add_argument("query"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.set_defaults(func=cmd_cognitive_context_preview)
     p = sub.add_parser("knowledge-governance-status"); p.set_defaults(func=cmd_knowledge_governance_status)
     p = sub.add_parser("knowledge-governance-run"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_governance_run)
