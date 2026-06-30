@@ -67,6 +67,7 @@ from core.knowledge_recommendation_workflow import KnowledgeRecommendationWorkfl
 from core.core_recommendation_workflow import CoreRecommendationWorkflow
 from core.working_memory import WorkingMemory
 from core.central_decision_engine import CentralDecisionEngine
+from core.approval_interaction_workflow import ApprovalInteractionWorkflow
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -593,6 +594,12 @@ def cmd_central_decision_status(args):
 def cmd_central_decide(args):
     _json(CentralDecisionEngine().decide(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, include_review_packages=not args.no_review_packages))
 
+def cmd_approval_interaction_status(args):
+    _json(ApprovalInteractionWorkflow().status())
+
+def cmd_approval_interaction_preview(args):
+    _json(ApprovalInteractionWorkflow().preview(args.request, user_decision=args.user_decision, note=args.note, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Pandora Agent MVP 25.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -673,6 +680,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("working-memory-preview"); p.add_argument("request"); p.add_argument("--max-items", type=int, default=5); p.set_defaults(func=cmd_working_memory_preview)
     p = sub.add_parser("central-decision-status"); p.set_defaults(func=cmd_central_decision_status)
     p = sub.add_parser("central-decide"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--no-review-packages", action="store_true"); p.set_defaults(func=cmd_central_decide)
+    p = sub.add_parser("approval-interaction-status"); p.set_defaults(func=cmd_approval_interaction_status)
+    p = sub.add_parser("approval-interaction-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--note"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_approval_interaction_preview)
     p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)
     p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("capability-analyzer-status"); p.set_defaults(func=cmd_capability_analyzer_status)

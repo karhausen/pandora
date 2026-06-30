@@ -601,3 +601,23 @@ GET /api/cognitive/central-decision/preview?query=...
 ```
 
 Doku: `docs/central_decision_engine.md`
+
+
+## MVP 26.2 – Approval Interaction Workflow
+
+Der Approval Interaction Workflow macht aus einer Central Decision eine einfache User-Frage.
+Pandora fragt nicht nach internen Details, sondern nur an echten Freigabepunkten:
+
+- Wir brauchen Tool XY. Soll ich den Vorschlag ausarbeiten?
+- Ich sehe eine Core-Verbesserung. Soll ich einen prüfbaren Vorschlag ausarbeiten?
+- Ich sehe eine Wissenslücke. Soll ich einen Knowledge-Vorschlag ausarbeiten?
+
+Befehle:
+
+```bash
+python main.py approval-interaction-status
+python main.py approval-interaction-preview "Baue ein Tool für historische Aktienkurse"
+python main.py approval-interaction-preview "Baue ein Tool für historische Aktienkurse" --user-decision ja
+```
+
+Sicherheitsgrenze: Der Workflow erzeugt keinen Code, schreibt keine Dateien, aktiviert keine Tools und ändert keinen Core.

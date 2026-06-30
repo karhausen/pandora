@@ -1,23 +1,22 @@
 {
-  "version": "26.1-central-decision-engine",
-  "name": "MVP 26.1 - Central Decision Engine",
-  "feature": "Central Decision Engine",
-  "based_on": "26.0-working-memory-foundation",
+  "version": "26.2-approval-interaction-workflow",
+  "name": "MVP 26.2 - Approval Interaction Workflow",
+  "feature": "Approval Interaction Workflow",
+  "based_on": "26.1-central-decision-engine",
   "features": [
-    "Neuer core/central_decision_engine.py als zentrale Cognitive-Entscheidungsstelle",
-    "Führt Request Interpreter, Capability Analyzer, Python Orchestrator und Recommendation Workflows zu einem Decision Object zusammen",
-    "Einfache User-Freigabepunkte für Tool-, Knowledge- und Core-Vorschläge",
-    "Tool-Gaps werden als Frage formuliert: Wir brauchen Tool xy, soll ich den Vorschlag ausarbeiten?",
-    "Core-Gaps werden als prüfbare Core-Proposals geroutet, ohne automatische Codeänderung",
-    "Working Memory wird als temporärer Denkraum in die Decision Preview eingebunden",
-    "CLI-Befehle central-decision-status und central-decide",
-    "API-Endpunkte /api/cognitive/central-decision/status und /api/cognitive/central-decision/preview",
-    "Regressionstests für Tool-Gap, Core-Gap, sichere Context-Antwort und Safety Guarantees"
+    "Neuer core/approval_interaction_workflow.py als einfache User-Freigabeschicht über der Central Decision Engine",
+    "Reduziert interne Decisions auf klare Fragen: Ja, Nein, Details oder Nachbessern",
+    "Tool-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Tool-Factory-Review-Workflow",
+    "Core-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Core-Review-Workflow",
+    "Knowledge-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Knowledge-Review-Workflow",
+    "CLI-Befehle approval-interaction-status und approval-interaction-preview",
+    "API-Endpunkte /api/cognitive/approval-interaction/status und /api/cognitive/approval-interaction/preview",
+    "Regressionstests für Ja/Nein/Tool/Core/Safety"
   ],
   "notes": [
-    "Die Central Decision Engine führt nichts aus und generiert keinen Code.",
-    "Sie entscheidet nur den nächsten kontrollierten Schritt und ob Benutzerfreigabe erforderlich ist.",
-    "Damit wird Pandora weniger detailverliebt und fragt nur an echten Freigabepunkten."
+    "Der Workflow generiert keinen Code und führt nichts aus.",
+    "Er bereitet nur den nächsten kontrollierten Handoff vor.",
+    "Pandora fragt den User damit nur noch an echten Freigabepunkten."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }
