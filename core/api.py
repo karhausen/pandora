@@ -84,6 +84,8 @@ from .core_recommendation_workflow import CoreRecommendationWorkflow
 from .working_memory import WorkingMemory
 from .central_decision_engine import CentralDecisionEngine
 from .approval_interaction_workflow import ApprovalInteractionWorkflow
+from .proposal_review_loop import ProposalReviewLoop
+from .proposal_execution_gate import ProposalExecutionGate
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -105,7 +107,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="26.2-approval-interaction-workflow")
+app = FastAPI(title="Pandora Agent", version="26.4-proposal-execution-gate")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -725,6 +727,27 @@ def api_approval_interaction_status():
 @app.get("/api/cognitive/approval-interaction/preview")
 def api_approval_interaction_preview(query: str, user_decision: str | None = None, note: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return ApprovalInteractionWorkflow().preview(query, user_decision=user_decision, note=note, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/proposal-review-loop/status")
+def api_proposal_review_loop_status():
+    return ProposalReviewLoop().status()
+
+@app.get("/api/cognitive/proposal-review-loop/preview")
+def api_proposal_review_loop_preview(query: str, approval_decision: str | None = "ja", review_decision: str | None = None, review_note: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return ProposalReviewLoop().preview(query, approval_decision=approval_decision, review_decision=review_decision, review_note=review_note, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/proposal-execution-gate/status")
+def api_proposal_execution_gate_status():
+    return ProposalExecutionGate().status()
+
+@app.get("/api/cognitive/proposal-execution-gate/preview")
+def api_proposal_execution_gate_preview(query: str, review_decision: str | None = "passt", execution_decision: str | None = None, test_ok: bool = False, audit_ok: bool = False, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    payload = {"purpose": query}
+    test_report = {"ok": True} if test_ok else None
+    audit_report = {"ok": True} if audit_ok else None
+    return ProposalExecutionGate().preview(query, proposal_payload=payload, review_decision=review_decision, execution_decision=execution_decision, test_report=test_report, audit_report=audit_report, provider_name=provider_name, model=model, timeout=timeout)
 
 
 @app.get("/api/cognitive/working-memory/status")

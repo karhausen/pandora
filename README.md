@@ -621,3 +621,41 @@ python main.py approval-interaction-preview "Baue ein Tool für historische Akti
 ```
 
 Sicherheitsgrenze: Der Workflow erzeugt keinen Code, schreibt keine Dateien, aktiviert keine Tools und ändert keinen Core.
+
+
+## MVP 26.3 - Proposal Review Loop
+
+MVP 26.3 ergänzt den kontrollierten Review-Schritt nach der Benutzerfreigabe.
+
+Der Ablauf ist bewusst einfach:
+
+1. Pandora erkennt einen Vorschlagsbedarf.
+2. Der Benutzer erlaubt die Ausarbeitung.
+3. Ein Vorschlag wird als Review Package vorgelegt.
+4. Der Benutzer entscheidet: `passt`, `nachbessern` oder `ablehnen`.
+5. Erst nach `passt` darf der Vorschlag in den nächsten kontrollierten Gate-Workflow.
+
+Neue Befehle:
+
+```bash
+python main.py proposal-review-loop-status
+python main.py proposal-review-loop-preview "Baue ein Tool für historische Aktienkurse"
+python main.py proposal-review-loop-preview "Baue ein Tool für historische Aktienkurse" --payload-json '{"purpose":"Demo"}' --review-decision passt
+```
+
+Sicherheitsregel: Dieser Workflow erzeugt keinen Code, schreibt keine Dateien, aktiviert keine Tools und verändert nicht den Core.
+
+
+## MVP 26.4 – Proposal Execution Gate
+
+MVP 26.4 adds the final controlled gate after a user-reviewed proposal.
+It checks final execution approval plus required test/audit evidence and then
+prepares a handoff to the downstream activation, write or release workflow.
+It never activates tools, writes knowledge, changes core code or creates releases.
+
+CLI:
+
+```bash
+python main.py proposal-execution-gate-status
+python main.py proposal-execution-gate-preview "Baue ein Tool für historische Aktienkurse" --payload-json '{"purpose":"...","python_code":"..."}' --review-decision passt --execution-decision aktivieren --test-ok --audit-ok
+```

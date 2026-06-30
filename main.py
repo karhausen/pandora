@@ -68,6 +68,8 @@ from core.core_recommendation_workflow import CoreRecommendationWorkflow
 from core.working_memory import WorkingMemory
 from core.central_decision_engine import CentralDecisionEngine
 from core.approval_interaction_workflow import ApprovalInteractionWorkflow
+from core.proposal_review_loop import ProposalReviewLoop
+from core.proposal_execution_gate import ProposalExecutionGate
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -600,6 +602,36 @@ def cmd_approval_interaction_status(args):
 def cmd_approval_interaction_preview(args):
     _json(ApprovalInteractionWorkflow().preview(args.request, user_decision=args.user_decision, note=args.note, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
+def cmd_proposal_review_loop_status(args):
+    _json(ProposalReviewLoop().status())
+
+def cmd_proposal_review_loop_preview(args):
+    payload = None
+    if args.payload_json:
+        payload = json.loads(args.payload_json)
+    _json(ProposalReviewLoop().preview(args.request, approval_decision=args.approval_decision, proposal_payload=payload, review_decision=args.review_decision, review_note=args.review_note, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
+def cmd_proposal_execution_gate_status(args):
+    _json(ProposalExecutionGate().status())
+
+def cmd_proposal_execution_gate_preview(args):
+    payload = None
+    if args.payload_json:
+        payload = json.loads(args.payload_json)
+    test_report = {"ok": True} if args.test_ok else ({"ok": False} if args.test_failed else None)
+    audit_report = {"ok": True} if args.audit_ok else ({"ok": False} if args.audit_failed else None)
+    _json(ProposalExecutionGate().preview(
+        args.request,
+        proposal_payload=payload,
+        review_decision=args.review_decision,
+        execution_decision=args.execution_decision,
+        test_report=test_report,
+        audit_report=audit_report,
+        provider_name=args.provider_name,
+        model=args.model,
+        timeout=args.timeout,
+    ))
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Pandora Agent MVP 25.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -682,6 +714,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("central-decide"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--no-review-packages", action="store_true"); p.set_defaults(func=cmd_central_decide)
     p = sub.add_parser("approval-interaction-status"); p.set_defaults(func=cmd_approval_interaction_status)
     p = sub.add_parser("approval-interaction-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--note"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_approval_interaction_preview)
+    p = sub.add_parser("proposal-review-loop-status"); p.set_defaults(func=cmd_proposal_review_loop_status)
+    p = sub.add_parser("proposal-review-loop-preview"); p.add_argument("request"); p.add_argument("--approval-decision", default="ja"); p.add_argument("--payload-json"); p.add_argument("--review-decision"); p.add_argument("--review-note"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_proposal_review_loop_preview)
+    p = sub.add_parser("proposal-execution-gate-status"); p.set_defaults(func=cmd_proposal_execution_gate_status)
+    p = sub.add_parser("proposal-execution-gate-preview"); p.add_argument("request"); p.add_argument("--payload-json"); p.add_argument("--review-decision", default="passt"); p.add_argument("--execution-decision"); p.add_argument("--test-ok", action="store_true"); p.add_argument("--test-failed", action="store_true"); p.add_argument("--audit-ok", action="store_true"); p.add_argument("--audit-failed", action="store_true"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_proposal_execution_gate_preview)
     p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)
     p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("capability-analyzer-status"); p.set_defaults(func=cmd_capability_analyzer_status)

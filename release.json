@@ -1,22 +1,21 @@
 {
-  "version": "26.2-approval-interaction-workflow",
-  "name": "MVP 26.2 - Approval Interaction Workflow",
-  "feature": "Approval Interaction Workflow",
-  "based_on": "26.1-central-decision-engine",
+  "version": "26.4-proposal-execution-gate",
+  "name": "MVP 26.4 - Proposal Execution Gate",
+  "feature": "Proposal Execution Gate",
+  "based_on": "26.3-proposal-review-loop",
   "features": [
-    "Neuer core/approval_interaction_workflow.py als einfache User-Freigabeschicht über der Central Decision Engine",
-    "Reduziert interne Decisions auf klare Fragen: Ja, Nein, Details oder Nachbessern",
-    "Tool-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Tool-Factory-Review-Workflow",
-    "Core-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Core-Review-Workflow",
-    "Knowledge-Gaps erzeugen nach User-Ja einen kontrollierten Handoff an den Knowledge-Review-Workflow",
-    "CLI-Befehle approval-interaction-status und approval-interaction-preview",
-    "API-Endpunkte /api/cognitive/approval-interaction/status und /api/cognitive/approval-interaction/preview",
-    "Regressionstests für Ja/Nein/Tool/Core/Safety"
+    "Neuer core/proposal_execution_gate.py als finales kontrolliertes Gate nach Proposal Review",
+    "Prüft finalen Freigabepunkt vor Übergabe an Aktivierung, Knowledge Write oder Core Release Workflow",
+    "Erzeugt keine Änderungen selbst, sondern nur ein kontrolliertes Handoff",
+    "Berücksichtigt Test- und Audit-Berichte vor dem Handoff",
+    "CLI-Befehle proposal-execution-gate-status und proposal-execution-gate-preview",
+    "API-Endpunkte /api/cognitive/proposal-execution-gate/status und /api/cognitive/proposal-execution-gate/preview",
+    "Regressionstests für Wartezustand, fehlende Checks, erfolgreiche Übergabe und blockierte Reviews"
   ],
   "notes": [
-    "Der Workflow generiert keinen Code und führt nichts aus.",
-    "Er bereitet nur den nächsten kontrollierten Handoff vor.",
-    "Pandora fragt den User damit nur noch an echten Freigabepunkten."
+    "Das Gate aktiviert keine Tools, schreibt kein Wissen, ändert keinen Core und erstellt keine Releases.",
+    "Es bildet den praktischen Ablauf ab: reviewed -> final freigeben -> Tests/Audit prüfen -> kontrolliert weitergeben.",
+    "Damit bleibt der User-Dialog schlank: Soll ich weitergeben? Ja/Nein."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }
