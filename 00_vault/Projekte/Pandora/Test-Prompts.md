@@ -19,3 +19,4 @@ last_reviewed: 2026-06-29
 - Bitte eine kurze Zusammenfassung zum Pandora-Projekt.
 - Welche Test-Prompts habe ich?
 - Wie ist der Leitgedanke zu Pandora?
+- Was sind meine todo's im Pandora Projekt?

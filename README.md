@@ -1,5 +1,17 @@
 # Pandora Agent
 
+## MVP 25.7 – Tool Recommendation Workflow
+
+Der Cognitive Core kann erkannte Tool-Gaps jetzt in sichere Tool-Factory-Briefs überführen. Der Workflow erzeugt Schnittstelle, Testanforderungen, Sicherheitsregeln und Review-Schritte, generiert aber keinen Code und aktiviert nichts automatisch.
+
+CLI:
+
+```bash
+python main.py tool-recommendation-status
+python main.py tool-recommendation-preview "Baue ein Tool für historische Aktienkurse"
+```
+
+
 ## MVP 25.6 – Cognitive Context Pipeline
 
 MVP 25.6 verbindet Request Interpreter, Capability Analyzer, Python Orchestrator und Cognitive Context Builder zu einer prüfbaren End-to-End-Pipeline.

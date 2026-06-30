@@ -1,21 +1,21 @@
 {
-  "version": "25.6-cognitive-context-pipeline",
-  "name": "MVP 25.6 - Cognitive Context Pipeline",
-  "feature": "Cognitive Context Pipeline",
-  "based_on": "25.5-python-orchestrator",
+  "version": "25.7-tool-recommendation-workflow",
+  "name": "MVP 25.7 - Tool Recommendation Workflow",
+  "feature": "Tool Recommendation Workflow",
+  "based_on": "25.6-cognitive-context-pipeline",
   "features": [
-    "Neuer core/cognitive_context_pipeline.py als nachvollziehbare Preview-Pipeline",
-    "Verknüpfung von Request Interpreter, Capability Analyzer, Python Orchestrator und Cognitive Context Builder",
-    "End-to-End Trace für Interpretation, Gap-Analyse, Orchestrierung, Kontextsammlung, Ranking, Duplicate Removal, Budget und Prompt-Kontext",
-    "Sicherheitsgarantie: keine Tool-Ausführung, keine Code-Generierung, keine Tool-Aktivierung, keine Core-Änderung",
-    "CLI-Befehle cognitive-pipeline-status und cognitive-pipeline-preview",
-    "API-Endpunkte /api/cognitive/pipeline/status und /api/cognitive/pipeline/preview",
-    "Regressionstests für Vault-Kontext, Tool-Gap-Sicherheit und Pipeline-Status"
+    "Neuer core/tool_recommendation_workflow.py als sichere Vorstufe zur Tool Factory",
+    "Erzeugt reviewbare Tool-Factory-Briefs aus erkannten Tool-Gaps",
+    "Definiert Tool-Zweck, Interface Contract, Input-/Output-Schema, Sicherheitsregeln und Testanforderungen",
+    "CLI-Befehle tool-recommendation-status und tool-recommendation-preview",
+    "API-Endpunkte /api/cognitive/tool-recommendation/status und /api/cognitive/tool-recommendation/preview",
+    "Sicherheitsgarantie: keine Code-Generierung, keine Tool-Ausführung, keine Dateiänderung, keine Registry-Aktivierung",
+    "Regressionstests für Tool-Gap-Briefs und No-Gap-Verhalten"
   ],
   "notes": [
-    "MVP 25.6 ersetzt den GUI-Chat-Flow nicht, sondern macht die neue Cognitive Chain prüfbar.",
-    "Der LLM-Anteil empfiehlt weiterhin nur; Python validiert und bereitet Kontext kontrolliert vor.",
-    "Die Pipeline ist bewusst eine Preview-/Trace-Schicht vor späteren kontrollierten Aktionen."
+    "MVP 25.7 hält den Grundsatz ein: LLM empfiehlt, Python validiert, User gibt frei.",
+    "Der Workflow bereitet Tool Factory Inputs vor, startet aber noch keine automatische Code-Generierung.",
+    "Tool-Verbesserungen können später denselben Review-/Test-/Freigabeweg nutzen."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }
