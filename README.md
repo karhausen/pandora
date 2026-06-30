@@ -1,3 +1,31 @@
+# Pandora Agent
+
+## MVP 25.6 – Cognitive Context Pipeline
+
+MVP 25.6 verbindet Request Interpreter, Capability Analyzer, Python Orchestrator und Cognitive Context Builder zu einer prüfbaren End-to-End-Pipeline.
+
+Die Pipeline ist ausdrücklich eine Preview-/Trace-Schicht:
+
+- keine Tool-Ausführung
+- keine Code-Generierung
+- keine Registry-Aktivierung
+- keine Core-Änderung
+- kein direkter Dateizugriff durch das LLM
+
+Neue Befehle:
+
+```bash
+python main.py cognitive-pipeline-status
+python main.py cognitive-pipeline-preview "Was war meine letzte Notiz?" --provider-name mock --limit 5
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/pipeline/status
+GET /api/cognitive/pipeline/preview
+```
+
 # Pandora MVP 25.1.3
 
 ## MVP 25.5 – Python Orchestrator

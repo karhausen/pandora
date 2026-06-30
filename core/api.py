@@ -77,6 +77,7 @@ from .cognitive_context_builder import CognitiveContextBuilder
 from .request_interpreter import RequestInterpreter
 from .capability_analyzer import CapabilityAnalyzer
 from .python_orchestrator import PythonOrchestrator
+from .cognitive_context_pipeline import CognitiveContextPipeline
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -98,7 +99,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.5-python-orchestrator")
+app = FastAPI(title="Pandora Agent", version="25.6-cognitive-context-pipeline")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -666,6 +667,14 @@ def api_python_orchestrator_preview(query: str, provider_name: str | None = None
 @app.get("/api/cognitive/context/preview")
 def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
     return CognitiveContextBuilder().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
+@app.get("/api/cognitive/pipeline/status")
+def api_cognitive_pipeline_status():
+    return CognitiveContextPipeline().status()
+
+@app.get("/api/cognitive/pipeline/preview")
+def api_cognitive_pipeline_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5, timeout: float = 8.0):
+    return CognitiveContextPipeline().preview(query, provider_name=provider_name, model=model, limit=limit, timeout=timeout)
 
 
 
