@@ -566,3 +566,38 @@ GET /api/cognitive/capability-analyzer/preview?query=...
 ```
 
 Doku: `docs/capability_analyzer.md`
+
+
+## MVP 26.1 – Central Decision Engine
+
+MVP 26.1 ergänzt Pandora um eine zentrale Entscheidungsstelle für den Cognitive Layer.
+
+Die Central Decision Engine sammelt:
+
+- Request Interpreter
+- Capability Analyzer
+- Python Orchestrator
+- Tool Recommendation Workflow
+- Knowledge Recommendation Workflow
+- Core Recommendation Workflow
+- Working Memory
+
+und erzeugt daraus ein einziges `central_decision` Objekt.
+
+Sie führt nichts aus, generiert keinen Code und verändert keinen Core. Sie entscheidet nur den nächsten kontrollierten Schritt und ob Benutzerfreigabe nötig ist.
+
+CLI:
+
+```bash
+python main.py central-decision-status
+python main.py central-decide "Baue ein Tool für historische Aktienkurse"
+```
+
+API:
+
+```text
+GET /api/cognitive/central-decision/status
+GET /api/cognitive/central-decision/preview?query=...
+```
+
+Doku: `docs/central_decision_engine.md`

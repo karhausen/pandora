@@ -1,22 +1,23 @@
 {
-  "version": "26.0-working-memory-foundation",
-  "name": "MVP 26.0 - Working Memory Foundation",
-  "feature": "Working Memory Foundation",
-  "based_on": "25.9-core-recommendation-workflow",
+  "version": "26.1-central-decision-engine",
+  "name": "MVP 26.1 - Central Decision Engine",
+  "feature": "Central Decision Engine",
+  "based_on": "26.0-working-memory-foundation",
   "features": [
-    "Neuer core/working_memory.py als temporärer, task-spezifischer Denkraum",
-    "Speichert Ziele, Hypothesen, Zwischenergebnisse, offene Fragen, Prioritäten, Entscheidungen und nächste Aktionen",
-    "Ephemeral-by-default: keine automatische Persistenz in Long-Term Memory, Obsidian oder Knowledge Base",
-    "Prompt Summary für spätere Cognitive Pipeline Integration",
-    "Close Preview mit Dispositionen für Review statt automatischem Export",
-    "CLI-Befehle working-memory-status und working-memory-preview",
-    "API-Endpunkte /api/cognitive/working-memory/status und /api/cognitive/working-memory/preview",
-    "Regressionstests für Safety, Deduplication, Bounded Summary und Close Preview"
+    "Neuer core/central_decision_engine.py als zentrale Cognitive-Entscheidungsstelle",
+    "Führt Request Interpreter, Capability Analyzer, Python Orchestrator und Recommendation Workflows zu einem Decision Object zusammen",
+    "Einfache User-Freigabepunkte für Tool-, Knowledge- und Core-Vorschläge",
+    "Tool-Gaps werden als Frage formuliert: Wir brauchen Tool xy, soll ich den Vorschlag ausarbeiten?",
+    "Core-Gaps werden als prüfbare Core-Proposals geroutet, ohne automatische Codeänderung",
+    "Working Memory wird als temporärer Denkraum in die Decision Preview eingebunden",
+    "CLI-Befehle central-decision-status und central-decide",
+    "API-Endpunkte /api/cognitive/central-decision/status und /api/cognitive/central-decision/preview",
+    "Regressionstests für Tool-Gap, Core-Gap, sichere Context-Antwort und Safety Guarantees"
   ],
   "notes": [
-    "MVP 26.0 startet die Adaptive-Pandora-Phase mit einem kontrollierten Arbeitsgedächtnis.",
-    "Working Memory ist bewusst kein Long-Term Memory und schreibt nichts automatisch dauerhaft weg.",
-    "Der Baustein dient später als temporärer Zustand für Request Interpreter, Capability Analyzer, Orchestrator und Reasoning Engine."
+    "Die Central Decision Engine führt nichts aus und generiert keinen Code.",
+    "Sie entscheidet nur den nächsten kontrollierten Schritt und ob Benutzerfreigabe erforderlich ist.",
+    "Damit wird Pandora weniger detailverliebt und fragt nur an echten Freigabepunkten."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }

@@ -82,6 +82,7 @@ from .tool_recommendation_workflow import ToolRecommendationWorkflow
 from .knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
 from .core_recommendation_workflow import CoreRecommendationWorkflow
 from .working_memory import WorkingMemory
+from .central_decision_engine import CentralDecisionEngine
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -103,7 +104,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="26.0-working-memory-foundation")
+app = FastAPI(title="Pandora Agent", version="26.1-central-decision-engine")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -705,6 +706,15 @@ def api_core_recommendation_status():
 @app.get("/api/cognitive/core-recommendation/preview")
 def api_core_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return CoreRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/central-decision/status")
+def api_central_decision_status():
+    return CentralDecisionEngine().status()
+
+@app.get("/api/cognitive/central-decision/preview")
+def api_central_decision_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, include_review_packages: bool = True):
+    return CentralDecisionEngine().decide(query, provider_name=provider_name, model=model, timeout=timeout, include_review_packages=include_review_packages)
 
 
 @app.get("/api/cognitive/working-memory/status")
