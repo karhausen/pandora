@@ -81,6 +81,7 @@ from .cognitive_context_pipeline import CognitiveContextPipeline
 from .tool_recommendation_workflow import ToolRecommendationWorkflow
 from .knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
 from .core_recommendation_workflow import CoreRecommendationWorkflow
+from .working_memory import WorkingMemory
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -102,7 +103,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.9-core-recommendation-workflow")
+app = FastAPI(title="Pandora Agent", version="26.0-working-memory-foundation")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -704,6 +705,27 @@ def api_core_recommendation_status():
 @app.get("/api/cognitive/core-recommendation/preview")
 def api_core_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return CoreRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/working-memory/status")
+def api_working_memory_status():
+    return WorkingMemory().status()
+
+@app.get("/api/cognitive/working-memory/preview")
+def api_working_memory_preview(query: str, max_items: int = 5):
+    wm = WorkingMemory()
+    seed = {
+        "goals": [f"Answer or handle request: {query}"],
+        "open_questions": ["Welche Quellen und Fähigkeiten sind für diese Aufgabe wirklich relevant?"],
+        "priorities": ["Kontext korrekt sammeln", "Keine automatische Persistenz", "Freigabegrenzen beachten"],
+    }
+    wm.start(query, seed=seed)
+    return {
+        "kind": "working_memory_preview",
+        "status": wm.status(),
+        "snapshot": wm.snapshot(),
+        "prompt_summary": wm.summarize_for_prompt(max_items=max_items),
+    }
 
 
 @app.get("/api/gui/knowledge/context-injection-preview")

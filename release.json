@@ -1,21 +1,22 @@
 {
-  "version": "25.9-core-recommendation-workflow",
-  "name": "MVP 25.9 - Core Recommendation Workflow",
-  "feature": "Core Recommendation Workflow",
-  "based_on": "25.8-knowledge-recommendation-workflow",
+  "version": "26.0-working-memory-foundation",
+  "name": "MVP 26.0 - Working Memory Foundation",
+  "feature": "Working Memory Foundation",
+  "based_on": "25.9-core-recommendation-workflow",
   "features": [
-    "Neuer core/core_recommendation_workflow.py als sichere Vorstufe für Core- und Architekturverbesserungen",
-    "Erzeugt reviewbare Core-Improvement-Briefs aus erkannten Core-Gaps",
-    "Definiert Proposal Type, betroffene Module, Architekturprinzipien, Impact Analysis, Review Workflow und Quality Checks",
-    "CLI-Befehle core-recommendation-status und core-recommendation-preview",
-    "API-Endpunkte /api/cognitive/core-recommendation/status und /api/cognitive/core-recommendation/preview",
-    "Sicherheitsgarantie: keine Source-Edits, keine Policy-Änderungen, keine Release-Builds, keine automatische Aktivierung",
-    "Regressionstests für Core-Gap-Briefs und No-Gap-Verhalten"
+    "Neuer core/working_memory.py als temporärer, task-spezifischer Denkraum",
+    "Speichert Ziele, Hypothesen, Zwischenergebnisse, offene Fragen, Prioritäten, Entscheidungen und nächste Aktionen",
+    "Ephemeral-by-default: keine automatische Persistenz in Long-Term Memory, Obsidian oder Knowledge Base",
+    "Prompt Summary für spätere Cognitive Pipeline Integration",
+    "Close Preview mit Dispositionen für Review statt automatischem Export",
+    "CLI-Befehle working-memory-status und working-memory-preview",
+    "API-Endpunkte /api/cognitive/working-memory/status und /api/cognitive/working-memory/preview",
+    "Regressionstests für Safety, Deduplication, Bounded Summary und Close Preview"
   ],
   "notes": [
-    "MVP 25.9 hält den Grundsatz ein: LLM erkennt mögliche Architekturverbesserungen, Python validiert, User gibt frei.",
-    "Der Workflow bereitet Core-Änderungen nur als Architekturvorschläge vor und ändert nichts automatisch.",
-    "Core Evolution wird dadurch kontrolliert, nachvollziehbar und reviewpflichtig."
+    "MVP 26.0 startet die Adaptive-Pandora-Phase mit einem kontrollierten Arbeitsgedächtnis.",
+    "Working Memory ist bewusst kein Long-Term Memory und schreibt nichts automatisch dauerhaft weg.",
+    "Der Baustein dient später als temporärer Zustand für Request Interpreter, Capability Analyzer, Orchestrator und Reasoning Engine."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }

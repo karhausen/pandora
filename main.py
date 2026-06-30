@@ -65,6 +65,7 @@ from core.cognitive_context_pipeline import CognitiveContextPipeline
 from core.tool_recommendation_workflow import ToolRecommendationWorkflow
 from core.knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
 from core.core_recommendation_workflow import CoreRecommendationWorkflow
+from core.working_memory import WorkingMemory
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -427,6 +428,23 @@ def cmd_core_recommendation_status(args): _json(CoreRecommendationWorkflow().sta
 
 def cmd_core_recommendation_preview(args): _json(CoreRecommendationWorkflow().prepare(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
+def cmd_working_memory_status(args): _json(WorkingMemory().status())
+
+def cmd_working_memory_preview(args):
+    wm = WorkingMemory()
+    seed = {
+        "goals": [f"Answer or handle request: {args.request}"],
+        "open_questions": ["Welche Quellen und Fähigkeiten sind für diese Aufgabe wirklich relevant?"],
+        "priorities": ["Kontext korrekt sammeln", "Keine automatische Persistenz", "Freigabegrenzen beachten"],
+    }
+    wm.start(args.request, seed=seed)
+    _json({
+        "kind": "working_memory_preview",
+        "status": wm.status(),
+        "snapshot": wm.snapshot(),
+        "prompt_summary": wm.summarize_for_prompt(max_items=args.max_items),
+    })
+
 def cmd_obsidian_context_preview(args):
     payload = KnowledgeContextService(max_files=args.limit).build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit)
     _json({
@@ -644,6 +662,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("knowledge-recommendation-preview"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_knowledge_recommendation_preview)
     p = sub.add_parser("core-recommendation-status"); p.set_defaults(func=cmd_core_recommendation_status)
     p = sub.add_parser("core-recommendation-preview"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_core_recommendation_preview)
+    p = sub.add_parser("working-memory-status"); p.set_defaults(func=cmd_working_memory_status)
+    p = sub.add_parser("working-memory-preview"); p.add_argument("request"); p.add_argument("--max-items", type=int, default=5); p.set_defaults(func=cmd_working_memory_preview)
     p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)
     p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("capability-analyzer-status"); p.set_defaults(func=cmd_capability_analyzer_status)

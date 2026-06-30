@@ -1,5 +1,25 @@
 # Pandora Agent
 
+## MVP 26.0 – Working Memory Foundation
+
+MVP 26.0 ergänzt Pandora um ein temporäres Working Memory für aktive Aufgaben. Es hält Ziele, Hypothesen, Zwischenergebnisse, offene Fragen, Prioritäten, Entscheidungen und nächste Aktionen fest, ohne automatisch in Long-Term Memory, Obsidian oder die Knowledge Base zu schreiben.
+
+Neue Befehle:
+
+```bash
+python main.py working-memory-status
+python main.py working-memory-preview "Was war meine letzte Notiz?"
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/working-memory/status
+GET /api/cognitive/working-memory/preview?query=...
+```
+
+---
+
 ## MVP 25.9 – Core Recommendation Workflow
 
 Der Cognitive Core kann erkannte Tool-Gaps jetzt in sichere Tool-Factory-Briefs überführen. Der Workflow erzeugt Schnittstelle, Testanforderungen, Sicherheitsregeln und Review-Schritte, generiert aber keinen Code und aktiviert nichts automatisch.
@@ -155,7 +175,27 @@ GUI = Steuerung und Transparenz
 Der aktive Core darf nicht automatisch überschrieben werden. Vorschläge werden geprüft, getestet und vom User genehmigt.
 
 
-### MVP 25.9 – Core Recommendation Workflow
+### MVP 26.0 – Working Memory Foundation
+
+MVP 26.0 ergänzt Pandora um ein temporäres Working Memory für aktive Aufgaben. Es hält Ziele, Hypothesen, Zwischenergebnisse, offene Fragen, Prioritäten, Entscheidungen und nächste Aktionen fest, ohne automatisch in Long-Term Memory, Obsidian oder die Knowledge Base zu schreiben.
+
+Neue Befehle:
+
+```bash
+python main.py working-memory-status
+python main.py working-memory-preview "Was war meine letzte Notiz?"
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/working-memory/status
+GET /api/cognitive/working-memory/preview?query=...
+```
+
+---
+
+## MVP 25.9 – Core Recommendation Workflow
 
 MVP 25.9 ergänzt die Cognitive Architecture um einen kontrollierten Workflow für Core- und Architekturverbesserungen. Erkannte Core-Gaps werden nicht automatisch umgesetzt, sondern als reviewbare Core-Improvement-Briefs vorbereitet.
 
