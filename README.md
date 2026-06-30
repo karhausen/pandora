@@ -677,3 +677,38 @@ Neu:
 
 Der MVP führt nichts aus: keine Tool-Ausführung, keine Codegenerierung, keine Knowledge-Writes, keine Tool-Aktivierung, keine Core-Änderung.
 
+
+
+## MVP 26.6 - GUI Decision Inbox
+
+MVP 26.6 macht die Central Decision Engine in der GUI nutzbar.
+
+Neue Oberfläche:
+
+```text
+/decision-inbox
+```
+
+Neue CLI-Befehle:
+
+```bash
+python main.py gui-decision-inbox-status
+python main.py gui-decision-inbox-preview "Ich brauche ein Tool fuer Aktienkurse"
+python main.py gui-decision-inbox-preview "Ich brauche ein Tool fuer Aktienkurse" --user-action ja
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/gui-decision-inbox/status
+GET /api/cognitive/gui-decision-inbox/preview?query=...
+```
+
+Die Decision Inbox zeigt einfache Benutzerentscheidungen:
+
+- Vorschlag ausarbeiten
+- Später prüfen
+- Ablehnen
+- sicher fortfahren
+
+Sicherheitsregel: Die GUI führt nichts aus, generiert keinen Code, aktiviert keine Tools, schreibt kein Wissen und ändert keinen Core. Sie erzeugt nur den nächsten kontrollierten Handoff.

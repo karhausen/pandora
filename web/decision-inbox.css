@@ -1,0 +1,26 @@
+body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, sans-serif; background: #111827; color: #e5e7eb; }
+.topbar { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; padding: 24px; background: #0f172a; border-bottom: 1px solid #334155; }
+.topbar h1 { margin: 0 0 8px; }
+.topbar p { margin: 0; color: #94a3b8; }
+.global-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #263244; color: #cbd5e1; font-size: 12px; }
+.badge.link { text-decoration: none; }
+.layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 18px; padding: 20px; }
+.panel { background: #1e293b; border: 1px solid #334155; border-radius: 14px; padding: 18px; box-shadow: 0 8px 22px rgba(0,0,0,0.25); }
+.panel h2 { margin-top: 0; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+textarea { width: 100%; min-height: 130px; resize: vertical; border-radius: 10px; border: 1px solid #475569; background: #0f172a; color: #e5e7eb; padding: 12px; box-sizing: border-box; }
+button { border: none; border-radius: 10px; background: #38bdf8; color: #0f172a; font-weight: 700; padding: 10px 14px; cursor: pointer; }
+button.secondary { background: #475569; color: #e5e7eb; }
+button.danger { background: #ef4444; color: white; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.notice { color: #94a3b8; font-size: 13px; }
+.status-box, .empty { color: #94a3b8; padding: 12px; border: 1px dashed #475569; border-radius: 10px; }
+.list { display: grid; gap: 12px; margin-top: 14px; }
+.decision-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 14px; }
+.decision-card h3 { margin: 0 0 8px; }
+.badges { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+.row { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid #334155; padding: 8px 0; }
+.row span { color: #94a3b8; }
+pre { overflow: auto; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 12px; color: #cbd5e1; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .topbar { flex-direction: column; } }

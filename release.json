@@ -1,22 +1,23 @@
 {
-  "version": "26.5-cognitive-integration-regression",
-  "name": "MVP 26.5 - Cognitive Integration & Regression Hardening",
-  "feature": "Cognitive Integration & Regression Hardening",
-  "based_on": "26.4-proposal-execution-gate",
+  "version": "26.6-gui-decision-inbox",
+  "name": "MVP 26.6 - GUI Decision Inbox",
+  "feature": "GUI Decision Inbox",
+  "based_on": "26.5-cognitive-integration-regression",
   "features": [
-    "Neuer core/cognitive_integration_regression.py als Integrations- und Regression-Service",
-    "Verbindet Central Decision Engine, Approval Interaction, Proposal Review Loop, Execution Gate und Context Pipeline als Trace",
-    "Neue Regression-Szenarien fuer Vault/Context, Tool-Gap, Knowledge-Gap und Core-Gap",
-    "CLI-Befehle cognitive-integration-status, cognitive-integration-preview und cognitive-regression-run",
-    "API-Endpunkte /api/cognitive/integration/status, /api/cognitive/integration/preview und /api/cognitive/regression/run",
-    "Sicherheitszusammenfassung erkennt unerwuenschte Ausfuehrungs-/Schreib-/Aktivierungsflags",
-    "Doku docs/cognitive_integration_regression.md",
-    "Regressionstests fuer Status, Trace, Context-Pfad und Regression-Report"
+    "Neue core/gui_decision_inbox.py als GUI-Adapter fuer Central Decision Engine",
+    "Decision Cards fuer Tool-, Knowledge-, Core- und Kontext-Entscheidungen",
+    "Einfache Aktionen: Vorschlag ausarbeiten, ablehnen, spaeter pruefen, sicher fortfahren",
+    "Neue GUI-Seite /decision-inbox mit Anfragefeld, Karten, Details und Trace",
+    "Neue API-Endpunkte /api/cognitive/gui-decision-inbox/status und /preview",
+    "Neue CLI-Befehle gui-decision-inbox-status und gui-decision-inbox-preview",
+    "Sicherheitsmodell: Anzeige/Preview only, keine Ausfuehrung oder Aktivierung",
+    "Doku docs/gui_decision_inbox.md",
+    "Regressionstests fuer Decision Cards, Tool-Gap-Handoff und sicheren Kontextpfad"
   ],
   "notes": [
-    "MVP 26.5 fuehrt keine Tools aus, generiert keinen Code, schreibt kein Wissen, aktiviert keine Tools und aendert keinen Core.",
-    "Der MVP stabilisiert die seit 25.2 aufgebauten Cognitive-Komponenten als kontrollierten Gesamtfluss.",
-    "Der Vault-/Context-Pfad wird explizit als Regression-Szenario gefuehrt."
+    "MVP 26.6 ist die erste sichtbare GUI-Schicht fuer die Central Decision Engine.",
+    "Die Seite fragt den Benutzer nur an echten Entscheidungspunkten.",
+    "Auch eine bestaetigte Aktion erlaubt nur Proposal-Vorbereitung, keine Systemaenderung."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Decision Inbox</title>
+  <link rel="stylesheet" href="/web/decision-inbox.css" />
+  <link rel="stylesheet" href="/web/shared.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Decision Inbox</h1>
+      <p>Klare Benutzerentscheidungen aus der Central Decision Engine: Vorschlag ausarbeiten, ablehnen oder sicher fortfahren.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/approval">Approval Center</a>
+      <a class="badge link" href="/operations">Operations</a>
+      <a class="badge link" href="/capability-explorer">Capabilities</a>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <section class="panel composer">
+      <h2>Anfrage prüfen</h2>
+      <textarea id="requestInput" placeholder="Beispiel: Ich brauche ein Tool, das Aktienkurse analysiert."></textarea>
+      <div class="actions">
+        <button onclick="previewDecision()">Entscheidung vorbereiten</button>
+        <button class="secondary" onclick="fillExample('tool')">Tool-Beispiel</button>
+        <button class="secondary" onclick="fillExample('core')">Core-Beispiel</button>
+        <button class="secondary" onclick="fillExample('note')">Vault-Beispiel</button>
+      </div>
+      <p class="notice">Diese Seite führt nichts aus. Sie zeigt nur, welchen kontrollierten nächsten Schritt Pandora vorschlägt.</p>
+    </section>
+
+    <section class="panel inbox">
+      <div class="panel-head">
+        <h2>Decision Cards</h2>
+        <button onclick="loadStatus()">Status</button>
+      </div>
+      <div id="statusBox" class="status-box">Noch nicht geladen.</div>
+      <div id="cardList" class="list"></div>
+    </section>
+
+    <section class="panel detail">
+      <h2>Details</h2>
+      <div id="detailBox" class="empty">Noch keine Entscheidung vorbereitet.</div>
+    </section>
+
+    <section class="panel trace">
+      <h2>Decision Trace</h2>
+      <pre id="traceBox">Noch nicht geladen.</pre>
+    </section>
+  </main>
+
+  <script src="/web/decision-inbox.js"></script>
+</body>
+</html>

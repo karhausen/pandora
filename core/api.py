@@ -87,6 +87,7 @@ from .approval_interaction_workflow import ApprovalInteractionWorkflow
 from .proposal_review_loop import ProposalReviewLoop
 from .proposal_execution_gate import ProposalExecutionGate
 from .cognitive_integration_regression import CognitiveIntegrationRegressionService
+from .gui_decision_inbox import GuiDecisionInbox
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -751,6 +752,16 @@ def api_cognitive_integration_preview(query: str, user_decision: str | None = No
 def api_cognitive_regression_run(provider_name: str | None = None, model: str | None = None, timeout: float = 1.5):
     return CognitiveIntegrationRegressionService().run_regression(provider_name=provider_name, model=model, timeout=timeout)
 
+
+
+
+@app.get("/api/cognitive/gui-decision-inbox/status")
+def api_gui_decision_inbox_status():
+    return GuiDecisionInbox().status()
+
+@app.get("/api/cognitive/gui-decision-inbox/preview")
+def api_gui_decision_inbox_preview(query: str, user_action: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return GuiDecisionInbox().preview(query, user_action=user_action, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/proposal-execution-gate/status")
 def api_proposal_execution_gate_status():
@@ -1897,6 +1908,19 @@ def web_learning_css():
 @app.get("/approval")
 def web_approval():
     return FileResponse(WEB_DIR / "approval.html")
+
+
+@app.get("/decision-inbox")
+def web_decision_inbox():
+    return FileResponse(WEB_DIR / "decision-inbox.html")
+
+@app.get("/web/decision-inbox.js")
+def web_decision_inbox_js():
+    return FileResponse(WEB_DIR / "decision-inbox.js")
+
+@app.get("/web/decision-inbox.css")
+def web_decision_inbox_css():
+    return FileResponse(WEB_DIR / "decision-inbox.css")
 
 
 
