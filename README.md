@@ -659,3 +659,21 @@ CLI:
 python main.py proposal-execution-gate-status
 python main.py proposal-execution-gate-preview "Baue ein Tool für historische Aktienkurse" --payload-json '{"purpose":"...","python_code":"..."}' --review-decision passt --execution-decision aktivieren --test-ok --audit-ok
 ```
+
+## MVP 26.5 - Cognitive Integration & Regression Hardening
+
+MVP 26.5 verbindet die Cognitive-Komponenten als nachvollziehbaren Preview- und Regression-Flow.
+
+Neu:
+
+- `core/cognitive_integration_regression.py`
+- CLI: `cognitive-integration-status`
+- CLI: `cognitive-integration-preview`
+- CLI: `cognitive-regression-run`
+- API: `/api/cognitive/integration/status`
+- API: `/api/cognitive/integration/preview`
+- API: `/api/cognitive/regression/run`
+- Doku: `docs/cognitive_integration_regression.md`
+
+Der MVP führt nichts aus: keine Tool-Ausführung, keine Codegenerierung, keine Knowledge-Writes, keine Tool-Aktivierung, keine Core-Änderung.
+

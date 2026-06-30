@@ -70,6 +70,7 @@ from core.central_decision_engine import CentralDecisionEngine
 from core.approval_interaction_workflow import ApprovalInteractionWorkflow
 from core.proposal_review_loop import ProposalReviewLoop
 from core.proposal_execution_gate import ProposalExecutionGate
+from core.cognitive_integration_regression import CognitiveIntegrationRegressionService
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -632,6 +633,24 @@ def cmd_proposal_execution_gate_preview(args):
         timeout=args.timeout,
     ))
 
+def cmd_cognitive_integration_status(args):
+    _json(CognitiveIntegrationRegressionService().status())
+
+def cmd_cognitive_integration_preview(args):
+    _json(CognitiveIntegrationRegressionService().preview(
+        args.request,
+        user_decision=args.user_decision,
+        review_decision=args.review_decision,
+        execution_decision=args.execution_decision,
+        provider_name=args.provider_name,
+        model=args.model,
+        timeout=args.timeout,
+        include_context_pipeline=not args.no_context_pipeline,
+    ))
+
+def cmd_cognitive_regression_run(args):
+    _json(CognitiveIntegrationRegressionService().run_regression(provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Pandora Agent MVP 25.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -716,6 +735,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("approval-interaction-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--note"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_approval_interaction_preview)
     p = sub.add_parser("proposal-review-loop-status"); p.set_defaults(func=cmd_proposal_review_loop_status)
     p = sub.add_parser("proposal-review-loop-preview"); p.add_argument("request"); p.add_argument("--approval-decision", default="ja"); p.add_argument("--payload-json"); p.add_argument("--review-decision"); p.add_argument("--review-note"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_proposal_review_loop_preview)
+    p = sub.add_parser("cognitive-integration-status"); p.set_defaults(func=cmd_cognitive_integration_status)
+    p = sub.add_parser("cognitive-integration-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--review-decision"); p.add_argument("--execution-decision"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--no-context-pipeline", action="store_true"); p.set_defaults(func=cmd_cognitive_integration_preview)
+    p = sub.add_parser("cognitive-regression-run"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=1.5); p.set_defaults(func=cmd_cognitive_regression_run)
     p = sub.add_parser("proposal-execution-gate-status"); p.set_defaults(func=cmd_proposal_execution_gate_status)
     p = sub.add_parser("proposal-execution-gate-preview"); p.add_argument("request"); p.add_argument("--payload-json"); p.add_argument("--review-decision", default="passt"); p.add_argument("--execution-decision"); p.add_argument("--test-ok", action="store_true"); p.add_argument("--test-failed", action="store_true"); p.add_argument("--audit-ok", action="store_true"); p.add_argument("--audit-failed", action="store_true"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_proposal_execution_gate_preview)
     p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)

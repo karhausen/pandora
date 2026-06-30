@@ -86,6 +86,7 @@ from .central_decision_engine import CentralDecisionEngine
 from .approval_interaction_workflow import ApprovalInteractionWorkflow
 from .proposal_review_loop import ProposalReviewLoop
 from .proposal_execution_gate import ProposalExecutionGate
+from .cognitive_integration_regression import CognitiveIntegrationRegressionService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -736,6 +737,19 @@ def api_proposal_review_loop_status():
 @app.get("/api/cognitive/proposal-review-loop/preview")
 def api_proposal_review_loop_preview(query: str, approval_decision: str | None = "ja", review_decision: str | None = None, review_note: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return ProposalReviewLoop().preview(query, approval_decision=approval_decision, review_decision=review_decision, review_note=review_note, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/integration/status")
+def api_cognitive_integration_status():
+    return CognitiveIntegrationRegressionService().status()
+
+@app.get("/api/cognitive/integration/preview")
+def api_cognitive_integration_preview(query: str, user_decision: str | None = None, review_decision: str | None = None, execution_decision: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, include_context_pipeline: bool = True):
+    return CognitiveIntegrationRegressionService().preview(query, user_decision=user_decision, review_decision=review_decision, execution_decision=execution_decision, provider_name=provider_name, model=model, timeout=timeout, include_context_pipeline=include_context_pipeline)
+
+@app.get("/api/cognitive/regression/run")
+def api_cognitive_regression_run(provider_name: str | None = None, model: str | None = None, timeout: float = 1.5):
+    return CognitiveIntegrationRegressionService().run_regression(provider_name=provider_name, model=model, timeout=timeout)
 
 
 @app.get("/api/cognitive/proposal-execution-gate/status")

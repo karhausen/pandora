@@ -1,21 +1,22 @@
 {
-  "version": "26.4-proposal-execution-gate",
-  "name": "MVP 26.4 - Proposal Execution Gate",
-  "feature": "Proposal Execution Gate",
-  "based_on": "26.3-proposal-review-loop",
+  "version": "26.5-cognitive-integration-regression",
+  "name": "MVP 26.5 - Cognitive Integration & Regression Hardening",
+  "feature": "Cognitive Integration & Regression Hardening",
+  "based_on": "26.4-proposal-execution-gate",
   "features": [
-    "Neuer core/proposal_execution_gate.py als finales kontrolliertes Gate nach Proposal Review",
-    "Prüft finalen Freigabepunkt vor Übergabe an Aktivierung, Knowledge Write oder Core Release Workflow",
-    "Erzeugt keine Änderungen selbst, sondern nur ein kontrolliertes Handoff",
-    "Berücksichtigt Test- und Audit-Berichte vor dem Handoff",
-    "CLI-Befehle proposal-execution-gate-status und proposal-execution-gate-preview",
-    "API-Endpunkte /api/cognitive/proposal-execution-gate/status und /api/cognitive/proposal-execution-gate/preview",
-    "Regressionstests für Wartezustand, fehlende Checks, erfolgreiche Übergabe und blockierte Reviews"
+    "Neuer core/cognitive_integration_regression.py als Integrations- und Regression-Service",
+    "Verbindet Central Decision Engine, Approval Interaction, Proposal Review Loop, Execution Gate und Context Pipeline als Trace",
+    "Neue Regression-Szenarien fuer Vault/Context, Tool-Gap, Knowledge-Gap und Core-Gap",
+    "CLI-Befehle cognitive-integration-status, cognitive-integration-preview und cognitive-regression-run",
+    "API-Endpunkte /api/cognitive/integration/status, /api/cognitive/integration/preview und /api/cognitive/regression/run",
+    "Sicherheitszusammenfassung erkennt unerwuenschte Ausfuehrungs-/Schreib-/Aktivierungsflags",
+    "Doku docs/cognitive_integration_regression.md",
+    "Regressionstests fuer Status, Trace, Context-Pfad und Regression-Report"
   ],
   "notes": [
-    "Das Gate aktiviert keine Tools, schreibt kein Wissen, ändert keinen Core und erstellt keine Releases.",
-    "Es bildet den praktischen Ablauf ab: reviewed -> final freigeben -> Tests/Audit prüfen -> kontrolliert weitergeben.",
-    "Damit bleibt der User-Dialog schlank: Soll ich weitergeben? Ja/Nein."
+    "MVP 26.5 fuehrt keine Tools aus, generiert keinen Code, schreibt kein Wissen, aktiviert keine Tools und aendert keinen Core.",
+    "Der MVP stabilisiert die seit 25.2 aufgebauten Cognitive-Komponenten als kontrollierten Gesamtfluss.",
+    "Der Vault-/Context-Pfad wird explizit als Regression-Szenario gefuehrt."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }
