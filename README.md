@@ -1,6 +1,6 @@
 # Pandora Agent
 
-## MVP 25.8 – Knowledge Recommendation Workflow
+## MVP 25.9 – Core Recommendation Workflow
 
 Der Cognitive Core kann erkannte Tool-Gaps jetzt in sichere Tool-Factory-Briefs überführen. Der Workflow erzeugt Schnittstelle, Testanforderungen, Sicherheitsregeln und Review-Schritte, generiert aber keinen Code und aktiviert nichts automatisch.
 
@@ -153,6 +153,28 @@ GUI = Steuerung und Transparenz
 ```
 
 Der aktive Core darf nicht automatisch überschrieben werden. Vorschläge werden geprüft, getestet und vom User genehmigt.
+
+
+### MVP 25.9 – Core Recommendation Workflow
+
+MVP 25.9 ergänzt die Cognitive Architecture um einen kontrollierten Workflow für Core- und Architekturverbesserungen. Erkannte Core-Gaps werden nicht automatisch umgesetzt, sondern als reviewbare Core-Improvement-Briefs vorbereitet.
+
+Neu:
+
+- `core/core_recommendation_workflow.py`
+- CLI: `core-recommendation-status`
+- CLI: `core-recommendation-preview`
+- API: `/api/cognitive/core-recommendation/status`
+- API: `/api/cognitive/core-recommendation/preview`
+- Doku: `docs/core_recommendation_workflow.md`
+
+Sicherheitsgarantie:
+
+- keine Source-Edits
+- keine Policy-Änderungen
+- keine Release-Builds
+- keine automatische Aktivierung
+- User-Freigabe vor Umsetzung
 
 ### MVP 25.8 – Knowledge Recommendation Workflow
 
