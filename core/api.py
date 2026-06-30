@@ -79,6 +79,7 @@ from .capability_analyzer import CapabilityAnalyzer
 from .python_orchestrator import PythonOrchestrator
 from .cognitive_context_pipeline import CognitiveContextPipeline
 from .tool_recommendation_workflow import ToolRecommendationWorkflow
+from .knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -100,7 +101,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="25.7-tool-recommendation-workflow")
+app = FastAPI(title="Pandora Agent", version="25.8-knowledge-recommendation-workflow")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -684,6 +685,15 @@ def api_tool_recommendation_status():
 @app.get("/api/cognitive/tool-recommendation/preview")
 def api_tool_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return ToolRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/knowledge-recommendation/status")
+def api_knowledge_recommendation_status():
+    return KnowledgeRecommendationWorkflow().status()
+
+@app.get("/api/cognitive/knowledge-recommendation/preview")
+def api_knowledge_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return KnowledgeRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
 
 
 

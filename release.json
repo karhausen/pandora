@@ -1,21 +1,21 @@
 {
-  "version": "25.7-tool-recommendation-workflow",
-  "name": "MVP 25.7 - Tool Recommendation Workflow",
-  "feature": "Tool Recommendation Workflow",
-  "based_on": "25.6-cognitive-context-pipeline",
+  "version": "25.8-knowledge-recommendation-workflow",
+  "name": "MVP 25.8 - Knowledge Recommendation Workflow",
+  "feature": "Knowledge Recommendation Workflow",
+  "based_on": "25.7-tool-recommendation-workflow",
   "features": [
-    "Neuer core/tool_recommendation_workflow.py als sichere Vorstufe zur Tool Factory",
-    "Erzeugt reviewbare Tool-Factory-Briefs aus erkannten Tool-Gaps",
-    "Definiert Tool-Zweck, Interface Contract, Input-/Output-Schema, Sicherheitsregeln und Testanforderungen",
-    "CLI-Befehle tool-recommendation-status und tool-recommendation-preview",
-    "API-Endpunkte /api/cognitive/tool-recommendation/status und /api/cognitive/tool-recommendation/preview",
-    "Sicherheitsgarantie: keine Code-Generierung, keine Tool-Ausführung, keine Dateiänderung, keine Registry-Aktivierung",
-    "Regressionstests für Tool-Gap-Briefs und No-Gap-Verhalten"
+    "Neuer core/knowledge_recommendation_workflow.py als sichere Vorstufe für Knowledge- und Obsidian-Verbesserungen",
+    "Erzeugt reviewbare Knowledge-Improvement-Briefs aus erkannten Knowledge-Gaps",
+    "Definiert Zielbereich, Artefakttyp, Source Requirements, Proposal Contract, Review Workflow und Quality Checks",
+    "CLI-Befehle knowledge-recommendation-status und knowledge-recommendation-preview",
+    "API-Endpunkte /api/cognitive/knowledge-recommendation/status und /api/cognitive/knowledge-recommendation/preview",
+    "Sicherheitsgarantie: keine Vault-Writes, keine Knowledge-Base-Writes, keine Memory-Mutation, keine automatische Veröffentlichung",
+    "Regressionstests für Knowledge-Gap-Briefs und No-Gap-Verhalten"
   ],
   "notes": [
-    "MVP 25.7 hält den Grundsatz ein: LLM empfiehlt, Python validiert, User gibt frei.",
-    "Der Workflow bereitet Tool Factory Inputs vor, startet aber noch keine automatische Code-Generierung.",
-    "Tool-Verbesserungen können später denselben Review-/Test-/Freigabeweg nutzen."
+    "MVP 25.8 hält den Grundsatz ein: LLM erkennt mögliche Wissenslücken, Python validiert, User gibt frei.",
+    "Der Workflow bereitet Knowledge- oder Obsidian-Änderungen nur vor und persistiert nichts automatisch.",
+    "Knowledge Evolution wird dadurch kontrolliert, nachvollziehbar und reviewpflichtig."
   ],
   "build_time": "2026-06-30T00:00:00Z"
 }

@@ -1,3 +1,11 @@
 {
-  "sessions": []
+  "sessions": [
+    {
+      "session_id": "chat_676b0a8823a7",
+      "title": "Was sind die Topics in meinem Vault?",
+      "created_at": "2026-06-30T18:34:47.759182+00:00",
+      "updated_at": "2026-06-30T18:34:47.759182+00:00",
+      "message_count": 0
+    }
+  ]
 }

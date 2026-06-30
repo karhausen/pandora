@@ -63,6 +63,7 @@ from core.capability_analyzer import CapabilityAnalyzer
 from core.python_orchestrator import PythonOrchestrator
 from core.cognitive_context_pipeline import CognitiveContextPipeline
 from core.tool_recommendation_workflow import ToolRecommendationWorkflow
+from core.knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -417,6 +418,10 @@ def cmd_tool_recommendation_status(args): _json(ToolRecommendationWorkflow().sta
 
 def cmd_tool_recommendation_preview(args): _json(ToolRecommendationWorkflow().prepare(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
+def cmd_knowledge_recommendation_status(args): _json(KnowledgeRecommendationWorkflow().status())
+
+def cmd_knowledge_recommendation_preview(args): _json(KnowledgeRecommendationWorkflow().prepare(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def cmd_obsidian_context_preview(args):
     payload = KnowledgeContextService(max_files=args.limit).build_for_chat(args.query, provider_name=args.provider_name, model=args.model, limit=args.limit)
     _json({
@@ -630,6 +635,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-pipeline-preview"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--limit", type=int, default=5); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_pipeline_preview)
     p = sub.add_parser("tool-recommendation-status"); p.set_defaults(func=cmd_tool_recommendation_status)
     p = sub.add_parser("tool-recommendation-preview"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_tool_recommendation_preview)
+    p = sub.add_parser("knowledge-recommendation-status"); p.set_defaults(func=cmd_knowledge_recommendation_status)
+    p = sub.add_parser("knowledge-recommendation-preview"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_knowledge_recommendation_preview)
     p = sub.add_parser("request-interpreter-status"); p.set_defaults(func=cmd_request_interpreter_status)
     p = sub.add_parser("request-interpret"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_request_interpret)
     p = sub.add_parser("capability-analyzer-status"); p.set_defaults(func=cmd_capability_analyzer_status)
