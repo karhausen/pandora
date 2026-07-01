@@ -1,22 +1,23 @@
 {
-  "version": "27.3-goal-manager",
-  "name": "MVP 27.3 - Goal Manager",
-  "feature": "Goal Manager",
-  "based_on": "27.2-adaptive-tool-selection",
+  "version": "27.4",
+  "name": "MVP 27.4 – Priority Engine",
+  "feature": "Priority Engine",
+  "based_on": "27.3-goal-manager",
   "features": [
-    "Neue core/goal_manager.py fuer reviewpflichtige langfristige Zielkandidaten",
-    "Leitet Ziele aus Cognitive Plan, Central Decision und Capability Gaps ab",
-    "Erkennt Zielbereiche Tool, Knowledge, Core, Governance und Planning",
+    "Neue core/priority_engine.py fuer reviewpflichtige Priorisierung kognitiver Empfehlungen",
+    "Bewertet Ziele und Capability-Gaps nach Nutzen, Dringlichkeit, Aufwand, Risiko und Confidence",
+    "Fuehrt Goal Manager und Central Decision Engine in einer sortierten Priority-Liste zusammen",
     "Keine Persistenz, keine Ausfuehrung, keine Core-Aenderung und keine Tool-Aktivierung",
-    "Neue CLI-Befehle goal-manager-status und goal-propose",
-    "Neue API-Endpunkte /api/cognitive/goal-manager/status und /preview",
-    "Doku docs/goal_manager.md",
-    "Regressionstests fuer Tool-, Knowledge- und Core-Zielkandidaten"
+    "Neue CLI-Befehle priority-engine-status und priority-prioritize",
+    "Neue API-Endpunkte /api/cognitive/priority-engine/status und /preview",
+    "Doku docs/priority_engine.md",
+    "Regressionstests fuer Tool-, Knowledge- und Core-Prioritaeten"
   ],
   "notes": [
-    "MVP 27.3 fuehrt langfristige Zielbildung als Vorschlagsebene ein.",
-    "Der Goal Manager sammelt keine Ziele dauerhaft, sondern erzeugt reviewbare Kandidaten fuer spaetere Freigabeprozesse.",
+    "MVP 27.4 fuehrt Priorisierung als reine Empfehlungsebene ein.",
+    "Die Priority Engine entscheidet nicht final und fuehrt nichts aus; sie sortiert nur reviewbare naechste Schritte.",
     "Damit bleibt die Trennung erhalten: LLM/Planner empfiehlt, Python validiert, User gibt frei."
   ],
-  "build_time": "2026-07-01T00:00:00Z"
+  "build_time": "2026-07-01T00:00:00Z",
+  "description": "Ranks reviewable cognitive actions by value, urgency, effort, risk and confidence without executing them."
 }

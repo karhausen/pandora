@@ -76,6 +76,7 @@ from core.cognitive_planning_engine import CognitivePlanningEngine
 from core.adaptive_source_selection import AdaptiveSourceSelector
 from core.adaptive_tool_selection import AdaptiveToolSelector
 from core.goal_manager import GoalManager
+from core.priority_engine import PriorityEngine
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -637,6 +638,12 @@ def cmd_goal_manager_status(args):
 def cmd_goal_propose(args):
     _json(GoalManager().propose(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_goals=args.max_goals))
 
+def cmd_priority_engine_status(args):
+    _json(PriorityEngine().status())
+
+def cmd_priority_prioritize(args):
+    _json(PriorityEngine().prioritize(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_items=args.max_items))
+
 def cmd_adaptive_tool_selection_status(args):
     _json(AdaptiveToolSelector().status())
 
@@ -781,6 +788,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("adaptive-source-select"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-sources", type=int, default=5); p.set_defaults(func=cmd_adaptive_source_select)
     p = sub.add_parser("goal-manager-status"); p.set_defaults(func=cmd_goal_manager_status)
     p = sub.add_parser("goal-propose"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-goals", type=int, default=5); p.set_defaults(func=cmd_goal_propose)
+    p = sub.add_parser("priority-engine-status"); p.set_defaults(func=cmd_priority_engine_status)
+    p = sub.add_parser("priority-prioritize"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-items", type=int, default=8); p.set_defaults(func=cmd_priority_prioritize)
     p = sub.add_parser("adaptive-tool-selection-status"); p.set_defaults(func=cmd_adaptive_tool_selection_status)
     p = sub.add_parser("adaptive-tool-select"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-tools", type=int, default=3); p.set_defaults(func=cmd_adaptive_tool_select)
     p = sub.add_parser("gui-decision-inbox-status"); p.set_defaults(func=cmd_gui_decision_inbox_status)

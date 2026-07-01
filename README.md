@@ -761,9 +761,9 @@ Die Engine erzeugt einen reviewbaren Plan und fuehrt nichts aus.
 
 Pandora kann benoetigte Tools adaptiv empfehlen und Tool-Gaps erkennen, ohne Tools auszufuehren oder Code zu generieren.
 
-## MVP 27.3 – Goal Manager
+## MVP 27.4 – Goal Manager
 
-MVP 27.3 ergänzt einen konservativen Goal Manager. Er erzeugt aus Anfrage, Cognitive Plan und Central Decision Engine reviewpflichtige Zielkandidaten für Tool-, Knowledge-, Core-, Governance- und Planning-Themen.
+MVP 27.4 ergänzt einen konservativen Goal Manager. Er erzeugt aus Anfrage, Cognitive Plan und Central Decision Engine reviewpflichtige Zielkandidaten für Tool-, Knowledge-, Core-, Governance- und Planning-Themen.
 
 CLI:
 
@@ -778,3 +778,15 @@ API:
 - `/api/cognitive/goal-manager/preview`
 
 Sicherheit: Der Goal Manager speichert nichts dauerhaft, führt nichts aus, aktiviert keine Tools und verändert keinen Core.
+
+
+## MVP 27.4 – Priority Engine
+
+Prioritizes cognitive goals and capability-gap recommendations by value, urgency, effort, risk and confidence. It creates reviewable priority items only; it does not execute tools, persist goals, change knowledge or modify the core.
+
+CLI:
+
+```bash
+python main.py priority-engine-status
+python main.py priority-prioritize "Pandora sollte Tool- und Core-Verbesserungen priorisieren"
+```
