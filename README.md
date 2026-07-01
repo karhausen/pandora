@@ -840,3 +840,12 @@ python main.py review-to-action-preview "Pandora Weekly Review"
 python main.py review-to-action-preview "Pandora Weekly Review" --user-action ja
 python main.py review-to-action-preview "Pandora Weekly Review" --user-action später
 ```
+
+### MVP 27.8 – Action Proposal Handoff
+
+- Neue Komponente `core/action_proposal_handoff.py`
+- Übergibt bestätigte Review-to-Action Karten an Tool-/Knowledge-/Core-Proposal-Flows
+- CLI: `action-proposal-handoff-status`, `action-proposal-handoff-preview`
+- API: `/api/cognitive/action-proposal-handoff/status` und `/preview`
+- Doku: `docs/action_proposal_handoff.md`
+- Sicherheitsgarantie: kein Code, keine Ausführung, keine Persistenz, keine Core-Änderung

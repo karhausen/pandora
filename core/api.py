@@ -96,6 +96,7 @@ from .priority_engine import PriorityEngine
 from .review_cycle_engine import ReviewCycleEngine
 from .cognitive_dashboard import CognitiveDashboardService
 from .review_to_action_workflow import ReviewToActionWorkflow
+from .action_proposal_handoff import ActionProposalHandoff
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -117,7 +118,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.7-review-to-action-workflow")
+app = FastAPI(title="Pandora Agent", version="27.8-action-proposal-handoff")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -822,6 +823,14 @@ def api_review_to_action_status():
 @app.get("/api/cognitive/review-to-action/preview")
 def api_review_to_action_preview(query: str, cadence: str = "weekly", user_action: str | None = None, action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
     return ReviewToActionWorkflow().preview(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/action-proposal-handoff/status")
+def api_action_proposal_handoff_status():
+    return ActionProposalHandoff().status()
+
+@app.get("/api/cognitive/action-proposal-handoff/preview")
+def api_action_proposal_handoff_preview(query: str, cadence: str = "weekly", user_action: str = "ja", action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ActionProposalHandoff().prepare(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():

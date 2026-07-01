@@ -1,26 +1,27 @@
 {
-  "version": "27.7",
-  "name": "MVP 27.7 – Review-to-Action Workflow",
-  "based_on": "27.6-cognitive-dashboard-integration",
-  "codename": "review_to_action_workflow",
-  "description": "Turns Weekly/Monthly Review findings into simple user-approved action cards and controlled proposal handoffs.",
+  "version": "27.8",
+  "name": "MVP 27.8 – Action Proposal Handoff",
+  "based_on": "27.7-review-to-action-workflow",
+  "codename": "action_proposal_handoff",
+  "description": "Routes approved Review-to-Action cards into the matching Tool, Knowledge or Core proposal preparation workflow without execution or persistence.",
   "features": [
-    "Neue core/review_to_action_workflow.py",
-    "Review-Ergebnisse werden in Aktionskarten umgewandelt",
-    "User-Aktionen: Vorschlag ausarbeiten, später, ablehnen",
-    "Integration mit Approval Interaction Workflow und Proposal Review Loop",
-    "CLI: review-to-action-status, review-to-action-preview",
-    "API: /api/cognitive/review-to-action/status und /preview",
-    "Doku docs/review_to_action_workflow.md",
-    "Regressionstests fuer Handoff-only Verhalten, Defer und Reject"
+    "Neue core/action_proposal_handoff.py",
+    "Review-to-Action Handoffs werden in domain-spezifische Proposal-Briefs überführt",
+    "Tool-, Knowledge- und Core-Recommendation Workflows werden einheitlich angebunden",
+    "CLI: action-proposal-handoff-status, action-proposal-handoff-preview",
+    "API: /api/cognitive/action-proposal-handoff/status und /preview",
+    "Doku docs/action_proposal_handoff.md",
+    "Regressionstests für Handoff-only Verhalten und Safety Flags"
   ],
   "safety": [
+    "Keine Code-Generierung",
     "Keine Tool-Ausführung",
     "Keine Tool-Aktivierung",
-    "Keine Code-Generierung",
     "Keine Vault-/Knowledge-Schreiboperation",
+    "Keine Memory-Schreiboperation",
     "Keine Core-Änderung",
-    "Nur kontrollierte Handoff-Vorbereitung nach User-Freigabe"
+    "Kein Release-Build",
+    "Nur reviewbare Proposal-Briefs nach User-Freigabe"
   ],
   "build_time": "2026-07-01T00:00:00Z"
 }
