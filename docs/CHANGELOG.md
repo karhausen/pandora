@@ -1,3 +1,12 @@
+# MVP 27.1 – Adaptive Source Selection
+
+- Added `core/adaptive_source_selection.py`.
+- Added CLI commands `adaptive-source-selection-status` and `adaptive-source-select`.
+- Added API endpoints `/api/cognitive/adaptive-source-selection/status` and `/preview`.
+- Added adaptive source ranking based on cognitive plan mode, interpreted intent and profile policy.
+- Added source alias normalization while keeping Python-side governance validation.
+- Added regression tests for Obsidian/knowledge lookup, tool-proposal source selection and cloud source blocking.
+
 # MVP 25.6 – Cognitive Context Pipeline
 
 - Added `core/cognitive_context_pipeline.py`.

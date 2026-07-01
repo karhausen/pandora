@@ -89,6 +89,7 @@ from .proposal_execution_gate import ProposalExecutionGate
 from .cognitive_integration_regression import CognitiveIntegrationRegressionService
 from .gui_decision_inbox import GuiDecisionInbox
 from .cognitive_planning_engine import CognitivePlanningEngine
+from .adaptive_source_selection import AdaptiveSourceSelector
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -110,7 +111,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.0-cognitive-planning-engine")
+app = FastAPI(title="Pandora Agent", version="27.1-adaptive-source-selection")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -764,6 +765,14 @@ def api_cognitive_planning_status():
 @app.get("/api/cognitive/planning/preview")
 def api_cognitive_planning_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return CognitivePlanningEngine().plan(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/adaptive-source-selection/status")
+def api_adaptive_source_selection_status():
+    return AdaptiveSourceSelector().status()
+
+@app.get("/api/cognitive/adaptive-source-selection/preview")
+def api_adaptive_source_selection_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_sources: int = 5):
+    return AdaptiveSourceSelector().select(query, provider_name=provider_name, model=model, timeout=timeout, max_sources=max_sources)
 
 @app.get("/api/cognitive/gui-decision-inbox/status")
 def api_gui_decision_inbox_status():

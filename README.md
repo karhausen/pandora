@@ -1,5 +1,28 @@
 # Pandora Agent
 
+## MVP 27.1 – Adaptive Source Selection
+
+MVP 27.1 ergänzt Pandora um eine adaptive Quellenauswahl vor dem eigentlichen Context Builder. Der Cognitive Plan darf passende Informationsräume empfehlen; Python normalisiert, priorisiert und validiert diese Empfehlungen gegen Profil- und Governance-Regeln.
+
+Neue Befehle:
+
+```bash
+python main.py adaptive-source-selection-status
+python main.py adaptive-source-select "Was war meine letzte Notiz?"
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/adaptive-source-selection/status
+GET /api/cognitive/adaptive-source-selection/preview?query=...
+```
+
+Wichtig: Diese Stufe liest keine Dateien, führt keine Tools aus und erzeugt keine Antwort.
+
+---
+
+
 ## MVP 26.0 – Working Memory Foundation
 
 MVP 26.0 ergänzt Pandora um ein temporäres Working Memory für aktive Aufgaben. Es hält Ziele, Hypothesen, Zwischenergebnisse, offene Fragen, Prioritäten, Entscheidungen und nächste Aktionen fest, ohne automatisch in Long-Term Memory, Obsidian oder die Knowledge Base zu schreiben.

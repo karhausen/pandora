@@ -1,23 +1,23 @@
 {
-  "version": "27.0-cognitive-planning-engine",
-  "name": "MVP 27.0 - Cognitive Planning Engine",
-  "feature": "Cognitive Planning Engine",
-  "based_on": "26.6-gui-decision-inbox",
+  "version": "27.1-adaptive-source-selection",
+  "name": "MVP 27.1 - Adaptive Source Selection",
+  "feature": "Adaptive Source Selection",
+  "based_on": "27.0-cognitive-planning-engine",
   "features": [
-    "Neue core/cognitive_planning_engine.py als Planungsstufe vor Antwort oder Aktion",
-    "Erzeugt einen expliziten Cognitive Plan aus Request Interpreter und Central Decision Engine",
-    "Plant Kontextsuche, Tool-Proposals, Knowledge-Proposals und Core-Proposals mit klaren Schritten",
-    "Freigabepunkte werden als approval_points im Plan sichtbar",
-    "Plan-only Sicherheitsmodell: keine Tool-Ausfuehrung, kein Code, keine Datei- oder Core-Aenderung",
-    "Neue CLI-Befehle cognitive-planning-status und cognitive-plan",
-    "Neue API-Endpunkte /api/cognitive/planning/status und /preview",
-    "Doku docs/cognitive_planning_engine.md",
-    "Regressionstests fuer Kontextplan, Tool-Gap-Plan und Core-Proposal-Sicherheit"
+    "Neue core/adaptive_source_selection.py als adaptive Quellenauswahl vor dem Context Builder",
+    "Nutzt den Cognitive Plan, um relevante Informationsraeume flexibel zu empfehlen",
+    "Python normalisiert Quellen-Aliasse und validiert gegen Profil-/Governance-Regeln",
+    "Ranking fuer Quellen nach Intent, Plan-Mode, Default-Prioritaet und Policy",
+    "Keine Datei-Lesezugriffe, keine Tool-Ausfuehrung, keine Code-Generierung",
+    "Neue CLI-Befehle adaptive-source-selection-status und adaptive-source-select",
+    "Neue API-Endpunkte /api/cognitive/adaptive-source-selection/status und /preview",
+    "Doku docs/adaptive_source_selection.md",
+    "Regressionstests fuer Knowledge-Lookup, Tool-Proposal-Quellen und Cloud-Policy-Blocking"
   ],
   "notes": [
-    "MVP 27.0 verschiebt Pandora von reinen Entscheidungen zu reviewbaren Denk- und Loesungsplaenen.",
-    "Das LLM darf Bedeutung und Vorgehen empfehlen; Python validiert und kontrolliert die Folgeaktionen.",
-    "Die Engine ist bewusst noch keine Ausfuehrungsautomatik."
+    "MVP 27.1 vermeidet starre If-Else-Quellenlogik, ohne Governance an das LLM abzugeben.",
+    "Das LLM/der Planner empfiehlt Kontext-Raeume; Python entscheidet, was davon erlaubt ist.",
+    "Der Schritt bereitet Adaptive Context Selection fuer echte GUI-/Chat-Integration vor."
   ],
   "build_time": "2026-07-01T00:00:00Z"
 }

@@ -73,6 +73,7 @@ from core.proposal_execution_gate import ProposalExecutionGate
 from core.cognitive_integration_regression import CognitiveIntegrationRegressionService
 from core.gui_decision_inbox import GuiDecisionInbox
 from core.cognitive_planning_engine import CognitivePlanningEngine
+from core.adaptive_source_selection import AdaptiveSourceSelector
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -622,6 +623,12 @@ def cmd_cognitive_planning_status(args):
 def cmd_cognitive_plan(args):
     _json(CognitivePlanningEngine().plan(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
+def cmd_adaptive_source_selection_status(args):
+    _json(AdaptiveSourceSelector().status())
+
+def cmd_adaptive_source_select(args):
+    _json(AdaptiveSourceSelector().select(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_sources=args.max_sources))
+
 def cmd_gui_decision_inbox_status(args):
     _json(GuiDecisionInbox().status())
 
@@ -756,6 +763,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-regression-run"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=1.5); p.set_defaults(func=cmd_cognitive_regression_run)
     p = sub.add_parser("cognitive-planning-status"); p.set_defaults(func=cmd_cognitive_planning_status)
     p = sub.add_parser("cognitive-plan"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_plan)
+    p = sub.add_parser("adaptive-source-selection-status"); p.set_defaults(func=cmd_adaptive_source_selection_status)
+    p = sub.add_parser("adaptive-source-select"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-sources", type=int, default=5); p.set_defaults(func=cmd_adaptive_source_select)
     p = sub.add_parser("gui-decision-inbox-status"); p.set_defaults(func=cmd_gui_decision_inbox_status)
     p = sub.add_parser("gui-decision-inbox-preview"); p.add_argument("request"); p.add_argument("--user-action"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_gui_decision_inbox_preview)
     p = sub.add_parser("proposal-execution-gate-status"); p.set_defaults(func=cmd_proposal_execution_gate_status)
