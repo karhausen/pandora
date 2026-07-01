@@ -1,6 +1,6 @@
 {
-  "version": "27.4",
-  "name": "MVP 27.4 – Priority Engine",
+  "version": "27.5",
+  "name": "MVP 27.5 – Weekly/Monthly Review Cycles",
   "feature": "Priority Engine",
   "based_on": "27.3-goal-manager",
   "features": [
@@ -19,5 +19,13 @@
     "Damit bleibt die Trennung erhalten: LLM/Planner empfiehlt, Python validiert, User gibt frei."
   ],
   "build_time": "2026-07-01T00:00:00Z",
-  "description": "Ranks reviewable cognitive actions by value, urgency, effort, risk and confidence without executing them."
+  "description": "Review Cycle Engine fuer kontrollierte Wochen- und Monatsreviews des Cognitive Core.",
+  "changes": [
+    "Neue core/review_cycle_engine.py fuer reviewpflichtige Weekly/Monthly Reviews",
+    "Konsolidiert Goal Manager, Priority Engine und Central Decision Engine in Review-Paketen",
+    "Neue CLI-Befehle review-cycle-status und review-cycle-preview",
+    "Neue API-Endpunkte /api/cognitive/review-cycle/status und /preview",
+    "Doku docs/review_cycle_engine.md",
+    "Regressionstests fuer Safety, Weekly und Monthly Review Packages"
+  ]
 }

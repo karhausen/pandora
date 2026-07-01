@@ -790,3 +790,15 @@ CLI:
 python main.py priority-engine-status
 python main.py priority-prioritize "Pandora sollte Tool- und Core-Verbesserungen priorisieren"
 ```
+
+## MVP 27.5 – Weekly/Monthly Review Cycles
+
+Neu ist die Review Cycle Engine für kontrollierte Wochen- und Monatsreviews des Cognitive Core.
+
+```bash
+python main.py review-cycle-status
+python main.py review-cycle-preview "Pandora soll Tools, Wissen und Core regelmäßig verbessern" --cadence weekly
+python main.py review-cycle-preview "Pandora Monatsreview" --cadence monthly
+```
+
+Die Engine erzeugt nur Review-Pakete und Freigabepunkte. Sie führt nichts aus, schreibt nicht in den Vault, aktiviert keine Tools und verändert keinen Core-Code.

@@ -93,6 +93,7 @@ from .adaptive_source_selection import AdaptiveSourceSelector
 from .adaptive_tool_selection import AdaptiveToolSelector
 from .goal_manager import GoalManager
 from .priority_engine import PriorityEngine
+from .review_cycle_engine import ReviewCycleEngine
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -114,7 +115,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.4-priority-engine")
+app = FastAPI(title="Pandora Agent", version="27.5-review-cycle-engine")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -793,6 +794,15 @@ def api_priority_engine_status():
 @app.get("/api/cognitive/priority-engine/preview")
 def api_priority_engine_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
     return PriorityEngine().prioritize(query, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+
+@app.get("/api/cognitive/review-cycle/status")
+def api_review_cycle_status():
+    return ReviewCycleEngine().status()
+
+@app.get("/api/cognitive/review-cycle/preview")
+def api_review_cycle_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ReviewCycleEngine().build_review(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():
