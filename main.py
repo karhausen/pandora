@@ -72,6 +72,7 @@ from core.proposal_review_loop import ProposalReviewLoop
 from core.proposal_execution_gate import ProposalExecutionGate
 from core.cognitive_integration_regression import CognitiveIntegrationRegressionService
 from core.gui_decision_inbox import GuiDecisionInbox
+from core.cognitive_planning_engine import CognitivePlanningEngine
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -614,6 +615,13 @@ def cmd_proposal_review_loop_preview(args):
     _json(ProposalReviewLoop().preview(args.request, approval_decision=args.approval_decision, proposal_payload=payload, review_decision=args.review_decision, review_note=args.review_note, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
 
+
+def cmd_cognitive_planning_status(args):
+    _json(CognitivePlanningEngine().status())
+
+def cmd_cognitive_plan(args):
+    _json(CognitivePlanningEngine().plan(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
 def cmd_gui_decision_inbox_status(args):
     _json(GuiDecisionInbox().status())
 
@@ -746,6 +754,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-integration-status"); p.set_defaults(func=cmd_cognitive_integration_status)
     p = sub.add_parser("cognitive-integration-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--review-decision"); p.add_argument("--execution-decision"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--no-context-pipeline", action="store_true"); p.set_defaults(func=cmd_cognitive_integration_preview)
     p = sub.add_parser("cognitive-regression-run"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=1.5); p.set_defaults(func=cmd_cognitive_regression_run)
+    p = sub.add_parser("cognitive-planning-status"); p.set_defaults(func=cmd_cognitive_planning_status)
+    p = sub.add_parser("cognitive-plan"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_plan)
     p = sub.add_parser("gui-decision-inbox-status"); p.set_defaults(func=cmd_gui_decision_inbox_status)
     p = sub.add_parser("gui-decision-inbox-preview"); p.add_argument("request"); p.add_argument("--user-action"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_gui_decision_inbox_preview)
     p = sub.add_parser("proposal-execution-gate-status"); p.set_defaults(func=cmd_proposal_execution_gate_status)

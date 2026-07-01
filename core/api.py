@@ -88,6 +88,7 @@ from .proposal_review_loop import ProposalReviewLoop
 from .proposal_execution_gate import ProposalExecutionGate
 from .cognitive_integration_regression import CognitiveIntegrationRegressionService
 from .gui_decision_inbox import GuiDecisionInbox
+from .cognitive_planning_engine import CognitivePlanningEngine
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -109,7 +110,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="26.4-proposal-execution-gate")
+app = FastAPI(title="Pandora Agent", version="27.0-cognitive-planning-engine")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -754,6 +755,15 @@ def api_cognitive_regression_run(provider_name: str | None = None, model: str | 
 
 
 
+
+
+@app.get("/api/cognitive/planning/status")
+def api_cognitive_planning_status():
+    return CognitivePlanningEngine().status()
+
+@app.get("/api/cognitive/planning/preview")
+def api_cognitive_planning_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CognitivePlanningEngine().plan(query, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/gui-decision-inbox/status")
 def api_gui_decision_inbox_status():

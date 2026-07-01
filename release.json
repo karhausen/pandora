@@ -1,23 +1,23 @@
 {
-  "version": "26.6-gui-decision-inbox",
-  "name": "MVP 26.6 - GUI Decision Inbox",
-  "feature": "GUI Decision Inbox",
-  "based_on": "26.5-cognitive-integration-regression",
+  "version": "27.0-cognitive-planning-engine",
+  "name": "MVP 27.0 - Cognitive Planning Engine",
+  "feature": "Cognitive Planning Engine",
+  "based_on": "26.6-gui-decision-inbox",
   "features": [
-    "Neue core/gui_decision_inbox.py als GUI-Adapter fuer Central Decision Engine",
-    "Decision Cards fuer Tool-, Knowledge-, Core- und Kontext-Entscheidungen",
-    "Einfache Aktionen: Vorschlag ausarbeiten, ablehnen, spaeter pruefen, sicher fortfahren",
-    "Neue GUI-Seite /decision-inbox mit Anfragefeld, Karten, Details und Trace",
-    "Neue API-Endpunkte /api/cognitive/gui-decision-inbox/status und /preview",
-    "Neue CLI-Befehle gui-decision-inbox-status und gui-decision-inbox-preview",
-    "Sicherheitsmodell: Anzeige/Preview only, keine Ausfuehrung oder Aktivierung",
-    "Doku docs/gui_decision_inbox.md",
-    "Regressionstests fuer Decision Cards, Tool-Gap-Handoff und sicheren Kontextpfad"
+    "Neue core/cognitive_planning_engine.py als Planungsstufe vor Antwort oder Aktion",
+    "Erzeugt einen expliziten Cognitive Plan aus Request Interpreter und Central Decision Engine",
+    "Plant Kontextsuche, Tool-Proposals, Knowledge-Proposals und Core-Proposals mit klaren Schritten",
+    "Freigabepunkte werden als approval_points im Plan sichtbar",
+    "Plan-only Sicherheitsmodell: keine Tool-Ausfuehrung, kein Code, keine Datei- oder Core-Aenderung",
+    "Neue CLI-Befehle cognitive-planning-status und cognitive-plan",
+    "Neue API-Endpunkte /api/cognitive/planning/status und /preview",
+    "Doku docs/cognitive_planning_engine.md",
+    "Regressionstests fuer Kontextplan, Tool-Gap-Plan und Core-Proposal-Sicherheit"
   ],
   "notes": [
-    "MVP 26.6 ist die erste sichtbare GUI-Schicht fuer die Central Decision Engine.",
-    "Die Seite fragt den Benutzer nur an echten Entscheidungspunkten.",
-    "Auch eine bestaetigte Aktion erlaubt nur Proposal-Vorbereitung, keine Systemaenderung."
+    "MVP 27.0 verschiebt Pandora von reinen Entscheidungen zu reviewbaren Denk- und Loesungsplaenen.",
+    "Das LLM darf Bedeutung und Vorgehen empfehlen; Python validiert und kontrolliert die Folgeaktionen.",
+    "Die Engine ist bewusst noch keine Ausfuehrungsautomatik."
   ],
-  "build_time": "2026-06-30T00:00:00Z"
+  "build_time": "2026-07-01T00:00:00Z"
 }

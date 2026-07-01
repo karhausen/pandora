@@ -712,3 +712,23 @@ Die Decision Inbox zeigt einfache Benutzerentscheidungen:
 - sicher fortfahren
 
 Sicherheitsregel: Die GUI führt nichts aus, generiert keinen Code, aktiviert keine Tools, schreibt kein Wissen und ändert keinen Core. Sie erzeugt nur den nächsten kontrollierten Handoff.
+
+## MVP 27.0 – Cognitive Planning Engine
+
+MVP 27.0 fuehrt eine Planungsstufe vor Antwort oder Aktion ein.
+
+Neue Befehle:
+
+```bash
+python main.py cognitive-planning-status
+python main.py cognitive-plan "Was war meine letzte Notiz?"
+```
+
+Neue API:
+
+```text
+GET /api/cognitive/planning/status
+GET /api/cognitive/planning/preview?query=...
+```
+
+Die Engine erzeugt einen reviewbaren Plan und fuehrt nichts aus.
