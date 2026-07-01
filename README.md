@@ -760,3 +760,21 @@ Die Engine erzeugt einen reviewbaren Plan und fuehrt nichts aus.
 ## MVP 27.2 – Adaptive Tool Selection
 
 Pandora kann benoetigte Tools adaptiv empfehlen und Tool-Gaps erkennen, ohne Tools auszufuehren oder Code zu generieren.
+
+## MVP 27.3 – Goal Manager
+
+MVP 27.3 ergänzt einen konservativen Goal Manager. Er erzeugt aus Anfrage, Cognitive Plan und Central Decision Engine reviewpflichtige Zielkandidaten für Tool-, Knowledge-, Core-, Governance- und Planning-Themen.
+
+CLI:
+
+```bash
+python main.py goal-manager-status
+python main.py goal-propose "Ich brauche ein Tool fuer Aktienkurse"
+```
+
+API:
+
+- `/api/cognitive/goal-manager/status`
+- `/api/cognitive/goal-manager/preview`
+
+Sicherheit: Der Goal Manager speichert nichts dauerhaft, führt nichts aus, aktiviert keine Tools und verändert keinen Core.

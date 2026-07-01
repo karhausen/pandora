@@ -1,23 +1,22 @@
 {
-  "version": "27.2-adaptive-tool-selection",
-  "name": "MVP 27.2 - Adaptive Tool Selection",
-  "feature": "Adaptive Tool Selection",
-  "based_on": "27.1-adaptive-source-selection",
+  "version": "27.3-goal-manager",
+  "name": "MVP 27.3 - Goal Manager",
+  "feature": "Goal Manager",
+  "based_on": "27.2-adaptive-tool-selection",
   "features": [
-    "Neue core/adaptive_tool_selection.py fuer adaptive Tool-Auswahl vor jeder Ausfuehrung",
-    "Nutzt den Cognitive Plan und die Tool Registry, um vorhandene Tools flexibel zu empfehlen",
-    "Python normalisiert Tool-Aliasse und validiert Status, Security-Level und Profil-Policy",
-    "Erkennt Tool-Gaps wie stock_history_lookup und erzeugt reviewpflichtige Empfehlungen",
-    "Keine Tool-Ausfuehrung, keine Code-Generierung, kein Registry-Schreiben",
-    "Neue CLI-Befehle adaptive-tool-selection-status und adaptive-tool-select",
-    "Neue API-Endpunkte /api/cognitive/adaptive-tool-selection/status und /preview",
-    "Doku docs/adaptive_tool_selection.md",
-    "Regressionstests fuer Calculator-Auswahl, Tool-Gap und Cloud-SAFE-Policy"
+    "Neue core/goal_manager.py fuer reviewpflichtige langfristige Zielkandidaten",
+    "Leitet Ziele aus Cognitive Plan, Central Decision und Capability Gaps ab",
+    "Erkennt Zielbereiche Tool, Knowledge, Core, Governance und Planning",
+    "Keine Persistenz, keine Ausfuehrung, keine Core-Aenderung und keine Tool-Aktivierung",
+    "Neue CLI-Befehle goal-manager-status und goal-propose",
+    "Neue API-Endpunkte /api/cognitive/goal-manager/status und /preview",
+    "Doku docs/goal_manager.md",
+    "Regressionstests fuer Tool-, Knowledge- und Core-Zielkandidaten"
   ],
   "notes": [
-    "MVP 27.2 vermeidet starre Tool-Keyword-Logik, ohne Ausfuehrung an das LLM abzugeben.",
-    "Das LLM/der Planner empfiehlt benoetigte Werkzeuge; Python entscheidet, welche Tools erlaubt und nutzbar sind.",
-    "Tool-Gaps landen weiterhin im geregelten Approval-/Tool-Factory-Workflow."
+    "MVP 27.3 fuehrt langfristige Zielbildung als Vorschlagsebene ein.",
+    "Der Goal Manager sammelt keine Ziele dauerhaft, sondern erzeugt reviewbare Kandidaten fuer spaetere Freigabeprozesse.",
+    "Damit bleibt die Trennung erhalten: LLM/Planner empfiehlt, Python validiert, User gibt frei."
   ],
   "build_time": "2026-07-01T00:00:00Z"
 }

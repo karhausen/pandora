@@ -91,6 +91,7 @@ from .gui_decision_inbox import GuiDecisionInbox
 from .cognitive_planning_engine import CognitivePlanningEngine
 from .adaptive_source_selection import AdaptiveSourceSelector
 from .adaptive_tool_selection import AdaptiveToolSelector
+from .goal_manager import GoalManager
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -112,7 +113,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.2-adaptive-tool-selection")
+app = FastAPI(title="Pandora Agent", version="27.3-goal-manager")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -774,6 +775,15 @@ def api_adaptive_source_selection_status():
 @app.get("/api/cognitive/adaptive-source-selection/preview")
 def api_adaptive_source_selection_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_sources: int = 5):
     return AdaptiveSourceSelector().select(query, provider_name=provider_name, model=model, timeout=timeout, max_sources=max_sources)
+
+
+@app.get("/api/cognitive/goal-manager/status")
+def api_goal_manager_status():
+    return GoalManager().status()
+
+@app.get("/api/cognitive/goal-manager/preview")
+def api_goal_manager_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_goals: int = 5):
+    return GoalManager().propose(query, provider_name=provider_name, model=model, timeout=timeout, max_goals=max_goals)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():

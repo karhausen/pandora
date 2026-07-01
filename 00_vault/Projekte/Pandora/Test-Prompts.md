@@ -20,3 +20,5 @@ last_reviewed: 2026-06-29
 - Welche Test-Prompts habe ich?
 - Wie ist der Leitgedanke zu Pandora?
 - Was sind meine todo's im Pandora Projekt?
+- Was war meine letzte Notiz?
+- Ich brauche ein Tool, das Aktienkurse der letzten fünf Jahre analysiert.
