@@ -1,3 +1,13 @@
+# Changelog
+
+## MVP 27.2 – Adaptive Tool Selection
+
+- Added `core/adaptive_tool_selection.py`.
+- Added CLI commands `adaptive-tool-selection-status` and `adaptive-tool-select`.
+- Added API endpoints `/api/cognitive/adaptive-tool-selection/status` and `/preview`.
+- Added tests for calculator selection, stock-history tool-gap detection and cloud SAFE policy.
+- Preserves the rule: no tool execution, no code generation and no registry writes during selection.
+
 # MVP 27.1 – Adaptive Source Selection
 
 - Added `core/adaptive_source_selection.py`.

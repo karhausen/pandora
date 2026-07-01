@@ -755,3 +755,8 @@ GET /api/cognitive/planning/preview?query=...
 ```
 
 Die Engine erzeugt einen reviewbaren Plan und fuehrt nichts aus.
+
+
+## MVP 27.2 – Adaptive Tool Selection
+
+Pandora kann benoetigte Tools adaptiv empfehlen und Tool-Gaps erkennen, ohne Tools auszufuehren oder Code zu generieren.

@@ -15,7 +15,7 @@ last_reviewed: 2026-06-26
 ---
 ```
 
-# [[Projekt: 
+# [[Projekt]]: 
 
 ## [[Stand]]: 
 

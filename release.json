@@ -1,23 +1,23 @@
 {
-  "version": "27.1-adaptive-source-selection",
-  "name": "MVP 27.1 - Adaptive Source Selection",
-  "feature": "Adaptive Source Selection",
-  "based_on": "27.0-cognitive-planning-engine",
+  "version": "27.2-adaptive-tool-selection",
+  "name": "MVP 27.2 - Adaptive Tool Selection",
+  "feature": "Adaptive Tool Selection",
+  "based_on": "27.1-adaptive-source-selection",
   "features": [
-    "Neue core/adaptive_source_selection.py als adaptive Quellenauswahl vor dem Context Builder",
-    "Nutzt den Cognitive Plan, um relevante Informationsraeume flexibel zu empfehlen",
-    "Python normalisiert Quellen-Aliasse und validiert gegen Profil-/Governance-Regeln",
-    "Ranking fuer Quellen nach Intent, Plan-Mode, Default-Prioritaet und Policy",
-    "Keine Datei-Lesezugriffe, keine Tool-Ausfuehrung, keine Code-Generierung",
-    "Neue CLI-Befehle adaptive-source-selection-status und adaptive-source-select",
-    "Neue API-Endpunkte /api/cognitive/adaptive-source-selection/status und /preview",
-    "Doku docs/adaptive_source_selection.md",
-    "Regressionstests fuer Knowledge-Lookup, Tool-Proposal-Quellen und Cloud-Policy-Blocking"
+    "Neue core/adaptive_tool_selection.py fuer adaptive Tool-Auswahl vor jeder Ausfuehrung",
+    "Nutzt den Cognitive Plan und die Tool Registry, um vorhandene Tools flexibel zu empfehlen",
+    "Python normalisiert Tool-Aliasse und validiert Status, Security-Level und Profil-Policy",
+    "Erkennt Tool-Gaps wie stock_history_lookup und erzeugt reviewpflichtige Empfehlungen",
+    "Keine Tool-Ausfuehrung, keine Code-Generierung, kein Registry-Schreiben",
+    "Neue CLI-Befehle adaptive-tool-selection-status und adaptive-tool-select",
+    "Neue API-Endpunkte /api/cognitive/adaptive-tool-selection/status und /preview",
+    "Doku docs/adaptive_tool_selection.md",
+    "Regressionstests fuer Calculator-Auswahl, Tool-Gap und Cloud-SAFE-Policy"
   ],
   "notes": [
-    "MVP 27.1 vermeidet starre If-Else-Quellenlogik, ohne Governance an das LLM abzugeben.",
-    "Das LLM/der Planner empfiehlt Kontext-Raeume; Python entscheidet, was davon erlaubt ist.",
-    "Der Schritt bereitet Adaptive Context Selection fuer echte GUI-/Chat-Integration vor."
+    "MVP 27.2 vermeidet starre Tool-Keyword-Logik, ohne Ausfuehrung an das LLM abzugeben.",
+    "Das LLM/der Planner empfiehlt benoetigte Werkzeuge; Python entscheidet, welche Tools erlaubt und nutzbar sind.",
+    "Tool-Gaps landen weiterhin im geregelten Approval-/Tool-Factory-Workflow."
   ],
   "build_time": "2026-07-01T00:00:00Z"
 }
