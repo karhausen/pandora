@@ -1,36 +1,26 @@
 {
-  "version": "27.6",
-  "name": "MVP 27.6 – Cognitive Dashboard Integration",
-  "feature": "Priority Engine",
-  "based_on": "27.3-goal-manager",
+  "version": "27.7",
+  "name": "MVP 27.7 – Review-to-Action Workflow",
+  "based_on": "27.6-cognitive-dashboard-integration",
+  "codename": "review_to_action_workflow",
+  "description": "Turns Weekly/Monthly Review findings into simple user-approved action cards and controlled proposal handoffs.",
   "features": [
-    "Neue core/priority_engine.py fuer reviewpflichtige Priorisierung kognitiver Empfehlungen",
-    "Bewertet Ziele und Capability-Gaps nach Nutzen, Dringlichkeit, Aufwand, Risiko und Confidence",
-    "Fuehrt Goal Manager und Central Decision Engine in einer sortierten Priority-Liste zusammen",
-    "Keine Persistenz, keine Ausfuehrung, keine Core-Aenderung und keine Tool-Aktivierung",
-    "Neue CLI-Befehle priority-engine-status und priority-prioritize",
-    "Neue API-Endpunkte /api/cognitive/priority-engine/status und /preview",
-    "Doku docs/priority_engine.md",
-    "Regressionstests fuer Tool-, Knowledge- und Core-Prioritaeten",
-    "Cognitive Dashboard Service",
-    "/cognitive-dashboard GUI",
-    "cognitive-dashboard CLI/API",
-    "Read-only cognitive trace integration"
+    "Neue core/review_to_action_workflow.py",
+    "Review-Ergebnisse werden in Aktionskarten umgewandelt",
+    "User-Aktionen: Vorschlag ausarbeiten, später, ablehnen",
+    "Integration mit Approval Interaction Workflow und Proposal Review Loop",
+    "CLI: review-to-action-status, review-to-action-preview",
+    "API: /api/cognitive/review-to-action/status und /preview",
+    "Doku docs/review_to_action_workflow.md",
+    "Regressionstests fuer Handoff-only Verhalten, Defer und Reject"
   ],
-  "notes": [
-    "MVP 27.4 fuehrt Priorisierung als reine Empfehlungsebene ein.",
-    "Die Priority Engine entscheidet nicht final und fuehrt nichts aus; sie sortiert nur reviewbare naechste Schritte.",
-    "Damit bleibt die Trennung erhalten: LLM/Planner empfiehlt, Python validiert, User gibt frei."
+  "safety": [
+    "Keine Tool-Ausführung",
+    "Keine Tool-Aktivierung",
+    "Keine Code-Generierung",
+    "Keine Vault-/Knowledge-Schreiboperation",
+    "Keine Core-Änderung",
+    "Nur kontrollierte Handoff-Vorbereitung nach User-Freigabe"
   ],
-  "build_time": "2026-07-01T00:00:00Z",
-  "description": "Read-only GUI/API/CLI dashboard that integrates central decisions, goals, priorities, review cycles and working memory into one cognitive overview.",
-  "changes": [
-    "Neue core/review_cycle_engine.py fuer reviewpflichtige Weekly/Monthly Reviews",
-    "Konsolidiert Goal Manager, Priority Engine und Central Decision Engine in Review-Paketen",
-    "Neue CLI-Befehle review-cycle-status und review-cycle-preview",
-    "Neue API-Endpunkte /api/cognitive/review-cycle/status und /preview",
-    "Doku docs/review_cycle_engine.md",
-    "Regressionstests fuer Safety, Weekly und Monthly Review Packages"
-  ],
-  "codename": "cognitive_dashboard_integration"
+  "build_time": "2026-07-01T00:00:00Z"
 }

@@ -819,3 +819,24 @@ Beispiel:
 ```bash
 python main.py cognitive-dashboard-preview "Prüfe den aktuellen Stand von Pandora"
 ```
+
+
+## MVP 27.7 – Review-to-Action Workflow
+
+Neu in 27.7:
+
+- Review-Ergebnisse werden zu einfachen Aktionskarten
+- User-Aktionen: `Vorschlag ausarbeiten`, `später`, `ablehnen`
+- Integration mit Approval Interaction Workflow und Proposal Review Loop
+- CLI: `review-to-action-status`, `review-to-action-preview`
+- API: `/api/cognitive/review-to-action/status`, `/api/cognitive/review-to-action/preview`
+- Handoff-only: keine Ausführung, keine Aktivierung, keine Core-/Vault-/Knowledge-Änderung
+
+Beispiele:
+
+```bash
+python main.py review-to-action-status
+python main.py review-to-action-preview "Pandora Weekly Review"
+python main.py review-to-action-preview "Pandora Weekly Review" --user-action ja
+python main.py review-to-action-preview "Pandora Weekly Review" --user-action später
+```

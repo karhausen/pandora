@@ -23,3 +23,6 @@ last_reviewed: 2026-06-29
 - Was war meine letzte Notiz?
 - Ich brauche ein Tool, das Aktienkurse der letzten fünf Jahre analysiert.
 - Welche Punkte aus meiner letzten Notiz sind noch unerledigt?
+
+
+- Prüfe den aktuellen Stand von Pandora und leite die nächsten Schritte ein

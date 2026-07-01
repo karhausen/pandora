@@ -95,6 +95,7 @@ from .goal_manager import GoalManager
 from .priority_engine import PriorityEngine
 from .review_cycle_engine import ReviewCycleEngine
 from .cognitive_dashboard import CognitiveDashboardService
+from .review_to_action_workflow import ReviewToActionWorkflow
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -116,7 +117,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.6-cognitive-dashboard-integration")
+app = FastAPI(title="Pandora Agent", version="27.7-review-to-action-workflow")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -812,6 +813,15 @@ def api_cognitive_dashboard_status():
 @app.get("/api/cognitive/dashboard/preview")
 def api_cognitive_dashboard_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
     return CognitiveDashboardService().dashboard(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+
+@app.get("/api/cognitive/review-to-action/status")
+def api_review_to_action_status():
+    return ReviewToActionWorkflow().status()
+
+@app.get("/api/cognitive/review-to-action/preview")
+def api_review_to_action_preview(query: str, cadence: str = "weekly", user_action: str | None = None, action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ReviewToActionWorkflow().preview(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():
