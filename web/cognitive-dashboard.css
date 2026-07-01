@@ -1,0 +1,30 @@
+body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #10151f; color: #edf2f7; }
+.topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding: 24px; background: #151c2a; border-bottom: 1px solid #2a3448; }
+.topbar h1 { margin: 0 0 6px; }
+.topbar p { margin: 0; color: #a9b4c8; }
+.global-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge { display: inline-block; border: 1px solid #36445f; border-radius: 999px; padding: 5px 10px; color: #c9d6ea; background: #1a2436; font-size: 12px; }
+.badge.link { text-decoration: none; }
+.dashboard-layout { display: grid; grid-template-columns: 360px 1fr; grid-template-areas: "composer summary" "sections sections" "trace trace"; gap: 16px; padding: 16px; }
+.panel { background: #151c2a; border: 1px solid #2a3448; border-radius: 14px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.18); }
+.composer { grid-area: composer; }
+.summary { grid-area: summary; }
+.sections { grid-area: sections; }
+.trace { grid-area: trace; }
+textarea { width: 100%; min-height: 130px; box-sizing: border-box; border: 1px solid #36445f; background: #0f1624; color: #edf2f7; border-radius: 10px; padding: 12px; resize: vertical; }
+select, button { border: 1px solid #3d6ea8; border-radius: 10px; padding: 10px 12px; background: #2563eb; color: white; cursor: pointer; }
+button.secondary, select { background: #1a2436; color: #d7e3f8; border-color: #36445f; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.notice, .empty { color: #a9b4c8; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-top: 14px; }
+.metric-card { background: #0f1624; border: 1px solid #273650; border-radius: 12px; padding: 14px; }
+.metric-card.approval { border-color: #b7791f; }
+.metric-card.warning { border-color: #dd6b20; }
+.metric-card h3 { margin: 0 0 8px; font-size: 15px; }
+.metric-card .value { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+.section-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
+.section-card { background: #0f1624; border: 1px solid #273650; border-radius: 12px; padding: 14px; }
+.section-card h3 { margin-top: 0; }
+pre { background: #0b111d; border: 1px solid #273650; border-radius: 10px; padding: 12px; overflow: auto; color: #cfe1ff; }
+ul { padding-left: 18px; }
+@media (max-width: 900px) { .dashboard-layout { grid-template-columns: 1fr; grid-template-areas: "composer" "summary" "sections" "trace"; } .topbar { flex-direction: column; } }

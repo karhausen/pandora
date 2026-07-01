@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Cognitive Dashboard</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/cognitive-dashboard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <h1>Pandora Cognitive Dashboard</h1>
+      <p>Ziele, Entscheidungen, Prioritäten, Reviews und Freigabepunkte in einer Übersicht.</p>
+    </div>
+    <nav class="global-nav" aria-label="Hauptnavigation">
+      <a class="badge link" href="/">Chat</a>
+      <a class="badge link" href="/decision-inbox">Decision Inbox</a>
+      <a class="badge link" href="/workflow-dashboard">Workflows</a>
+      <a class="badge link" href="/operations">Operations</a>
+    </nav>
+  </header>
+
+  <main class="dashboard-layout">
+    <section class="panel composer">
+      <h2>Dashboard erzeugen</h2>
+      <textarea id="requestInput" placeholder="Beispiel: Prüfe den aktuellen Stand von Pandora und leite sinnvolle nächste Schritte ab."></textarea>
+      <div class="actions">
+        <select id="cadenceInput">
+          <option value="weekly">Weekly Review</option>
+          <option value="monthly">Monthly Review</option>
+        </select>
+        <button onclick="loadDashboard()">Aktualisieren</button>
+        <button class="secondary" onclick="fillExample('tool')">Tool</button>
+        <button class="secondary" onclick="fillExample('core')">Core</button>
+        <button class="secondary" onclick="fillExample('review')">Review</button>
+      </div>
+      <p class="notice">Dieses Dashboard führt nichts aus. Es bündelt nur den aktuellen Cognitive-Flow.</p>
+    </section>
+
+    <section class="panel summary">
+      <h2>Übersicht</h2>
+      <div id="summaryBox" class="empty">Noch nicht geladen.</div>
+      <div id="cardGrid" class="card-grid"></div>
+    </section>
+
+    <section class="panel sections">
+      <h2>Details</h2>
+      <div id="sectionBox" class="empty">Noch keine Details.</div>
+    </section>
+
+    <section class="panel trace">
+      <h2>Trace</h2>
+      <pre id="traceBox">Noch nicht geladen.</pre>
+    </section>
+  </main>
+
+  <script src="/web/cognitive-dashboard.js"></script>
+</body>
+</html>

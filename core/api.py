@@ -94,6 +94,7 @@ from .adaptive_tool_selection import AdaptiveToolSelector
 from .goal_manager import GoalManager
 from .priority_engine import PriorityEngine
 from .review_cycle_engine import ReviewCycleEngine
+from .cognitive_dashboard import CognitiveDashboardService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -115,7 +116,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.5-review-cycle-engine")
+app = FastAPI(title="Pandora Agent", version="27.6-cognitive-dashboard-integration")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -803,6 +804,14 @@ def api_review_cycle_status():
 @app.get("/api/cognitive/review-cycle/preview")
 def api_review_cycle_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
     return ReviewCycleEngine().build_review(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/dashboard/status")
+def api_cognitive_dashboard_status():
+    return CognitiveDashboardService().status()
+
+@app.get("/api/cognitive/dashboard/preview")
+def api_cognitive_dashboard_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return CognitiveDashboardService().dashboard(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():
@@ -1861,7 +1870,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/cognitive-dashboard"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -1971,6 +1980,10 @@ def web_approval():
 def web_decision_inbox():
     return FileResponse(WEB_DIR / "decision-inbox.html")
 
+@app.get("/cognitive-dashboard")
+def web_cognitive_dashboard():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.html")
+
 @app.get("/web/decision-inbox.js")
 def web_decision_inbox_js():
     return FileResponse(WEB_DIR / "decision-inbox.js")
@@ -1978,6 +1991,14 @@ def web_decision_inbox_js():
 @app.get("/web/decision-inbox.css")
 def web_decision_inbox_css():
     return FileResponse(WEB_DIR / "decision-inbox.css")
+
+@app.get("/web/cognitive-dashboard.js")
+def web_cognitive_dashboard_js():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.js")
+
+@app.get("/web/cognitive-dashboard.css")
+def web_cognitive_dashboard_css():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.css")
 
 
 

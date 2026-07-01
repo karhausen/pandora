@@ -78,6 +78,7 @@ from core.adaptive_tool_selection import AdaptiveToolSelector
 from core.goal_manager import GoalManager
 from core.priority_engine import PriorityEngine
 from core.review_cycle_engine import ReviewCycleEngine
+from core.cognitive_dashboard import CognitiveDashboardService
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -652,6 +653,12 @@ def cmd_review_cycle_status(args):
 def cmd_review_cycle_preview(args):
     _json(ReviewCycleEngine().build_review(args.request, cadence=args.cadence, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_items=args.max_items))
 
+def cmd_cognitive_dashboard_status(args):
+    _json(CognitiveDashboardService().status())
+
+def cmd_cognitive_dashboard_preview(args):
+    _json(CognitiveDashboardService().dashboard(args.request, cadence=args.cadence, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_items=args.max_items))
+
 def cmd_adaptive_tool_selection_status(args):
     _json(AdaptiveToolSelector().status())
 
@@ -800,6 +807,8 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("priority-prioritize"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-items", type=int, default=8); p.set_defaults(func=cmd_priority_prioritize)
     p = sub.add_parser("review-cycle-status"); p.set_defaults(func=cmd_review_cycle_status)
     p = sub.add_parser("review-cycle-preview"); p.add_argument("request"); p.add_argument("--cadence", choices=["weekly", "monthly"], default="weekly"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-items", type=int, default=8); p.set_defaults(func=cmd_review_cycle_preview)
+    p = sub.add_parser("cognitive-dashboard-status"); p.set_defaults(func=cmd_cognitive_dashboard_status)
+    p = sub.add_parser("cognitive-dashboard-preview"); p.add_argument("request"); p.add_argument("--cadence", choices=["weekly", "monthly"], default="weekly"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-items", type=int, default=8); p.set_defaults(func=cmd_cognitive_dashboard_preview)
     p = sub.add_parser("adaptive-tool-selection-status"); p.set_defaults(func=cmd_adaptive_tool_selection_status)
     p = sub.add_parser("adaptive-tool-select"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--max-tools", type=int, default=3); p.set_defaults(func=cmd_adaptive_tool_select)
     p = sub.add_parser("gui-decision-inbox-status"); p.set_defaults(func=cmd_gui_decision_inbox_status)

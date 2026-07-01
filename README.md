@@ -802,3 +802,20 @@ python main.py review-cycle-preview "Pandora Monatsreview" --cadence monthly
 ```
 
 Die Engine erzeugt nur Review-Pakete und Freigabepunkte. Sie führt nichts aus, schreibt nicht in den Vault, aktiviert keine Tools und verändert keinen Core-Code.
+
+
+## MVP 27.6 – Cognitive Dashboard Integration
+
+Neu in 27.6:
+
+- Zentrales Cognitive Dashboard für Entscheidungen, Ziele, Prioritäten, Reviews und Working Memory
+- GUI: `/cognitive-dashboard`
+- CLI: `cognitive-dashboard-status`, `cognitive-dashboard-preview`
+- API: `/api/cognitive/dashboard/status`, `/api/cognitive/dashboard/preview`
+- Strikt read-only: keine Tool-Ausführung, keine Aktivierung, keine Vault-/Knowledge-/Core-Änderung
+
+Beispiel:
+
+```bash
+python main.py cognitive-dashboard-preview "Prüfe den aktuellen Stand von Pandora"
+```

@@ -1,6 +1,6 @@
 {
-  "version": "27.5",
-  "name": "MVP 27.5 – Weekly/Monthly Review Cycles",
+  "version": "27.6",
+  "name": "MVP 27.6 – Cognitive Dashboard Integration",
   "feature": "Priority Engine",
   "based_on": "27.3-goal-manager",
   "features": [
@@ -11,7 +11,11 @@
     "Neue CLI-Befehle priority-engine-status und priority-prioritize",
     "Neue API-Endpunkte /api/cognitive/priority-engine/status und /preview",
     "Doku docs/priority_engine.md",
-    "Regressionstests fuer Tool-, Knowledge- und Core-Prioritaeten"
+    "Regressionstests fuer Tool-, Knowledge- und Core-Prioritaeten",
+    "Cognitive Dashboard Service",
+    "/cognitive-dashboard GUI",
+    "cognitive-dashboard CLI/API",
+    "Read-only cognitive trace integration"
   ],
   "notes": [
     "MVP 27.4 fuehrt Priorisierung als reine Empfehlungsebene ein.",
@@ -19,7 +23,7 @@
     "Damit bleibt die Trennung erhalten: LLM/Planner empfiehlt, Python validiert, User gibt frei."
   ],
   "build_time": "2026-07-01T00:00:00Z",
-  "description": "Review Cycle Engine fuer kontrollierte Wochen- und Monatsreviews des Cognitive Core.",
+  "description": "Read-only GUI/API/CLI dashboard that integrates central decisions, goals, priorities, review cycles and working memory into one cognitive overview.",
   "changes": [
     "Neue core/review_cycle_engine.py fuer reviewpflichtige Weekly/Monthly Reviews",
     "Konsolidiert Goal Manager, Priority Engine und Central Decision Engine in Review-Paketen",
@@ -27,5 +31,6 @@
     "Neue API-Endpunkte /api/cognitive/review-cycle/status und /preview",
     "Doku docs/review_cycle_engine.md",
     "Regressionstests fuer Safety, Weekly und Monthly Review Packages"
-  ]
+  ],
+  "codename": "cognitive_dashboard_integration"
 }
