@@ -1,3 +1,14 @@
+# MVP 28.8 – Improvement Prioritization
+
+- Added `core/prioritization` package.
+- Added candidate scoring with benefit, risk, effort, confidence, frequency, urgency and user value.
+- Added priority queue storage.
+- Added CLI commands `improvement-priority-status`, `improvement-priority-health`, `improvement-priority-candidates`, `improvement-priority-prioritize`, `improvement-priority-queue`, `improvement-priority-history`, `improvement-priority-weights`.
+- Added API routes under `/api/prioritization/*`.
+- Added Maintenance Center page `/prioritization`.
+- Genome extended with prioritization weights and safety flags.
+- This MVP does not create proposals and does not activate changes.
+
 
 ## MVP 28.7 – Pattern Recognition Engine
 

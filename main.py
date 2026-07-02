@@ -100,6 +100,7 @@ from core.maintenance_center import MaintenanceCenterService
 from core.genome import EvolutionService
 from core.observation import SelfObservationManager
 from core.pattern import PatternRecognitionManager
+from core.prioritization import ImprovementPrioritizationManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -675,6 +676,15 @@ def cmd_pattern_detect(args): _json(PatternRecognitionManager().detect(limit=arg
 def cmd_pattern_list(args): _json(PatternRecognitionManager().patterns(limit=args.limit, pattern_type=args.type))
 def cmd_pattern_statistics(args): _json(PatternRecognitionManager().statistics(limit=args.limit))
 
+# MVP 28.8 – Improvement Prioritization
+def cmd_improvement_priority_status(args): _json(ImprovementPrioritizationManager().status())
+def cmd_improvement_priority_health(args): _json(ImprovementPrioritizationManager().health())
+def cmd_improvement_priority_candidates(args): _json(ImprovementPrioritizationManager().candidates(limit=args.limit))
+def cmd_improvement_priority_prioritize(args): _json(ImprovementPrioritizationManager().prioritize(limit=args.limit, save=args.save))
+def cmd_improvement_priority_queue(args): _json(ImprovementPrioritizationManager().queue(limit=args.limit, level=args.level))
+def cmd_improvement_priority_history(args): _json(ImprovementPrioritizationManager().history(limit=args.limit))
+def cmd_improvement_priority_weights(args): _json(ImprovementPrioritizationManager().weights())
+
 def cmd_personality_status(args): _json(PersonalityLayerService().status())
 
 def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
@@ -908,6 +918,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("pattern-detect"); p.add_argument("--limit", type=int, default=500); p.add_argument("--save", action="store_true"); p.set_defaults(func=cmd_pattern_detect)
     p = sub.add_parser("pattern-list"); p.add_argument("--limit", type=int, default=50); p.add_argument("--type"); p.set_defaults(func=cmd_pattern_list)
     p = sub.add_parser("pattern-statistics"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_pattern_statistics)
+
+    # MVP 28.8 – Improvement Prioritization
+    p = sub.add_parser("improvement-priority-status"); p.set_defaults(func=cmd_improvement_priority_status)
+    p = sub.add_parser("improvement-priority-health"); p.set_defaults(func=cmd_improvement_priority_health)
+    p = sub.add_parser("improvement-priority-candidates"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_improvement_priority_candidates)
+    p = sub.add_parser("improvement-priority-prioritize"); p.add_argument("--limit", type=int, default=100); p.add_argument("--save", action="store_true"); p.set_defaults(func=cmd_improvement_priority_prioritize)
+    p = sub.add_parser("improvement-priority-queue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--level"); p.set_defaults(func=cmd_improvement_priority_queue)
+    p = sub.add_parser("improvement-priority-history"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_improvement_priority_history)
+    p = sub.add_parser("improvement-priority-weights"); p.set_defaults(func=cmd_improvement_priority_weights)
 
     p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
     p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)

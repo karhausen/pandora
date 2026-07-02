@@ -90,6 +90,7 @@ class MaintenanceCenterService:
             MaintenanceLink("Evolution", "/evolution", "Pandora Genome, Unified Evolution Model, Lifecycle und Regeln prüfen.", "evolution", 10),
             MaintenanceLink("Self Observation", "/observation", "Events, Health, Runtime-Fakten und Statistiken beobachten – ohne automatische Vorschläge.", "evolution", 20),
             MaintenanceLink("Pattern Recognition", "/pattern", "Wiederkehrende Muster aus Observation Events erkennen – ohne automatische Proposals.", "evolution", 30, badge="Neu"),
+            MaintenanceLink("Improvement Prioritization", "/prioritization", "Erkannte Muster nach Nutzen, Risiko, Aufwand und Benutzerwert priorisieren – ohne automatische Proposals.", "evolution", 40, badge="Neu"),
         ]
 
     def grouped_sections(self) -> list[dict[str, Any]]:

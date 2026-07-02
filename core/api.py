@@ -28,6 +28,7 @@ from .maintenance_center import MaintenanceCenterService
 from .genome import EvolutionService
 from .observation import SelfObservationManager
 from .pattern import PatternRecognitionManager
+from .prioritization import ImprovementPrioritizationManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -126,7 +127,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.2-user-gui-simplification")
+app = FastAPI(title="Pandora Agent", version="28.8-improvement-prioritization")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -2973,3 +2974,54 @@ def web_pattern_js():
 @app.get("/web/pattern.css")
 def web_pattern_css():
     return FileResponse(WEB_DIR / "pattern.css")
+
+
+# MVP 28.8 – Improvement Prioritization
+@app.get("/api/prioritization/status")
+def api_prioritization_status():
+    return ImprovementPrioritizationManager().status()
+
+
+@app.get("/api/prioritization/health")
+def api_prioritization_health():
+    return ImprovementPrioritizationManager().health()
+
+
+@app.get("/api/prioritization/candidates")
+def api_prioritization_candidates(limit: int = 100):
+    return ImprovementPrioritizationManager().candidates(limit=limit)
+
+
+@app.get("/api/prioritization/prioritize")
+def api_prioritization_prioritize(limit: int = 100, save: bool = False):
+    return ImprovementPrioritizationManager().prioritize(limit=limit, save=save)
+
+
+@app.get("/api/prioritization/queue")
+def api_prioritization_queue(limit: int = 50, level: str | None = None):
+    return ImprovementPrioritizationManager().queue(limit=limit, level=level)
+
+
+@app.get("/api/prioritization/history")
+def api_prioritization_history(limit: int = 20):
+    return ImprovementPrioritizationManager().history(limit=limit)
+
+
+@app.get("/api/prioritization/weights")
+def api_prioritization_weights():
+    return ImprovementPrioritizationManager().weights()
+
+
+@app.get("/prioritization")
+def web_prioritization():
+    return FileResponse(WEB_DIR / "prioritization.html")
+
+
+@app.get("/web/prioritization.js")
+def web_prioritization_js():
+    return FileResponse(WEB_DIR / "prioritization.js")
+
+
+@app.get("/web/prioritization.css")
+def web_prioritization_css():
+    return FileResponse(WEB_DIR / "prioritization.css")
