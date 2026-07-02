@@ -103,6 +103,7 @@ from core.pattern import PatternRecognitionManager
 from core.prioritization import ImprovementPrioritizationManager
 from core.proposal_queue import UnifiedProposalQueueManager
 from core.proposal_generator import ProposalGeneratorManager
+from core.proposal_evolution import ProposalEvolutionManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -750,6 +751,29 @@ def cmd_proposal_queue_stats(args): _json(UnifiedProposalQueueManager().statisti
 
 
 
+# MVP 29.1 – Proposal Evolution
+def cmd_proposal_evolution_status(args): _json(ProposalEvolutionManager().status())
+def cmd_proposal_evolution_snapshot(args):
+    payload = _payload(args)
+    proposal = payload.get("proposal", payload) if isinstance(payload, dict) else {}
+    _json(ProposalEvolutionManager().snapshot(proposal, change_note=args.note, source=args.source, created_by=args.created_by))
+def cmd_proposal_evolution_snapshot_queue(args):
+    _json(ProposalEvolutionManager().snapshot_from_queue(args.item_id, change_note=args.note, created_by=args.created_by))
+def cmd_proposal_evolution_history(args):
+    _json(ProposalEvolutionManager().history(proposal_id=args.proposal_id, limit=args.limit))
+def cmd_proposal_evolution_compare(args):
+    _json(ProposalEvolutionManager().compare(args.proposal_id, args.from_version, args.to_version))
+def cmd_proposal_evolution_diff(args):
+    payload = _payload(args)
+    _json(ProposalEvolutionManager().diff(payload.get("old", {}), payload.get("new", {})))
+def cmd_proposal_evolution_improve(args):
+    payload = _payload(args)
+    proposal = payload.get("proposal", payload) if isinstance(payload, dict) else {}
+    _json(ProposalEvolutionManager().improve(proposal, instruction=args.instruction, enqueue=args.enqueue, created_by=args.created_by, use_llm=args.use_llm))
+def cmd_proposal_evolution_improve_queue(args):
+    _json(ProposalEvolutionManager().improve_from_queue(args.item_id, instruction=args.instruction, enqueue=args.enqueue, created_by=args.created_by, use_llm=args.use_llm))
+
+
 # MVP 28.9.2 – CLI & API Integration Hardening
 def cmd_proposal_queue_add(args):
     """Create a manual EvolutionProposal and enqueue it in the unified queue.
@@ -781,7 +805,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.0",
+        "version": "29.1",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -800,6 +824,8 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "proposal-generator status", "argv": ["proposal-generator", "status"]},
         {"label": "proposal-generator generate", "argv": ["proposal-generator", "generate", "Tool CLI-Test verbessern", "--type", "TOOL"]},
         {"label": "proposal-generator enqueue", "argv": ["proposal-generator", "enqueue", "GUI Review verbessern", "--type", "GUI"]},
+        {"label": "proposal-evolution status", "argv": ["proposal-evolution", "status"]},
+        {"label": "proposal-evolution history", "argv": ["proposal-evolution", "history"]},
         {"label": "proposal-queue status", "argv": ["proposal-queue", "status"]},
         {"label": "proposal-queue list", "argv": ["proposal-queue", "list"]},
         {"label": "proposal-queue add", "argv": ["proposal-queue", "add", "--type", "TOOL", "--title", "CLI Contract Test", "--priority", "MEDIUM"]},
@@ -826,7 +852,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.0", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.1", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -844,6 +870,8 @@ def cmd_selftest_api(args):
         "/api/proposal-generator/status",
         "/api/proposal-generator/generate",
         "/api/proposal-generator/enqueue",
+        "/api/proposal-evolution/status",
+        "/api/proposal-evolution/history",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
@@ -851,7 +879,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.0", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.1", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -870,12 +898,14 @@ def cmd_selftest_integration(args):
         "/api/evolution/status", "/api/genome/status", "/api/evolution-factory/status",
         "/api/observation/status", "/api/pattern/status", "/api/priority/status",
         "/api/proposal-generator/status", "/api/proposal-generator/generate", "/api/proposal-generator/enqueue",
+        "/api/proposal-evolution/status",
+        "/api/proposal-evolution/history",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
     ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "29.0", "ok": ok, "cli": cli_results, "api": api_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.1", "ok": ok, "cli": cli_results, "api": api_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1193,6 +1223,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("proposal-queue-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_proposal_queue_history)
     p = sub.add_parser("proposal-queue-stats"); p.set_defaults(func=cmd_proposal_queue_stats)
 
+    p = sub.add_parser("proposal-evolution-status"); p.set_defaults(func=cmd_proposal_evolution_status)
+    p = sub.add_parser("proposal-evolution-snapshot"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--note", default="Manual snapshot"); p.add_argument("--source", default="manual_cli"); p.add_argument("--created-by", default="user"); p.set_defaults(func=cmd_proposal_evolution_snapshot)
+    p = sub.add_parser("proposal-evolution-snapshot-queue"); p.add_argument("item_id"); p.add_argument("--note", default="Snapshot from queue"); p.add_argument("--created-by", default="user"); p.set_defaults(func=cmd_proposal_evolution_snapshot_queue)
+    p = sub.add_parser("proposal-evolution-history"); p.add_argument("--proposal-id"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_proposal_evolution_history)
+    p = sub.add_parser("proposal-evolution-compare"); p.add_argument("proposal_id"); p.add_argument("--from-version", type=int, required=True); p.add_argument("--to-version", type=int, required=True); p.set_defaults(func=cmd_proposal_evolution_compare)
+    p = sub.add_parser("proposal-evolution-diff"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_proposal_evolution_diff)
+    p = sub.add_parser("proposal-evolution-improve"); p.add_argument("instruction"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--enqueue", action="store_true"); p.add_argument("--created-by", default="user"); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_evolution_improve)
+    p = sub.add_parser("proposal-evolution-improve-queue"); p.add_argument("item_id"); p.add_argument("instruction"); p.add_argument("--enqueue", action="store_true"); p.add_argument("--created-by", default="user"); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_evolution_improve_queue)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1444,6 +1483,15 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("proposal-generator", "generate"): "proposal-generator-generate",
         ("proposal-generator", "enqueue"): "proposal-generator-enqueue",
         ("proposal-generator", "batch"): "proposal-generator-batch",
+        ("proposal-evolution", "status"): "proposal-evolution-status",
+        ("proposal-evolution", "snapshot"): "proposal-evolution-snapshot",
+        ("proposal-evolution", "snapshot-queue"): "proposal-evolution-snapshot-queue",
+        ("proposal-evolution", "history"): "proposal-evolution-history",
+        ("proposal-evolution", "compare"): "proposal-evolution-compare",
+        ("proposal-evolution", "diff"): "proposal-evolution-diff",
+        ("proposal-evolution", "improve"): "proposal-evolution-improve",
+        ("proposal-evolution", "improve-queue"): "proposal-evolution-improve-queue",
+
         ("proposal-queue", "status"): "proposal-queue-status",
         ("proposal-queue", "list"): "proposal-queue-list",
         ("proposal-queue", "add"): "proposal-queue-add",

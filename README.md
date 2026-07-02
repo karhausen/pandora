@@ -99,3 +99,43 @@ python main.py selftest integration
 - Neue API: `/api/proposal-generator/*`.
 - Neue GUI: `/proposal-generator` im Maintenance Center.
 - Sicherheitsmodus: review-only, keine Aktivierung, keine Code-Ausführung, keine Core-Änderung ohne Benutzerfreigabe.
+
+## MVP 29.1 – Proposal Evolution
+
+MVP 29.1 ergänzt eine kontrollierte Proposal-Evolution:
+
+- bestehende Evolution-Proposals versionieren
+- Versionen vergleichen
+- Diffs erzeugen
+- Proposals kontrolliert verbessern
+- verbesserte Entwürfe optional wieder in die Unified Proposal Queue legen
+
+Wichtig: Proposal Evolution aktiviert keine Änderungen automatisch. Jede Änderung bleibt Proposal-/Review-only und benötigt weiterhin Tests sowie Benutzerfreigabe.
+
+### CLI
+
+```powershell
+python main.py proposal-evolution status
+python main.py proposal-evolution snapshot --json '{"id":"demo","type":"tool","title":"Demo","description":"Base"}'
+python main.py proposal-evolution improve "Tests und Risiko klarer beschreiben" --json '{"id":"demo","type":"tool","title":"Demo","description":"Base"}'
+python main.py proposal-evolution history --proposal-id demo
+python main.py proposal-evolution compare demo --from-version 1 --to-version 2
+```
+
+### API
+
+```text
+GET  /api/proposal-evolution/status
+POST /api/proposal-evolution/snapshot
+POST /api/proposal-evolution/snapshot-queue
+GET  /api/proposal-evolution/history
+GET  /api/proposal-evolution/compare/{proposal_id}
+POST /api/proposal-evolution/diff
+POST /api/proposal-evolution/improve
+```
+
+### GUI
+
+```text
+Maintenance → Proposal Evolution
+```

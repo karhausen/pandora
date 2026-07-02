@@ -31,6 +31,7 @@ from .pattern import PatternRecognitionManager
 from .prioritization import ImprovementPrioritizationManager
 from .proposal_queue import UnifiedProposalQueueManager
 from .proposal_generator import ProposalGeneratorManager
+from .proposal_evolution import ProposalEvolutionManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -129,7 +130,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.0-proposal-generator")
+app = FastAPI(title="Pandora Agent", version="29.1-proposal-evolution")
 
 
 
@@ -152,6 +153,34 @@ class ProposalGeneratorBatchRequest(BaseModel):
     model: str | None = None
     timeout: float = 8.0
     use_llm: bool = False
+
+
+class ProposalEvolutionSnapshotRequest(BaseModel):
+    proposal: dict[str, Any]
+    change_note: str = "Manual snapshot"
+    source: str = "api"
+    created_by: str = "user"
+
+
+class ProposalEvolutionQueueSnapshotRequest(BaseModel):
+    item_id: str
+    change_note: str = "Snapshot from queue"
+    created_by: str = "user"
+
+
+class ProposalEvolutionDiffRequest(BaseModel):
+    old: dict[str, Any]
+    new: dict[str, Any]
+
+
+class ProposalEvolutionImproveRequest(BaseModel):
+    proposal: dict[str, Any] | None = None
+    item_id: str | None = None
+    instruction: str
+    enqueue: bool = False
+    created_by: str = "user"
+    use_llm: bool = False
+
 
 class ProposalQueueEnqueueRequest(BaseModel):
     proposal: dict[str, Any]
@@ -3106,6 +3135,62 @@ def web_proposal_generator_js():
 def web_proposal_generator_css():
     return FileResponse(WEB_DIR / "proposal-generator.css")
 
+
+# MVP 29.1 – Proposal Evolution
+@app.get("/api/proposal-evolution/status")
+def api_proposal_evolution_status():
+    return ProposalEvolutionManager().status()
+
+
+@app.post("/api/proposal-evolution/snapshot")
+def api_proposal_evolution_snapshot(req: ProposalEvolutionSnapshotRequest):
+    return ProposalEvolutionManager().snapshot(req.proposal, change_note=req.change_note, source=req.source, created_by=req.created_by)
+
+
+@app.post("/api/proposal-evolution/snapshot-queue")
+def api_proposal_evolution_snapshot_queue(req: ProposalEvolutionQueueSnapshotRequest):
+    return ProposalEvolutionManager().snapshot_from_queue(req.item_id, change_note=req.change_note, created_by=req.created_by)
+
+
+@app.get("/api/proposal-evolution/history")
+def api_proposal_evolution_history(proposal_id: str | None = None, limit: int = 50):
+    return ProposalEvolutionManager().history(proposal_id=proposal_id, limit=limit)
+
+
+@app.get("/api/proposal-evolution/compare/{proposal_id}")
+def api_proposal_evolution_compare(proposal_id: str, from_version: int, to_version: int):
+    return ProposalEvolutionManager().compare(proposal_id, from_version, to_version)
+
+
+@app.post("/api/proposal-evolution/diff")
+def api_proposal_evolution_diff(req: ProposalEvolutionDiffRequest):
+    return ProposalEvolutionManager().diff(req.old, req.new)
+
+
+@app.post("/api/proposal-evolution/improve")
+def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
+    manager = ProposalEvolutionManager()
+    if req.item_id:
+        return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
+    if req.proposal is None:
+        return {"kind": "proposal_evolution_improve", "version": "29.1", "ok": False, "error": "proposal or item_id required"}
+    return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
+
+
+@app.get("/proposal-evolution")
+def web_proposal_evolution():
+    return FileResponse(WEB_DIR / "proposal-evolution.html")
+
+
+@app.get("/web/proposal-evolution.js")
+def web_proposal_evolution_js():
+    return FileResponse(WEB_DIR / "proposal-evolution.js")
+
+
+@app.get("/web/proposal-evolution.css")
+def web_proposal_evolution_css():
+    return FileResponse(WEB_DIR / "proposal-evolution.css")
+
 # MVP 28.9 – Unified Proposal Queue
 @app.get("/api/proposal-queue/status")
 def api_proposal_queue_status():
@@ -3232,9 +3317,9 @@ def api_priority_weights_alias():
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "29.0",
+        "version": "29.1",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3261,4 +3346,4 @@ def api_selftest_api_contracts():
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.0", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.1", "ok": all(c["ok"] for c in checks), "checks": checks}
