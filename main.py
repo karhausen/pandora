@@ -98,6 +98,7 @@ from core.action_workflow import ActionWorkflowService
 from core.workflow_dashboard import WorkflowDashboardService
 from core.maintenance_center import MaintenanceCenterService
 from core.genome import EvolutionService
+from core.observation import SelfObservationManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -659,6 +660,14 @@ def cmd_evolution_factory_create(args): _json(EvolutionService().factory_create(
 def cmd_evolution_factory_batch_preview(args): _json(EvolutionService().factory_batch_preview(_payload(args)))
 def cmd_evolution_factory_migration_plan(args): _json(EvolutionService().factory_migration_plan())
 
+def cmd_observation_status(args): _json(SelfObservationManager().status())
+def cmd_observation_health(args): _json(SelfObservationManager().health())
+def cmd_observation_events(args): _json(SelfObservationManager().events(limit=args.limit, component=args.component))
+def cmd_observation_statistics(args): _json(SelfObservationManager().statistics())
+def cmd_observation_runtime(args): _json(SelfObservationManager().runtime())
+def cmd_observation_export(args): _json(SelfObservationManager().export(limit=args.limit))
+def cmd_observation_record(args): _json(SelfObservationManager().observe(_payload(args)))
+
 def cmd_personality_status(args): _json(PersonalityLayerService().status())
 
 def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
@@ -879,6 +888,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("evolution-factory-create"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_evolution_factory_create)
     p = sub.add_parser("evolution-factory-batch-preview"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_evolution_factory_batch_preview)
     p = sub.add_parser("evolution-factory-migration-plan"); p.set_defaults(func=cmd_evolution_factory_migration_plan)
+    p = sub.add_parser("observation-status"); p.set_defaults(func=cmd_observation_status)
+    p = sub.add_parser("observation-health"); p.set_defaults(func=cmd_observation_health)
+    p = sub.add_parser("observation-events"); p.add_argument("--limit", type=int, default=50); p.add_argument("--component"); p.set_defaults(func=cmd_observation_events)
+    p = sub.add_parser("observation-statistics"); p.set_defaults(func=cmd_observation_statistics)
+    p = sub.add_parser("observation-runtime"); p.set_defaults(func=cmd_observation_runtime)
+    p = sub.add_parser("observation-export"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_observation_export)
+    p = sub.add_parser("observation-record"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_observation_record)
 
     p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
     p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)

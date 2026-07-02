@@ -26,6 +26,7 @@ from .chat_service import ChatService
 from .user_gui_simplification import UserGuiSimplificationService
 from .maintenance_center import MaintenanceCenterService
 from .genome import EvolutionService
+from .observation import SelfObservationManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -2879,3 +2880,54 @@ def web_evolution_js():
 @app.get("/web/evolution.css")
 def web_evolution_css():
     return FileResponse(WEB_DIR / "evolution.css")
+
+
+# MVP 28.6 – Self Observation Engine
+@app.get("/api/observation/status")
+def api_observation_status():
+    return SelfObservationManager().status()
+
+
+@app.get("/api/observation/health")
+def api_observation_health():
+    return SelfObservationManager().health()
+
+
+@app.get("/api/observation/events")
+def api_observation_events(limit: int = 50, component: str | None = None):
+    return SelfObservationManager().events(limit=limit, component=component)
+
+
+@app.post("/api/observation/events")
+def api_observation_record_event(payload: dict[str, Any] = Body(...)):
+    return SelfObservationManager().observe(payload)
+
+
+@app.get("/api/observation/statistics")
+def api_observation_statistics():
+    return SelfObservationManager().statistics()
+
+
+@app.get("/api/observation/runtime")
+def api_observation_runtime():
+    return SelfObservationManager().runtime()
+
+
+@app.get("/api/observation/export")
+def api_observation_export(limit: int = 500):
+    return SelfObservationManager().export(limit=limit)
+
+
+@app.get("/observation")
+def web_observation():
+    return FileResponse(WEB_DIR / "observation.html")
+
+
+@app.get("/web/observation.js")
+def web_observation_js():
+    return FileResponse(WEB_DIR / "observation.js")
+
+
+@app.get("/web/observation.css")
+def web_observation_css():
+    return FileResponse(WEB_DIR / "observation.css")
