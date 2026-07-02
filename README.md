@@ -50,3 +50,8 @@ python main.py pattern-list --limit 20
 ## Release-Hinweis
 
 Runtime-, Test- und Build-Artefakte sind nicht Teil der Clean-ZIP.
+
+
+## MVP 28.9 – Unified Proposal Queue
+
+Zentrale Review-Queue für alle EvolutionProposal-Typen. Die Queue sammelt, filtert, priorisiert und dokumentiert Entscheidungen, aktiviert aber keine Änderungen ohne Review, Tests und Benutzerfreigabe.

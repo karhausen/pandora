@@ -1,28 +1,27 @@
 {
-  "version": "28.7",
-  "name": "Pattern Recognition Engine",
-  "based_on": "28.3-maintenance-center-restructure",
-  "codename": "pattern_recognition_engine",
-  "description": "Introduces Pandora Genome as a static single source of truth and unifies future improvement work around the EvolutionProposal model and one controlled lifecycle.",
+  "version": "28.9",
+  "name": "Unified Proposal Queue",
+  "based_on": "28.8-improvement-prioritization",
+  "codename": "unified_proposal_queue",
+  "description": "Introduces one central review queue for all EvolutionProposal types and connects prioritized candidates to the Evolution Factory without automatic activation.",
   "features": [
-    "New core/genome package",
-    "Initial static config/system/pandora_genome.json",
-    "Unified EvolutionProposal model for all future proposal types",
-    "Single controlled evolution lifecycle",
-    "Genome validation and hard evolution rules",
-    "Read-only migration preview for existing proposal systems",
-    "New /api/evolution/* API endpoints",
-    "New evolution-* CLI commands",
-    "New /evolution Maintenance page"
+    "New core/proposal_queue package",
+    "SQLite-backed unified_proposal_queue.db storage",
+    "Queue status/list/show/decision/history/statistics operations",
+    "Import prioritized candidates through Evolution Factory",
+    "New /api/proposal-queue/* API endpoints",
+    "New proposal-queue-* CLI commands",
+    "New /proposal-queue Maintenance GUI page",
+    "Maintenance Center navigation integration"
   ],
   "safety": [
     "No automatic proposal activation",
-    "No runtime mutation of the Genome",
     "No direct Core changes",
-    "No automatic Identity or Personality changes",
+    "No generated code execution",
     "Human approval remains mandatory",
-    "Python validates LLM recommendations before any action"
+    "Queue decisions only change queue status",
+    "Evolution lifecycle remains separate from activation"
   ],
-  "build_time": "2026-07-02T00:00:00Z",
-  "mvp": "28.7"
+  "build_time": "2026-07-02T10:58:41Z",
+  "mvp": "28.9"
 }

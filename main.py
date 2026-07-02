@@ -101,6 +101,7 @@ from core.genome import EvolutionService
 from core.observation import SelfObservationManager
 from core.pattern import PatternRecognitionManager
 from core.prioritization import ImprovementPrioritizationManager
+from core.proposal_queue import UnifiedProposalQueueManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -715,6 +716,16 @@ def cmd_goal_manager_status(args):
 def cmd_goal_propose(args):
     _json(GoalManager().propose(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_goals=args.max_goals))
 
+
+def cmd_proposal_queue_status(args): _json(UnifiedProposalQueueManager().status())
+def cmd_proposal_queue_list(args): _json(UnifiedProposalQueueManager().list(limit=args.limit, status=args.status, proposal_type=args.type, min_priority=args.min_priority, query=args.query))
+def cmd_proposal_queue_show(args): _json(UnifiedProposalQueueManager().show(args.item_id))
+def cmd_proposal_queue_from_factory(args): _json(UnifiedProposalQueueManager().enqueue_from_factory_preview(args.request, proposal_type=args.type, source=args.source))
+def cmd_proposal_queue_import_prioritized(args): _json(UnifiedProposalQueueManager().import_prioritized(limit=args.limit, min_priority=args.min_priority, save_prioritization=args.save_prioritization))
+def cmd_proposal_queue_decide(args): _json(UnifiedProposalQueueManager().decide(args.item_id, decision=args.decision, note=args.note, decided_by=args.decided_by))
+def cmd_proposal_queue_history(args): _json(UnifiedProposalQueueManager().history(limit=args.limit))
+def cmd_proposal_queue_stats(args): _json(UnifiedProposalQueueManager().statistics())
+
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
 
@@ -1013,6 +1024,16 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("workflow-dashboard-status"); p.set_defaults(func=cmd_workflow_dashboard_status)
     p = sub.add_parser("workflow-dashboard-list"); p.add_argument("--state", choices=["active", "blocked", "finished", "empty"]); p.add_argument("--query"); p.add_argument("--limit", type=int, default=200); p.set_defaults(func=cmd_workflow_dashboard_list)
     p = sub.add_parser("workflow-dashboard-show"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_dashboard_show)
+
+
+    p = sub.add_parser("proposal-queue-status"); p.set_defaults(func=cmd_proposal_queue_status)
+    p = sub.add_parser("proposal-queue-list"); p.add_argument("--limit", type=int, default=100); p.add_argument("--status"); p.add_argument("--type"); p.add_argument("--min-priority", type=int); p.add_argument("--query"); p.set_defaults(func=cmd_proposal_queue_list)
+    p = sub.add_parser("proposal-queue-show"); p.add_argument("item_id"); p.set_defaults(func=cmd_proposal_queue_show)
+    p = sub.add_parser("proposal-queue-from-factory"); p.add_argument("request"); p.add_argument("--type"); p.add_argument("--source", default="manual"); p.set_defaults(func=cmd_proposal_queue_from_factory)
+    p = sub.add_parser("proposal-queue-import-prioritized"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-priority", type=int, default=60); p.add_argument("--save-prioritization", action="store_true"); p.set_defaults(func=cmd_proposal_queue_import_prioritized)
+    p = sub.add_parser("proposal-queue-decide"); p.add_argument("item_id"); p.add_argument("--decision", required=True, choices=["reviewed", "accepted_for_next_step", "approved", "rejected", "deferred", "needs_work", "archived"]); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.set_defaults(func=cmd_proposal_queue_decide)
+    p = sub.add_parser("proposal-queue-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_proposal_queue_history)
+    p = sub.add_parser("proposal-queue-stats"); p.set_defaults(func=cmd_proposal_queue_stats)
 
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)

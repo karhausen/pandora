@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Unified Proposal Queue</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/proposal-queue.css" />
+</head>
+<body>
+  <main class="proposal-shell">
+    <header class="proposal-hero">
+      <div>
+        <span class="eyebrow">MVP 28.9</span>
+        <h1>Unified Proposal Queue</h1>
+        <p>Eine gemeinsame Review-Queue für Tool-, Skill-, Knowledge-, Core-, GUI-, Workflow-, Prompt-, Memory-, Personality- und Learning-Proposals.</p>
+      </div>
+      <nav class="hero-actions">
+        <a class="secondary-button" href="/maintenance">Maintenance</a>
+        <a class="back-button" href="/">Chat</a>
+      </nav>
+    </header>
+
+    <section id="queueStatus" class="status-card">Lade Proposal Queue ...</section>
+
+    <section class="toolbar">
+      <input id="queryInput" placeholder="Suchen ..." />
+      <select id="statusFilter">
+        <option value="">Alle Status</option>
+        <option value="new">New</option>
+        <option value="triaged">Triaged</option>
+        <option value="in_review">In Review</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+        <option value="deferred">Deferred</option>
+        <option value="needs_work">Needs Work</option>
+        <option value="archived">Archived</option>
+      </select>
+      <select id="typeFilter">
+        <option value="">Alle Typen</option>
+        <option value="tool">Tool</option>
+        <option value="skill">Skill</option>
+        <option value="knowledge">Knowledge</option>
+        <option value="workflow">Workflow</option>
+        <option value="core">Core</option>
+        <option value="gui">GUI</option>
+        <option value="prompt">Prompt</option>
+        <option value="memory">Memory</option>
+        <option value="personality">Personality</option>
+        <option value="learning">Learning</option>
+      </select>
+      <button id="refreshBtn">Aktualisieren</button>
+      <button id="importBtn">Priorisierte Kandidaten importieren</button>
+    </section>
+
+    <section id="queueItems" class="queue-grid"></section>
+  </main>
+  <script src="/web/proposal-queue.js?v=28.9"></script>
+</body>
+</html>

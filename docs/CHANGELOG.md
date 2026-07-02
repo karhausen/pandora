@@ -118,3 +118,13 @@
 - Neue API-Endpunkte unter `/api/evolution/factory/*`.
 - Evolution-GUI um Factory-Routen und Proposal-Preview erweitert.
 - Sicherheitsprinzip: Die Factory erzeugt nur Vorschläge, aktiviert aber nichts automatisch.
+
+
+## MVP 28.9 – Unified Proposal Queue
+
+- Added `core/proposal_queue` package.
+- Added SQLite-backed unified proposal queue storage.
+- Added queue status, list, show, import, decision and statistics APIs.
+- Added CLI commands for proposal queue operation.
+- Added Maintenance Center link and `/proposal-queue` GUI.
+- Preserves safety contract: queue only, no automatic activation.

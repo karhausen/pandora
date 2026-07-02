@@ -68,3 +68,8 @@ python main.py personality-regression-run
 - Neue API-Endpunkte unter `/api/evolution/factory/*`.
 - Evolution-GUI um Factory-Routen und Proposal-Preview erweitert.
 - Sicherheitsprinzip: Die Factory erzeugt nur Vorschläge, aktiviert aber nichts automatisch.
+
+
+## MVP 28.9 – Unified Proposal Queue
+
+Zentrale Review-Queue für alle EvolutionProposal-Typen. Die Queue sammelt, filtert, priorisiert und dokumentiert Entscheidungen, aktiviert aber keine Änderungen ohne Review, Tests und Benutzerfreigabe.

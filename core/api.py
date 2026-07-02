@@ -29,6 +29,7 @@ from .genome import EvolutionService
 from .observation import SelfObservationManager
 from .pattern import PatternRecognitionManager
 from .prioritization import ImprovementPrioritizationManager
+from .proposal_queue import UnifiedProposalQueueManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -127,8 +128,25 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.8-improvement-prioritization")
+app = FastAPI(title="Pandora Agent", version="28.9-unified-proposal-queue")
 
+
+
+
+class ProposalQueueEnqueueRequest(BaseModel):
+    proposal: dict[str, Any]
+
+
+class ProposalQueueFactoryRequest(BaseModel):
+    request: str
+    proposal_type: str | None = None
+    source: str = "manual"
+
+
+class ProposalQueueDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
 
 class ToolProposalTaskRequest(BaseModel):
     task: str
@@ -3025,3 +3043,64 @@ def web_prioritization_js():
 @app.get("/web/prioritization.css")
 def web_prioritization_css():
     return FileResponse(WEB_DIR / "prioritization.css")
+
+
+# MVP 28.9 – Unified Proposal Queue
+@app.get("/api/proposal-queue/status")
+def api_proposal_queue_status():
+    return UnifiedProposalQueueManager().status()
+
+
+@app.get("/api/proposal-queue/items")
+def api_proposal_queue_items(limit: int = 100, status: str | None = None, type: str | None = None, min_priority: int | None = None, query: str | None = None):
+    return UnifiedProposalQueueManager().list(limit=limit, status=status, proposal_type=type, min_priority=min_priority, query=query)
+
+
+@app.get("/api/proposal-queue/item/{item_id}")
+def api_proposal_queue_item(item_id: str):
+    return UnifiedProposalQueueManager().show(item_id)
+
+
+@app.post("/api/proposal-queue/enqueue")
+def api_proposal_queue_enqueue(req: ProposalQueueEnqueueRequest):
+    return UnifiedProposalQueueManager().enqueue(req.proposal)
+
+
+@app.post("/api/proposal-queue/from-factory")
+def api_proposal_queue_from_factory(req: ProposalQueueFactoryRequest):
+    return UnifiedProposalQueueManager().enqueue_from_factory_preview(req.request, proposal_type=req.proposal_type, source=req.source)
+
+
+@app.post("/api/proposal-queue/import-prioritized")
+def api_proposal_queue_import_prioritized(limit: int = 50, min_priority: int = 60, save_prioritization: bool = False):
+    return UnifiedProposalQueueManager().import_prioritized(limit=limit, min_priority=min_priority, save_prioritization=save_prioritization)
+
+
+@app.post("/api/proposal-queue/item/{item_id}/decide")
+def api_proposal_queue_decide(item_id: str, req: ProposalQueueDecisionRequest):
+    return UnifiedProposalQueueManager().decide(item_id, decision=req.decision, note=req.note, decided_by=req.decided_by)
+
+
+@app.get("/api/proposal-queue/history")
+def api_proposal_queue_history(limit: int = 50):
+    return UnifiedProposalQueueManager().history(limit=limit)
+
+
+@app.get("/api/proposal-queue/statistics")
+def api_proposal_queue_statistics():
+    return UnifiedProposalQueueManager().statistics()
+
+
+@app.get("/proposal-queue")
+def web_proposal_queue():
+    return FileResponse(WEB_DIR / "proposal-queue.html")
+
+
+@app.get("/web/proposal-queue.js")
+def web_proposal_queue_js():
+    return FileResponse(WEB_DIR / "proposal-queue.js")
+
+
+@app.get("/web/proposal-queue.css")
+def web_proposal_queue_css():
+    return FileResponse(WEB_DIR / "proposal-queue.css")

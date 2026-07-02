@@ -52,8 +52,8 @@ class MaintenanceCenterService:
     the Maintenance GUI so future pages can depend on one stable source.
     """
 
-    version = "28.7"
-    codename = "maintenance_center_restructure_with_pattern_recognition"
+    version = "28.9"
+    codename = "maintenance_center_restructure_with_unified_proposal_queue"
 
     def groups(self) -> list[MaintenanceGroup]:
         return [
@@ -63,7 +63,7 @@ class MaintenanceCenterService:
             MaintenanceGroup("capabilities", "Fähigkeiten", "Tools, Skills, Capabilities und deren Lebenszyklus.", "capability_care", 40),
             MaintenanceGroup("configuration", "Konfiguration", "Profile, Modelle, Routing und kognitive Kommunikationsschichten.", "setup", 50),
             MaintenanceGroup("learning", "Lernen & Review", "Reviews, Scheduler, Learning-Metriken und Verbesserungsrückläufe.", "continuous_improvement", 60),
-            MaintenanceGroup("evolution", "Evolution", "Genome, Unified Proposal Model, Self Observation, Pattern Recognition, Lifecycle und Evolutionsregeln.", "controlled_evolution", 70),
+            MaintenanceGroup("evolution", "Evolution", "Genome, Unified Proposal Model, Self Observation, Pattern Recognition, Priorisierung, Proposal Queue, Lifecycle und Evolutionsregeln.", "controlled_evolution", 70),
         ]
 
     def links(self) -> list[MaintenanceLink]:
@@ -90,7 +90,8 @@ class MaintenanceCenterService:
             MaintenanceLink("Evolution", "/evolution", "Pandora Genome, Unified Evolution Model, Lifecycle und Regeln prüfen.", "evolution", 10),
             MaintenanceLink("Self Observation", "/observation", "Events, Health, Runtime-Fakten und Statistiken beobachten – ohne automatische Vorschläge.", "evolution", 20),
             MaintenanceLink("Pattern Recognition", "/pattern", "Wiederkehrende Muster aus Observation Events erkennen – ohne automatische Proposals.", "evolution", 30, badge="Neu"),
-            MaintenanceLink("Improvement Prioritization", "/prioritization", "Erkannte Muster nach Nutzen, Risiko, Aufwand und Benutzerwert priorisieren – ohne automatische Proposals.", "evolution", 40, badge="Neu"),
+            MaintenanceLink("Improvement Prioritization", "/prioritization", "Erkannte Muster nach Nutzen, Risiko, Aufwand und Benutzerwert priorisieren – ohne automatische Proposals.", "evolution", 40),
+            MaintenanceLink("Unified Proposal Queue", "/proposal-queue", "Alle Evolution-Proposals zentral filtern, priorisieren und für Review/Freigabe vorbereiten.", "evolution", 50, risk="human_approval", badge="Neu"),
         ]
 
     def grouped_sections(self) -> list[dict[str, Any]]:
