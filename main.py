@@ -105,6 +105,7 @@ from core.proposal_queue import UnifiedProposalQueueManager
 from core.proposal_generator import ProposalGeneratorManager
 from core.proposal_evolution import ProposalEvolutionManager
 from core.adaptive_goals import AdaptiveGoalManager
+from core.knowledge_evolution import KnowledgeEvolutionManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -806,7 +807,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.2",
+        "version": "29.3",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -836,6 +837,10 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "goals list", "argv": ["goals", "list"]},
         {"label": "goals evaluate", "argv": ["goals", "evaluate"]},
         {"label": "goals reprioritize", "argv": ["goals", "reprioritize"]},
+        {"label": "knowledge-evolution status", "argv": ["knowledge-evolution", "status"]},
+        {"label": "knowledge-evolution health", "argv": ["knowledge-evolution", "health"]},
+        {"label": "knowledge-evolution gaps", "argv": ["knowledge-evolution", "gaps"]},
+        {"label": "knowledge-evolution proposals", "argv": ["knowledge-evolution", "proposals"]},
     ]
 
 
@@ -847,6 +852,16 @@ def cmd_adaptive_goals_show(args): _json(AdaptiveGoalManager().show(args.goal_id
 def cmd_adaptive_goals_history(args): _json(AdaptiveGoalManager().history(limit=args.limit))
 def cmd_adaptive_goals_evaluate(args): _json(AdaptiveGoalManager().evaluate())
 def cmd_adaptive_goals_reprioritize(args): _json(AdaptiveGoalManager().reprioritize(write=args.write))
+
+
+# MVP 29.3 – Knowledge Evolution
+def cmd_knowledge_evolution_status(args): _json(KnowledgeEvolutionManager().status())
+def cmd_knowledge_evolution_health(args): _json(KnowledgeEvolutionManager().health(limit=args.limit))
+def cmd_knowledge_evolution_gaps(args): _json(KnowledgeEvolutionManager().gaps(limit=args.limit))
+def cmd_knowledge_evolution_freshness(args): _json(KnowledgeEvolutionManager().freshness(limit=args.limit))
+def cmd_knowledge_evolution_proposals(args): _json(KnowledgeEvolutionManager().proposals(limit=args.limit, min_severity=args.min_severity, enqueue=False))
+def cmd_knowledge_evolution_enqueue(args): _json(KnowledgeEvolutionManager().enqueue(limit=args.limit, min_severity=args.min_severity))
+def cmd_knowledge_evolution_history(args): _json(KnowledgeEvolutionManager().history(limit=args.limit))
 
 def cmd_selftest_cli(args):
     parser = build_parser()
@@ -866,7 +881,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.2", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.3", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -890,6 +905,10 @@ def cmd_selftest_api(args):
         "/api/goals/list",
         "/api/goals/evaluate",
         "/api/goals/reprioritize",
+        "/api/knowledge-evolution/status",
+        "/api/knowledge-evolution/health",
+        "/api/knowledge-evolution/gaps",
+        "/api/knowledge-evolution/proposals",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
@@ -897,7 +916,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.2", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.3", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -919,12 +938,13 @@ def cmd_selftest_integration(args):
         "/api/proposal-evolution/status",
         "/api/proposal-evolution/history",
         "/api/goals/status", "/api/goals/list", "/api/goals/evaluate", "/api/goals/reprioritize",
+        "/api/knowledge-evolution/status", "/api/knowledge-evolution/health", "/api/knowledge-evolution/gaps", "/api/knowledge-evolution/proposals",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
     ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "29.2", "ok": ok, "cli": cli_results, "api": api_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.3", "ok": ok, "cli": cli_results, "api": api_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1258,6 +1278,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("goals-evaluate"); p.set_defaults(func=cmd_adaptive_goals_evaluate)
     p = sub.add_parser("goals-reprioritize"); p.add_argument("--write", action="store_true"); p.set_defaults(func=cmd_adaptive_goals_reprioritize)
 
+    p = sub.add_parser("knowledge-evolution-status"); p.set_defaults(func=cmd_knowledge_evolution_status)
+    p = sub.add_parser("knowledge-evolution-health"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_evolution_health)
+    p = sub.add_parser("knowledge-evolution-gaps"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_evolution_gaps)
+    p = sub.add_parser("knowledge-evolution-freshness"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_knowledge_evolution_freshness)
+    p = sub.add_parser("knowledge-evolution-proposals"); p.add_argument("--limit", type=int, default=500); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_knowledge_evolution_proposals)
+    p = sub.add_parser("knowledge-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_knowledge_evolution_enqueue)
+    p = sub.add_parser("knowledge-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_knowledge_evolution_history)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1540,6 +1568,16 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("adaptive-goals", "history"): "goals-history",
         ("adaptive-goals", "evaluate"): "goals-evaluate",
         ("adaptive-goals", "reprioritize"): "goals-reprioritize",
+
+        ("knowledge-evolution", "status"): "knowledge-evolution-status",
+        ("knowledge-evolution", "health"): "knowledge-evolution-health",
+        ("knowledge-evolution", "gaps"): "knowledge-evolution-gaps",
+        ("knowledge-evolution", "freshness"): "knowledge-evolution-freshness",
+        ("knowledge-evolution", "proposals"): "knowledge-evolution-proposals",
+        ("knowledge-evolution", "enqueue"): "knowledge-evolution-enqueue",
+        ("knowledge-evolution", "history"): "knowledge-evolution-history",
+        ("knowledge", "evolution-status"): "knowledge-evolution-status",
+        ("knowledge", "evolution-health"): "knowledge-evolution-health",
 
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",

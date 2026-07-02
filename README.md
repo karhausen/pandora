@@ -170,3 +170,32 @@ GET  /api/goals/list
 GET  /api/goals/evaluate
 POST /api/goals/reprioritize
 ```
+
+## MVP 29.3 – Knowledge Evolution
+
+Knowledge Evolution prueft den Wissensbestand kontrolliert, ohne Dateien automatisch zu veraendern.
+
+Wichtige Befehle:
+
+```bash
+python main.py knowledge-evolution status
+python main.py knowledge-evolution health
+python main.py knowledge-evolution gaps
+python main.py knowledge-evolution freshness
+python main.py knowledge-evolution proposals
+python main.py knowledge-evolution enqueue
+python main.py selftest integration
+```
+
+API:
+
+```text
+/api/knowledge-evolution/status
+/api/knowledge-evolution/health
+/api/knowledge-evolution/gaps
+/api/knowledge-evolution/freshness
+/api/knowledge-evolution/proposals
+/api/knowledge-evolution/enqueue
+```
+
+Prinzip: Pandora analysiert Wissensqualitaet, Aktualitaet und Luecken. Daraus entstehen nur reviewpflichtige EvolutionProposals. Keine Knowledge-Datei wird automatisch bearbeitet.

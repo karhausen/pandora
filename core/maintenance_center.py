@@ -52,8 +52,8 @@ class MaintenanceCenterService:
     the Maintenance GUI so future pages can depend on one stable source.
     """
 
-    version = "28.9"
-    codename = "maintenance_center_restructure_with_unified_proposal_queue"
+    version = "29.3"
+    codename = "maintenance_center_with_knowledge_evolution"
 
     def groups(self) -> list[MaintenanceGroup]:
         return [
@@ -76,6 +76,7 @@ class MaintenanceCenterService:
             MaintenanceLink("Approvals", "/approval", "Tool- und Skill-Freigaben bewusst prüfen.", "decisions", 30, risk="human_approval"),
             MaintenanceLink("Knowledge Base", "/knowledge-base", "Wissensbestand suchen und überblicken.", "knowledge", 10),
             MaintenanceLink("Knowledge Editor", "/knowledge-editor", "Wissen kontrolliert anlegen, verschieben und pflegen.", "knowledge", 20, risk="controlled_write"),
+            MaintenanceLink("Knowledge Evolution", "/knowledge-evolution", "Knowledge Health, Luecken, Aktualitaet und Verbesserungsvorschlaege pruefen – ohne automatische Aenderungen.", "knowledge", 25, risk="human_approval", badge="Neu"),
             MaintenanceLink("Obsidian Vault", "/obsidian-vault", "Vault-Status, Suche und Export prüfen.", "knowledge", 30),
             MaintenanceLink("Obsidian Import Review", "/obsidian-import-review", "Import-Kandidaten prüfen, bevor Inhalte übernommen werden.", "knowledge", 40, risk="controlled_write"),
             MaintenanceLink("Capability Explorer", "/capability-explorer", "Fähigkeiten, Lücken und Capability Graph nachvollziehen.", "capabilities", 10),

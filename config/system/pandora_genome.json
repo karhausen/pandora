@@ -255,5 +255,44 @@
       "Pattern Recognition bewertet Muster, aber priorisiert sie noch nicht."
     ],
     "next_step": "MVP 28.8 – Improvement Prioritization"
+  },
+  "prioritization": {
+    "enabled": true,
+    "mode": "improvement_prioritization_only",
+    "creates_proposals": false,
+    "activates_changes": false,
+    "weights": {
+      "benefit": 0.3,
+      "confidence": 0.2,
+      "frequency": 0.15,
+      "user_value": 0.2,
+      "urgency": 0.1,
+      "risk": -0.1,
+      "effort": -0.05
+    },
+    "priority_levels": [
+      "critical",
+      "high",
+      "medium",
+      "low",
+      "archive"
+    ],
+    "source": "pattern_recognition_engine",
+    "next": "unified_proposal_queue"
+  },
+  "evolution": {
+    "knowledge_evolution": {
+      "enabled": true,
+      "review_only": true,
+      "auto_modify_knowledge": false,
+      "auto_activate_proposals": false,
+      "health_dimensions": [
+        "governance",
+        "coverage",
+        "freshness",
+        "metadata_quality"
+      ],
+      "proposal_route": "unified_proposal_queue"
+    }
   }
 }

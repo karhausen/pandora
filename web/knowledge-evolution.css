@@ -1,0 +1,12 @@
+body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #10131a; color: #f4f7fb; }
+.kev-shell { max-width: 1180px; margin: 0 auto; padding: 32px; }
+.kev-hero { display: flex; justify-content: space-between; gap: 24px; align-items: flex-start; margin-bottom: 24px; }
+.eyebrow { color: #a7b3c8; letter-spacing: .08em; text-transform: uppercase; font-size: .78rem; }
+h1 { margin: 8px 0; font-size: 2.4rem; }
+p { color: #c7d0df; max-width: 760px; }
+.hero-actions { display: flex; gap: 10px; }
+.hero-actions a, .secondary-button, .back-button { color: #f4f7fb; text-decoration: none; border: 1px solid #394253; border-radius: 12px; padding: 10px 14px; background: #171b24; }
+.kev-status, .kev-card { background: #171b24; border: 1px solid #2a3140; border-radius: 18px; padding: 18px; box-shadow: 0 16px 40px rgba(0,0,0,.22); }
+.kev-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(310px, 1fr)); gap: 16px; margin-top: 16px; }
+.kev-card h2 { margin-top: 0; }
+pre { white-space: pre-wrap; word-break: break-word; color: #dfe7f5; font-size: .9rem; }

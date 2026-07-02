@@ -33,6 +33,7 @@ from .proposal_queue import UnifiedProposalQueueManager
 from .proposal_generator import ProposalGeneratorManager
 from .proposal_evolution import ProposalEvolutionManager
 from .adaptive_goals import AdaptiveGoalManager
+from .knowledge_evolution import KnowledgeEvolutionManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -131,7 +132,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.2-adaptive-goals")
+app = FastAPI(title="Pandora Agent", version="29.3-knowledge-evolution")
 
 
 
@@ -3174,7 +3175,7 @@ def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
     if req.item_id:
         return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
     if req.proposal is None:
-        return {"kind": "proposal_evolution_improve", "version": "29.2", "ok": False, "error": "proposal or item_id required"}
+        return {"kind": "proposal_evolution_improve", "version": "29.3", "ok": False, "error": "proposal or item_id required"}
     return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
 
 
@@ -3359,14 +3360,66 @@ def web_adaptive_goals_js():
 def web_adaptive_goals_css():
     return FileResponse(WEB_DIR / "adaptive-goals.css")
 
+
+
+# MVP 29.3 – Knowledge Evolution
+@app.get("/api/knowledge-evolution/status")
+def api_knowledge_evolution_status():
+    return KnowledgeEvolutionManager().status()
+
+
+@app.get("/api/knowledge-evolution/health")
+def api_knowledge_evolution_health(limit: int = 500):
+    return KnowledgeEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/gaps")
+def api_knowledge_evolution_gaps(limit: int = 500):
+    return KnowledgeEvolutionManager().gaps(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/freshness")
+def api_knowledge_evolution_freshness(limit: int = 500):
+    return KnowledgeEvolutionManager().freshness(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/proposals")
+def api_knowledge_evolution_proposals(limit: int = 500, min_severity: str = "warning"):
+    return KnowledgeEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/knowledge-evolution/enqueue")
+def api_knowledge_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return KnowledgeEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/knowledge-evolution/history")
+def api_knowledge_evolution_history(limit: int = 50):
+    return KnowledgeEvolutionManager().history(limit=limit)
+
+
+@app.get("/knowledge-evolution")
+def web_knowledge_evolution():
+    return FileResponse(WEB_DIR / "knowledge-evolution.html")
+
+
+@app.get("/web/knowledge-evolution.js")
+def web_knowledge_evolution_js():
+    return FileResponse(WEB_DIR / "knowledge-evolution.js")
+
+
+@app.get("/web/knowledge-evolution.css")
+def web_knowledge_evolution_css():
+    return FileResponse(WEB_DIR / "knowledge-evolution.css")
+
 # MVP 28.9.2 – CLI & API Integration Hardening
 @app.get("/api/integration/status")
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "29.2",
+        "version": "29.3",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3394,7 +3447,11 @@ def api_selftest_api_contracts():
         "/api/goals/list",
         "/api/goals/evaluate",
         "/api/goals/reprioritize",
+        "/api/knowledge-evolution/status",
+        "/api/knowledge-evolution/health",
+        "/api/knowledge-evolution/gaps",
+        "/api/knowledge-evolution/proposals",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.2", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.3", "ok": all(c["ok"] for c in checks), "checks": checks}
