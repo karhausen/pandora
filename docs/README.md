@@ -60,3 +60,11 @@ python main.py personality-profile
 python main.py prompt-preview "Bitte plane den nächsten sicheren Schritt"
 python main.py personality-regression-run
 ```
+
+## MVP 28.5 – Evolution Factory
+
+- Zentrale Evolution Factory für alle Proposal-Typen ergänzt.
+- Neue CLI-Befehle: `evolution-factory-status`, `evolution-factory-routes`, `evolution-factory-preview`, `evolution-factory-create`, `evolution-factory-batch-preview`, `evolution-factory-migration-plan`.
+- Neue API-Endpunkte unter `/api/evolution/factory/*`.
+- Evolution-GUI um Factory-Routen und Proposal-Preview erweitert.
+- Sicherheitsprinzip: Die Factory erzeugt nur Vorschläge, aktiviert aber nichts automatisch.

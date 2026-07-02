@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pandora Evolution</title>
-  <link rel="stylesheet" href="/web/evolution.css?v=28.4">
+  <link rel="stylesheet" href="/web/evolution.css?v=28.5">
 </head>
 <body>
   <main class="evolution-shell">
     <header class="evolution-hero">
       <div>
-        <span class="eyebrow">MVP 28.4</span>
-        <h1>Pandora Genome & Evolution Model</h1>
-        <p>Single Source of Truth für Identität, Regeln, Lifecycle und künftige Verbesserungsvorschläge.</p>
+        <span class="eyebrow">MVP 28.5</span>
+        <h1>Evolution Factory</h1>
+        <p>Zentrale Factory für Tool-, Skill-, Knowledge-, Core-, GUI-, Prompt-, Memory-, Personality- und Learning-Proposals.</p>
       </div>
       <nav class="hero-actions">
         <a class="secondary-button" href="/maintenance">Maintenance</a>
@@ -22,10 +22,25 @@
 
     <section class="status-panel" id="statusPanel">Lade Evolution Status ...</section>
 
+    <section class="factory-panel card">
+      <div>
+        <h2>Factory Preview</h2>
+        <p>Erzeugt nur einen Vorschlag. Es wird nichts aktiviert und nichts am Runtime-System verändert.</p>
+      </div>
+      <div class="factory-form">
+        <input id="factoryRequest" type="text" value="Tool für Seriennummern-Prüfung verbessern" aria-label="Factory Request">
+        <select id="factoryType" aria-label="Proposal Type">
+          <option value="">Typ automatisch erkennen</option>
+        </select>
+        <button id="factoryButton" type="button">Proposal Vorschau</button>
+      </div>
+      <pre id="factoryPreview" class="preview-box">Noch keine Vorschau erzeugt.</pre>
+    </section>
+
     <section class="grid">
       <article class="card">
-        <h2>Genome</h2>
-        <div id="genomeSections" class="section-list"></div>
+        <h2>Factory Routes</h2>
+        <div id="factoryRoutes" class="section-list"></div>
       </article>
       <article class="card">
         <h2>Lifecycle</h2>
@@ -36,11 +51,11 @@
         <div id="proposalTypes" class="chips"></div>
       </article>
       <article class="card">
-        <h2>Rules</h2>
+        <h2>Genome Rules</h2>
         <div id="rules" class="rule-list"></div>
       </article>
     </section>
   </main>
-  <script src="/web/evolution.js?v=28.4"></script>
+  <script src="/web/evolution.js?v=28.5"></script>
 </body>
 </html>

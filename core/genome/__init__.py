@@ -4,6 +4,7 @@ from .genome_validator import GenomeValidator
 from .evolution_proposal import EvolutionProposal, EvolutionProposalType, EvolutionProposalStatus
 from .evolution_lifecycle import EvolutionLifecycle
 from .evolution_service import EvolutionService
+from .evolution_factory import EvolutionFactory, EvolutionFactoryRoute
 
 __all__ = [
     "PandoraGenome",
@@ -16,4 +17,6 @@ __all__ = [
     "EvolutionProposalStatus",
     "EvolutionLifecycle",
     "EvolutionService",
+    "EvolutionFactory",
+    "EvolutionFactoryRoute",
 ]

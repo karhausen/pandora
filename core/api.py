@@ -2836,6 +2836,36 @@ def api_evolution_normalize_proposal(payload: dict[str, Any] = Body(...)):
     return EvolutionService().normalize_proposal(payload)
 
 
+@app.get("/api/evolution/factory/status")
+def api_evolution_factory_status():
+    return EvolutionService().factory_status()
+
+
+@app.get("/api/evolution/factory/routes")
+def api_evolution_factory_routes():
+    return EvolutionService().factory_routes()
+
+
+@app.post("/api/evolution/factory/proposals")
+def api_evolution_factory_create(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().factory_create(payload)
+
+
+@app.post("/api/evolution/factory/batch-preview")
+def api_evolution_factory_batch_preview(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().factory_batch_preview(payload)
+
+
+@app.get("/api/evolution/factory/preview")
+def api_evolution_factory_preview(request: str, type: str | None = None, source: str = "manual"):
+    return EvolutionService().factory_preview(request, proposal_type=type, source=source)
+
+
+@app.get("/api/evolution/factory/migration-plan")
+def api_evolution_factory_migration_plan():
+    return EvolutionService().factory_migration_plan()
+
+
 @app.get("/evolution")
 def web_evolution():
     return FileResponse(WEB_DIR / "evolution.html")

@@ -959,3 +959,11 @@ python main.py review-to-action-preview "Pandora Weekly Review" --user-action sp
 - API: `/api/cognitive/action-proposal-handoff/status` und `/preview`
 - Doku: `docs/action_proposal_handoff.md`
 - Sicherheitsgarantie: kein Code, keine Ausführung, keine Persistenz, keine Core-Änderung
+
+## MVP 28.5 – Evolution Factory
+
+- Zentrale Evolution Factory für alle Proposal-Typen ergänzt.
+- Neue CLI-Befehle: `evolution-factory-status`, `evolution-factory-routes`, `evolution-factory-preview`, `evolution-factory-create`, `evolution-factory-batch-preview`, `evolution-factory-migration-plan`.
+- Neue API-Endpunkte unter `/api/evolution/factory/*`.
+- Evolution-GUI um Factory-Routen und Proposal-Preview erweitert.
+- Sicherheitsprinzip: Die Factory erzeugt nur Vorschläge, aktiviert aber nichts automatisch.
