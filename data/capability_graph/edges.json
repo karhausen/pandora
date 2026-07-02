@@ -1,0 +1,880 @@
+[
+  {
+    "source": "cap:arithmetic",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:calculator",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:commands",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:converts",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:converts",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:core",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:echo",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echo",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echo_then_upper",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:echoes",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:evaluates",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:expressions",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:funktechnik",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:idee",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:input",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:input",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:leitgedanke",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:maintenance",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekt",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekt",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekt",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekt",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekt_stand",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:projekte",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:prompt",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:public",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:returns",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:roadmap",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:roadmap",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:safely",
+    "target": "tool:calculator",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:sonstige",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:stand",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:stand",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:stand",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tags",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:templates",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:test",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:test",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:test_prompts",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:text",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:text",
+    "target": "tool:echo",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:text",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:then",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:title",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:todo",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 3,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:tools",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:upper",
+    "target": "skill:echo_then_upper",
+    "relation": "has_skill",
+    "weight": 3,
+    "metadata": {}
+  },
+  {
+    "source": "cap:uppercase",
+    "target": "tool:uppercase",
+    "relation": "has_tool",
+    "weight": 2,
+    "metadata": {}
+  },
+  {
+    "source": "cap:vault",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:visibility",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:visibility",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:visibility",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:visibility",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:visibility",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:wichtig",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Funktechnik.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-25.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-26.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-06-29.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-01.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Notiz_2026-07-02.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/Test-Prompts.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Projekte/Pandora/todo.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Templates/Notiz_Template.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:Test.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  },
+  {
+    "source": "cap:yaml",
+    "target": "obsidian:commands.md",
+    "relation": "has_obsidian_note",
+    "weight": 1,
+    "metadata": {
+      "source": "obsidian_vault"
+    }
+  }
+]

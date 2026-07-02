@@ -52,8 +52,8 @@ class MaintenanceCenterService:
     the Maintenance GUI so future pages can depend on one stable source.
     """
 
-    version = "29.3"
-    codename = "maintenance_center_with_knowledge_evolution"
+    version = "29.4"
+    codename = "maintenance_center_with_tool_evolution"
 
     def groups(self) -> list[MaintenanceGroup]:
         return [
@@ -81,6 +81,7 @@ class MaintenanceCenterService:
             MaintenanceLink("Obsidian Import Review", "/obsidian-import-review", "Import-Kandidaten prüfen, bevor Inhalte übernommen werden.", "knowledge", 40, risk="controlled_write"),
             MaintenanceLink("Capability Explorer", "/capability-explorer", "Fähigkeiten, Lücken und Capability Graph nachvollziehen.", "capabilities", 10),
             MaintenanceLink("Tool Center", "/tools-center", "Tools, Status und Aktivierung kontrollieren.", "capabilities", 20, risk="controlled_activation"),
+            MaintenanceLink("Tool Evolution", "/tool-evolution", "Tool Health, Reviews, Lifecycle und Refactoring-Vorschlaege pruefen – ohne automatische Aenderungen.", "capabilities", 25, risk="human_approval", badge="Neu"),
             MaintenanceLink("Skill Center", "/skills-center", "Skills, Kandidaten und Aktivierungen verwalten.", "capabilities", 30, risk="controlled_activation"),
             MaintenanceLink("LLM Profiles", "/llm-profiles", "Provider, Modelle und Profilstatus prüfen.", "configuration", 10, risk="configuration"),
             MaintenanceLink("Cognitive Dashboard", "/cognitive-dashboard", "Identity, Personality, Prompt-Layer und kognitive Pipeline prüfen.", "configuration", 20),

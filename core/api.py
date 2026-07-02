@@ -34,6 +34,7 @@ from .proposal_generator import ProposalGeneratorManager
 from .proposal_evolution import ProposalEvolutionManager
 from .adaptive_goals import AdaptiveGoalManager
 from .knowledge_evolution import KnowledgeEvolutionManager
+from .tool_evolution import ToolEvolutionManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -132,7 +133,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.3-knowledge-evolution")
+app = FastAPI(title="Pandora Agent", version="29.4-tool-evolution")
 
 
 
@@ -2033,7 +2034,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -3175,7 +3176,7 @@ def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
     if req.item_id:
         return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
     if req.proposal is None:
-        return {"kind": "proposal_evolution_improve", "version": "29.3", "ok": False, "error": "proposal or item_id required"}
+        return {"kind": "proposal_evolution_improve", "version": "29.4", "ok": False, "error": "proposal or item_id required"}
     return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
 
 
@@ -3398,6 +3399,57 @@ def api_knowledge_evolution_history(limit: int = 50):
     return KnowledgeEvolutionManager().history(limit=limit)
 
 
+# MVP 29.4 – Tool Evolution
+@app.get("/api/tool-evolution/status")
+def api_tool_evolution_status():
+    return ToolEvolutionManager().status()
+
+
+@app.get("/api/tool-evolution/health")
+def api_tool_evolution_health(limit: int = 500):
+    return ToolEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/tool-evolution/reviews")
+def api_tool_evolution_reviews(limit: int = 500):
+    return ToolEvolutionManager().reviews(limit=limit)
+
+
+@app.get("/api/tool-evolution/lifecycle")
+def api_tool_evolution_lifecycle(limit: int = 500):
+    return ToolEvolutionManager().lifecycle(limit=limit)
+
+
+@app.get("/api/tool-evolution/proposals")
+def api_tool_evolution_proposals(limit: int = 500, min_severity: str = "warning"):
+    return ToolEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/tool-evolution/enqueue")
+def api_tool_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return ToolEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/tool-evolution/history")
+def api_tool_evolution_history(limit: int = 50):
+    return ToolEvolutionManager().history(limit=limit)
+
+
+@app.get("/tool-evolution")
+def web_tool_evolution():
+    return FileResponse(WEB_DIR / "tool-evolution.html")
+
+
+@app.get("/web/tool-evolution.js")
+def web_tool_evolution_js():
+    return FileResponse(WEB_DIR / "tool-evolution.js")
+
+
+@app.get("/web/tool-evolution.css")
+def web_tool_evolution_css():
+    return FileResponse(WEB_DIR / "tool-evolution.css")
+
+
 @app.get("/knowledge-evolution")
 def web_knowledge_evolution():
     return FileResponse(WEB_DIR / "knowledge-evolution.html")
@@ -3417,9 +3469,9 @@ def web_knowledge_evolution_css():
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "29.3",
+        "version": "29.4",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3451,7 +3503,11 @@ def api_selftest_api_contracts():
         "/api/knowledge-evolution/health",
         "/api/knowledge-evolution/gaps",
         "/api/knowledge-evolution/proposals",
+        "/api/tool-evolution/status",
+        "/api/tool-evolution/health",
+        "/api/tool-evolution/reviews",
+        "/api/tool-evolution/proposals",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.3", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.4", "ok": all(c["ok"] for c in checks), "checks": checks}

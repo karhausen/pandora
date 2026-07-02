@@ -106,6 +106,7 @@ from core.proposal_generator import ProposalGeneratorManager
 from core.proposal_evolution import ProposalEvolutionManager
 from core.adaptive_goals import AdaptiveGoalManager
 from core.knowledge_evolution import KnowledgeEvolutionManager
+from core.tool_evolution import ToolEvolutionManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -807,7 +808,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.3",
+        "version": "29.4",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -841,6 +842,11 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "knowledge-evolution health", "argv": ["knowledge-evolution", "health"]},
         {"label": "knowledge-evolution gaps", "argv": ["knowledge-evolution", "gaps"]},
         {"label": "knowledge-evolution proposals", "argv": ["knowledge-evolution", "proposals"]},
+        {"label": "tool-evolution status", "argv": ["tool-evolution", "status"]},
+        {"label": "tool-evolution health", "argv": ["tool-evolution", "health"]},
+        {"label": "tool-evolution reviews", "argv": ["tool-evolution", "reviews"]},
+        {"label": "tool-evolution lifecycle", "argv": ["tool-evolution", "lifecycle"]},
+        {"label": "tool-evolution proposals", "argv": ["tool-evolution", "proposals"]},
     ]
 
 
@@ -863,6 +869,16 @@ def cmd_knowledge_evolution_proposals(args): _json(KnowledgeEvolutionManager().p
 def cmd_knowledge_evolution_enqueue(args): _json(KnowledgeEvolutionManager().enqueue(limit=args.limit, min_severity=args.min_severity))
 def cmd_knowledge_evolution_history(args): _json(KnowledgeEvolutionManager().history(limit=args.limit))
 
+
+
+def cmd_tool_evolution_status(args): _json(ToolEvolutionManager().status())
+def cmd_tool_evolution_health(args): _json(ToolEvolutionManager().health(limit=args.limit))
+def cmd_tool_evolution_reviews(args): _json(ToolEvolutionManager().reviews(limit=args.limit))
+def cmd_tool_evolution_lifecycle(args): _json(ToolEvolutionManager().lifecycle(limit=args.limit))
+def cmd_tool_evolution_proposals(args): _json(ToolEvolutionManager().proposals(limit=args.limit, min_severity=args.min_severity, enqueue=False))
+def cmd_tool_evolution_enqueue(args): _json(ToolEvolutionManager().enqueue(limit=args.limit, min_severity=args.min_severity))
+def cmd_tool_evolution_history(args): _json(ToolEvolutionManager().history(limit=args.limit))
+
 def cmd_selftest_cli(args):
     parser = build_parser()
     results = []
@@ -881,7 +897,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.3", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.4", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -909,6 +925,10 @@ def cmd_selftest_api(args):
         "/api/knowledge-evolution/health",
         "/api/knowledge-evolution/gaps",
         "/api/knowledge-evolution/proposals",
+        "/api/tool-evolution/status",
+        "/api/tool-evolution/health",
+        "/api/tool-evolution/reviews",
+        "/api/tool-evolution/proposals",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
@@ -916,7 +936,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.3", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.4", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -939,12 +959,13 @@ def cmd_selftest_integration(args):
         "/api/proposal-evolution/history",
         "/api/goals/status", "/api/goals/list", "/api/goals/evaluate", "/api/goals/reprioritize",
         "/api/knowledge-evolution/status", "/api/knowledge-evolution/health", "/api/knowledge-evolution/gaps", "/api/knowledge-evolution/proposals",
+        "/api/tool-evolution/status", "/api/tool-evolution/health", "/api/tool-evolution/reviews", "/api/tool-evolution/proposals",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
     ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "29.3", "ok": ok, "cli": cli_results, "api": api_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.4", "ok": ok, "cli": cli_results, "api": api_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1286,6 +1307,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("knowledge-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_knowledge_evolution_enqueue)
     p = sub.add_parser("knowledge-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_knowledge_evolution_history)
 
+    p = sub.add_parser("tool-evolution-status"); p.set_defaults(func=cmd_tool_evolution_status)
+    p = sub.add_parser("tool-evolution-health"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_tool_evolution_health)
+    p = sub.add_parser("tool-evolution-reviews"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_tool_evolution_reviews)
+    p = sub.add_parser("tool-evolution-lifecycle"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_tool_evolution_lifecycle)
+    p = sub.add_parser("tool-evolution-proposals"); p.add_argument("--limit", type=int, default=500); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_tool_evolution_proposals)
+    p = sub.add_parser("tool-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_tool_evolution_enqueue)
+    p = sub.add_parser("tool-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_tool_evolution_history)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1578,6 +1607,19 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("knowledge-evolution", "history"): "knowledge-evolution-history",
         ("knowledge", "evolution-status"): "knowledge-evolution-status",
         ("knowledge", "evolution-health"): "knowledge-evolution-health",
+
+        ("tool-evolution", "status"): "tool-evolution-status",
+        ("tool-evolution", "health"): "tool-evolution-health",
+        ("tool-evolution", "reviews"): "tool-evolution-reviews",
+        ("tool-evolution", "review"): "tool-evolution-reviews",
+        ("tool-evolution", "lifecycle"): "tool-evolution-lifecycle",
+        ("tool-evolution", "proposals"): "tool-evolution-proposals",
+        ("tool-evolution", "enqueue"): "tool-evolution-enqueue",
+        ("tool-evolution", "history"): "tool-evolution-history",
+        ("tools", "evolution"): "tool-evolution-status",
+        ("tools", "health"): "tool-evolution-health",
+        ("tools", "review"): "tool-evolution-reviews",
+        ("tools", "lifecycle"): "tool-evolution-lifecycle",
 
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",
