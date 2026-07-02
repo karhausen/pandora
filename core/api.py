@@ -128,7 +128,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.9-unified-proposal-queue")
+app = FastAPI(title="Pandora Agent", version="28.9.2-cli-api-integration-hardening")
 
 
 
@@ -3164,3 +3164,37 @@ def api_priority_queue_alias(limit: int = 50, level: str | None = None):
 @app.get("/api/priority/weights")
 def api_priority_weights_alias():
     return ImprovementPrioritizationManager().weights()
+
+
+# MVP 28.9.2 – CLI & API Integration Hardening
+@app.get("/api/integration/status")
+def api_integration_status():
+    return {
+        "kind": "integration_hardening_status",
+        "version": "28.9.2",
+        "ok": True,
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases"],
+        "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
+    }
+
+
+@app.get("/api/selftest/api")
+def api_selftest_api_contracts():
+    required = [
+        "/api/evolution/status",
+        "/api/genome/status",
+        "/api/evolution/factory/status",
+        "/api/evolution-factory/status",
+        "/api/observation/status",
+        "/api/pattern/status",
+        "/api/pattern-recognition/status",
+        "/api/prioritization/status",
+        "/api/priority/status",
+        "/api/proposal-queue/status",
+        "/api/proposal-queue/items",
+        "/api/proposal-queue/enqueue",
+        "/api/proposal-queue/from-factory",
+    ]
+    routes = {getattr(route, "path", "") for route in app.routes}
+    checks = [{"path": path, "ok": path in routes} for path in required]
+    return {"kind": "api_route_contract_selftest", "version": "28.9.2", "ok": all(c["ok"] for c in checks), "checks": checks}

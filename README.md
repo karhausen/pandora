@@ -75,3 +75,18 @@ python main.py proposal-queue status
 ```
 
 Zusätzlich wurden API-Aliase ergänzt, z. B. `/api/genome/status`, `/api/evolution-factory/status`, `/api/pattern-recognition/status` und `/api/priority/status`.
+
+## MVP 28.9.2 – CLI & API Integration Hardening
+
+Dieser Release ergänzt eine harte Integrationsprüfung für die dokumentierten Evolution-Kommandos.
+
+Wichtige Tests:
+
+```bash
+python main.py genome status
+python main.py proposal-queue add --type TOOL --title "Test Tool Proposal" --priority MEDIUM
+python main.py proposal-queue list
+python main.py selftest cli
+python main.py selftest api
+python main.py selftest integration
+```

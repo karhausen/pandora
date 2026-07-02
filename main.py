@@ -726,6 +726,128 @@ def cmd_proposal_queue_decide(args): _json(UnifiedProposalQueueManager().decide(
 def cmd_proposal_queue_history(args): _json(UnifiedProposalQueueManager().history(limit=args.limit))
 def cmd_proposal_queue_stats(args): _json(UnifiedProposalQueueManager().statistics())
 
+
+
+# MVP 28.9.2 – CLI & API Integration Hardening
+def cmd_proposal_queue_add(args):
+    """Create a manual EvolutionProposal and enqueue it in the unified queue.
+
+    This command exists because the documented clean syntax is:
+    python main.py proposal-queue add --type TOOL --title "..." --priority MEDIUM
+    It creates a review-only proposal. It never activates changes.
+    """
+    priority_map = {"LOW": 30, "MEDIUM": 50, "HIGH": 75, "CRITICAL": 90}
+    raw_priority = str(args.priority).strip()
+    priority = priority_map.get(raw_priority.upper())
+    if priority is None:
+        try:
+            priority = int(raw_priority)
+        except ValueError as exc:
+            raise SystemExit("--priority must be LOW, MEDIUM, HIGH, CRITICAL or 0..100") from exc
+    payload = {
+        "type": args.type.lower(),
+        "title": args.title,
+        "description": args.description or args.title,
+        "source": args.source,
+        "priority": max(0, min(int(priority), 100)),
+        "confidence": args.confidence,
+        "impact": args.impact,
+        "risk": args.risk,
+        "payload": {"manual_cli": True, "mvp": "28.9.2"},
+    }
+    proposal_result = EvolutionService().factory_create(payload)
+    proposal = proposal_result.get("proposal", proposal_result)
+    _json({
+        "kind": "proposal_queue_add",
+        "version": "28.9.2",
+        "factory": proposal_result,
+        "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
+        "activates_changes": False,
+        "requires_user_approval": True,
+    })
+
+
+def _documented_cli_contracts() -> list[dict]:
+    return [
+        {"label": "genome status", "argv": ["genome", "status"]},
+        {"label": "evolution status", "argv": ["evolution", "status"]},
+        {"label": "evolution-factory status", "argv": ["evolution-factory", "status"]},
+        {"label": "observation status", "argv": ["observation", "status"]},
+        {"label": "pattern status", "argv": ["pattern", "status"]},
+        {"label": "priority status", "argv": ["priority", "status"]},
+        {"label": "proposal-queue status", "argv": ["proposal-queue", "status"]},
+        {"label": "proposal-queue list", "argv": ["proposal-queue", "list"]},
+        {"label": "proposal-queue add", "argv": ["proposal-queue", "add", "--type", "TOOL", "--title", "CLI Contract Test", "--priority", "MEDIUM"]},
+        {"label": "proposal-queue from-factory", "argv": ["proposal-queue", "from-factory", "CLI factory test", "--type", "TOOL"]},
+        {"label": "proposal-queue decide", "argv": ["proposal-queue", "decide", "queue_dummy", "--decision", "deferred"]},
+    ]
+
+
+def cmd_selftest_cli(args):
+    parser = build_parser()
+    results = []
+    for contract in _documented_cli_contracts():
+        raw = contract["argv"]
+        normalized = _normalize_nested_cli_args(raw)
+        try:
+            parsed = parser.parse_args(normalized)
+            results.append({
+                "label": contract["label"],
+                "raw": raw,
+                "normalized": normalized,
+                "ok": callable(getattr(parsed, "func", None)),
+                "func": getattr(getattr(parsed, "func", None), "__name__", None),
+            })
+        except SystemExit as exc:
+            results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
+    ok = all(r.get("ok") for r in results)
+    _json({"kind": "cli_integration_selftest", "version": "28.9.2", "ok": ok, "contracts": results})
+
+
+def cmd_selftest_api(args):
+    from core.api import app
+    required = [
+        "/api/evolution/status",
+        "/api/genome/status",
+        "/api/evolution/factory/status",
+        "/api/evolution-factory/status",
+        "/api/observation/status",
+        "/api/pattern/status",
+        "/api/pattern-recognition/status",
+        "/api/prioritization/status",
+        "/api/priority/status",
+        "/api/proposal-queue/status",
+        "/api/proposal-queue/items",
+        "/api/proposal-queue/enqueue",
+        "/api/proposal-queue/from-factory",
+    ]
+    routes = {getattr(route, "path", "") for route in app.routes}
+    checks = [{"path": path, "ok": path in routes} for path in required]
+    _json({"kind": "api_integration_selftest", "version": "28.9.2", "ok": all(c["ok"] for c in checks), "checks": checks})
+
+
+def cmd_selftest_integration(args):
+    # Non-destructive contract check. It validates parsing and route presence only.
+    parser = build_parser()
+    cli_results = []
+    for contract in _documented_cli_contracts():
+        normalized = _normalize_nested_cli_args(contract["argv"])
+        try:
+            parsed = parser.parse_args(normalized)
+            cli_results.append({"label": contract["label"], "ok": callable(getattr(parsed, "func", None)), "normalized": normalized})
+        except SystemExit as exc:
+            cli_results.append({"label": contract["label"], "ok": False, "normalized": normalized, "error": str(exc)})
+    from core.api import app
+    required_api = [
+        "/api/evolution/status", "/api/genome/status", "/api/evolution-factory/status",
+        "/api/observation/status", "/api/pattern/status", "/api/priority/status",
+        "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
+    ]
+    routes = {getattr(route, "path", "") for route in app.routes}
+    api_results = [{"path": path, "ok": path in routes} for path in required_api]
+    ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
+    _json({"kind": "integration_hardening_selftest", "version": "28.9.2", "ok": ok, "cli": cli_results, "api": api_results})
+
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
 
@@ -1028,6 +1150,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("proposal-queue-status"); p.set_defaults(func=cmd_proposal_queue_status)
     p = sub.add_parser("proposal-queue-list"); p.add_argument("--limit", type=int, default=100); p.add_argument("--status"); p.add_argument("--type"); p.add_argument("--min-priority", type=int); p.add_argument("--query"); p.set_defaults(func=cmd_proposal_queue_list)
+    p = sub.add_parser("proposal-queue-add"); p.add_argument("--type", required=True, choices=["TOOL", "SKILL", "KNOWLEDGE", "WORKFLOW", "CORE", "GUI", "PROMPT", "MEMORY", "PERSONALITY", "LEARNING", "tool", "skill", "knowledge", "workflow", "core", "gui", "prompt", "memory", "personality", "learning"]); p.add_argument("--title", required=True); p.add_argument("--description"); p.add_argument("--priority", default="MEDIUM"); p.add_argument("--source", default="manual_cli"); p.add_argument("--confidence", type=float, default=0.5); p.add_argument("--impact", default="medium"); p.add_argument("--risk", default="medium"); p.set_defaults(func=cmd_proposal_queue_add)
     p = sub.add_parser("proposal-queue-show"); p.add_argument("item_id"); p.set_defaults(func=cmd_proposal_queue_show)
     p = sub.add_parser("proposal-queue-from-factory"); p.add_argument("request"); p.add_argument("--type"); p.add_argument("--source", default="manual"); p.set_defaults(func=cmd_proposal_queue_from_factory)
     p = sub.add_parser("proposal-queue-import-prioritized"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-priority", type=int, default=60); p.add_argument("--save-prioritization", action="store_true"); p.set_defaults(func=cmd_proposal_queue_import_prioritized)
@@ -1205,6 +1328,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("reality-logs"); p.add_argument("--limit", type=int, default=20); p.set_defaults(func=cmd_reality_logs)
     p = sub.add_parser("stability-report"); p.set_defaults(func=cmd_stability_report)
 
+    p = sub.add_parser("selftest-cli"); p.set_defaults(func=cmd_selftest_cli)
+    p = sub.add_parser("selftest-api"); p.set_defaults(func=cmd_selftest_api)
+    p = sub.add_parser("selftest-integration"); p.set_defaults(func=cmd_selftest_integration)
+
     return parser
 
 
@@ -1279,12 +1406,17 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
 
         ("proposal-queue", "status"): "proposal-queue-status",
         ("proposal-queue", "list"): "proposal-queue-list",
+        ("proposal-queue", "add"): "proposal-queue-add",
         ("proposal-queue", "show"): "proposal-queue-show",
         ("proposal-queue", "from-factory"): "proposal-queue-from-factory",
         ("proposal-queue", "import-prioritized"): "proposal-queue-import-prioritized",
         ("proposal-queue", "decide"): "proposal-queue-decide",
         ("proposal-queue", "history"): "proposal-queue-history",
         ("proposal-queue", "stats"): "proposal-queue-stats",
+
+        ("selftest", "cli"): "selftest-cli",
+        ("selftest", "api"): "selftest-api",
+        ("selftest", "integration"): "selftest-integration",
     }
 
     replacement = aliases.get((first, second))

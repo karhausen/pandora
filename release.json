@@ -1,29 +1,36 @@
 {
-  "version": "28.9.1",
-  "name": "Unified Proposal Queue CLI/API Alias Fix",
-  "based_on": "28.9-unified-proposal-queue",
-  "codename": "unified_proposal_queue_cli_api_alias_fix",
-  "description": "Fixes documented MVP 28.x CLI command style and adds compatibility API aliases for Genome, Evolution Factory, Pattern Recognition and Priority endpoints.",
+  "version": "28.9.2",
+  "name": "CLI & API Integration Hardening",
+  "based_on": "28.9.1-cli-api-alias-fix",
+  "codename": "cli_api_integration_hardening",
+  "description": "Hardens the integration between documented Pandora Evolution CLI commands, main.py command routing, and FastAPI route registration. Adds proposal-queue add and integration selftests.",
   "features": [
-    "New core/proposal_queue package",
-    "SQLite-backed unified_proposal_queue.db storage",
-    "Queue status/list/show/decision/history/statistics operations",
-    "Import prioritized candidates through Evolution Factory",
-    "New /api/proposal-queue/* API endpoints",
-    "New proposal-queue-* CLI commands",
-    "New /proposal-queue Maintenance GUI page",
-    "Maintenance Center navigation integration",
-    "Nested CLI compatibility: genome status, evolution status, evolution-factory status, observation status, pattern status, priority status, proposal-queue status",
-    "API compatibility aliases: /api/genome/*, /api/evolution-factory/*, /api/pattern-recognition/*, /api/priority/*"
+    "Adds documented nested CLI command: proposal-queue add",
+    "Keeps flat legacy commands compatible",
+    "Adds CLI contract selftest: python main.py selftest cli",
+    "Adds API route selftest: python main.py selftest api",
+    "Adds combined integration selftest: python main.py selftest integration",
+    "Adds API endpoints /api/integration/status and /api/selftest/api",
+    "Validates documented MVP 28.x CLI aliases for Genome, Evolution Factory, Observation, Pattern, Priority and Proposal Queue",
+    "Proposal Queue add uses Evolution Factory and remains review-only"
   ],
   "safety": [
     "No automatic proposal activation",
     "No direct Core changes",
     "No generated code execution",
-    "Human approval remains mandatory",
-    "Queue decisions only change queue status",
-    "Evolution lifecycle remains separate from activation"
+    "No background autonomy",
+    "Queue add creates review-only EvolutionProposals",
+    "Human approval remains mandatory"
   ],
-  "build_time": "2026-07-02T11:20:00Z",
-  "mvp": "28.9.1"
+  "tests": [
+    "python main.py genome status",
+    "python main.py proposal-queue add --type TOOL --title \"Test Tool Proposal\" --priority MEDIUM",
+    "python main.py proposal-queue list",
+    "python main.py selftest cli",
+    "python main.py selftest api",
+    "python main.py selftest integration",
+    "python -m py_compile main.py core/api.py"
+  ],
+  "build_time": "2026-07-02T11:35:00Z",
+  "mvp": "28.9.2"
 }
