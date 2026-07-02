@@ -25,6 +25,19 @@ def test_text_reverse():
 def test_word_count():
     assert run({"text": "eins zwei drei"})["count"] == 3
 '''
+        if spec.id == "prime_number_calculation" or self._looks_like_prime_tool(spec):
+            return f'''from generated_tools.{spec.id} import run
+
+
+def test_{spec.id}_is_prime():
+    assert run({{"number": 7}})["is_prime"] is True
+    assert run({{"number": 12}})["is_prime"] is False
+
+
+def test_{spec.id}_list_primes():
+    assert run({{"limit": 30}})["primes"] == [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
+'''
+
         if spec.id == "timestamp":
             return '''from generated_tools.timestamp import run
 

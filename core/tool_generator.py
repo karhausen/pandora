@@ -35,6 +35,15 @@ class ToolGenerator:
                 output_schema={"count": "int"},
                 security_level=SecurityLevel.SAFE,
             ),
+            "prime_number_calculation": ToolSpec(
+                id="prime_number_calculation",
+                name="Prime Number Calculation",
+                description="Checks whether an integer is prime and can list primes up to a limit.",
+                capability="prime_number_calculation",
+                input_schema={"number": "int", "limit": "int"},
+                output_schema={"is_prime": "bool", "primes": "list"},
+                security_level=SecurityLevel.SAFE,
+            ),
             "timestamp": ToolSpec(
                 id="timestamp",
                 name="Timestamp",
@@ -114,6 +123,68 @@ def run(payload: dict) -> dict:
     words = [w for w in str(text).split() if w.strip()]
     return {"count": len(words)}
 '''
+        if spec.id == "prime_number_calculation" or self._looks_like_prime_tool(spec):
+            return f'''TOOL_META = {{
+    "id": "{spec.id}",
+    "name": "{spec.name}",
+    "description": "{spec.description}",
+    "version": "0.1.0",
+    "input_schema": {spec.input_schema!r},
+    "output_schema": {spec.output_schema!r},
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.{spec.id}",
+    "function": "run",
+}}
+
+MAX_LIMIT = 1_000_000
+
+def _to_int(value, field_name: str) -> int:
+    try:
+        if isinstance(value, bool):
+            raise ValueError
+        return int(value)
+    except Exception as exc:
+        raise ValueError(f"{{field_name}} must be an integer") from exc
+
+def _is_prime(n: int) -> bool:
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    divisor = 3
+    while divisor * divisor <= n:
+        if n % divisor == 0:
+            return False
+        divisor += 2
+    return True
+
+def _primes_up_to(limit: int) -> list[int]:
+    if limit < 2:
+        return []
+    if limit > MAX_LIMIT:
+        raise ValueError(f"limit must be <= {{MAX_LIMIT}}")
+    return [n for n in range(2, limit + 1) if _is_prime(n)]
+
+def run(payload: dict) -> dict:
+    payload = payload or {{}}
+    has_number = "number" in payload and payload.get("number") is not None
+    has_limit = "limit" in payload and payload.get("limit") is not None
+    if not has_number and not has_limit:
+        raise ValueError("number or limit is required")
+    is_prime = False
+    primes = []
+    if has_number:
+        number = _to_int(payload.get("number"), "number")
+        is_prime = _is_prime(number)
+    if has_limit:
+        limit = _to_int(payload.get("limit"), "limit")
+        primes = _primes_up_to(limit)
+    return {{"is_prime": is_prime, "primes": primes}}
+'''
+
         if spec.id == "timestamp":
             return '''from datetime import datetime, UTC
 

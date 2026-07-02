@@ -54,12 +54,12 @@ class CoordinatorAgent:
 
         self._last_tool_gap = None
         capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
-        if capability_gap.get("gap_detected"):
+        if capability_gap.get("gap_detected") or capability_gap.get("safe_to_execute") is False:
             self._last_tool_gap = capability_gap
             return CoordinatorDecision(
                 route="tool_development",
-                reason=capability_gap.get("reason", "Missing capability detected."),
-                confidence=0.9,
+                reason=capability_gap.get("reason", "Capability gap analysis requires review."),
+                confidence=0.9 if capability_gap.get("gap_detected") else 0.55,
                 task=task,
                 session_id=session_id,
                 provider_name=provider_name,

@@ -10,7 +10,6 @@ class ChatResponseRouter:
         "calculate",
         "csv",
         "datei",
-        "tool",
         "uppercase",
         "gross",
         "groß",
@@ -67,5 +66,9 @@ class ChatResponseRouter:
         if re.search(r"\d+\s*[+\-*/]\s*\d+", text):
             return True
         if any(hint in text for hint in ["rechne", "berechne", "calculate"]):
+            # Do not route meta/tool-creation requests to calculator merely
+            # because they contain a number-related word.
+            if "tool" in text or "werkzeug" in text or "fähigkeit" in text or "faehigkeit" in text:
+                return False
             return bool(re.search(r"\d", text))
         return False

@@ -197,6 +197,19 @@ Rules:
                 "implementation_notes": ["Use a configured market data provider and never hard-code credentials."],
                 "risk_notes": ["Network access required. Financial data can be delayed or unavailable."],
             },
+            "prime_number_calculation": {
+                "name": "Prime Number Calculation",
+                "description": "Checks whether an integer is prime and can return all prime numbers up to a limit.",
+                "input_schema": {"number": "int", "limit": "int"},
+                "output_schema": {"is_prime": "bool", "primes": "list"},
+                "security_level": SecurityLevel.SAFE,
+                "test_cases": [
+                    {"name": "seven_is_prime", "input": {"number": 7}, "expected": {"is_prime": True}},
+                    {"name": "primes_to_30", "input": {"limit": 30}, "expected": {"primes": [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]}},
+                ],
+                "implementation_notes": ["Use deterministic integer arithmetic. Validate negative numbers and upper limits."],
+                "risk_notes": [],
+            },
         }
         base = known.get(tool_id, {})
         if not base:

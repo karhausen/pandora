@@ -17,7 +17,12 @@ class MockLLMClient:
             reason = "Mock capability gate: direct answer possible."
             tool_needed = False
             can_answer = True
-            if any(x in task_l for x in ["rechne", "berechne", "calculate", "2+3"]):
+            if any(x in task_l for x in ["primzahl", "primzahlen", "prim-zahl", "prim-zahlen", "prime number", "prime_numbers"]):
+                capability = "prime_number_calculation"
+                can_answer = False
+                tool_needed = capability not in tool_ids
+                reason = "Mock semantic analyzer: listed tools cannot calculate or validate prime numbers as a dedicated capability."
+            elif any(x in task_l for x in ["rechne", "berechne", "calculate", "2+3"]):
                 existing_tool = "calculator" if "calculator" in tool_ids else None
                 capability = "calculation"
                 can_answer = False
@@ -37,7 +42,7 @@ class MockLLMClient:
                 capability = "word_count"
                 can_answer = False
                 tool_needed = capability not in tool_ids
-                reason = "Mock capability gate: word counting requires a text utility tool."
+                reason = "Mock semantic analyzer: listed tools cannot count words unless word_count is installed."
             data = {
                 "can_answer_directly": can_answer and not tool_needed and existing_tool is None,
                 "needs_tool": bool(tool_needed or existing_tool),

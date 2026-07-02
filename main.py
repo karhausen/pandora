@@ -107,6 +107,7 @@ from core.proposal_evolution import ProposalEvolutionManager
 from core.adaptive_goals import AdaptiveGoalManager
 from core.knowledge_evolution import KnowledgeEvolutionManager
 from core.tool_evolution import ToolEvolutionManager
+from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -231,6 +232,7 @@ def cmd_approval_audit(args): _json(ProposalApprovalWorkflow().audit(limit=args.
 
 def cmd_capability_gap_status(args): _json(CapabilityGapPipeline().status())
 def cmd_capability_gap_run(args): _json(CapabilityGapPipeline().run_once(limit=args.limit, min_signals=args.min_signals, force=args.force, dry_run=args.dry_run))
+def cmd_capability_gap_analyze(args): _json(LLMCapabilityGapAnalyzer().analyze(args.task, provider_name=args.provider, model=args.model, timeout=args.timeout))
 
 def cmd_tool_improvement_status(args): _json(ToolImprovementPipeline().status())
 def cmd_tool_improvement_run(args): _json(ToolImprovementPipeline().run_once(limit=args.limit, min_executions=args.min_executions, max_success_rate=args.max_success_rate, min_failures=args.min_failures, force=args.force, dry_run=args.dry_run))
@@ -1354,6 +1356,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("approval-audit"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_approval_audit)
     p = sub.add_parser("capability-gap-status"); p.set_defaults(func=cmd_capability_gap_status)
     p = sub.add_parser("capability-gap-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-signals", type=int, default=1); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_capability_gap_run)
+    p = sub.add_parser("capability-gap-analyze"); p.add_argument("task"); p.add_argument("--provider"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=10.0); p.set_defaults(func=cmd_capability_gap_analyze)
     p = sub.add_parser("tool-improvement-status"); p.set_defaults(func=cmd_tool_improvement_status)
     p = sub.add_parser("tool-improvement-run"); p.add_argument("--limit", type=int, default=200); p.add_argument("--min-executions", type=int, default=3); p.add_argument("--max-success-rate", type=float, default=0.70); p.add_argument("--min-failures", type=int, default=2); p.add_argument("--force", action="store_true"); p.add_argument("--dry-run", action="store_true"); p.set_defaults(func=cmd_tool_improvement_run)
 
@@ -1530,6 +1533,10 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("evolution-factory", "create"): "evolution-factory-create",
         ("evolution-factory", "batch-preview"): "evolution-factory-batch-preview",
         ("evolution-factory", "migration-plan"): "evolution-factory-migration-plan",
+
+        ("capability-gap", "status"): "capability-gap-status",
+        ("capability-gap", "run"): "capability-gap-run",
+        ("capability-gap", "analyze"): "capability-gap-analyze",
 
         ("observation", "status"): "observation-status",
         ("observation", "health"): "observation-health",

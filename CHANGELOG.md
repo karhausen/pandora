@@ -1,3 +1,12 @@
+# MVP 29.4.1 – LLM Capability Gap Analyzer
+
+- Added semantic LLM-first capability gap analysis against Pandora's current tool/skill/knowledge state.
+- Removed keyword/pattern fallback as the primary capability-gap decision path.
+- Prevented unsafe fallback to calculator for requests such as “Ich brauche ein Tool, das Prim-Zahlen berechnet.”
+- Added `python main.py capability-gap analyze <task>` and `POST /api/capability-gap/analyze`.
+- Added prime-number proposal validation path with deterministic SAFE generated code/tests.
+- Maintains controlled evolution: recommendations/proposals only, no automatic activation.
+
 
 
 ## MVP 29.3 – Knowledge Evolution

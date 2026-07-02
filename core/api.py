@@ -12,6 +12,7 @@ from .capability_workflow import CapabilityWorkflow
 from .tool_proposal_manager import ToolProposalManager
 from .tool_review_agent import ToolReviewAgent
 from .tool_development_agent import ToolDevelopmentAgent
+from .capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from .tool_design_agent import ToolDesignAgent
 from .tool_activation_manager import ToolActivationManager
 from .heartbeat import Heartbeat
@@ -1757,6 +1758,16 @@ def agent_last():
 @app.post("/tool-proposals/from-task")
 def tool_proposal_from_task(req: ToolProposalTaskRequest):
     return ToolProposalManager().propose_from_task(req.task, analysis=req.analysis)
+
+
+@app.post("/api/capability-gap/analyze")
+def capability_gap_analyze(req: ToolDevelopmentRequest):
+    return LLMCapabilityGapAnalyzer().analyze(
+        req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
+    )
 
 
 @app.post("/tool-development/analyze")
