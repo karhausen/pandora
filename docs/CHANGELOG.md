@@ -1,3 +1,14 @@
+# Pandora Changelog
+
+## MVP 28.2 – User GUI Simplification
+
+- User-Seite auf den Kern reduziert: Chat, Session-Auswahl, Routing-Status und genau ein Maintenance-Button.
+- Neuer zentraler Maintenance-Einstieg unter `/maintenance` für Operations, Entscheidungen, Wissen, Obsidian, Capabilities, Profile, Cognitive Dashboard und Learning.
+- Neue read-only Service-Schicht `core/user_gui_simplification.py` mit überprüfbarem Navigationsvertrag.
+- Neue API `/api/gui/user-simplification/status` zur GUI-Strukturprüfung.
+- Technische Details bleiben einklappbar und stören die normale Chat-Nutzung nicht.
+- Keine Tool-Ausführung, keine Approval-Änderung und keine Config-Schreiboperation durch die neue Schicht.
+
 # Changelog
 
 ## MVP 28.1 – Personality Layer & Prompt Architecture

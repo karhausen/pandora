@@ -424,3 +424,57 @@ pre {
   color: var(--muted);
   margin-top: 3px;
 }
+
+/* MVP 28.2 – User GUI Simplification */
+.simplified-user-gui .simple-hero {
+  background: rgba(17, 24, 39, 0.52);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 22px;
+}
+.eyebrow {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 12px;
+}
+.maintenance-button {
+  color: white;
+  text-decoration: none;
+  background: var(--accent);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.chat-focus textarea {
+  min-height: 150px;
+}
+.session-bar.compact {
+  margin: 0 0 12px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+.routing-summary {
+  grid-template-columns: 1fr;
+  background: #020617;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+.routing-summary .label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.primary-actions button {
+  min-width: 120px;
+}
+@media (max-width: 650px) {
+  .simple-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

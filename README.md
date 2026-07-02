@@ -1,5 +1,19 @@
 # Pandora Agent
 
+## MVP 28.2 – User GUI Simplification
+
+MVP 28.2 vereinfacht die User-GUI konsequent: Die Startseite ist wieder eine klare Chat-Seite. Alle Verwaltungs-, Wartungs- und Diagnosebereiche liegen hinter genau einem Button: **Maintenance**.
+
+Neue Kernpunkte:
+
+- Chat-first Startseite unter `/`
+- ein einziger Maintenance-Einstieg unter `/maintenance`
+- Maintenance-Übersicht für Operations, Decision Inbox, Action Inbox, Knowledge, Obsidian, Capabilities, LLM Profiles, Cognitive Dashboard und Learning
+- read-only Navigationsvertrag in `core/user_gui_simplification.py`
+- API-Status unter `/api/gui/user-simplification/status`
+- keine neuen Seiteneffekte: keine Tool-Ausführung, keine Proposal-Freigabe, keine Config-Schreiboperation
+
+
 ## MVP 28.1 – Cognitive Identity & Self Model
 
 Pandora besitzt jetzt ein explizites, auslesbares Selbstmodell. Die neue Schicht beschreibt Name, Mission, Fähigkeiten, Grenzen, bekannte Schwächen und sichere Betriebsregeln. Sie ist bewusst read-only: keine Tool-Ausführung, keine Aktivierung, keine Obsidian-Schreiboperationen und keine Core-Änderungen.

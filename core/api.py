@@ -23,6 +23,7 @@ from .coordinator_agent import CoordinatorAgent
 from .conversation_memory import ConversationMemory
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
+from .user_gui_simplification import UserGuiSimplificationService
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -121,7 +122,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.1-personality-layer")
+app = FastAPI(title="Pandora Agent", version="28.2-user-gui-simplification")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -1922,6 +1923,23 @@ def api_workflow_dashboard_workflows(state: str | None = None, query: str | None
 def api_workflow_dashboard_detail(workflow_id: str):
     return WorkflowDashboardService().show(workflow_id)
 
+
+@app.get("/api/gui/user-simplification/status")
+def api_gui_user_simplification_status():
+    return UserGuiSimplificationService().status()
+
+@app.get("/maintenance")
+def web_maintenance():
+    return FileResponse(WEB_DIR / "maintenance.html")
+
+@app.get("/web/maintenance.js")
+def web_maintenance_js():
+    return FileResponse(WEB_DIR / "maintenance.js")
+
+@app.get("/web/maintenance.css")
+def web_maintenance_css():
+    return FileResponse(WEB_DIR / "maintenance.css")
+
 @app.get("/api/release/status")
 def api_release_status(root: str = "."):
     return ReleaseManager(root).status()
@@ -1933,7 +1951,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/cognitive-dashboard"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/cognitive-dashboard", "/maintenance"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 

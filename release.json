@@ -1,28 +1,23 @@
 {
-  "version": "28.0",
-  "name": "MVP 28.0 – Cognitive Identity & Self Model",
-  "based_on": "27.8-action-proposal-handoff",
-  "codename": "cognitive_identity_self_model",
-  "description": "Adds a read-only identity and self-model layer so Pandora can clearly report what it is, what it can do, what it must not do, known weaknesses and safe operating boundaries.",
+  "version": "28.2",
+  "name": "MVP 28.2 – User GUI Simplification",
+  "based_on": "28.1-personality-layer",
+  "codename": "user_gui_simplification",
+  "description": "Simplifies the user-facing GUI to a chat-first surface with one controlled maintenance entry point.",
   "features": [
-    "Neue core/cognitive_identity.py",
-    "Identity Card mit Mission, Systemtyp, Selbstbild und Nicht-Selbstbild",
-    "Capability Boundaries mit Stop-/Approval-Regeln und Truthfulness Rules",
-    "Self Model bündelt Identity, Capability Snapshot, kognitive Schnittstellen und Safe Operating Statement",
-    "CLI: cognitive-identity-status, cognitive-identity-card, cognitive-boundaries, cognitive-self-model",
-    "API: /api/cognitive/identity/status, /card, /boundaries und /self-model",
-    "Doku docs/cognitive_identity.md",
-    "Regressionstests für read-only Verhalten und Approval-Grenzen"
+    "User page reduced to chat, sessions, routing status and one Maintenance button",
+    "New /maintenance page as structured entry point for administration and diagnostics",
+    "New core/user_gui_simplification.py read-only navigation contract",
+    "New API /api/gui/user-simplification/status",
+    "Technical details remain available but collapsed",
+    "Documentation and regression tests for the simplified GUI boundary"
   ],
   "safety": [
-    "Keine Code-Generierung",
-    "Keine Tool-Ausführung",
-    "Keine Tool-Aktivierung",
-    "Keine Vault-/Knowledge-Schreiboperation",
-    "Keine Memory-Schreiboperation",
-    "Keine Core-Änderung",
-    "Keine automatische Proposal-Freigabe",
-    "Nur erklärendes Selbstmodell und Preview-Assessment"
+    "No tool execution from simplification service",
+    "No proposal approval side effects",
+    "No configuration writes",
+    "No memory writes",
+    "No automatic routing changes"
   ],
   "build_time": "2026-07-02T00:00:00Z"
 }

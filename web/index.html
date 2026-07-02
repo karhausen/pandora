@@ -3,111 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandora User GUI</title>
+  <title>Pandora Chat</title>
   <link rel="stylesheet" href="/web/user.css" />
   <link rel="stylesheet" href="/web/shared.css" />
 </head>
 <body>
-  <main class="app">
-    <header class="hero">
+  <main class="app simplified-user-gui">
+    <header class="hero simple-hero">
       <div>
+        <span class="eyebrow">Pandora User GUI</span>
         <h1>Pandora</h1>
-        <p>Dein lokaler KI-Agent – Chat, Wissen, Fähigkeiten und Wartung mit klarer Struktur.</p>
-        <nav class="global-nav" aria-label="Hauptnavigation">
-          <a class="badge link primary" href="/">Chat</a>
-          <a class="badge link" href="/action-inbox">Action Inbox</a>
-          <a class="badge link" href="/knowledge-base">Knowledge</a>
-          <a class="badge link" href="/capability-explorer">Capabilities</a>
-          <a class="badge link" href="/workflow-dashboard">Workflows</a>
-          <a class="badge link" href="/operations-cockpit">Operations</a>
-          <a class="badge link" href="/decision-inbox">Decision Inbox</a>
-          <a class="badge link" href="/llm-profiles">Profiles</a>
-          <a class="badge link" href="/learning">Learning</a>
-        </nav>
+        <p>Einfacher Chat. Klare Antwort. Wartung nur über einen separaten Bereich.</p>
       </div>
+      <a class="maintenance-button" href="/maintenance" aria-label="Maintenance Bereich öffnen">Maintenance</a>
     </header>
 
-    <h2 class="page-section-title">Arbeitsbereiche</h2>
-    <section class="section-grid" aria-label="Pandora Arbeitsbereiche">
-      <a class="nav-card state-highlight" href="/action-inbox"><strong>Action Inbox</strong><span>Zentrale Arbeitsliste für offene, fehlerhafte und erledigte Pandora-Aktionen.</span></a>
-      <a class="nav-card" href="/knowledge-base"><strong>Knowledge</strong><span>Wissen suchen, verwalten und mit dem Editor pflegen.</span></a>
-      <a class="nav-card" href="/obsidian-vault"><strong>Obsidian Vault</strong><span>Vault indexieren, durchsuchen und Pandora_Inbox prüfen.</span></a>
-      <a class="nav-card" href="/obsidian-import-review"><strong>Obsidian Import Review</strong><span>Vault-Notizen prüfen und kontrolliert in die Knowledge Base übernehmen.</span></a>
-      <a class="nav-card" href="/capability-explorer"><strong>Capabilities</strong><span>Tools, Skills, Approval und Fähigkeitsgraph prüfen.</span></a>
-      <a class="nav-card" href="/workflow-dashboard"><strong>Workflows</strong><span>Aktive, blockierte und abgeschlossene Workflow-Ketten zentral prüfen.</span></a>
-      <a class="nav-card" href="/operations"><strong>Operations</strong><span>Status, Maintenance, Night Mode und Reports steuern.</span></a>
-      <a class="nav-card" href="/decision-inbox"><strong>Decision Inbox</strong><span>Zentrale Entscheidungen prüfen: Vorschlag ausarbeiten, ablehnen oder sicher fortfahren.</span></a>
-      <a class="nav-card" href="/night-review"><strong>Night Review</strong><span>Nachtauswertung starten und Empfehlungen für die Action Inbox erzeugen.</span></a>
-      <a class="nav-card" href="/review-scheduler"><strong>Review Scheduler</strong><span>Night Review planen, manuell starten und Scheduler-Historie prüfen.</span></a>
-      <a class="nav-card" href="/llm-profiles"><strong>Profiles</strong><span>LLM-Profile, Providerstatus und Routing-Regeln verwalten.</span></a>
-      <a class="nav-card" href="/learning"><strong>Learning</strong><span>Observe-only Lernmetriken aus Inbox, Reviews und Workflows.</span></a>
-    </section>
+    <section class="composer chat-focus" aria-label="Pandora Chat Eingabe">
+      <div class="session-bar compact" id="sessionBar">
+        <button onclick="newSession()">Neue Unterhaltung</button>
+        <select id="sessionSelect" onchange="switchSession()" aria-label="Unterhaltung auswählen"></select>
+      </div>
 
-    <h2 class="page-section-title">Chat</h2>
+      <textarea id="taskInput" placeholder="Was soll Pandora tun?"></textarea>
 
-    <section class="session-bar" id="sessionBar"><button onclick="newSession()">Neue Unterhaltung</button><select id="sessionSelect" onchange="switchSession()"></select></section>
+      <div class="provider-row routing-summary" id="routingSummary">
+        <div>
+          <span class="label">Chat-Route</span>
+          <strong id="activeChatProvider">Lade Routing ...</strong>
+          <small id="activeChatModel">Modell wird geladen</small>
+        </div>
+      </div>
 
-    <section class="composer">
-      <textarea id="taskInput" placeholder="Was soll Pandora tun?">Bitte rechne 2+3*4</textarea>
-      
-<div class="provider-row routing-summary" id="routingSummary">
-  <div>
-    <span class="label">Chat-Route</span>
-    <strong id="activeChatProvider">Lade Routing ...</strong>
-    <small id="activeChatModel">Modell wird geladen</small>
-  </div>
-  <a class="badge link" href="/llm-profiles">Routing ändern</a>
-</div>
-
-<div class="actions">
-        <button id="runButton" onclick="runPandora()">Ausführen</button>
+      <div class="actions primary-actions">
+        <button id="runButton" onclick="runPandora()">Senden</button>
         <span id="statusText">Bereit</span>
       </div>
     </section>
 
-    <section id="chat" class="chat"></section>
+    <section id="chat" class="chat" aria-label="Pandora Chat Verlauf"></section>
 
-<section id="toolWorkflow" class="tool-workflow hidden">
-  <div class="workflow-header">
-    <div>
-      <h2>Tool Factory Workflow</h2>
-      <p>Review → Approve → Install → Test</p>
-    </div>
-    <button type="button" onclick="loadProposals()">Aktualisieren</button>
-  </div>
-
-  <div id="proposalHint" class="workflow-hint">Noch kein Tool-Vorschlag ausgewählt.</div>
-
-  <div class="workflow-grid">
-    <aside class="proposal-list" id="proposalList"></aside>
-    <section class="proposal-detail">
-      <div id="proposalSummary" class="proposal-summary">Wähle links einen Proposal aus.</div>
-      <div class="workflow-actions">
-        <button type="button" id="approveButton" onclick="approveSelectedProposal()" disabled>Approve</button>
-        <button type="button" id="installButton" onclick="installSelectedProposal()" disabled>Install</button>
-        <button type="button" id="rejectButton" onclick="rejectSelectedProposal()" disabled>Reject</button>
+    <section id="toolWorkflow" class="tool-workflow hidden" aria-label="Tool Vorschlag">
+      <div class="workflow-header">
+        <div>
+          <h2>Tool-Vorschlag erkannt</h2>
+          <p>Details und Freigabe liegen im Maintenance-Bereich.</p>
+        </div>
+        <a class="badge link" href="/maintenance">Maintenance öffnen</a>
       </div>
-      <pre id="proposalBox">{}</pre>
+      <div id="proposalHint" class="workflow-hint">Noch kein Tool-Vorschlag ausgewählt.</div>
+      <div class="workflow-grid hidden">
+        <aside class="proposal-list" id="proposalList"></aside>
+        <section class="proposal-detail">
+          <div id="proposalSummary" class="proposal-summary"></div>
+          <div class="workflow-actions">
+            <button type="button" id="approveButton" onclick="approveSelectedProposal()" disabled>Approve</button>
+            <button type="button" id="installButton" onclick="installSelectedProposal()" disabled>Install</button>
+            <button type="button" id="rejectButton" onclick="rejectSelectedProposal()" disabled>Reject</button>
+          </div>
+          <pre id="proposalBox">{}</pre>
+        </section>
+      </div>
     </section>
-  </div>
-</section>
 
-<section id="details" class="details hidden">
-  <details open>
-    <summary>Coordinator anzeigen</summary>
-    <pre id="decisionBox">{}</pre>
-  </details>
-  <details>
-    <summary>Plan anzeigen</summary>
-    <pre id="planBox">{}</pre>
-  </details>
-  <details>
-    <summary>Ausführung anzeigen</summary>
-    <pre id="executionBox">{}</pre>
-  </details>
-</section>
+    <section id="details" class="details hidden" aria-label="Technische Details">
+      <details>
+        <summary>Technische Details anzeigen</summary>
+        <h3>Coordinator</h3>
+        <pre id="decisionBox">{}</pre>
+        <h3>Plan</h3>
+        <pre id="planBox">{}</pre>
+        <h3>Ausführung</h3>
+        <pre id="executionBox">{}</pre>
+      </details>
+    </section>
   </main>
 
-  <script src="/web/user.js?v=25.1.1"></script>
+  <script src="/web/user.js?v=28.2"></script>
 </body>
 </html>
