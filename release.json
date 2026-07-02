@@ -1,24 +1,27 @@
 {
-  "version": "28.3",
-  "name": "MVP 28.3 – Maintenance Center Restructure",
-  "based_on": "28.2-user-gui-simplification",
-  "codename": "maintenance_center_restructure",
-  "description": "Restructures the Maintenance Center into a grouped, safer and more intuitive administration surface while preserving the chat-first user GUI.",
+  "version": "28.4",
+  "name": "MVP 28.4 – Pandora Genome & Unified Evolution Model",
+  "based_on": "28.3-maintenance-center-restructure",
+  "codename": "pandora_genome_unified_evolution_model",
+  "description": "Introduces Pandora Genome as a static single source of truth and unifies future improvement work around the EvolutionProposal model and one controlled lifecycle.",
   "features": [
-    "New read-only MaintenanceCenterService as central maintenance information architecture",
-    "Grouped /maintenance page for overview, decisions, knowledge, capabilities, configuration and learning/review",
-    "Risk labels for read-only, approval, controlled write, activation, configuration and manual run areas",
-    "New API /api/gui/maintenance-center/status",
-    "New API /api/gui/maintenance-center/navigation-contract",
-    "New CLI commands maintenance-center-status and maintenance-center-contract",
-    "User GUI remains chat-first with exactly one Maintenance entry point"
+    "New core/genome package",
+    "Initial static config/system/pandora_genome.json",
+    "Unified EvolutionProposal model for all future proposal types",
+    "Single controlled evolution lifecycle",
+    "Genome validation and hard evolution rules",
+    "Read-only migration preview for existing proposal systems",
+    "New /api/evolution/* API endpoints",
+    "New evolution-* CLI commands",
+    "New /evolution Maintenance page"
   ],
   "safety": [
-    "No automatic maintenance execution",
-    "No proposal decisions",
-    "No tool or skill activation",
-    "No configuration writes",
-    "Human approval remains required for risk actions"
+    "No automatic proposal activation",
+    "No runtime mutation of the Genome",
+    "No direct Core changes",
+    "No automatic Identity or Personality changes",
+    "Human approval remains mandatory",
+    "Python validates LLM recommendations before any action"
   ],
   "build_time": "2026-07-02T00:00:00Z"
 }

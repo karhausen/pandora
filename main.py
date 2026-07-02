@@ -97,6 +97,7 @@ from core.unified_action_inbox import UnifiedActionInboxService
 from core.action_workflow import ActionWorkflowService
 from core.workflow_dashboard import WorkflowDashboardService
 from core.maintenance_center import MaintenanceCenterService
+from core.genome import EvolutionService
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -643,6 +644,15 @@ def cmd_maintenance_center_status(args): _json(MaintenanceCenterService().status
 
 def cmd_maintenance_center_contract(args): _json(MaintenanceCenterService().navigation_contract())
 
+def cmd_evolution_status(args): _json(EvolutionService().status())
+def cmd_evolution_genome(args): _json(EvolutionService().genome())
+def cmd_evolution_validate(args): _json(EvolutionService().validate_genome())
+def cmd_evolution_lifecycle(args): _json(EvolutionService().lifecycle())
+def cmd_evolution_types(args): _json(EvolutionService().types())
+def cmd_evolution_rules(args): _json(EvolutionService().rules())
+def cmd_evolution_migration_preview(args): _json(EvolutionService().migration_preview())
+def cmd_evolution_normalize_proposal(args): _json(EvolutionService().normalize_proposal(_payload(args)))
+
 def cmd_personality_status(args): _json(PersonalityLayerService().status())
 
 def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
@@ -849,6 +859,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = sub.add_parser("maintenance-center-status"); p.set_defaults(func=cmd_maintenance_center_status)
     p = sub.add_parser("maintenance-center-contract"); p.set_defaults(func=cmd_maintenance_center_contract)
+    p = sub.add_parser("evolution-status"); p.set_defaults(func=cmd_evolution_status)
+    p = sub.add_parser("evolution-genome"); p.set_defaults(func=cmd_evolution_genome)
+    p = sub.add_parser("evolution-validate"); p.set_defaults(func=cmd_evolution_validate)
+    p = sub.add_parser("evolution-lifecycle"); p.set_defaults(func=cmd_evolution_lifecycle)
+    p = sub.add_parser("evolution-types"); p.set_defaults(func=cmd_evolution_types)
+    p = sub.add_parser("evolution-rules"); p.set_defaults(func=cmd_evolution_rules)
+    p = sub.add_parser("evolution-migration-preview"); p.set_defaults(func=cmd_evolution_migration_preview)
+    p = sub.add_parser("evolution-normalize-proposal"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_evolution_normalize_proposal)
 
     p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
     p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)

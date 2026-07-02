@@ -1,5 +1,18 @@
 # Pandora Changelog
 
+## MVP 28.4 – Pandora Genome & Unified Evolution Model
+
+- Added `core/genome/` package with Genome, Loader, Validator, Rules, Lifecycle, Proposal Model and Evolution Service.
+- Added `config/system/pandora_genome.json` as initial static Pandora Genome.
+- Added unified `EvolutionProposal` model for tool, skill, knowledge, workflow, core, GUI, prompt, memory, personality and learning proposals.
+- Added the single lifecycle Draft → Analysis → Recommendation → Proposal → Review → Tests → Approval → Activation → Learning → Archived.
+- Added hard genome rules: no direct core write, no automatic identity/personality mutation, no runtime genome mutation and no LLM activation.
+- Added API endpoints under `/api/evolution/*`.
+- Added CLI commands `evolution-status`, `evolution-genome`, `evolution-validate`, `evolution-lifecycle`, `evolution-types`, `evolution-rules`, `evolution-migration-preview` and `evolution-normalize-proposal`.
+- Added `/evolution` Maintenance page and linked it from the Maintenance Center.
+- Added read-only migration preview for existing proposal systems.
+
+
 ## MVP 28.3 – Maintenance Center Restructure
 
 - Neuer `MaintenanceCenterService` als zentrale, read-only Informationsarchitektur für den Maintenance-Bereich.

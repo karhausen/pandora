@@ -1,5 +1,50 @@
 # Pandora Agent
 
+## MVP 28.4 – Pandora Genome & Unified Evolution Model
+
+MVP 28.4 startet die Evolution Architecture. Pandora erhält ein zentrales **Genome** als Single Source of Truth für Identität, Persönlichkeit, Fähigkeiten, Ziele, Regeln, Grenzen, Sicherheit und Learning-Grundsätze.
+
+Neue Kernpunkte:
+
+- neues Paket `core/genome/`
+- statisches Genome unter `config/system/pandora_genome.json`
+- einheitliches Modell `EvolutionProposal` für Tool, Skill, Knowledge, Workflow, Core, GUI, Prompt, Memory, Personality und Learning
+- einheitlicher Lifecycle: Draft → Analysis → Recommendation → Proposal → Review → Tests → Approval → Activation → Learning → Archived
+- harte Genome-Regeln: LLM empfiehlt, Python validiert, Benutzer entscheidet
+- read-only Migration Preview für bisherige Proposal-Typen
+- neuer Maintenance-Bereich `/evolution`
+
+Neue Befehle:
+
+```bash
+python main.py evolution-status
+python main.py evolution-genome
+python main.py evolution-validate
+python main.py evolution-lifecycle
+python main.py evolution-types
+python main.py evolution-rules
+python main.py evolution-migration-preview
+python main.py evolution-normalize-proposal --json '{"type":"tool","title":"Demo","description":"Demo proposal"}'
+```
+
+Neue API-Endpunkte:
+
+```text
+GET  /api/evolution/status
+GET  /api/evolution/genome
+GET  /api/evolution/genome/validate
+GET  /api/evolution/lifecycle
+GET  /api/evolution/types
+GET  /api/evolution/rules
+GET  /api/evolution/migration-preview
+POST /api/evolution/proposals/normalize
+```
+
+Sicherheitsgrenze: MVP 28.4 aktiviert keine Vorschläge, schreibt keine Runtime-Daten in das Genome und verändert keinen Core automatisch. Es schafft das gemeinsame Modell und die Regeln für die kommenden Schritte.
+
+---
+
+
 ## MVP 28.3 – Maintenance Center Restructure
 
 MVP 28.3 strukturiert den Maintenance-Bereich neu. Die User-Seite bleibt einfach: Chat zuerst, ein einziger Button zu **Maintenance**. Hinter `/maintenance` liegt jetzt ein geordnetes Center mit klaren Gruppen statt einer losen Link-Sammlung.

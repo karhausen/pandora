@@ -25,6 +25,7 @@ from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .user_gui_simplification import UserGuiSimplificationService
 from .maintenance_center import MaintenanceCenterService
+from .genome import EvolutionService
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -2792,3 +2793,59 @@ def operations_health_js():
 @app.get("/web/operations-health.css")
 def operations_health_css():
     return FileResponse(WEB_DIR / "operations-health.css")
+
+
+# MVP 28.4 – Pandora Genome & Unified Evolution Model
+@app.get("/api/evolution/status")
+def api_evolution_status():
+    return EvolutionService().status()
+
+
+@app.get("/api/evolution/genome")
+def api_evolution_genome():
+    return EvolutionService().genome()
+
+
+@app.get("/api/evolution/genome/validate")
+def api_evolution_genome_validate():
+    return EvolutionService().validate_genome()
+
+
+@app.get("/api/evolution/lifecycle")
+def api_evolution_lifecycle():
+    return EvolutionService().lifecycle()
+
+
+@app.get("/api/evolution/types")
+def api_evolution_types():
+    return EvolutionService().types()
+
+
+@app.get("/api/evolution/rules")
+def api_evolution_rules():
+    return EvolutionService().rules()
+
+
+@app.get("/api/evolution/migration-preview")
+def api_evolution_migration_preview():
+    return EvolutionService().migration_preview()
+
+
+@app.post("/api/evolution/proposals/normalize")
+def api_evolution_normalize_proposal(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().normalize_proposal(payload)
+
+
+@app.get("/evolution")
+def web_evolution():
+    return FileResponse(WEB_DIR / "evolution.html")
+
+
+@app.get("/web/evolution.js")
+def web_evolution_js():
+    return FileResponse(WEB_DIR / "evolution.js")
+
+
+@app.get("/web/evolution.css")
+def web_evolution_css():
+    return FileResponse(WEB_DIR / "evolution.css")

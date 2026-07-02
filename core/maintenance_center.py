@@ -52,8 +52,8 @@ class MaintenanceCenterService:
     the Maintenance GUI so future pages can depend on one stable source.
     """
 
-    version = "28.3"
-    codename = "maintenance_center_restructure"
+    version = "28.4"
+    codename = "maintenance_center_restructure_with_evolution"
 
     def groups(self) -> list[MaintenanceGroup]:
         return [
@@ -63,6 +63,7 @@ class MaintenanceCenterService:
             MaintenanceGroup("capabilities", "Fähigkeiten", "Tools, Skills, Capabilities und deren Lebenszyklus.", "capability_care", 40),
             MaintenanceGroup("configuration", "Konfiguration", "Profile, Modelle, Routing und kognitive Kommunikationsschichten.", "setup", 50),
             MaintenanceGroup("learning", "Lernen & Review", "Reviews, Scheduler, Learning-Metriken und Verbesserungsrückläufe.", "continuous_improvement", 60),
+            MaintenanceGroup("evolution", "Evolution", "Genome, Unified Proposal Model, Lifecycle und Evolutionsregeln.", "controlled_evolution", 70),
         ]
 
     def links(self) -> list[MaintenanceLink]:
@@ -86,6 +87,7 @@ class MaintenanceCenterService:
             MaintenanceLink("Review Scheduler", "/review-scheduler", "Geplante Review-Läufe prüfen und manuell anstoßen.", "learning", 20, risk="controlled_run"),
             MaintenanceLink("Workflow Dashboard", "/workflow-dashboard", "Review-to-Action-Workflows und Status verfolgen.", "learning", 30),
             MaintenanceLink("Learning", "/learning", "Learning-Metriken, Muster und Erkenntnisse beobachten.", "learning", 40),
+            MaintenanceLink("Evolution", "/evolution", "Pandora Genome, Unified Evolution Model, Lifecycle und Regeln prüfen.", "evolution", 10, badge="Neu"),
         ]
 
     def grouped_sections(self) -> list[dict[str, Any]]:
