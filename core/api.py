@@ -24,6 +24,7 @@ from .conversation_memory import ConversationMemory
 from .user_response import UserResponseFormatter
 from .chat_service import ChatService
 from .user_gui_simplification import UserGuiSimplificationService
+from .maintenance_center import MaintenanceCenterService
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -1928,6 +1929,14 @@ def api_workflow_dashboard_detail(workflow_id: str):
 def api_gui_user_simplification_status():
     return UserGuiSimplificationService().status()
 
+@app.get("/api/gui/maintenance-center/status")
+def api_gui_maintenance_center_status():
+    return MaintenanceCenterService().status()
+
+@app.get("/api/gui/maintenance-center/navigation-contract")
+def api_gui_maintenance_center_navigation_contract():
+    return MaintenanceCenterService().navigation_contract()
+
 @app.get("/maintenance")
 def web_maintenance():
     return FileResponse(WEB_DIR / "maintenance.html")
@@ -1951,7 +1960,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/cognitive-dashboard", "/maintenance"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 

@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from .maintenance_center import MaintenanceCenterService
+
 
 @dataclass(frozen=True)
 class UserGuiNavigationItem:
@@ -28,7 +30,7 @@ class UserGuiSimplificationService:
     the user page exposes only chat plus one maintenance entry point.
     """
 
-    version = "28.2"
+    version = "28.3"
     codename = "user_gui_simplification"
 
     def user_entry_points(self) -> list[UserGuiNavigationItem]:
@@ -48,17 +50,17 @@ class UserGuiSimplificationService:
         ]
 
     def maintenance_sections(self) -> list[UserGuiNavigationItem]:
-        return [
-            UserGuiNavigationItem("Operations Cockpit", "/operations-cockpit", "Health, issues, scheduler and night review overview."),
-            UserGuiNavigationItem("Decision Inbox", "/decision-inbox", "Open decisions and proposal handoffs."),
-            UserGuiNavigationItem("Action Inbox", "/action-inbox", "Action workflow list and follow-up queue."),
-            UserGuiNavigationItem("Knowledge", "/knowledge-base", "Knowledge Base, editor and governance entry."),
-            UserGuiNavigationItem("Obsidian", "/obsidian-vault", "Vault status, search and import review."),
-            UserGuiNavigationItem("Capabilities", "/capability-explorer", "Capabilities, tools, skills and approval views."),
-            UserGuiNavigationItem("LLM Profiles", "/llm-profiles", "Provider, model and routing configuration."),
-            UserGuiNavigationItem("Cognitive Dashboard", "/cognitive-dashboard", "Cognitive status, identity and prompt/personality layer."),
-            UserGuiNavigationItem("Learning", "/learning", "Observe-only learning metrics and insights."),
-        ]
+        sections: list[UserGuiNavigationItem] = []
+        for group in MaintenanceCenterService().grouped_sections():
+            first_link = group.get("links", [{}])[0] if group.get("links") else {}
+            sections.append(
+                UserGuiNavigationItem(
+                    label=str(group.get("title", "Maintenance")),
+                    href=str(first_link.get("href", "/maintenance")),
+                    purpose=str(group.get("description", "Structured maintenance area.")),
+                )
+            )
+        return sections
 
     def status(self) -> dict[str, Any]:
         user_entry_points = [item.as_dict() for item in self.user_entry_points()]
@@ -73,6 +75,7 @@ class UserGuiSimplificationService:
             "maintenance_entry_point_count": 1,
             "user_entry_points": user_entry_points,
             "maintenance_sections": maintenance_sections,
+            "maintenance_center": MaintenanceCenterService().status(),
             "safety": {
                 "read_only": True,
                 "no_tool_execution": True,

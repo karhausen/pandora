@@ -96,6 +96,7 @@ from core.obsidian_import_execution import ObsidianImportExecutionService
 from core.unified_action_inbox import UnifiedActionInboxService
 from core.action_workflow import ActionWorkflowService
 from core.workflow_dashboard import WorkflowDashboardService
+from core.maintenance_center import MaintenanceCenterService
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -638,6 +639,10 @@ def cmd_cognitive_boundaries(args): _json(CognitiveIdentityService().capability_
 
 
 
+def cmd_maintenance_center_status(args): _json(MaintenanceCenterService().status())
+
+def cmd_maintenance_center_contract(args): _json(MaintenanceCenterService().navigation_contract())
+
 def cmd_personality_status(args): _json(PersonalityLayerService().status())
 
 def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
@@ -841,6 +846,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-identity-card"); p.set_defaults(func=cmd_cognitive_identity_card)
     p = sub.add_parser("cognitive-self-model"); p.add_argument("request", nargs="?"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_self_model)
     p = sub.add_parser("cognitive-boundaries"); p.set_defaults(func=cmd_cognitive_boundaries)
+
+    p = sub.add_parser("maintenance-center-status"); p.set_defaults(func=cmd_maintenance_center_status)
+    p = sub.add_parser("maintenance-center-contract"); p.set_defaults(func=cmd_maintenance_center_contract)
 
     p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
     p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)

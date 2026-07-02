@@ -1,5 +1,15 @@
 # Pandora Changelog
 
+## MVP 28.3 – Maintenance Center Restructure
+
+- Neuer `MaintenanceCenterService` als zentrale, read-only Informationsarchitektur für den Maintenance-Bereich.
+- `/maintenance` ist jetzt gruppiert nach Überblick, Entscheidungen, Wissen, Fähigkeiten, Konfiguration sowie Lernen & Review.
+- Neue API-Endpunkte `/api/gui/maintenance-center/status` und `/api/gui/maintenance-center/navigation-contract`.
+- Neue CLI-Befehle `maintenance-center-status` und `maintenance-center-contract`.
+- Maintenance-Karten zeigen Risiko-/Aktionscharakter: Nur anzeigen, Freigabe nötig, kontrolliertes Schreiben, Aktivierung, Konfiguration oder manueller Lauf.
+- User-GUI bleibt weiterhin Chat-first mit genau einem Maintenance-Einstieg.
+- Keine automatische Wartung, keine Proposal-Entscheidung, keine Config-Änderung durch die neue Struktur.
+
 ## MVP 28.2 – User GUI Simplification
 
 - User-Seite auf den Kern reduziert: Chat, Session-Auswahl, Routing-Status und genau ein Maintenance-Button.

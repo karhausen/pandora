@@ -1,5 +1,31 @@
 # Pandora Agent
 
+## MVP 28.3 – Maintenance Center Restructure
+
+MVP 28.3 strukturiert den Maintenance-Bereich neu. Die User-Seite bleibt einfach: Chat zuerst, ein einziger Button zu **Maintenance**. Hinter `/maintenance` liegt jetzt ein geordnetes Center mit klaren Gruppen statt einer losen Link-Sammlung.
+
+Neue Kernpunkte:
+
+- zentrale Maintenance-Architektur in `core/maintenance_center.py`
+- gruppierte Wartungsbereiche: Überblick, Entscheidungen, Wissen, Fähigkeiten, Konfiguration, Lernen & Review
+- neue API-Endpunkte:
+
+```text
+GET /api/gui/maintenance-center/status
+GET /api/gui/maintenance-center/navigation-contract
+```
+
+Neue Befehle:
+
+```bash
+python main.py maintenance-center-status
+python main.py maintenance-center-contract
+```
+
+Sicherheitsgrenze: Die neue Schicht ist nur eine Navigations- und Struktur-Schicht. Sie führt keine Wartung aus, genehmigt keine Vorschläge, aktiviert keine Tools/Skills und schreibt keine Konfiguration.
+
+---
+
 ## MVP 28.2 – User GUI Simplification
 
 MVP 28.2 vereinfacht die User-GUI konsequent: Die Startseite ist wieder eine klare Chat-Seite. Alle Verwaltungs-, Wartungs- und Diagnosebereiche liegen hinter genau einem Button: **Maintenance**.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pandora Maintenance</title>
+  <title>Pandora Maintenance Center</title>
   <link rel="stylesheet" href="/web/maintenance.css" />
   <link rel="stylesheet" href="/web/shared.css" />
 </head>
@@ -11,17 +11,26 @@
   <main class="maintenance-shell">
     <header class="maintenance-hero">
       <div>
-        <span class="eyebrow">Maintenance</span>
+        <span class="eyebrow">Maintenance Center</span>
         <h1>Pandora Wartung</h1>
-        <p>Ein strukturierter Einstieg für Betrieb, Wissen, Fähigkeiten, Profile und Diagnosen.</p>
+        <p>Ein ruhiger, strukturierter Arbeitsbereich für Betrieb, Entscheidungen, Wissen, Fähigkeiten, Konfiguration und Reviews.</p>
       </div>
-      <a class="back-button" href="/">Zurück zum Chat</a>
+      <nav class="hero-actions" aria-label="Maintenance Schnellnavigation">
+        <a class="secondary-button" href="/operations-cockpit">Operations Cockpit</a>
+        <a class="back-button" href="/">Zurück zum Chat</a>
+      </nav>
     </header>
 
-    <section class="maintenance-status" id="maintenanceStatus">Lade Struktur ...</section>
+    <section class="maintenance-status" id="maintenanceStatus">Lade Maintenance Center ...</section>
 
-    <section class="maintenance-grid" id="maintenanceGrid" aria-label="Maintenance Bereiche"></section>
+    <section class="maintenance-layout">
+      <aside class="maintenance-sidebar" aria-label="Maintenance Gruppen">
+        <h2>Bereiche</h2>
+        <div id="maintenanceNav" class="maintenance-nav"></div>
+      </aside>
+      <section class="maintenance-content" id="maintenanceGroups" aria-label="Maintenance Bereiche"></section>
+    </section>
   </main>
-  <script src="/web/maintenance.js?v=28.2"></script>
+  <script src="/web/maintenance.js?v=28.3"></script>
 </body>
 </html>

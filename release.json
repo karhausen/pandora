@@ -1,23 +1,24 @@
 {
-  "version": "28.2",
-  "name": "MVP 28.2 – User GUI Simplification",
-  "based_on": "28.1-personality-layer",
-  "codename": "user_gui_simplification",
-  "description": "Simplifies the user-facing GUI to a chat-first surface with one controlled maintenance entry point.",
+  "version": "28.3",
+  "name": "MVP 28.3 – Maintenance Center Restructure",
+  "based_on": "28.2-user-gui-simplification",
+  "codename": "maintenance_center_restructure",
+  "description": "Restructures the Maintenance Center into a grouped, safer and more intuitive administration surface while preserving the chat-first user GUI.",
   "features": [
-    "User page reduced to chat, sessions, routing status and one Maintenance button",
-    "New /maintenance page as structured entry point for administration and diagnostics",
-    "New core/user_gui_simplification.py read-only navigation contract",
-    "New API /api/gui/user-simplification/status",
-    "Technical details remain available but collapsed",
-    "Documentation and regression tests for the simplified GUI boundary"
+    "New read-only MaintenanceCenterService as central maintenance information architecture",
+    "Grouped /maintenance page for overview, decisions, knowledge, capabilities, configuration and learning/review",
+    "Risk labels for read-only, approval, controlled write, activation, configuration and manual run areas",
+    "New API /api/gui/maintenance-center/status",
+    "New API /api/gui/maintenance-center/navigation-contract",
+    "New CLI commands maintenance-center-status and maintenance-center-contract",
+    "User GUI remains chat-first with exactly one Maintenance entry point"
   ],
   "safety": [
-    "No tool execution from simplification service",
-    "No proposal approval side effects",
+    "No automatic maintenance execution",
+    "No proposal decisions",
+    "No tool or skill activation",
     "No configuration writes",
-    "No memory writes",
-    "No automatic routing changes"
+    "Human approval remains required for risk actions"
   ],
   "build_time": "2026-07-02T00:00:00Z"
 }
