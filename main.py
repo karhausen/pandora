@@ -121,6 +121,8 @@ from core.tool_activation_manager import ToolActivationManager
 from core.tool_executor import ToolExecutor
 from core.tool_design_agent import ToolDesignAgent
 from core.tool_generation_log import ToolGenerationLog
+from core.tool_generator import ToolGenerator
+from core.tool_test_generator import ToolTestGenerator
 from core.tool_proposal_manager import ToolProposalManager
 from core.tool_registry import ToolRegistry
 from core.tool_lifecycle_manager import ToolLifecycleManager
@@ -810,7 +812,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.4",
+        "version": "29.4.2",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -899,7 +901,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.4", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.4.2", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -938,7 +940,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.4", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.4.2", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -966,8 +968,29 @@ def cmd_selftest_integration(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
-    ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "29.4", "ok": ok, "cli": cli_results, "api": api_results})
+
+    tool_generation_results = []
+    generator = ToolGenerator()
+    test_generator = ToolTestGenerator()
+    for capability in ["word_count", "prime_number_calculation"]:
+        try:
+            spec = generator.build_spec(capability)
+            code = generator.generate_code(spec)
+            test_code = test_generator.generate_test(spec)
+            tool_generation_results.append({
+                "capability": capability,
+                "ok": bool(spec.id and "def run" in code and "from generated_tools" in test_code),
+                "tool_id": spec.id,
+            })
+        except Exception as exc:
+            tool_generation_results.append({"capability": capability, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
+    ok = (
+        all(r["ok"] for r in cli_results)
+        and all(r["ok"] for r in api_results)
+        and all(r["ok"] for r in tool_generation_results)
+    )
+    _json({"kind": "integration_hardening_selftest", "version": "29.4.2", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())

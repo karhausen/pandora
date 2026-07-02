@@ -52,7 +52,7 @@ python main.py genome status
 python main.py evolution status
 python main.py evolution-factory status
 python main.py proposal-queue status
-python main.py tools evolution status
+** python main.py tools evolution status **
 ```
 
 Wenn hier ein Kommando unbekannt ist:  
