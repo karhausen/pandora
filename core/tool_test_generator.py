@@ -60,6 +60,22 @@ def test_{spec.id}():
 '''
 
 
+    def _looks_like_prime_tool(self, spec: ToolSpec) -> bool:
+        """Return True when a ToolSpec semantically describes prime-number work.
+
+        This is intentionally a generator-contract fallback only. It is not used
+        for capability-gap routing or user intent detection. Routing is handled
+        by the LLM Capability Gap Analyzer.
+        """
+        text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
+        output_keys = {str(key).lower() for key in spec.output_schema.keys()}
+        return (
+            "prime" in text
+            or "primzahl" in text
+            or "primzahlen" in text
+            or bool(output_keys.intersection({"is_prime", "primes", "prime_numbers"}))
+        )
+
     def _looks_like_word_counter(self, spec: ToolSpec) -> bool:
         text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
         output_keys = {str(key).lower() for key in spec.output_schema.keys()}
