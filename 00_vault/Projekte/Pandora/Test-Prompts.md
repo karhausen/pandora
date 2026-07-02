@@ -29,7 +29,7 @@ last_reviewed: 2026-06-29
 
 ### [[Tools]]
 - Ich brauche ein Tool, das Aktienkurse der letzten fünf Jahre analysiert.
-- Ich brauche ein Tool, das Prim-Zahlen berechnet. Ich möchte den Anfang und das Ende des Bereiches  vorgeben.
+- Ich brauche ein Tool, das Prim-Zahlen berechnet. Ich möchte den Anfang und das Ende des Bereiches vorgeben.
 
 ### [[Sonstige]]
 - Prüfe den aktuellen Stand von Pandora und leite die nächsten Schritte ein

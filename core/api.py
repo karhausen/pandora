@@ -32,6 +32,7 @@ from .prioritization import ImprovementPrioritizationManager
 from .proposal_queue import UnifiedProposalQueueManager
 from .proposal_generator import ProposalGeneratorManager
 from .proposal_evolution import ProposalEvolutionManager
+from .adaptive_goals import AdaptiveGoalManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -130,7 +131,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.1-proposal-evolution")
+app = FastAPI(title="Pandora Agent", version="29.2-adaptive-goals")
 
 
 
@@ -3173,7 +3174,7 @@ def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
     if req.item_id:
         return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
     if req.proposal is None:
-        return {"kind": "proposal_evolution_improve", "version": "29.1", "ok": False, "error": "proposal or item_id required"}
+        return {"kind": "proposal_evolution_improve", "version": "29.2", "ok": False, "error": "proposal or item_id required"}
     return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
 
 
@@ -3312,14 +3313,60 @@ def api_priority_weights_alias():
     return ImprovementPrioritizationManager().weights()
 
 
+
+# MVP 29.2 – Adaptive Goals
+@app.get("/api/goals/status")
+def api_adaptive_goals_status():
+    return AdaptiveGoalManager().status()
+
+
+@app.get("/api/goals/list")
+def api_adaptive_goals_list(status: str | None = None, domain: str | None = None, limit: int = 100):
+    return AdaptiveGoalManager().list(status=status, domain=domain, limit=limit)
+
+
+@app.get("/api/goals/show/{goal_id}")
+def api_adaptive_goals_show(goal_id: str):
+    return AdaptiveGoalManager().show(goal_id)
+
+
+@app.get("/api/goals/history")
+def api_adaptive_goals_history(limit: int = 50):
+    return AdaptiveGoalManager().history(limit=limit)
+
+
+@app.get("/api/goals/evaluate")
+def api_adaptive_goals_evaluate():
+    return AdaptiveGoalManager().evaluate()
+
+
+@app.post("/api/goals/reprioritize")
+def api_adaptive_goals_reprioritize(write: bool = False):
+    return AdaptiveGoalManager().reprioritize(write=write)
+
+
+@app.get("/adaptive-goals")
+def web_adaptive_goals():
+    return FileResponse(WEB_DIR / "adaptive-goals.html")
+
+
+@app.get("/web/adaptive-goals.js")
+def web_adaptive_goals_js():
+    return FileResponse(WEB_DIR / "adaptive-goals.js")
+
+
+@app.get("/web/adaptive-goals.css")
+def web_adaptive_goals_css():
+    return FileResponse(WEB_DIR / "adaptive-goals.css")
+
 # MVP 28.9.2 – CLI & API Integration Hardening
 @app.get("/api/integration/status")
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "29.1",
+        "version": "29.2",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3343,7 +3390,11 @@ def api_selftest_api_contracts():
         "/api/proposal-generator/generate",
         "/api/proposal-generator/enqueue",
         "/api/proposal-queue/from-factory",
+        "/api/goals/status",
+        "/api/goals/list",
+        "/api/goals/evaluate",
+        "/api/goals/reprioritize",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.1", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.2", "ok": all(c["ok"] for c in checks), "checks": checks}

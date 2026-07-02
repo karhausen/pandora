@@ -139,3 +139,34 @@ POST /api/proposal-evolution/improve
 ```text
 Maintenance → Proposal Evolution
 ```
+
+## MVP 29.2 – Adaptive Goals
+
+MVP 29.2 ergänzt langfristige, kontrollierte Ziele für Pandora:
+
+- strategische, taktische und operative Goals
+- Goal Status, Liste, Detailansicht und Historie
+- Goal Evaluation
+- konservative Repriorisierung
+- API-/CLI-/GUI-Anbindung
+- Integration in die CLI/API-Selftests
+
+Wichtig: Adaptive Goals erzeugt keine automatische Umsetzung. Ziele dienen als Entscheidungsgrundlage; konkrete Änderungen laufen weiter über Proposal, Review, Tests und Benutzerfreigabe.
+
+### CLI
+
+```powershell
+python main.py goals status
+python main.py goals list
+python main.py goals evaluate
+python main.py goals reprioritize
+```
+
+### API
+
+```text
+GET  /api/goals/status
+GET  /api/goals/list
+GET  /api/goals/evaluate
+POST /api/goals/reprioritize
+```

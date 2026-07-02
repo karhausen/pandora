@@ -1,39 +1,37 @@
 {
-  "version": "29.0",
-  "name": "MVP 29.0 – Proposal Generator",
-  "based_on": "MVP 28.9.2 – CLI & API Integration Hardening",
-  "codename": "proposal_generator",
-  "description": "Hardens the integration between documented Pandora Evolution CLI commands, main.py command routing, and FastAPI route registration. Adds proposal-queue add and integration selftests.",
+  "version": "29.2",
+  "name": "MVP 29.2 – Adaptive Goals",
+  "based_on": "MVP 29.1 – Proposal Evolution",
+  "codename": "adaptive_goals",
+  "description": "Adds controlled long-term goal management for Pandora's evolution, including goal status, listing, evaluation, reprioritization, API, CLI, GUI, and integration selftests.",
   "features": [
-    "Adds documented nested CLI command: proposal-queue add",
-    "Keeps flat legacy commands compatible",
-    "Adds CLI contract selftest: python main.py selftest cli",
-    "Adds API route selftest: python main.py selftest api",
-    "Adds combined integration selftest: python main.py selftest integration",
-    "Adds API endpoints /api/integration/status and /api/selftest/api",
-    "Validates documented MVP 28.x CLI aliases for Genome, Evolution Factory, Observation, Pattern, Priority and Proposal Queue",
-    "Proposal Queue add uses Evolution Factory and remains review-only"
+    "Adds core/adaptive_goals package",
+    "Adds AdaptiveGoalManager with status, list, show, history, evaluate and reprioritize",
+    "Adds nested CLI commands under python main.py goals ...",
+    "Adds FastAPI routes under /api/goals/...",
+    "Adds adaptive-goals Maintenance web page",
+    "Extends CLI/API integration selftests for Adaptive Goals"
   ],
   "safety": [
-    "No automatic proposal activation",
+    "No automatic implementation",
+    "No automatic proposal approval",
     "No direct Core changes",
     "No generated code execution",
-    "No background autonomy",
-    "Queue add creates review-only EvolutionProposals",
-    "Human approval remains mandatory"
+    "Goal reprioritization changes metadata only",
+    "Human approval remains mandatory for all real changes"
   ],
   "tests": [
-    "python main.py genome status",
-    "python main.py proposal-queue add --type TOOL --title \"Test Tool Proposal\" --priority MEDIUM",
-    "python main.py proposal-queue list",
+    "python -m py_compile main.py core/api.py core/adaptive_goals/*.py",
+    "python main.py goals status",
+    "python main.py goals list",
+    "python main.py goals evaluate",
     "python main.py selftest cli",
     "python main.py selftest api",
-    "python main.py selftest integration",
-    "python -m py_compile main.py core/api.py"
+    "python main.py selftest integration"
   ],
-  "build_time": "2026-07-02T11:35:00Z",
-  "mvp": "28.9.2",
-  "artifact": "pandora_agent_mvp_29_0_proposal_generator_clean.zip",
+  "build_time": "2026-07-02T12:10:00Z",
+  "mvp": "29.2",
+  "artifact": "pandora_agent_mvp_29_2_adaptive_goals_clean.zip",
   "runtime_artifacts_removed": true,
   "build_artifacts_removed": true,
   "test_artifacts_removed": true

@@ -104,6 +104,7 @@ from core.prioritization import ImprovementPrioritizationManager
 from core.proposal_queue import UnifiedProposalQueueManager
 from core.proposal_generator import ProposalGeneratorManager
 from core.proposal_evolution import ProposalEvolutionManager
+from core.adaptive_goals import AdaptiveGoalManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -805,7 +806,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.1",
+        "version": "29.2",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -831,8 +832,21 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "proposal-queue add", "argv": ["proposal-queue", "add", "--type", "TOOL", "--title", "CLI Contract Test", "--priority", "MEDIUM"]},
         {"label": "proposal-queue from-factory", "argv": ["proposal-queue", "from-factory", "CLI factory test", "--type", "TOOL"]},
         {"label": "proposal-queue decide", "argv": ["proposal-queue", "decide", "queue_dummy", "--decision", "deferred"]},
+        {"label": "goals status", "argv": ["goals", "status"]},
+        {"label": "goals list", "argv": ["goals", "list"]},
+        {"label": "goals evaluate", "argv": ["goals", "evaluate"]},
+        {"label": "goals reprioritize", "argv": ["goals", "reprioritize"]},
     ]
 
+
+
+# MVP 29.2 – Adaptive Goals
+def cmd_adaptive_goals_status(args): _json(AdaptiveGoalManager().status())
+def cmd_adaptive_goals_list(args): _json(AdaptiveGoalManager().list(status=args.status, domain=args.domain, limit=args.limit))
+def cmd_adaptive_goals_show(args): _json(AdaptiveGoalManager().show(args.goal_id))
+def cmd_adaptive_goals_history(args): _json(AdaptiveGoalManager().history(limit=args.limit))
+def cmd_adaptive_goals_evaluate(args): _json(AdaptiveGoalManager().evaluate())
+def cmd_adaptive_goals_reprioritize(args): _json(AdaptiveGoalManager().reprioritize(write=args.write))
 
 def cmd_selftest_cli(args):
     parser = build_parser()
@@ -852,7 +866,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.1", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.2", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -872,6 +886,10 @@ def cmd_selftest_api(args):
         "/api/proposal-generator/enqueue",
         "/api/proposal-evolution/status",
         "/api/proposal-evolution/history",
+        "/api/goals/status",
+        "/api/goals/list",
+        "/api/goals/evaluate",
+        "/api/goals/reprioritize",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
@@ -879,7 +897,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.1", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.2", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -900,12 +918,13 @@ def cmd_selftest_integration(args):
         "/api/proposal-generator/status", "/api/proposal-generator/generate", "/api/proposal-generator/enqueue",
         "/api/proposal-evolution/status",
         "/api/proposal-evolution/history",
+        "/api/goals/status", "/api/goals/list", "/api/goals/evaluate", "/api/goals/reprioritize",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
     ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "29.1", "ok": ok, "cli": cli_results, "api": api_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.2", "ok": ok, "cli": cli_results, "api": api_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1232,6 +1251,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("proposal-evolution-improve"); p.add_argument("instruction"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--enqueue", action="store_true"); p.add_argument("--created-by", default="user"); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_evolution_improve)
     p = sub.add_parser("proposal-evolution-improve-queue"); p.add_argument("item_id"); p.add_argument("instruction"); p.add_argument("--enqueue", action="store_true"); p.add_argument("--created-by", default="user"); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_evolution_improve_queue)
 
+    p = sub.add_parser("goals-status"); p.set_defaults(func=cmd_adaptive_goals_status)
+    p = sub.add_parser("goals-list"); p.add_argument("--status"); p.add_argument("--domain"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_adaptive_goals_list)
+    p = sub.add_parser("goals-show"); p.add_argument("goal_id"); p.set_defaults(func=cmd_adaptive_goals_show)
+    p = sub.add_parser("goals-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_adaptive_goals_history)
+    p = sub.add_parser("goals-evaluate"); p.set_defaults(func=cmd_adaptive_goals_evaluate)
+    p = sub.add_parser("goals-reprioritize"); p.add_argument("--write", action="store_true"); p.set_defaults(func=cmd_adaptive_goals_reprioritize)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1501,6 +1527,19 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("proposal-queue", "decide"): "proposal-queue-decide",
         ("proposal-queue", "history"): "proposal-queue-history",
         ("proposal-queue", "stats"): "proposal-queue-stats",
+
+        ("goals", "status"): "goals-status",
+        ("goals", "list"): "goals-list",
+        ("goals", "show"): "goals-show",
+        ("goals", "history"): "goals-history",
+        ("goals", "evaluate"): "goals-evaluate",
+        ("goals", "reprioritize"): "goals-reprioritize",
+        ("adaptive-goals", "status"): "goals-status",
+        ("adaptive-goals", "list"): "goals-list",
+        ("adaptive-goals", "show"): "goals-show",
+        ("adaptive-goals", "history"): "goals-history",
+        ("adaptive-goals", "evaluate"): "goals-evaluate",
+        ("adaptive-goals", "reprioritize"): "goals-reprioritize",
 
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",
