@@ -64,12 +64,14 @@ class MockLLMClient:
             input_schema = design.get("input_schema") or {"text": "str"}
             output_schema = design.get("output_schema") or {"text": "str"}
             security_level = str(design.get("security_level") or "SAFE")
-            if tool_id == "word_count":
-                body = "    text = payload.get(\"text\") or payload.get(\"input\") or \"\"\n    words = [w for w in str(text).split() if w.strip()]\n    return {\"count\": len(words)}"
-                assertion = "assert run({\"text\": \"eins zwei drei\"})[\"count\"] == 3"
-            else:
-                body = "    text = payload.get(\"text\") or payload.get(\"input\") or \"\"\n    return {\"text\": str(text)}"
-                assertion = "assert isinstance(run({\"text\": \"hello\"}), dict)"
+            output_lines = []
+            for key, type_name in (output_schema or {"result": "str"}).items():
+                t = str(type_name).lower()
+                value = "''" if t in {"str", "string", "text"} else ("0" if t in {"int", "integer"} else ("0.0" if t in {"float", "number", "double"} else ("False" if t in {"bool", "boolean"} else ("[]" if t in {"list", "array"} else ("{}" if t in {"dict", "object", "json"} else "None")))))
+                output_lines.append(f"        {key!r}: {value},")
+            output_block = "\n".join(output_lines)
+            body = "    if payload is not None and not isinstance(payload, dict):\n        raise ValueError(\"payload must be a dict\")\n    return {\n" + output_block + "\n    }"
+            assertion = "assert isinstance(run({}), dict)"
             code = (
                 "TOOL_META = {\n"
                 f"    \"id\": \"{tool_id}\",\n"
@@ -104,8 +106,8 @@ class MockLLMClient:
                 "tool_id": safe_id,
                 "name": safe_id.replace("_", " ").title(),
                 "description": f"Mock-designed tool for capability: {capability}",
-                "input_schema": {"location": "str"} if safe_id == "weather_lookup" else ({"symbol": "str"} if safe_id == "stock_price_lookup" else {"text": "str"}),
-                "output_schema": {"text": "str"} if safe_id not in ["word_count", "weather_lookup", "stock_price_lookup"] else ({"count": "int"} if safe_id == "word_count" else {"source": "str"}),
+                "input_schema": {"text": "str"},
+                "output_schema": {"result": "str"},
                 "security_level": "LIMITED" if requires_network else "SAFE",
                 "requires_network": requires_network,
                 "requires_filesystem": False,

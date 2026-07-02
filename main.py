@@ -812,7 +812,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.4.2",
+        "version": "29.4.5",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -901,7 +901,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.4.2", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.4.5", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -940,7 +940,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.4.2", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.4.5", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -990,7 +990,7 @@ def cmd_selftest_integration(args):
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
     )
-    _json({"kind": "integration_hardening_selftest", "version": "29.4.2", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.4.5", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())

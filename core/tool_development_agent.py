@@ -91,7 +91,7 @@ class ToolDevelopmentAgent:
             message = f"Fehlende Fähigkeit erkannt: {gap.get('capability')}"
             if auto_create:
                 try:
-                    proposal = self.proposal_manager.propose_for_capability(str(gap["capability"]))
+                    proposal = self.proposal_manager.propose_for_capability(str(gap["capability"]), task=task)
                     proposal_created = True
                     status = "proposal_created"
                     message = f"Tool-Vorschlag für '{gap.get('capability')}' erstellt (Status: {proposal.get('status')})."

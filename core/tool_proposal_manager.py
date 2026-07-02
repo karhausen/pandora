@@ -51,19 +51,46 @@ class ToolProposalManager:
         proposal_id = self._new_id()
         proposal_dir, tool_dir, test_dir = self._create_proposal_dirs(proposal_id)
 
-        code = self.generator.generate_code(spec)
-        test_code = self.test_generator.generate_test(spec)
-
         code_file = tool_dir / f"{spec.id}.py"
         test_file = test_dir / f"test_{spec.id}.py"
+
+        generated = None
+        if design:
+            generated = self.cloud_code_generator.generate(
+                design=design,
+                provider_name=provider_name,
+                model=model,
+            )
+            code = generated.get("code") or self.generator.generate_code(spec)
+            test_code = generated.get("test_code") or self.test_generator.generate_test(spec)
+        else:
+            code = self.generator.generate_code(spec)
+            test_code = self.test_generator.generate_test(spec)
+
         code_file.write_text(code, encoding="utf-8")
         test_file.write_text(test_code, encoding="utf-8")
 
         static = self.validator.static_review(code, design=design)
         test_result = self.validator.run_tests(proposal_dir) if static["ok"] else {"success": False, "skipped": True}
         semantic = self.quality_gate.validate(proposal_dir, spec.id, design or spec) if static["ok"] and test_result.get("success") else {"ok": False, "skipped": True}
-        validation = {"static": static, "tests": test_result, "semantic": semantic, "design": design_result.model_dump(mode="json") if design_result else None}
-        status = ToolProposalStatus.VALIDATED if static["ok"] and test_result.get("success") and semantic.get("ok") else ToolProposalStatus.FAILED
+        validation = {
+            "static": static,
+            "tests": test_result,
+            "semantic": semantic,
+            "design": design_result.model_dump(mode="json") if design_result else None,
+            "code_generation": generated,
+        }
+        generation_was_llm = bool(generated and generated.get("llm_used"))
+        generation_succeeded = generated is None or bool(generated.get("success", True))
+        validation_ok = bool(static["ok"] and test_result.get("success") and semantic.get("ok") and generation_succeeded)
+        if validation_ok and (not design_result or design_result.llm_used or generation_was_llm):
+            status = ToolProposalStatus.VALIDATED
+        elif validation_ok:
+            # A deterministic generic scaffold can be reviewable, but it must not
+            # be presented as a semantically validated domain tool.
+            status = ToolProposalStatus.PROPOSED
+        else:
+            status = ToolProposalStatus.FAILED
 
         proposal = self._write_proposal(
             proposal_id=proposal_id,

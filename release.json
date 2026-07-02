@@ -1,6 +1,6 @@
 {
-  "version": "29.4.1",
-  "name": "MVP 29.4.1 – LLM Capability Gap Analyzer",
+  "version": "29.4.5",
+  "name": "MVP 29.4.5 – Generic Tool Generator Architecture Fix",
   "based_on": "MVP 29.4 – Tool Evolution",
   "codename": "llm_capability_gap_analyzer",
   "description": "Replaces keyword-based capability gap routing with an LLM-first semantic analyzer that compares the user request with Pandora's current tools, skills, knowledge and policies. Python validates the recommendation and prevents unrelated fallback tool execution.",
@@ -29,8 +29,8 @@
     "python main.py selftest integration"
   ],
   "build_time": "2026-07-02T13:55:00Z",
-  "mvp": "29.4.1",
-  "artifact": "pandora_agent_mvp_29_4_1_llm_capability_gap_analyzer_clean.zip",
+  "mvp": "29.4.5",
+  "artifact": "pandora_agent_mvp_29_4_5_generic_tool_generator_clean.zip",
   "runtime_artifacts_removed": true,
   "build_artifacts_removed": true,
   "test_artifacts_removed": true

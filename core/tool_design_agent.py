@@ -162,77 +162,33 @@ Rules:
         return ToolDesign.model_validate(data)
 
     def _fallback_design(self, capability: str, task: str | None = None, source: str = "deterministic") -> ToolDesign:
+        """Return a generic review-only design when no real LLM design exists.
+
+        No capability-specific contracts are created here. This prevents Python
+        from smuggling domain knowledge into the evolution pipeline. A concrete
+        useful design must come from the Tool Design LLM and will then be
+        validated by Python.
+        """
         tool_id = self._safe_id(capability)
-        known = {
-            "word_count": {
-                "name": "Word Count",
-                "description": "Counts words in input text.",
-                "input_schema": {"text": "str"},
-                "output_schema": {"count": "int"},
-                "security_level": SecurityLevel.SAFE,
-                "test_cases": [{"name": "basic", "input": {"text": "eins zwei drei"}, "expected": {"count": 3}}],
-                "implementation_notes": ["Split normalized text by whitespace and count non-empty tokens."],
-            },
-            "weather_lookup": {
-                "name": "Weather Lookup",
-                "description": "Fetches current weather information for a location via a configured weather API.",
-                "input_schema": {"location": "str"},
-                "output_schema": {"location": "str", "temperature": "float", "condition": "str", "source": "str"},
-                "security_level": SecurityLevel.LIMITED,
-                "requires_network": True,
-                "dependencies": [],
-                "test_cases": [{"name": "missing_location", "input": {}, "expected_error": "location is required"}],
-                "implementation_notes": ["Use an explicitly configured weather API endpoint/key, not hard-coded credentials."],
-                "risk_notes": ["Network access required. API key must come from environment/config."],
-            },
-            "stock_price_lookup": {
-                "name": "Stock Price Lookup",
-                "description": "Fetches current market price information for a ticker symbol via a configured market data API.",
-                "input_schema": {"symbol": "str"},
-                "output_schema": {"symbol": "str", "price": "float", "currency": "str", "source": "str"},
-                "security_level": SecurityLevel.LIMITED,
-                "requires_network": True,
-                "dependencies": [],
-                "test_cases": [{"name": "missing_symbol", "input": {}, "expected_error": "symbol is required"}],
-                "implementation_notes": ["Use a configured market data provider and never hard-code credentials."],
-                "risk_notes": ["Network access required. Financial data can be delayed or unavailable."],
-            },
-            "prime_number_calculation": {
-                "name": "Prime Number Calculation",
-                "description": "Checks whether an integer is prime and can return all prime numbers up to a limit.",
-                "input_schema": {"number": "int", "limit": "int"},
-                "output_schema": {"is_prime": "bool", "primes": "list"},
-                "security_level": SecurityLevel.SAFE,
-                "test_cases": [
-                    {"name": "seven_is_prime", "input": {"number": 7}, "expected": {"is_prime": True}},
-                    {"name": "primes_to_30", "input": {"limit": 30}, "expected": {"primes": [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]}},
-                ],
-                "implementation_notes": ["Use deterministic integer arithmetic. Validate negative numbers and upper limits."],
-                "risk_notes": [],
-            },
-        }
-        base = known.get(tool_id, {})
-        if not base:
-            base = {
-                "name": tool_id.replace("_", " ").title(),
-                "description": f"Tool for capability: {capability}",
-                "input_schema": {"text": "str"},
-                "output_schema": {"text": "str"},
-                "security_level": SecurityLevel.SAFE,
-                "test_cases": [{"name": "basic", "input": {"text": "hello"}, "expected": {"text": "hello"}}],
-                "implementation_notes": ["Generated fallback design. Review before code generation."],
-                "risk_notes": [],
-            }
         return ToolDesign(
             capability=capability,
             tool_id=tool_id,
-            requires_network=bool(base.get("requires_network", False)),
-            requires_filesystem=bool(base.get("requires_filesystem", False)),
-            requires_shell=bool(base.get("requires_shell", False)),
-            dependencies=list(base.get("dependencies", [])),
+            name=tool_id.replace("_", " ").title(),
+            description=f"Review-only generic tool design for missing capability: {capability}",
+            input_schema={"text": "str"},
+            output_schema={"result": "str"},
+            security_level=SecurityLevel.SAFE,
+            requires_network=False,
+            requires_filesystem=False,
+            requires_shell=False,
+            dependencies=[],
+            test_cases=[],
+            implementation_notes=[
+                "No domain-specific fallback design was generated. Use a real LLM Tool Design step before validation/activation."
+            ],
+            risk_notes=["Review required: design is generic because LLM design was unavailable."],
             source=source,
-            confidence=0.65 if source.startswith("fallback") else 0.8,
-            **{k: v for k, v in base.items() if k not in {"requires_network", "requires_filesystem", "requires_shell", "dependencies"}},
+            confidence=0.25,
         )
 
     def _safe_id(self, value: str) -> str:

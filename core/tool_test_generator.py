@@ -4,88 +4,42 @@ from .models import ToolSpec
 
 
 class ToolTestGenerator:
+    """Generic ToolSpec -> pytest generator.
+
+    No capability-specific branches are allowed here. Tests verify only the
+    generated tool contract. Semantic correctness belongs to ToolDesign test
+    cases and the quality gate when an LLM-generated implementation exists.
+    """
+
     def generate_test(self, spec: ToolSpec) -> str:
-        if spec.id == "json_pretty":
-            return """from generated_tools.json_pretty import run
-
-def test_json_pretty():
-    result = run({\"text\": '{\"b\":2,\"a\":1}'})
-    assert result[\"text\"].startswith(\"{\")
-    assert "\\n" in result[\"text\"]
-"""
-        if spec.id == "text_reverse":
-            return '''from generated_tools.text_reverse import run
-
-def test_text_reverse():
-    assert run({"text": "abc"})["text"] == "cba"
-'''
-        if spec.id == "word_count":
-            return '''from generated_tools.word_count import run
-
-def test_word_count():
-    assert run({"text": "eins zwei drei"})["count"] == 3
-'''
-        if spec.id == "prime_number_calculation" or self._looks_like_prime_tool(spec):
-            return f'''from generated_tools.{spec.id} import run
+        tool_id = spec.id
+        output_keys = list((spec.output_schema or {"result": "str"}).keys())
+        sample_payload = self._sample_payload(spec.input_schema or {})
+        return f'''from generated_tools.{tool_id} import run
 
 
-def test_{spec.id}_is_prime():
-    assert run({{"number": 7}})["is_prime"] is True
-    assert run({{"number": 12}})["is_prime"] is False
-
-
-def test_{spec.id}_list_primes():
-    assert run({{"limit": 30}})["primes"] == [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
-'''
-
-        if spec.id == "timestamp":
-            return '''from generated_tools.timestamp import run
-
-def test_timestamp():
-    assert "timestamp" in run({})
-'''
-        if self._looks_like_word_counter(spec):
-            output_key = self._first_output_key(spec, default="count")
-            return f'''from generated_tools.{spec.id} import run
-
-def test_{spec.id}():
-    result = run({{"text": "eins zwei drei"}})
-    assert result["{output_key}"] == 3
-'''
-        return f'''from generated_tools.{spec.id} import run
-
-def test_{spec.id}():
-    result = run({{"text": "hello"}})
+def test_{tool_id}_contract():
+    result = run({sample_payload!r})
     assert isinstance(result, dict)
+    for key in {output_keys!r}:
+        assert key in result
 '''
 
+    def _sample_payload(self, schema: dict) -> dict:
+        return {str(key): self._sample_value(str(type_name)) for key, type_name in schema.items()}
 
-    def _looks_like_prime_tool(self, spec: ToolSpec) -> bool:
-        """Return True when a ToolSpec semantically describes prime-number work.
-
-        This is intentionally a generator-contract fallback only. It is not used
-        for capability-gap routing or user intent detection. Routing is handled
-        by the LLM Capability Gap Analyzer.
-        """
-        text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
-        output_keys = {str(key).lower() for key in spec.output_schema.keys()}
-        return (
-            "prime" in text
-            or "primzahl" in text
-            or "primzahlen" in text
-            or bool(output_keys.intersection({"is_prime", "primes", "prime_numbers"}))
-        )
-
-    def _looks_like_word_counter(self, spec: ToolSpec) -> bool:
-        text = " ".join([spec.id, spec.capability, spec.name, spec.description]).lower()
-        output_keys = {str(key).lower() for key in spec.output_schema.keys()}
-        output_types = {str(value).lower() for value in spec.output_schema.values()}
-        return (
-            ("word" in text and ("count" in text or "counter" in text))
-            or bool(output_keys.intersection({"count", "word_count", "words"}) and output_types.intersection({"int", "integer", "number"}))
-        )
-
-    def _first_output_key(self, spec: ToolSpec, default: str = "result") -> str:
-        for key in spec.output_schema.keys():
-            return str(key)
-        return default
+    def _sample_value(self, type_name: str):
+        t = str(type_name).lower()
+        if t in {"str", "string", "text"}:
+            return "sample text"
+        if t in {"int", "integer"}:
+            return 3
+        if t in {"float", "number", "double"}:
+            return 3.0
+        if t in {"bool", "boolean"}:
+            return True
+        if t in {"list", "array"}:
+            return [1, 2, 3]
+        if t in {"dict", "object", "json"}:
+            return {"sample": True}
+        return None
