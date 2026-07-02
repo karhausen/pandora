@@ -1,43 +1,51 @@
-# Pandora Agent – MVP 28.6 Self Observation Engine
+# Pandora Agent – MVP 28.7 Pattern Recognition Engine
 
-Dieser Release baut auf MVP 28.5 auf und ergänzt eine Self Observation Engine.
+Dieser Release baut auf MVP 28.6 auf und ergänzt eine Pattern Recognition Engine für die Self-Observation-Daten.
 
-## Neu in MVP 28.6
+## Neu in MVP 28.7
 
-- `core/observation/` als eigenes Paket
-- Event Bus und Event Logger
-- SQLite-basierte Observation Storage-Schicht
-- Health-, Statistik-, Runtime- und Export-Funktionen
-- CLI-Befehle für Observation
-- API-Endpunkte unter `/api/observation/*`
-- Maintenance-Link und neue Seite `/observation`
-- Genome-Konfiguration für Observation
+- `core/pattern/` als eigenes Paket
+- Pattern Schema für erkannte Muster
+- Rule-based Pattern Detector
+- Pattern Storage mit SQLite-Schicht
+- Pattern Recognition Manager und Engine
+- Detektoren für:
+  - häufige Event-Typen
+  - wiederkehrende Komponentenfehler
+  - langsame Komponenten
+  - wiederholte Capability Gaps
+  - Review-Entscheidungsmuster
+  - GUI-Nutzungsschwerpunkte
+- CLI-Befehle für Pattern Recognition
+- API-Endpunkte unter `/api/pattern/*`
+- Maintenance-Link und neue Seite `/pattern`
+- Genome-Konfiguration für Pattern Recognition
 
 ## Wichtige Grenze
 
-MVP 28.6 sammelt nur Fakten über Pandora selbst.
-Es erzeugt keine Verbesserungsvorschläge und verändert keine Core-, Tool-, Skill- oder Genome-Dateien automatisch.
-Pattern Recognition beginnt erst mit MVP 28.7.
+MVP 28.7 erkennt Muster in vorhandenen Observation-Fakten.
+Es erzeugt keine Proposals, aktiviert keine Änderungen und verändert keine Core-, Tool-, Skill- oder Genome-Dateien automatisch.
+
+Der nächste logische Schritt ist MVP 28.8 – Improvement Prioritization.
 
 ## CLI Smoke Tests
 
 ```bash
-python main.py observation-status
-python main.py observation-health
-python main.py observation-statistics
-python main.py observation-record --json '{"component":"tool","event_type":"tool_run","success":true}'
-python main.py observation-events --limit 10
+python main.py pattern-status
+python main.py pattern-health
+python main.py pattern-statistics
+python main.py pattern-detect --limit 500
+python main.py pattern-detect --limit 500 --save
+python main.py pattern-list --limit 20
 ```
 
 ## API
 
-- `GET /api/observation/status`
-- `GET /api/observation/health`
-- `GET /api/observation/events`
-- `POST /api/observation/events`
-- `GET /api/observation/statistics`
-- `GET /api/observation/runtime`
-- `GET /api/observation/export`
+- `GET /api/pattern/status`
+- `GET /api/pattern/health`
+- `GET /api/pattern/detect`
+- `GET /api/pattern/patterns`
+- `GET /api/pattern/statistics`
 
 ## Release-Hinweis
 

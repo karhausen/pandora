@@ -99,6 +99,7 @@ from core.workflow_dashboard import WorkflowDashboardService
 from core.maintenance_center import MaintenanceCenterService
 from core.genome import EvolutionService
 from core.observation import SelfObservationManager
+from core.pattern import PatternRecognitionManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -668,6 +669,12 @@ def cmd_observation_runtime(args): _json(SelfObservationManager().runtime())
 def cmd_observation_export(args): _json(SelfObservationManager().export(limit=args.limit))
 def cmd_observation_record(args): _json(SelfObservationManager().observe(_payload(args)))
 
+def cmd_pattern_status(args): _json(PatternRecognitionManager().status())
+def cmd_pattern_health(args): _json(PatternRecognitionManager().health())
+def cmd_pattern_detect(args): _json(PatternRecognitionManager().detect(limit=args.limit, save=args.save))
+def cmd_pattern_list(args): _json(PatternRecognitionManager().patterns(limit=args.limit, pattern_type=args.type))
+def cmd_pattern_statistics(args): _json(PatternRecognitionManager().statistics(limit=args.limit))
+
 def cmd_personality_status(args): _json(PersonalityLayerService().status())
 
 def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
@@ -895,6 +902,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("observation-runtime"); p.set_defaults(func=cmd_observation_runtime)
     p = sub.add_parser("observation-export"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_observation_export)
     p = sub.add_parser("observation-record"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.set_defaults(func=cmd_observation_record)
+
+    p = sub.add_parser("pattern-status"); p.set_defaults(func=cmd_pattern_status)
+    p = sub.add_parser("pattern-health"); p.set_defaults(func=cmd_pattern_health)
+    p = sub.add_parser("pattern-detect"); p.add_argument("--limit", type=int, default=500); p.add_argument("--save", action="store_true"); p.set_defaults(func=cmd_pattern_detect)
+    p = sub.add_parser("pattern-list"); p.add_argument("--limit", type=int, default=50); p.add_argument("--type"); p.set_defaults(func=cmd_pattern_list)
+    p = sub.add_parser("pattern-statistics"); p.add_argument("--limit", type=int, default=500); p.set_defaults(func=cmd_pattern_statistics)
 
     p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
     p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)

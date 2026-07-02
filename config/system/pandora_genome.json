@@ -1,6 +1,6 @@
 {
   "kind": "pandora_genome",
-  "version": "28.4",
+  "version": "28.7",
   "generation": 1,
   "identity": {
     "name": "Pandora",
@@ -212,8 +212,48 @@
         "learning_changes_require_review": true,
         "no_uncontrolled_self_modification": true
       }
-    }
+    },
+    "pattern_recognition"
   ],
   "created": "2026-07-02T09:03:09.567722+00:00",
-  "updated": "2026-07-02T09:03:09.567722+00:00"
+  "updated": "2026-07-02T00:00:00+00:00",
+  "observation": {
+    "enabled": true,
+    "mode": "self_observation_only",
+    "event_retention_days": 90,
+    "creates_proposals": false,
+    "observes_user": false,
+    "detectors": {
+      "tool": true,
+      "runtime": true,
+      "capability": true,
+      "workflow": true,
+      "memory": true,
+      "gui": true,
+      "review": true
+    },
+    "principle": "Fakten sammeln, keine automatischen Änderungen."
+  },
+  "pattern_recognition": {
+    "enabled": true,
+    "source": "self_observation_engine",
+    "creates_proposals": false,
+    "activates_changes": false,
+    "min_pattern_count": 3,
+    "detectors": {
+      "frequent_event_type": true,
+      "recurring_component_failure": true,
+      "slow_component": true,
+      "repeated_capability_gap": true,
+      "review_decision_bias": true,
+      "gui_usage_hotspot": true
+    },
+    "rules": [
+      "Pattern Recognition darf keine Dateien im Core verändern.",
+      "Pattern Recognition darf keine Proposals automatisch aktivieren.",
+      "Pattern Recognition nutzt ausschließlich Self-Observation-Fakten.",
+      "Pattern Recognition bewertet Muster, aber priorisiert sie noch nicht."
+    ],
+    "next_step": "MVP 28.8 – Improvement Prioritization"
+  }
 }

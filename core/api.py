@@ -27,6 +27,7 @@ from .user_gui_simplification import UserGuiSimplificationService
 from .maintenance_center import MaintenanceCenterService
 from .genome import EvolutionService
 from .observation import SelfObservationManager
+from .pattern import PatternRecognitionManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -2931,3 +2932,44 @@ def web_observation_js():
 @app.get("/web/observation.css")
 def web_observation_css():
     return FileResponse(WEB_DIR / "observation.css")
+
+
+# MVP 28.7 – Pattern Recognition Engine
+@app.get("/api/pattern/status")
+def api_pattern_status():
+    return PatternRecognitionManager().status()
+
+
+@app.get("/api/pattern/health")
+def api_pattern_health():
+    return PatternRecognitionManager().health()
+
+
+@app.get("/api/pattern/detect")
+def api_pattern_detect(limit: int = 500, save: bool = False):
+    return PatternRecognitionManager().detect(limit=limit, save=save)
+
+
+@app.get("/api/pattern/patterns")
+def api_pattern_patterns(limit: int = 50, type: str | None = None):
+    return PatternRecognitionManager().patterns(limit=limit, pattern_type=type)
+
+
+@app.get("/api/pattern/statistics")
+def api_pattern_statistics(limit: int = 500):
+    return PatternRecognitionManager().statistics(limit=limit)
+
+
+@app.get("/pattern")
+def web_pattern():
+    return FileResponse(WEB_DIR / "pattern.html")
+
+
+@app.get("/web/pattern.js")
+def web_pattern_js():
+    return FileResponse(WEB_DIR / "pattern.js")
+
+
+@app.get("/web/pattern.css")
+def web_pattern_css():
+    return FileResponse(WEB_DIR / "pattern.css")

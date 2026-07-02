@@ -1,3 +1,13 @@
+
+## MVP 28.7 – Pattern Recognition Engine
+
+- Added `core/pattern/` with Pattern Recognition Engine.
+- Added recognition for frequent events, recurring failures, slow components, capability gaps, review patterns and GUI hotspots.
+- Added CLI commands `pattern-status`, `pattern-health`, `pattern-detect`, `pattern-list`, `pattern-statistics`.
+- Added API endpoints `/api/pattern/*` and Maintenance page `/pattern`.
+- Added Genome configuration for Pattern Recognition.
+- Pattern Recognition remains read-only and creates no automatic proposals.
+
 # Pandora Changelog
 
 ## MVP 28.4 – Pandora Genome & Unified Evolution Model

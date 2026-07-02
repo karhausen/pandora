@@ -1,8 +1,8 @@
 {
-  "version": "28.4",
-  "name": "MVP 28.4 – Pandora Genome & Unified Evolution Model",
+  "version": "28.7",
+  "name": "Pattern Recognition Engine",
   "based_on": "28.3-maintenance-center-restructure",
-  "codename": "pandora_genome_unified_evolution_model",
+  "codename": "pattern_recognition_engine",
   "description": "Introduces Pandora Genome as a static single source of truth and unifies future improvement work around the EvolutionProposal model and one controlled lifecycle.",
   "features": [
     "New core/genome package",
@@ -23,5 +23,6 @@
     "Human approval remains mandatory",
     "Python validates LLM recommendations before any action"
   ],
-  "build_time": "2026-07-02T00:00:00Z"
+  "build_time": "2026-07-02T00:00:00Z",
+  "mvp": "28.7"
 }
