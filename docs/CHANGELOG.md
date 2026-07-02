@@ -1,5 +1,17 @@
 # Changelog
 
+## MVP 28.1 – Personality Layer & Prompt Architecture
+
+- Ergänzt `PersonalityLayerService` als read-only Kommunikationsschicht.
+- Ergänzt `config/system/personality.json` mit Profilen `balanced`, `concise`, `technical`.
+- Ergänzt Prompt-Architektur mit Layern: Identity, Personality, Capability Boundaries, Task Context, Output Contract, Safety Gate.
+- Ergänzt CLI-Befehle für Personality Status, Profil, Style Contract, Prompt Package, Prompt Preview und Regression.
+- Ergänzt API-Endpunkte unter `/api/cognitive/personality/*` und `/api/cognitive/prompt/*`.
+- Ergänzt deterministische Regression `PersonalityLayerRegressionService`.
+- Bleibt bewusst read-only: kein LLM-Aufruf, keine Ausführung, keine Freigabeumgehung.
+
+# Changelog
+
 ## MVP 28.0 – Cognitive Identity & Self Model
 
 - Added `core/cognitive_identity.py` as a read-only identity and self-model layer.

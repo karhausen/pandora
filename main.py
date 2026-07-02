@@ -82,6 +82,8 @@ from core.cognitive_dashboard import CognitiveDashboardService
 from core.review_to_action_workflow import ReviewToActionWorkflow
 from core.action_proposal_handoff import ActionProposalHandoff
 from core.cognitive_identity import CognitiveIdentityService
+from core.personality_layer import PersonalityLayerService
+from core.personality_layer_regression import PersonalityLayerRegressionService
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -634,6 +636,20 @@ def cmd_cognitive_self_model(args): _json(CognitiveIdentityService().self_model(
 
 def cmd_cognitive_boundaries(args): _json(CognitiveIdentityService().capability_boundaries())
 
+
+
+def cmd_personality_status(args): _json(PersonalityLayerService().status())
+
+def cmd_personality_profile(args): _json(PersonalityLayerService().profile(args.profile))
+
+def cmd_personality_style_contract(args): _json(PersonalityLayerService().style_contract(args.profile))
+
+def cmd_prompt_package(args): _json(PersonalityLayerService().prompt_package(args.request, profile_name=args.profile, output_contract=args.output_contract))
+
+def cmd_prompt_preview(args): _json(PersonalityLayerService().prompt_preview(args.request, profile_name=args.profile, output_contract=args.output_contract))
+
+def cmd_personality_regression_run(args): _json(PersonalityLayerRegressionService().run())
+
 def cmd_cognitive_planning_status(args):
     _json(CognitivePlanningEngine().status())
 
@@ -735,7 +751,7 @@ def cmd_cognitive_regression_run(args):
     _json(CognitiveIntegrationRegressionService().run_regression(provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 28.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 28.1")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -825,6 +841,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-identity-card"); p.set_defaults(func=cmd_cognitive_identity_card)
     p = sub.add_parser("cognitive-self-model"); p.add_argument("request", nargs="?"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_self_model)
     p = sub.add_parser("cognitive-boundaries"); p.set_defaults(func=cmd_cognitive_boundaries)
+
+    p = sub.add_parser("personality-status"); p.set_defaults(func=cmd_personality_status)
+    p = sub.add_parser("personality-profile"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_profile)
+    p = sub.add_parser("personality-style-contract"); p.add_argument("--profile"); p.set_defaults(func=cmd_personality_style_contract)
+    p = sub.add_parser("prompt-package"); p.add_argument("request"); p.add_argument("--profile"); p.add_argument("--output-contract"); p.set_defaults(func=cmd_prompt_package)
+    p = sub.add_parser("prompt-preview"); p.add_argument("request"); p.add_argument("--profile"); p.add_argument("--output-contract"); p.set_defaults(func=cmd_prompt_preview)
+    p = sub.add_parser("personality-regression-run"); p.set_defaults(func=cmd_personality_regression_run)
     p = sub.add_parser("cognitive-planning-status"); p.set_defaults(func=cmd_cognitive_planning_status)
     p = sub.add_parser("cognitive-plan"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_plan)
     p = sub.add_parser("adaptive-source-selection-status"); p.set_defaults(func=cmd_adaptive_source_selection_status)

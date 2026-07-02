@@ -1,6 +1,6 @@
 # Pandora Agent
 
-## MVP 28.0 – Cognitive Identity & Self Model
+## MVP 28.1 – Cognitive Identity & Self Model
 
 Pandora besitzt jetzt ein explizites, auslesbares Selbstmodell. Die neue Schicht beschreibt Name, Mission, Fähigkeiten, Grenzen, bekannte Schwächen und sichere Betriebsregeln. Sie ist bewusst read-only: keine Tool-Ausführung, keine Aktivierung, keine Obsidian-Schreiboperationen und keine Core-Änderungen.
 

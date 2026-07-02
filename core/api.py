@@ -98,6 +98,8 @@ from .cognitive_dashboard import CognitiveDashboardService
 from .review_to_action_workflow import ReviewToActionWorkflow
 from .action_proposal_handoff import ActionProposalHandoff
 from .cognitive_identity import CognitiveIdentityService
+from .personality_layer import PersonalityLayerService
+from .personality_layer_regression import PersonalityLayerRegressionService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -119,7 +121,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.0-cognitive-identity")
+app = FastAPI(title="Pandora Agent", version="28.1-personality-layer")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -848,6 +850,31 @@ def api_cognitive_identity_boundaries():
 @app.get("/api/cognitive/identity/self-model")
 def api_cognitive_identity_self_model(query: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
     return CognitiveIdentityService().self_model(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/personality/status")
+def api_personality_status():
+    return PersonalityLayerService().status()
+
+@app.get("/api/cognitive/personality/profile")
+def api_personality_profile(profile: str | None = None):
+    return PersonalityLayerService().profile(profile)
+
+@app.get("/api/cognitive/personality/style-contract")
+def api_personality_style_contract(profile: str | None = None):
+    return PersonalityLayerService().style_contract(profile)
+
+@app.get("/api/cognitive/prompt/package")
+def api_prompt_package(query: str, profile: str | None = None, output_contract: str | None = None):
+    return PersonalityLayerService().prompt_package(query, profile_name=profile, output_contract=output_contract)
+
+@app.get("/api/cognitive/prompt/preview")
+def api_prompt_preview(query: str, profile: str | None = None, output_contract: str | None = None):
+    return PersonalityLayerService().prompt_preview(query, profile_name=profile, output_contract=output_contract)
+
+@app.get("/api/cognitive/personality/regression")
+def api_personality_regression():
+    return PersonalityLayerRegressionService().run()
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():

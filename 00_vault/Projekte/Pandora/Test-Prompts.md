@@ -16,6 +16,7 @@ last_reviewed: 2026-06-29
 
 ## [[Test-Prompts]]
 - Was steht in meinem Vault?
+- Was steht in meinem Obsidian-Vault?
 - Bitte eine kurze Zusammenfassung zum Pandora-Projekt.
 - Welche Test-Prompts habe ich?
 - Wie ist der Leitgedanke zu Pandora?

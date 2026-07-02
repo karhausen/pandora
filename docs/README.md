@@ -46,3 +46,17 @@ Dann kann Pandora diese Inhalte über Knowledge Search und Context Injection sel
 python main.py learning-insights --rebuild
 python main.py learning-insight-status
 ```
+
+
+## MVP 28.1 – Personality Layer & Prompt Architecture
+
+Pandora besitzt jetzt zusätzlich zur Cognitive Identity eine getrennte Personality- und Prompt-Schicht. Sie erzeugt reproduzierbare Prompt-Pakete mit klaren Layern und bleibt dabei read-only.
+
+Wichtige Befehle:
+
+```bash
+python main.py personality-status
+python main.py personality-profile
+python main.py prompt-preview "Bitte plane den nächsten sicheren Schritt"
+python main.py personality-regression-run
+```
