@@ -97,6 +97,7 @@ from .review_cycle_engine import ReviewCycleEngine
 from .cognitive_dashboard import CognitiveDashboardService
 from .review_to_action_workflow import ReviewToActionWorkflow
 from .action_proposal_handoff import ActionProposalHandoff
+from .cognitive_identity import CognitiveIdentityService
 from .knowledge_governance import KnowledgeGovernanceService
 from .knowledge_editor import KnowledgeEditorService
 from .capability_graph import CapabilityGraphService
@@ -118,7 +119,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="27.8-action-proposal-handoff")
+app = FastAPI(title="Pandora Agent", version="28.0-cognitive-identity")
 
 
 class ToolProposalTaskRequest(BaseModel):
@@ -831,6 +832,22 @@ def api_action_proposal_handoff_status():
 @app.get("/api/cognitive/action-proposal-handoff/preview")
 def api_action_proposal_handoff_preview(query: str, cadence: str = "weekly", user_action: str = "ja", action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
     return ActionProposalHandoff().prepare(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/identity/status")
+def api_cognitive_identity_status():
+    return CognitiveIdentityService().status()
+
+@app.get("/api/cognitive/identity/card")
+def api_cognitive_identity_card():
+    return CognitiveIdentityService().identity_card()
+
+@app.get("/api/cognitive/identity/boundaries")
+def api_cognitive_identity_boundaries():
+    return CognitiveIdentityService().capability_boundaries()
+
+@app.get("/api/cognitive/identity/self-model")
+def api_cognitive_identity_self_model(query: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CognitiveIdentityService().self_model(query, provider_name=provider_name, model=model, timeout=timeout)
 
 @app.get("/api/cognitive/adaptive-tool-selection/status")
 def api_adaptive_tool_selection_status():

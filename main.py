@@ -81,6 +81,7 @@ from core.review_cycle_engine import ReviewCycleEngine
 from core.cognitive_dashboard import CognitiveDashboardService
 from core.review_to_action_workflow import ReviewToActionWorkflow
 from core.action_proposal_handoff import ActionProposalHandoff
+from core.cognitive_identity import CognitiveIdentityService
 from core.capability_graph import CapabilityGraphService
 from core.capability_gap_intelligence import CapabilityGapIntelligenceService
 from core.capability_actions import CapabilityActionService
@@ -624,6 +625,15 @@ def cmd_proposal_review_loop_preview(args):
 
 
 
+
+def cmd_cognitive_identity_status(args): _json(CognitiveIdentityService().status())
+
+def cmd_cognitive_identity_card(args): _json(CognitiveIdentityService().identity_card())
+
+def cmd_cognitive_self_model(args): _json(CognitiveIdentityService().self_model(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout))
+
+def cmd_cognitive_boundaries(args): _json(CognitiveIdentityService().capability_boundaries())
+
 def cmd_cognitive_planning_status(args):
     _json(CognitivePlanningEngine().status())
 
@@ -725,7 +735,7 @@ def cmd_cognitive_regression_run(args):
     _json(CognitiveIntegrationRegressionService().run_regression(provider_name=args.provider_name, model=args.model, timeout=args.timeout))
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Pandora Agent MVP 25.0")
+    parser = argparse.ArgumentParser(description="Pandora Agent MVP 28.0")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p = sub.add_parser("status"); p.set_defaults(func=cmd_status)
@@ -811,6 +821,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("cognitive-integration-status"); p.set_defaults(func=cmd_cognitive_integration_status)
     p = sub.add_parser("cognitive-integration-preview"); p.add_argument("request"); p.add_argument("--user-decision"); p.add_argument("--review-decision"); p.add_argument("--execution-decision"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--no-context-pipeline", action="store_true"); p.set_defaults(func=cmd_cognitive_integration_preview)
     p = sub.add_parser("cognitive-regression-run"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=1.5); p.set_defaults(func=cmd_cognitive_regression_run)
+    p = sub.add_parser("cognitive-identity-status"); p.set_defaults(func=cmd_cognitive_identity_status)
+    p = sub.add_parser("cognitive-identity-card"); p.set_defaults(func=cmd_cognitive_identity_card)
+    p = sub.add_parser("cognitive-self-model"); p.add_argument("request", nargs="?"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_self_model)
+    p = sub.add_parser("cognitive-boundaries"); p.set_defaults(func=cmd_cognitive_boundaries)
     p = sub.add_parser("cognitive-planning-status"); p.set_defaults(func=cmd_cognitive_planning_status)
     p = sub.add_parser("cognitive-plan"); p.add_argument("request"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.set_defaults(func=cmd_cognitive_plan)
     p = sub.add_parser("adaptive-source-selection-status"); p.set_defaults(func=cmd_adaptive_source_selection_status)

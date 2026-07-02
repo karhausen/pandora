@@ -1,5 +1,30 @@
 # Pandora Agent
 
+## MVP 28.0 – Cognitive Identity & Self Model
+
+Pandora besitzt jetzt ein explizites, auslesbares Selbstmodell. Die neue Schicht beschreibt Name, Mission, Fähigkeiten, Grenzen, bekannte Schwächen und sichere Betriebsregeln. Sie ist bewusst read-only: keine Tool-Ausführung, keine Aktivierung, keine Obsidian-Schreiboperationen und keine Core-Änderungen.
+
+Neue Befehle:
+
+```bash
+python main.py cognitive-identity-status
+python main.py cognitive-identity-card
+python main.py cognitive-boundaries
+python main.py cognitive-self-model
+python main.py cognitive-self-model "Baue ein neues Tool für Wetterdaten"
+```
+
+Neue API-Endpunkte:
+
+```text
+GET /api/cognitive/identity/status
+GET /api/cognitive/identity/card
+GET /api/cognitive/identity/boundaries
+GET /api/cognitive/identity/self-model?query=...
+```
+
+---
+
 ## MVP 27.1 – Adaptive Source Selection
 
 MVP 27.1 ergänzt Pandora um eine adaptive Quellenauswahl vor dem eigentlichen Context Builder. Der Cognitive Plan darf passende Informationsräume empfehlen; Python normalisiert, priorisiert und validiert diese Empfehlungen gegen Profil- und Governance-Regeln.

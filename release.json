@@ -1,17 +1,18 @@
 {
-  "version": "27.8",
-  "name": "MVP 27.8 – Action Proposal Handoff",
-  "based_on": "27.7-review-to-action-workflow",
-  "codename": "action_proposal_handoff",
-  "description": "Routes approved Review-to-Action cards into the matching Tool, Knowledge or Core proposal preparation workflow without execution or persistence.",
+  "version": "28.0",
+  "name": "MVP 28.0 – Cognitive Identity & Self Model",
+  "based_on": "27.8-action-proposal-handoff",
+  "codename": "cognitive_identity_self_model",
+  "description": "Adds a read-only identity and self-model layer so Pandora can clearly report what it is, what it can do, what it must not do, known weaknesses and safe operating boundaries.",
   "features": [
-    "Neue core/action_proposal_handoff.py",
-    "Review-to-Action Handoffs werden in domain-spezifische Proposal-Briefs überführt",
-    "Tool-, Knowledge- und Core-Recommendation Workflows werden einheitlich angebunden",
-    "CLI: action-proposal-handoff-status, action-proposal-handoff-preview",
-    "API: /api/cognitive/action-proposal-handoff/status und /preview",
-    "Doku docs/action_proposal_handoff.md",
-    "Regressionstests für Handoff-only Verhalten und Safety Flags"
+    "Neue core/cognitive_identity.py",
+    "Identity Card mit Mission, Systemtyp, Selbstbild und Nicht-Selbstbild",
+    "Capability Boundaries mit Stop-/Approval-Regeln und Truthfulness Rules",
+    "Self Model bündelt Identity, Capability Snapshot, kognitive Schnittstellen und Safe Operating Statement",
+    "CLI: cognitive-identity-status, cognitive-identity-card, cognitive-boundaries, cognitive-self-model",
+    "API: /api/cognitive/identity/status, /card, /boundaries und /self-model",
+    "Doku docs/cognitive_identity.md",
+    "Regressionstests für read-only Verhalten und Approval-Grenzen"
   ],
   "safety": [
     "Keine Code-Generierung",
@@ -20,8 +21,8 @@
     "Keine Vault-/Knowledge-Schreiboperation",
     "Keine Memory-Schreiboperation",
     "Keine Core-Änderung",
-    "Kein Release-Build",
-    "Nur reviewbare Proposal-Briefs nach User-Freigabe"
+    "Keine automatische Proposal-Freigabe",
+    "Nur erklärendes Selbstmodell und Preview-Assessment"
   ],
-  "build_time": "2026-07-01T00:00:00Z"
+  "build_time": "2026-07-02T00:00:00Z"
 }

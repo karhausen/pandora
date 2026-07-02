@@ -1,5 +1,13 @@
 # Changelog
 
+## MVP 28.0 – Cognitive Identity & Self Model
+
+- Added `core/cognitive_identity.py` as a read-only identity and self-model layer.
+- Added CLI commands `cognitive-identity-status`, `cognitive-identity-card`, `cognitive-boundaries` and `cognitive-self-model`.
+- Added API endpoints under `/api/cognitive/identity/*`.
+- Added explicit capability boundaries, truthfulness rules and safe operating statement.
+- Added regression tests for read-only guarantees and approval boundaries.
+
 ## MVP 27.2 – Adaptive Tool Selection
 
 - Added `core/adaptive_tool_selection.py`.
