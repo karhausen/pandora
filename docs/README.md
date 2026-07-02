@@ -73,3 +73,12 @@ python main.py personality-regression-run
 ## MVP 28.9 – Unified Proposal Queue
 
 Zentrale Review-Queue für alle EvolutionProposal-Typen. Die Queue sammelt, filtert, priorisiert und dokumentiert Entscheidungen, aktiviert aber keine Änderungen ohne Review, Tests und Benutzerfreigabe.
+
+
+## MVP 29.0 – Proposal Generator
+
+- Neuer `core/proposal_generator`-Layer für kontrollierte Proposal-Entwürfe.
+- Neue CLI: `proposal-generator status|prompt|generate|enqueue|batch`.
+- Neue API: `/api/proposal-generator/*`.
+- Neue GUI: `/proposal-generator` im Maintenance Center.
+- Sicherheitsmodus: review-only, keine Aktivierung, keine Code-Ausführung, keine Core-Änderung ohne Benutzerfreigabe.

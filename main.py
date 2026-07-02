@@ -102,6 +102,7 @@ from core.observation import SelfObservationManager
 from core.pattern import PatternRecognitionManager
 from core.prioritization import ImprovementPrioritizationManager
 from core.proposal_queue import UnifiedProposalQueueManager
+from core.proposal_generator import ProposalGeneratorManager
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -717,6 +718,27 @@ def cmd_goal_propose(args):
     _json(GoalManager().propose(args.request, provider_name=args.provider_name, model=args.model, timeout=args.timeout, max_goals=args.max_goals))
 
 
+# MVP 29.0 – Proposal Generator
+def _context_payload(args) -> dict:
+    if getattr(args, "context_file", None):
+        return json.loads(Path(args.context_file).read_text(encoding="utf-8"))
+    if getattr(args, "context_json", None):
+        return json.loads(args.context_json)
+    return {}
+
+def cmd_proposal_generator_status(args): _json(ProposalGeneratorManager().status())
+def cmd_proposal_generator_prompt(args): _json(ProposalGeneratorManager().prompt(args.request, proposal_type=args.type, context=_context_payload(args)))
+def cmd_proposal_generator_generate(args):
+    _json(ProposalGeneratorManager().generate(args.request, proposal_type=args.type, context=_context_payload(args), provider_name=args.provider_name, model=args.model, timeout=args.timeout, use_llm=args.use_llm))
+def cmd_proposal_generator_enqueue(args):
+    _json(ProposalGeneratorManager().enqueue(args.request, proposal_type=args.type, context=_context_payload(args), provider_name=args.provider_name, model=args.model, timeout=args.timeout, use_llm=args.use_llm))
+def cmd_proposal_generator_batch(args):
+    payload = _payload(args)
+    items = payload.get("items", payload if isinstance(payload, list) else [])
+    if not isinstance(items, list):
+        raise SystemExit("batch payload must be a list or {'items': [...]}")
+    _json(ProposalGeneratorManager().batch(items, enqueue=args.enqueue, provider_name=args.provider_name, model=args.model, timeout=args.timeout, use_llm=args.use_llm))
+
 def cmd_proposal_queue_status(args): _json(UnifiedProposalQueueManager().status())
 def cmd_proposal_queue_list(args): _json(UnifiedProposalQueueManager().list(limit=args.limit, status=args.status, proposal_type=args.type, min_priority=args.min_priority, query=args.query))
 def cmd_proposal_queue_show(args): _json(UnifiedProposalQueueManager().show(args.item_id))
@@ -759,7 +781,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "28.9.2",
+        "version": "29.0",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -775,6 +797,9 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "observation status", "argv": ["observation", "status"]},
         {"label": "pattern status", "argv": ["pattern", "status"]},
         {"label": "priority status", "argv": ["priority", "status"]},
+        {"label": "proposal-generator status", "argv": ["proposal-generator", "status"]},
+        {"label": "proposal-generator generate", "argv": ["proposal-generator", "generate", "Tool CLI-Test verbessern", "--type", "TOOL"]},
+        {"label": "proposal-generator enqueue", "argv": ["proposal-generator", "enqueue", "GUI Review verbessern", "--type", "GUI"]},
         {"label": "proposal-queue status", "argv": ["proposal-queue", "status"]},
         {"label": "proposal-queue list", "argv": ["proposal-queue", "list"]},
         {"label": "proposal-queue add", "argv": ["proposal-queue", "add", "--type", "TOOL", "--title", "CLI Contract Test", "--priority", "MEDIUM"]},
@@ -801,7 +826,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "28.9.2", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.0", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -816,6 +841,9 @@ def cmd_selftest_api(args):
         "/api/pattern-recognition/status",
         "/api/prioritization/status",
         "/api/priority/status",
+        "/api/proposal-generator/status",
+        "/api/proposal-generator/generate",
+        "/api/proposal-generator/enqueue",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
@@ -823,7 +851,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "28.9.2", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.0", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -841,12 +869,13 @@ def cmd_selftest_integration(args):
     required_api = [
         "/api/evolution/status", "/api/genome/status", "/api/evolution-factory/status",
         "/api/observation/status", "/api/pattern/status", "/api/priority/status",
+        "/api/proposal-generator/status", "/api/proposal-generator/generate", "/api/proposal-generator/enqueue",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
     ok = all(r["ok"] for r in cli_results) and all(r["ok"] for r in api_results)
-    _json({"kind": "integration_hardening_selftest", "version": "28.9.2", "ok": ok, "cli": cli_results, "api": api_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.0", "ok": ok, "cli": cli_results, "api": api_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1148,6 +1177,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("workflow-dashboard-show"); p.add_argument("workflow_id"); p.set_defaults(func=cmd_workflow_dashboard_show)
 
 
+    p = sub.add_parser("proposal-generator-status"); p.set_defaults(func=cmd_proposal_generator_status)
+    p = sub.add_parser("proposal-generator-prompt"); p.add_argument("request"); p.add_argument("--type"); p.add_argument("--context-json"); p.add_argument("--context-file"); p.set_defaults(func=cmd_proposal_generator_prompt)
+    p = sub.add_parser("proposal-generator-generate"); p.add_argument("request"); p.add_argument("--type"); p.add_argument("--context-json"); p.add_argument("--context-file"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_generator_generate)
+    p = sub.add_parser("proposal-generator-enqueue"); p.add_argument("request"); p.add_argument("--type"); p.add_argument("--context-json"); p.add_argument("--context-file"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_generator_enqueue)
+    p = sub.add_parser("proposal-generator-batch"); p.add_argument("--json", dest="json_payload"); p.add_argument("--file"); p.add_argument("--enqueue", action="store_true"); p.add_argument("--provider-name"); p.add_argument("--model"); p.add_argument("--timeout", type=float, default=8.0); p.add_argument("--use-llm", action="store_true"); p.set_defaults(func=cmd_proposal_generator_batch)
+
     p = sub.add_parser("proposal-queue-status"); p.set_defaults(func=cmd_proposal_queue_status)
     p = sub.add_parser("proposal-queue-list"); p.add_argument("--limit", type=int, default=100); p.add_argument("--status"); p.add_argument("--type"); p.add_argument("--min-priority", type=int); p.add_argument("--query"); p.set_defaults(func=cmd_proposal_queue_list)
     p = sub.add_parser("proposal-queue-add"); p.add_argument("--type", required=True, choices=["TOOL", "SKILL", "KNOWLEDGE", "WORKFLOW", "CORE", "GUI", "PROMPT", "MEMORY", "PERSONALITY", "LEARNING", "tool", "skill", "knowledge", "workflow", "core", "gui", "prompt", "memory", "personality", "learning"]); p.add_argument("--title", required=True); p.add_argument("--description"); p.add_argument("--priority", default="MEDIUM"); p.add_argument("--source", default="manual_cli"); p.add_argument("--confidence", type=float, default=0.5); p.add_argument("--impact", default="medium"); p.add_argument("--risk", default="medium"); p.set_defaults(func=cmd_proposal_queue_add)
@@ -1404,6 +1439,11 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("prioritization", "history"): "improvement-priority-history",
         ("prioritization", "weights"): "improvement-priority-weights",
 
+        ("proposal-generator", "status"): "proposal-generator-status",
+        ("proposal-generator", "prompt"): "proposal-generator-prompt",
+        ("proposal-generator", "generate"): "proposal-generator-generate",
+        ("proposal-generator", "enqueue"): "proposal-generator-enqueue",
+        ("proposal-generator", "batch"): "proposal-generator-batch",
         ("proposal-queue", "status"): "proposal-queue-status",
         ("proposal-queue", "list"): "proposal-queue-list",
         ("proposal-queue", "add"): "proposal-queue-add",

@@ -128,3 +128,12 @@
 - Added CLI commands for proposal queue operation.
 - Added Maintenance Center link and `/proposal-queue` GUI.
 - Preserves safety contract: queue only, no automatic activation.
+
+
+## MVP 29.0 – Proposal Generator
+
+- Neuer `core/proposal_generator`-Layer für kontrollierte Proposal-Entwürfe.
+- Neue CLI: `proposal-generator status|prompt|generate|enqueue|batch`.
+- Neue API: `/api/proposal-generator/*`.
+- Neue GUI: `/proposal-generator` im Maintenance Center.
+- Sicherheitsmodus: review-only, keine Aktivierung, keine Code-Ausführung, keine Core-Änderung ohne Benutzerfreigabe.

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pandora Proposal Generator</title>
+  <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/proposal-generator.css" />
+</head>
+<body>
+  <main class="generator-shell">
+    <header class="generator-hero">
+      <div>
+        <span class="eyebrow">MVP 29.0</span>
+        <h1>Proposal Generator</h1>
+        <p>Erzeugt kontrollierte EvolutionProposal-Entwürfe. Keine Aktivierung, kein Merge, keine Änderung ohne Review und Benutzerfreigabe.</p>
+      </div>
+      <nav class="hero-actions">
+        <a class="secondary-button" href="/proposal-queue">Proposal Queue</a>
+        <a class="secondary-button" href="/maintenance">Maintenance</a>
+        <a class="back-button" href="/">Chat</a>
+      </nav>
+    </header>
+
+    <section id="generatorStatus" class="status-card">Lade Proposal Generator ...</section>
+
+    <section class="generator-panel card">
+      <h2>Proposal-Entwurf erzeugen</h2>
+      <label for="proposalRequest">Anfrage</label>
+      <textarea id="proposalRequest" rows="4">Tool-Fehler besser beobachten und als Review-Vorschlag vorbereiten</textarea>
+      <div class="row">
+        <label for="proposalType">Typ</label>
+        <select id="proposalType">
+          <option value="">Automatisch erkennen</option>
+          <option value="tool">Tool</option>
+          <option value="skill">Skill</option>
+          <option value="knowledge">Knowledge</option>
+          <option value="workflow">Workflow</option>
+          <option value="core">Core</option>
+          <option value="gui">GUI</option>
+          <option value="prompt">Prompt</option>
+          <option value="memory">Memory</option>
+          <option value="personality">Personality</option>
+          <option value="learning">Learning</option>
+        </select>
+        <label class="checkbox"><input id="useLlm" type="checkbox" /> LLM verwenden</label>
+      </div>
+      <div class="actions">
+        <button id="generateBtn" type="button">Nur Vorschau</button>
+        <button id="enqueueBtn" type="button">In Queue legen</button>
+      </div>
+      <pre id="proposalOutput" class="preview-box">Noch kein Entwurf erzeugt.</pre>
+    </section>
+  </main>
+  <script src="/web/proposal-generator.js?v=29.0"></script>
+</body>
+</html>

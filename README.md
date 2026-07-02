@@ -90,3 +90,12 @@ python main.py selftest cli
 python main.py selftest api
 python main.py selftest integration
 ```
+
+
+## MVP 29.0 – Proposal Generator
+
+- Neuer `core/proposal_generator`-Layer für kontrollierte Proposal-Entwürfe.
+- Neue CLI: `proposal-generator status|prompt|generate|enqueue|batch`.
+- Neue API: `/api/proposal-generator/*`.
+- Neue GUI: `/proposal-generator` im Maintenance Center.
+- Sicherheitsmodus: review-only, keine Aktivierung, keine Code-Ausführung, keine Core-Änderung ohne Benutzerfreigabe.

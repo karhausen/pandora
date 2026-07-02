@@ -30,6 +30,7 @@ from .observation import SelfObservationManager
 from .pattern import PatternRecognitionManager
 from .prioritization import ImprovementPrioritizationManager
 from .proposal_queue import UnifiedProposalQueueManager
+from .proposal_generator import ProposalGeneratorManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -128,10 +129,29 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="28.9.2-cli-api-integration-hardening")
+app = FastAPI(title="Pandora Agent", version="29.0-proposal-generator")
 
 
 
+
+
+class ProposalGeneratorRequest(BaseModel):
+    request: str
+    proposal_type: str | None = None
+    context: dict[str, Any] | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 8.0
+    use_llm: bool = False
+
+
+class ProposalGeneratorBatchRequest(BaseModel):
+    items: list[dict[str, Any]]
+    enqueue: bool = False
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 8.0
+    use_llm: bool = False
 
 class ProposalQueueEnqueueRequest(BaseModel):
     proposal: dict[str, Any]
@@ -3045,6 +3065,47 @@ def web_prioritization_css():
     return FileResponse(WEB_DIR / "prioritization.css")
 
 
+
+# MVP 29.0 – Proposal Generator
+@app.get("/api/proposal-generator/status")
+def api_proposal_generator_status():
+    return ProposalGeneratorManager().status()
+
+
+@app.post("/api/proposal-generator/prompt")
+def api_proposal_generator_prompt(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().prompt(req.request, proposal_type=req.proposal_type, context=req.context)
+
+
+@app.post("/api/proposal-generator/generate")
+def api_proposal_generator_generate(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().generate(req.request, proposal_type=req.proposal_type, context=req.context, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.post("/api/proposal-generator/enqueue")
+def api_proposal_generator_enqueue(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().enqueue(req.request, proposal_type=req.proposal_type, context=req.context, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.post("/api/proposal-generator/batch")
+def api_proposal_generator_batch(req: ProposalGeneratorBatchRequest):
+    return ProposalGeneratorManager().batch(req.items, enqueue=req.enqueue, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.get("/proposal-generator")
+def web_proposal_generator():
+    return FileResponse(WEB_DIR / "proposal-generator.html")
+
+
+@app.get("/web/proposal-generator.js")
+def web_proposal_generator_js():
+    return FileResponse(WEB_DIR / "proposal-generator.js")
+
+
+@app.get("/web/proposal-generator.css")
+def web_proposal_generator_css():
+    return FileResponse(WEB_DIR / "proposal-generator.css")
+
 # MVP 28.9 – Unified Proposal Queue
 @app.get("/api/proposal-queue/status")
 def api_proposal_queue_status():
@@ -3171,9 +3232,9 @@ def api_priority_weights_alias():
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "28.9.2",
+        "version": "29.0",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3190,11 +3251,14 @@ def api_selftest_api_contracts():
         "/api/pattern-recognition/status",
         "/api/prioritization/status",
         "/api/priority/status",
+        "/api/proposal-generator/status",
         "/api/proposal-queue/status",
         "/api/proposal-queue/items",
         "/api/proposal-queue/enqueue",
+        "/api/proposal-generator/generate",
+        "/api/proposal-generator/enqueue",
         "/api/proposal-queue/from-factory",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "28.9.2", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.0", "ok": all(c["ok"] for c in checks), "checks": checks}
