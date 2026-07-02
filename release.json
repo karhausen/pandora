@@ -1,9 +1,9 @@
 {
-  "version": "28.9",
-  "name": "Unified Proposal Queue",
-  "based_on": "28.8-improvement-prioritization",
-  "codename": "unified_proposal_queue",
-  "description": "Introduces one central review queue for all EvolutionProposal types and connects prioritized candidates to the Evolution Factory without automatic activation.",
+  "version": "28.9.1",
+  "name": "Unified Proposal Queue CLI/API Alias Fix",
+  "based_on": "28.9-unified-proposal-queue",
+  "codename": "unified_proposal_queue_cli_api_alias_fix",
+  "description": "Fixes documented MVP 28.x CLI command style and adds compatibility API aliases for Genome, Evolution Factory, Pattern Recognition and Priority endpoints.",
   "features": [
     "New core/proposal_queue package",
     "SQLite-backed unified_proposal_queue.db storage",
@@ -12,7 +12,9 @@
     "New /api/proposal-queue/* API endpoints",
     "New proposal-queue-* CLI commands",
     "New /proposal-queue Maintenance GUI page",
-    "Maintenance Center navigation integration"
+    "Maintenance Center navigation integration",
+    "Nested CLI compatibility: genome status, evolution status, evolution-factory status, observation status, pattern status, priority status, proposal-queue status",
+    "API compatibility aliases: /api/genome/*, /api/evolution-factory/*, /api/pattern-recognition/*, /api/priority/*"
   ],
   "safety": [
     "No automatic proposal activation",
@@ -22,6 +24,6 @@
     "Queue decisions only change queue status",
     "Evolution lifecycle remains separate from activation"
   ],
-  "build_time": "2026-07-02T10:58:41Z",
-  "mvp": "28.9"
+  "build_time": "2026-07-02T11:20:00Z",
+  "mvp": "28.9.1"
 }

@@ -55,3 +55,23 @@ Runtime-, Test- und Build-Artefakte sind nicht Teil der Clean-ZIP.
 ## MVP 28.9 – Unified Proposal Queue
 
 Zentrale Review-Queue für alle EvolutionProposal-Typen. Die Queue sammelt, filtert, priorisiert und dokumentiert Entscheidungen, aktiviert aber keine Änderungen ohne Review, Tests und Benutzerfreigabe.
+
+
+## MVP 28.9.1 – CLI/API Alias Fix
+
+Dieses Fix-Release hält die vorhandenen flachen CLI-Kommandos weiter kompatibel und ergänzt die dokumentierte, besser lesbare 28.x-Schreibweise.
+
+Beispiele:
+
+```powershell
+python main.py genome status
+python main.py genome validate
+python main.py evolution status
+python main.py evolution-factory status
+python main.py observation status
+python main.py pattern status
+python main.py priority status
+python main.py proposal-queue status
+```
+
+Zusätzlich wurden API-Aliase ergänzt, z. B. `/api/genome/status`, `/api/evolution-factory/status`, `/api/pattern-recognition/status` und `/api/priority/status`.

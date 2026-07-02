@@ -1208,8 +1208,94 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
+    """Compatibility layer for the cleaner MVP 28.x command style.
+
+    Older Pandora CLI commands are flat, e.g. `evolution-status`. During the
+    28.4-28.9 roadmap we started documenting the more readable form
+    `evolution status` / `genome status`. This normalizer keeps both styles
+    working without removing any existing command.
+    """
+    if len(argv) < 2:
+        return argv
+
+    first, second = argv[0], argv[1]
+    rest = argv[2:]
+
+    aliases = {
+        ("genome", "status"): "evolution-status",
+        ("genome", "show"): "evolution-genome",
+        ("genome", "get"): "evolution-genome",
+        ("genome", "validate"): "evolution-validate",
+        ("genome", "rules"): "evolution-rules",
+        ("genome", "lifecycle"): "evolution-lifecycle",
+        ("genome", "types"): "evolution-types",
+
+        ("evolution", "status"): "evolution-status",
+        ("evolution", "genome"): "evolution-genome",
+        ("evolution", "validate"): "evolution-validate",
+        ("evolution", "lifecycle"): "evolution-lifecycle",
+        ("evolution", "types"): "evolution-types",
+        ("evolution", "rules"): "evolution-rules",
+        ("evolution", "migration-preview"): "evolution-migration-preview",
+        ("evolution", "normalize-proposal"): "evolution-normalize-proposal",
+
+        ("evolution-factory", "status"): "evolution-factory-status",
+        ("evolution-factory", "routes"): "evolution-factory-routes",
+        ("evolution-factory", "preview"): "evolution-factory-preview",
+        ("evolution-factory", "create"): "evolution-factory-create",
+        ("evolution-factory", "batch-preview"): "evolution-factory-batch-preview",
+        ("evolution-factory", "migration-plan"): "evolution-factory-migration-plan",
+
+        ("observation", "status"): "observation-status",
+        ("observation", "health"): "observation-health",
+        ("observation", "events"): "observation-events",
+        ("observation", "statistics"): "observation-statistics",
+        ("observation", "runtime"): "observation-runtime",
+        ("observation", "export"): "observation-export",
+        ("observation", "record"): "observation-record",
+
+        ("pattern", "status"): "pattern-status",
+        ("pattern", "health"): "pattern-health",
+        ("pattern", "detect"): "pattern-detect",
+        ("pattern", "list"): "pattern-list",
+        ("pattern", "statistics"): "pattern-statistics",
+
+        ("priority", "status"): "improvement-priority-status",
+        ("priority", "health"): "improvement-priority-health",
+        ("priority", "candidates"): "improvement-priority-candidates",
+        ("priority", "prioritize"): "improvement-priority-prioritize",
+        ("priority", "queue"): "improvement-priority-queue",
+        ("priority", "history"): "improvement-priority-history",
+        ("priority", "weights"): "improvement-priority-weights",
+
+        ("prioritization", "status"): "improvement-priority-status",
+        ("prioritization", "health"): "improvement-priority-health",
+        ("prioritization", "candidates"): "improvement-priority-candidates",
+        ("prioritization", "prioritize"): "improvement-priority-prioritize",
+        ("prioritization", "queue"): "improvement-priority-queue",
+        ("prioritization", "history"): "improvement-priority-history",
+        ("prioritization", "weights"): "improvement-priority-weights",
+
+        ("proposal-queue", "status"): "proposal-queue-status",
+        ("proposal-queue", "list"): "proposal-queue-list",
+        ("proposal-queue", "show"): "proposal-queue-show",
+        ("proposal-queue", "from-factory"): "proposal-queue-from-factory",
+        ("proposal-queue", "import-prioritized"): "proposal-queue-import-prioritized",
+        ("proposal-queue", "decide"): "proposal-queue-decide",
+        ("proposal-queue", "history"): "proposal-queue-history",
+        ("proposal-queue", "stats"): "proposal-queue-stats",
+    }
+
+    replacement = aliases.get((first, second))
+    if replacement:
+        return [replacement, *rest]
+    return argv
+
+
 def main() -> None:
-    args = build_parser().parse_args()
+    argv = _normalize_nested_cli_args(sys.argv[1:])
+    args = build_parser().parse_args(argv)
     args.func(args)
 
 

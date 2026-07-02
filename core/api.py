@@ -3104,3 +3104,63 @@ def web_proposal_queue_js():
 @app.get("/web/proposal-queue.css")
 def web_proposal_queue_css():
     return FileResponse(WEB_DIR / "proposal-queue.css")
+
+# MVP 28.9.1 – Compatibility aliases for documented 28.x API naming
+@app.get("/api/genome/status")
+def api_genome_status_alias():
+    return EvolutionService().status()
+
+
+@app.get("/api/genome")
+def api_genome_alias():
+    return EvolutionService().genome()
+
+
+@app.get("/api/genome/validate")
+def api_genome_validate_alias():
+    return EvolutionService().validate_genome()
+
+
+@app.get("/api/evolution-factory/status")
+def api_evolution_factory_status_alias():
+    return EvolutionService().factory_status()
+
+
+@app.get("/api/evolution-factory/routes")
+def api_evolution_factory_routes_alias():
+    return EvolutionService().factory_routes()
+
+
+@app.get("/api/evolution-factory/preview")
+def api_evolution_factory_preview_alias(request: str, type: str | None = None, source: str = "manual"):
+    return EvolutionService().factory_preview(request, proposal_type=type, source=source)
+
+
+@app.get("/api/pattern-recognition/status")
+def api_pattern_recognition_status_alias():
+    return PatternRecognitionManager().status()
+
+
+@app.get("/api/pattern-recognition/health")
+def api_pattern_recognition_health_alias():
+    return PatternRecognitionManager().health()
+
+
+@app.get("/api/pattern-recognition/patterns")
+def api_pattern_recognition_patterns_alias(limit: int = 50, type: str | None = None):
+    return PatternRecognitionManager().patterns(limit=limit, pattern_type=type)
+
+
+@app.get("/api/priority/status")
+def api_priority_status_alias():
+    return ImprovementPrioritizationManager().status()
+
+
+@app.get("/api/priority/queue")
+def api_priority_queue_alias(limit: int = 50, level: str | None = None):
+    return ImprovementPrioritizationManager().queue(limit=limit, level=level)
+
+
+@app.get("/api/priority/weights")
+def api_priority_weights_alias():
+    return ImprovementPrioritizationManager().weights()
