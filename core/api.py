@@ -36,6 +36,7 @@ from .proposal_evolution import ProposalEvolutionManager
 from .adaptive_goals import AdaptiveGoalManager
 from .knowledge_evolution import KnowledgeEvolutionManager
 from .tool_evolution import ToolEvolutionManager
+from .core_evolution import CoreEvolutionManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -134,7 +135,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.4-tool-evolution")
+app = FastAPI(title="Pandora Agent", version="29.5-core-evolution")
 
 
 
@@ -2045,7 +2046,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/core-evolution", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -3461,6 +3462,59 @@ def web_tool_evolution_css():
     return FileResponse(WEB_DIR / "tool-evolution.css")
 
 
+
+
+# MVP 29.5 – Core Evolution
+@app.get("/api/core-evolution/status")
+def api_core_evolution_status():
+    return CoreEvolutionManager().status()
+
+
+@app.get("/api/core-evolution/health")
+def api_core_evolution_health(limit: int = 2000):
+    return CoreEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/core-evolution/analysis")
+def api_core_evolution_analysis(limit: int = 2000, query: str | None = None):
+    return CoreEvolutionManager().analysis(limit=limit, query=query)
+
+
+@app.get("/api/core-evolution/refactoring")
+def api_core_evolution_refactoring(limit: int = 2000, min_severity: str = "warning"):
+    return CoreEvolutionManager().refactoring(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/core-evolution/proposals")
+def api_core_evolution_proposals(limit: int = 2000, min_severity: str = "warning"):
+    return CoreEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/core-evolution/enqueue")
+def api_core_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return CoreEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/core-evolution/history")
+def api_core_evolution_history(limit: int = 50):
+    return CoreEvolutionManager().history(limit=limit)
+
+
+@app.get("/core-evolution")
+def web_core_evolution():
+    return FileResponse(WEB_DIR / "core-evolution.html")
+
+
+@app.get("/web/core-evolution.js")
+def web_core_evolution_js():
+    return FileResponse(WEB_DIR / "core-evolution.js")
+
+
+@app.get("/web/core-evolution.css")
+def web_core_evolution_css():
+    return FileResponse(WEB_DIR / "core-evolution.css")
+
+
 @app.get("/knowledge-evolution")
 def web_knowledge_evolution():
     return FileResponse(WEB_DIR / "knowledge-evolution.html")
@@ -3518,7 +3572,10 @@ def api_selftest_api_contracts():
         "/api/tool-evolution/health",
         "/api/tool-evolution/reviews",
         "/api/tool-evolution/proposals",
+        "/api/core-evolution/status",
+        "/api/core-evolution/health",
+        "/api/core-evolution/proposals",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.4", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.5", "ok": all(c["ok"] for c in checks), "checks": checks}

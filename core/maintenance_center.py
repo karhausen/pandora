@@ -82,6 +82,7 @@ class MaintenanceCenterService:
             MaintenanceLink("Capability Explorer", "/capability-explorer", "Fähigkeiten, Lücken und Capability Graph nachvollziehen.", "capabilities", 10),
             MaintenanceLink("Tool Center", "/tools-center", "Tools, Status und Aktivierung kontrollieren.", "capabilities", 20, risk="controlled_activation"),
             MaintenanceLink("Tool Evolution", "/tool-evolution", "Tool Health, Reviews, Lifecycle und Refactoring-Vorschlaege pruefen – ohne automatische Aenderungen.", "capabilities", 25, risk="human_approval", badge="Neu"),
+            MaintenanceLink("Core Evolution", "/core-evolution", "Core Health, Risiko-Hotspots und Refactoring-Proposals pruefen – niemals automatische Core-Aenderungen.", "evolution", 27, risk="human_approval", badge="Neu"),
             MaintenanceLink("Skill Center", "/skills-center", "Skills, Kandidaten und Aktivierungen verwalten.", "capabilities", 30, risk="controlled_activation"),
             MaintenanceLink("LLM Profiles", "/llm-profiles", "Provider, Modelle und Profilstatus prüfen.", "configuration", 10, risk="configuration"),
             MaintenanceLink("Cognitive Dashboard", "/cognitive-dashboard", "Identity, Personality, Prompt-Layer und kognitive Pipeline prüfen.", "configuration", 20),

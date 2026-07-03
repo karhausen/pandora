@@ -1,3 +1,10 @@
+# MVP 29.4.5 – Generic Tool Generator Architecture Fix
+
+- ToolGenerator und ToolTestGenerator capability-agnostisch neu aufgebaut.
+- `_looks_like_*`-Sonderfälle entfernt.
+- ToolProposalManager nutzt ToolDesign → Code Generation statt domänenspezifischer Python-Zweige.
+- Fallbacks erzeugen nur noch reviewpflichtige Scaffolds und keine fachlich vorgetäuschten Tools.
+
 # MVP 29.4.1 – LLM Capability Gap Analyzer
 
 - Added semantic LLM-first capability gap analysis against Pandora's current tool/skill/knowledge state.

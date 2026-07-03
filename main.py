@@ -107,6 +107,7 @@ from core.proposal_evolution import ProposalEvolutionManager
 from core.adaptive_goals import AdaptiveGoalManager
 from core.knowledge_evolution import KnowledgeEvolutionManager
 from core.tool_evolution import ToolEvolutionManager
+from core.core_evolution import CoreEvolutionManager
 from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
@@ -812,7 +813,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.4.5",
+        "version": "29.5",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -851,6 +852,11 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "tool-evolution reviews", "argv": ["tool-evolution", "reviews"]},
         {"label": "tool-evolution lifecycle", "argv": ["tool-evolution", "lifecycle"]},
         {"label": "tool-evolution proposals", "argv": ["tool-evolution", "proposals"]},
+        {"label": "core-evolution status", "argv": ["core-evolution", "status"]},
+        {"label": "core-evolution health", "argv": ["core-evolution", "health"]},
+        {"label": "core-evolution analysis", "argv": ["core-evolution", "analysis"]},
+        {"label": "core-evolution refactoring", "argv": ["core-evolution", "refactoring"]},
+        {"label": "core-evolution proposals", "argv": ["core-evolution", "proposals"]},
     ]
 
 
@@ -883,6 +889,16 @@ def cmd_tool_evolution_proposals(args): _json(ToolEvolutionManager().proposals(l
 def cmd_tool_evolution_enqueue(args): _json(ToolEvolutionManager().enqueue(limit=args.limit, min_severity=args.min_severity))
 def cmd_tool_evolution_history(args): _json(ToolEvolutionManager().history(limit=args.limit))
 
+
+# MVP 29.5 – Core Evolution
+def cmd_core_evolution_status(args): _json(CoreEvolutionManager().status())
+def cmd_core_evolution_health(args): _json(CoreEvolutionManager().health(limit=args.limit))
+def cmd_core_evolution_analysis(args): _json(CoreEvolutionManager().analysis(limit=args.limit, query=args.query))
+def cmd_core_evolution_refactoring(args): _json(CoreEvolutionManager().refactoring(limit=args.limit, min_severity=args.min_severity))
+def cmd_core_evolution_proposals(args): _json(CoreEvolutionManager().proposals(limit=args.limit, min_severity=args.min_severity, enqueue=False))
+def cmd_core_evolution_enqueue(args): _json(CoreEvolutionManager().enqueue(limit=args.limit, min_severity=args.min_severity))
+def cmd_core_evolution_history(args): _json(CoreEvolutionManager().history(limit=args.limit))
+
 def cmd_selftest_cli(args):
     parser = build_parser()
     results = []
@@ -901,7 +917,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.4.5", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.5", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -940,7 +956,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.4.5", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.5", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -990,7 +1006,7 @@ def cmd_selftest_integration(args):
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
     )
-    _json({"kind": "integration_hardening_selftest", "version": "29.4.5", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.5", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1340,6 +1356,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("tool-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_tool_evolution_enqueue)
     p = sub.add_parser("tool-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_tool_evolution_history)
 
+    p = sub.add_parser("core-evolution-status"); p.set_defaults(func=cmd_core_evolution_status)
+    p = sub.add_parser("core-evolution-health"); p.add_argument("--limit", type=int, default=2000); p.set_defaults(func=cmd_core_evolution_health)
+    p = sub.add_parser("core-evolution-analysis"); p.add_argument("--limit", type=int, default=2000); p.add_argument("--query"); p.set_defaults(func=cmd_core_evolution_analysis)
+    p = sub.add_parser("core-evolution-refactoring"); p.add_argument("--limit", type=int, default=2000); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_core_evolution_refactoring)
+    p = sub.add_parser("core-evolution-proposals"); p.add_argument("--limit", type=int, default=2000); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_core_evolution_proposals)
+    p = sub.add_parser("core-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_core_evolution_enqueue)
+    p = sub.add_parser("core-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_core_evolution_history)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1650,6 +1674,16 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("tools", "health"): "tool-evolution-health",
         ("tools", "review"): "tool-evolution-reviews",
         ("tools", "lifecycle"): "tool-evolution-lifecycle",
+
+        ("core-evolution", "status"): "core-evolution-status",
+        ("core-evolution", "health"): "core-evolution-health",
+        ("core-evolution", "analysis"): "core-evolution-analysis",
+        ("core-evolution", "refactoring"): "core-evolution-refactoring",
+        ("core-evolution", "proposals"): "core-evolution-proposals",
+        ("core-evolution", "enqueue"): "core-evolution-enqueue",
+        ("core-evolution", "history"): "core-evolution-history",
+        ("core", "evolution-status"): "core-evolution-status",
+        ("core", "evolution-health"): "core-evolution-health",
 
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",

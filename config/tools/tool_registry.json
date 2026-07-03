@@ -52,5 +52,43 @@
     "function": "run",
     "aliases": [],
     "installed_from": null
+  },
+  "word_count": {
+    "id": "word_count",
+    "name": "Word Count",
+    "description": "Counts words in input text.",
+    "version": "0.1.0",
+    "input_schema": {
+      "text": "str"
+    },
+    "output_schema": {
+      "count": "int"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.word_count",
+    "function": "run",
+    "aliases": [],
+    "installed_from": "tool_20260702_135450_3461892d"
+  },
+  "prime_number_calculation": {
+    "id": "prime_number_calculation",
+    "name": "Prime Number Calculation",
+    "description": "Checks whether an integer is prime and can return all prime numbers up to a limit.",
+    "version": "0.1.0",
+    "input_schema": {
+      "number": "int",
+      "limit": "int"
+    },
+    "output_schema": {
+      "is_prime": "bool",
+      "primes": "list"
+    },
+    "security_level": "SAFE",
+    "status": "ACTIVE",
+    "module": "generated_tools.prime_number_calculation",
+    "function": "run",
+    "aliases": [],
+    "installed_from": "tool_20260702_135642_dcc9a0fa"
   }
 }

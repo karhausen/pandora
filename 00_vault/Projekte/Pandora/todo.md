@@ -24,6 +24,7 @@ last_reviewed: 2026-06-30
 #### [[todo]]
 
 
+- [ ] In der Chat-GUI Indikatoren (LED-Style) für local_llm, cloud_llm, Tool-Use .... 
 - [ ] Pandora soll über Chat die Möglichkeit haben Notizen in das Vault zu legen
 - [ ] Die Ordner memory und data sollen über .env konfigurierbar sein
 - [ ] Die Dateien in docs zukünftig ins Vault kopieren

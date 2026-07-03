@@ -44,3 +44,8 @@ python main.py selftest integration
 ## Release-Hinweis
 
 Runtime-, Test- und Build-Artefakte sind nicht Teil der Clean-ZIP.
+
+
+## MVP 29.5 – Core Evolution
+
+Core Evolution analysiert Core Health, Risiko-Hotspots und Refactoring-Kandidaten. Es erzeugt nur reviewpflichtige Proposals und ändert niemals automatisch Core-Dateien.

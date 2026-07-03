@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pandora – Core Evolution</title>
+  <link rel="stylesheet" href="/web/core-evolution.css" />
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">MVP 29.5</p>
+      <h1>Core Evolution</h1>
+      <p>Analysiert Core Health, Risiko-Hotspots und Refactoring-Kandidaten. Keine automatische Core-Aenderung.</p>
+    </header>
+    <section class="cards" id="summary"></section>
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Refactoring-Kandidaten</h2>
+        <button id="refresh">Aktualisieren</button>
+      </div>
+      <div id="candidates" class="list"></div>
+    </section>
+    <section class="panel">
+      <h2>Risiko-Hotspots</h2>
+      <div id="hotspots" class="list"></div>
+    </section>
+  </main>
+  <script src="/web/core-evolution.js"></script>
+</body>
+</html>

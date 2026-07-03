@@ -1,7 +1,7 @@
 {
-  "version": "29.4.5",
-  "name": "MVP 29.4.5 – Generic Tool Generator Architecture Fix",
-  "based_on": "MVP 29.4 – Tool Evolution",
+  "version": "29.5",
+  "name": "MVP 29.5 – Core Evolution",
+  "based_on": "MVP 29.4.5 – Generic Tool Generator",
   "codename": "llm_capability_gap_analyzer",
   "description": "Replaces keyword-based capability gap routing with an LLM-first semantic analyzer that compares the user request with Pandora's current tools, skills, knowledge and policies. Python validates the recommendation and prevents unrelated fallback tool execution.",
   "features": [
@@ -33,5 +33,6 @@
   "artifact": "pandora_agent_mvp_29_4_5_generic_tool_generator_clean.zip",
   "runtime_artifacts_removed": true,
   "build_artifacts_removed": true,
-  "test_artifacts_removed": true
+  "test_artifacts_removed": true,
+  "created_at": "2026-07-03T00:00:00+00:00"
 }
