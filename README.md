@@ -49,3 +49,20 @@ Runtime-, Test- und Build-Artefakte sind nicht Teil der Clean-ZIP.
 ## MVP 29.5 – Core Evolution
 
 Core Evolution analysiert Core Health, Risiko-Hotspots und Refactoring-Kandidaten. Es erzeugt nur reviewpflichtige Proposals und ändert niemals automatisch Core-Dateien.
+
+
+## MVP 29.6 – Decision Learning
+
+Pandora records user decisions on Evolution Proposals and derives advisory decision patterns.
+
+Useful commands:
+
+```bash
+python main.py learning status
+python main.py learning history
+python main.py learning patterns
+python main.py learning statistics
+python main.py learning influence
+```
+
+Decision Learning never activates changes automatically.

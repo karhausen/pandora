@@ -1,3 +1,11 @@
+# MVP 29.6 – Decision Learning
+
+- Added Decision Learning as controlled experience layer.
+- Records proposal queue decisions automatically.
+- Adds advisory decision patterns and statistics.
+- Adds CLI/API contracts and Maintenance GUI page.
+- No automatic activation or autonomous changes.
+
 # MVP 29.4.5 – Generic Tool Generator Architecture Fix
 
 - ToolGenerator und ToolTestGenerator capability-agnostisch neu aufgebaut.

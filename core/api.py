@@ -37,6 +37,7 @@ from .adaptive_goals import AdaptiveGoalManager
 from .knowledge_evolution import KnowledgeEvolutionManager
 from .tool_evolution import ToolEvolutionManager
 from .core_evolution import CoreEvolutionManager
+from .decision_learning import DecisionLearningManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -135,7 +136,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.5-core-evolution")
+app = FastAPI(title="Pandora Agent", version="29.6-decision-learning")
 
 
 
@@ -201,6 +202,17 @@ class ProposalQueueDecisionRequest(BaseModel):
     decision: str
     note: str | None = None
     decided_by: str = "user"
+
+
+class DecisionLearningRecordRequest(BaseModel):
+    proposal_id: str
+    proposal_type: str = "tool"
+    decision: str
+    title: str = "Manual decision"
+    note: str | None = None
+    decided_by: str = "user"
+    priority: int = 50
+    risk: str = "medium"
 
 class ToolProposalTaskRequest(BaseModel):
     task: str
@@ -3188,7 +3200,7 @@ def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
     if req.item_id:
         return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
     if req.proposal is None:
-        return {"kind": "proposal_evolution_improve", "version": "29.4", "ok": False, "error": "proposal or item_id required"}
+        return {"kind": "proposal_evolution_improve", "version": "29.6", "ok": False, "error": "proposal or item_id required"}
     return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
 
 
@@ -3265,6 +3277,52 @@ def web_proposal_queue_js():
 @app.get("/web/proposal-queue.css")
 def web_proposal_queue_css():
     return FileResponse(WEB_DIR / "proposal-queue.css")
+
+
+# MVP 29.6 – Decision Learning
+@app.get("/api/learning/status")
+def api_decision_learning_status():
+    return DecisionLearningManager().status()
+
+
+@app.get("/api/learning/history")
+def api_decision_learning_history(limit: int = 100, type: str | None = None, decision: str | None = None):
+    return DecisionLearningManager().history(limit=limit, proposal_type=type, decision=decision)
+
+
+@app.get("/api/learning/patterns")
+def api_decision_learning_patterns(min_count: int = 2):
+    return DecisionLearningManager().patterns(min_count=min_count)
+
+
+@app.get("/api/learning/statistics")
+def api_decision_learning_statistics():
+    return DecisionLearningManager().statistics()
+
+
+@app.get("/api/learning/influence")
+def api_decision_learning_influence():
+    return DecisionLearningManager().influence()
+
+
+@app.post("/api/learning/record")
+def api_decision_learning_record(req: DecisionLearningRecordRequest):
+    return DecisionLearningManager().record_manual(proposal_id=req.proposal_id, proposal_type=req.proposal_type, decision=req.decision, title=req.title, note=req.note, decided_by=req.decided_by, priority=req.priority, risk=req.risk)
+
+
+@app.get("/decision-learning")
+def web_decision_learning():
+    return FileResponse(WEB_DIR / "decision-learning.html")
+
+
+@app.get("/web/decision-learning.js")
+def web_decision_learning_js():
+    return FileResponse(WEB_DIR / "decision-learning.js")
+
+
+@app.get("/web/decision-learning.css")
+def web_decision_learning_css():
+    return FileResponse(WEB_DIR / "decision-learning.css")
 
 # MVP 28.9.1 – Compatibility aliases for documented 28.x API naming
 @app.get("/api/genome/status")
@@ -3534,9 +3592,9 @@ def web_knowledge_evolution_css():
 def api_integration_status():
     return {
         "kind": "integration_hardening_status",
-        "version": "29.4",
+        "version": "29.6",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts", "decision_learning_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3575,7 +3633,11 @@ def api_selftest_api_contracts():
         "/api/core-evolution/status",
         "/api/core-evolution/health",
         "/api/core-evolution/proposals",
+        "/api/learning/status",
+        "/api/learning/history",
+        "/api/learning/patterns",
+        "/api/learning/statistics",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    return {"kind": "api_route_contract_selftest", "version": "29.5", "ok": all(c["ok"] for c in checks), "checks": checks}
+    return {"kind": "api_route_contract_selftest", "version": "29.6", "ok": all(c["ok"] for c in checks), "checks": checks}

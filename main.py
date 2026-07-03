@@ -108,6 +108,7 @@ from core.adaptive_goals import AdaptiveGoalManager
 from core.knowledge_evolution import KnowledgeEvolutionManager
 from core.tool_evolution import ToolEvolutionManager
 from core.core_evolution import CoreEvolutionManager
+from core.decision_learning import DecisionLearningManager
 from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
@@ -813,7 +814,7 @@ def cmd_proposal_queue_add(args):
     proposal = proposal_result.get("proposal", proposal_result)
     _json({
         "kind": "proposal_queue_add",
-        "version": "29.5",
+        "version": "29.6",
         "factory": proposal_result,
         "enqueue": UnifiedProposalQueueManager().enqueue(proposal),
         "activates_changes": False,
@@ -857,6 +858,10 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "core-evolution analysis", "argv": ["core-evolution", "analysis"]},
         {"label": "core-evolution refactoring", "argv": ["core-evolution", "refactoring"]},
         {"label": "core-evolution proposals", "argv": ["core-evolution", "proposals"]},
+        {"label": "learning status", "argv": ["learning", "status"]},
+        {"label": "learning history", "argv": ["learning", "history"]},
+        {"label": "learning patterns", "argv": ["learning", "patterns"]},
+        {"label": "learning statistics", "argv": ["learning", "statistics"]},
     ]
 
 
@@ -891,6 +896,15 @@ def cmd_tool_evolution_history(args): _json(ToolEvolutionManager().history(limit
 
 
 # MVP 29.5 – Core Evolution
+
+# MVP 29.6 – Decision Learning
+def cmd_decision_learning_status(args): _json(DecisionLearningManager().status())
+def cmd_decision_learning_history(args): _json(DecisionLearningManager().history(limit=args.limit, proposal_type=args.type, decision=args.decision))
+def cmd_decision_learning_patterns(args): _json(DecisionLearningManager().patterns(min_count=args.min_count))
+def cmd_decision_learning_statistics(args): _json(DecisionLearningManager().statistics())
+def cmd_decision_learning_influence(args): _json(DecisionLearningManager().influence())
+def cmd_decision_learning_record(args): _json(DecisionLearningManager().record_manual(proposal_id=args.proposal_id, proposal_type=args.type, decision=args.decision, title=args.title, note=args.note, decided_by=args.decided_by, priority=args.priority, risk=args.risk))
+
 def cmd_core_evolution_status(args): _json(CoreEvolutionManager().status())
 def cmd_core_evolution_health(args): _json(CoreEvolutionManager().health(limit=args.limit))
 def cmd_core_evolution_analysis(args): _json(CoreEvolutionManager().analysis(limit=args.limit, query=args.query))
@@ -917,7 +931,7 @@ def cmd_selftest_cli(args):
         except SystemExit as exc:
             results.append({"label": contract["label"], "raw": raw, "normalized": normalized, "ok": False, "error": f"parse failed: {exc}"})
     ok = all(r.get("ok") for r in results)
-    _json({"kind": "cli_integration_selftest", "version": "29.5", "ok": ok, "contracts": results})
+    _json({"kind": "cli_integration_selftest", "version": "29.6", "ok": ok, "contracts": results})
 
 
 def cmd_selftest_api(args):
@@ -956,7 +970,7 @@ def cmd_selftest_api(args):
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]
-    _json({"kind": "api_integration_selftest", "version": "29.5", "ok": all(c["ok"] for c in checks), "checks": checks})
+    _json({"kind": "api_integration_selftest", "version": "29.6", "ok": all(c["ok"] for c in checks), "checks": checks})
 
 
 def cmd_selftest_integration(args):
@@ -981,6 +995,7 @@ def cmd_selftest_integration(args):
         "/api/knowledge-evolution/status", "/api/knowledge-evolution/health", "/api/knowledge-evolution/gaps", "/api/knowledge-evolution/proposals",
         "/api/tool-evolution/status", "/api/tool-evolution/health", "/api/tool-evolution/reviews", "/api/tool-evolution/proposals",
         "/api/proposal-queue/status", "/api/proposal-queue/items", "/api/proposal-queue/enqueue",
+        "/api/learning/status", "/api/learning/history", "/api/learning/patterns", "/api/learning/statistics",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     api_results = [{"path": path, "ok": path in routes} for path in required_api]
@@ -1006,7 +1021,7 @@ def cmd_selftest_integration(args):
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
     )
-    _json({"kind": "integration_hardening_selftest", "version": "29.5", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
+    _json({"kind": "integration_hardening_selftest", "version": "29.6", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1364,6 +1379,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("core-evolution-enqueue"); p.add_argument("--limit", type=int, default=50); p.add_argument("--min-severity", default="warning", choices=["info", "warning", "error"]); p.set_defaults(func=cmd_core_evolution_enqueue)
     p = sub.add_parser("core-evolution-history"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_core_evolution_history)
 
+    p = sub.add_parser("decision-learning-status"); p.set_defaults(func=cmd_decision_learning_status)
+    p = sub.add_parser("decision-learning-history"); p.add_argument("--limit", type=int, default=100); p.add_argument("--type"); p.add_argument("--decision"); p.set_defaults(func=cmd_decision_learning_history)
+    p = sub.add_parser("decision-learning-patterns"); p.add_argument("--min-count", type=int, default=2); p.set_defaults(func=cmd_decision_learning_patterns)
+    p = sub.add_parser("decision-learning-statistics"); p.set_defaults(func=cmd_decision_learning_statistics)
+    p = sub.add_parser("decision-learning-influence"); p.set_defaults(func=cmd_decision_learning_influence)
+    p = sub.add_parser("decision-learning-record"); p.add_argument("proposal_id"); p.add_argument("--type", default="tool"); p.add_argument("--decision", required=True); p.add_argument("--title", default="Manual decision"); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.add_argument("--priority", type=int, default=50); p.add_argument("--risk", default="medium"); p.set_defaults(func=cmd_decision_learning_record)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1684,6 +1706,19 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("core-evolution", "history"): "core-evolution-history",
         ("core", "evolution-status"): "core-evolution-status",
         ("core", "evolution-health"): "core-evolution-health",
+
+        ("learning", "status"): "decision-learning-status",
+        ("learning", "history"): "decision-learning-history",
+        ("learning", "patterns"): "decision-learning-patterns",
+        ("learning", "statistics"): "decision-learning-statistics",
+        ("learning", "influence"): "decision-learning-influence",
+        ("learning", "record"): "decision-learning-record",
+        ("decision-learning", "status"): "decision-learning-status",
+        ("decision-learning", "history"): "decision-learning-history",
+        ("decision-learning", "patterns"): "decision-learning-patterns",
+        ("decision-learning", "statistics"): "decision-learning-statistics",
+        ("decision-learning", "influence"): "decision-learning-influence",
+        ("decision-learning", "record"): "decision-learning-record",
 
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",

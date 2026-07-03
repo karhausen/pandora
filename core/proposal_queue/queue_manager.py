@@ -7,6 +7,7 @@ from core.prioritization import ImprovementPrioritizationManager
 
 from .queue_schema import ProposalQueueItem, ProposalQueueStatus
 from .queue_storage import ProposalQueueStorage
+from core.decision_learning import DecisionLearningManager
 
 class UnifiedProposalQueueManager:
     """Single review queue for all controlled Pandora EvolutionProposals.
@@ -94,7 +95,14 @@ class UnifiedProposalQueueManager:
         return {"kind": "proposal_queue_item", "version": self.VERSION, "ok": item is not None, "item": item}
 
     def decide(self, queue_or_proposal_id: str, decision: str, note: str | None = None, decided_by: str = "user") -> dict[str, Any]:
-        return self.storage.decide(queue_or_proposal_id, decision=decision, note=note, decided_by=decided_by)
+        item_before = self.storage.get(queue_or_proposal_id)
+        result = self.storage.decide(queue_or_proposal_id, decision=decision, note=note, decided_by=decided_by)
+        if result.get("ok") and item_before:
+            try:
+                result["decision_learning"] = DecisionLearningManager().record_decision(item_before, result)
+            except Exception as exc:  # learning must not block queue decisions
+                result["decision_learning"] = {"ok": False, "error": f"{type(exc).__name__}: {exc}", "non_blocking": True}
+        return result
 
     def history(self, limit: int = 50) -> dict[str, Any]:
         return {"kind": "proposal_queue_history", "version": self.VERSION, "history": self.storage.history(limit=limit)}

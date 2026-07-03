@@ -1,38 +1,8 @@
 {
-  "version": "29.5",
-  "name": "MVP 29.5 – Core Evolution",
-  "based_on": "MVP 29.4.5 – Generic Tool Generator",
-  "codename": "llm_capability_gap_analyzer",
-  "description": "Replaces keyword-based capability gap routing with an LLM-first semantic analyzer that compares the user request with Pandora's current tools, skills, knowledge and policies. Python validates the recommendation and prevents unrelated fallback tool execution.",
-  "features": [
-    "Adds core/capability_gap_analyzer.py",
-    "ToolDevelopmentAgent now uses semantic LLM capability analysis instead of keyword gap detection as the routing decision",
-    "Coordinator and ChatService prevent unsafe fallback to unrelated tools when capability analysis reports a gap or is unavailable",
-    "Adds CLI command: python main.py capability-gap analyze <task>",
-    "Adds API route: POST /api/capability-gap/analyze",
-    "Adds prime_number_calculation as concrete validation target for generated tool proposals",
-    "Adds prime-number fallback design/code/test generation for reviewable proposal validation"
-  ],
-  "safety": [
-    "No keyword or sentence-pattern detector decides missing capabilities as primary path",
-    "LLM recommends only; Python validates tool availability and policy",
-    "If capability analysis is unavailable, Pandora does not execute calculator or any unrelated fallback tool",
-    "No automatic activation of generated tools",
-    "Human approval remains mandatory before installation"
-  ],
-  "tests": [
-    "python -m py_compile main.py core/api.py core/capability_gap_analyzer.py core/tool_development_agent.py core/coordinator_agent.py core/chat_service.py core/tool_generator.py core/tool_test_generator.py core/tool_design_agent.py",
-    "python main.py capability-gap analyze 'Ich brauche ein Tool, das Prim-Zahlen berechnet.' --provider mock",
-    "CoordinatorAgent().run(... provider_name='mock') creates a VALIDATED prime_number_calculation proposal instead of using calculator",
-    "python main.py selftest cli",
-    "python main.py selftest api",
-    "python main.py selftest integration"
-  ],
-  "build_time": "2026-07-02T13:55:00Z",
-  "mvp": "29.4.5",
-  "artifact": "pandora_agent_mvp_29_4_5_generic_tool_generator_clean.zip",
-  "runtime_artifacts_removed": true,
-  "build_artifacts_removed": true,
-  "test_artifacts_removed": true,
-  "created_at": "2026-07-03T00:00:00+00:00"
+  "version": "29.6",
+  "name": "Decision Learning",
+  "based_on": "29.5",
+  "artifact": "pandora_agent_mvp_29_6_decision_learning_clean.zip",
+  "controlled_evolution": true,
+  "activates_changes": false
 }
