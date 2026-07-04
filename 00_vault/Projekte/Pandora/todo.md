@@ -38,5 +38,5 @@ Am besten automatisch immer der aktuelle Stand, wenn stabil läuft (Freigabe?)
 - [ ] Die Dateien in docs zukünftig ins Vault kopieren
 - [ ] Die Chat-Seite in der GUI verschlanken. Arbeitsbereich auf eine Maintenance-Seite
 - [ ] Die Chat-History wird in der falschen Reihenfolge angezeigt, wenn man von einer anderen Seite auf die Chat-Seite geht
-- [ ] Auf Chat-Seite, oben im Header, nur noch Buttons Chat (highlighted, weil gerade angezeigt) + Maintenance
+- [x] Auf Chat-Seite, oben im Header, nur noch Buttons Chat (highlighted, weil gerade angezeigt) + Maintenance
 

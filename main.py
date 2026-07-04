@@ -36,7 +36,7 @@ from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
 from core.maintenance_manager import MaintenanceManager
 from core.model_router import ModelRouter
-from core.models import LLMRequest, LLMTaskType
+from core.models import LLMRequest, LLMTaskType, LLMResponse, LLMProvider
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
 from core.proposal_review_inbox import ProposalReviewInbox
@@ -1032,12 +1032,73 @@ def cmd_selftest_integration(args):
         except Exception as exc:
             tool_generation_results.append({"capability": capability, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
 
+    class _InconsistentCapabilityRuntime:
+        def __init__(self, mode: str):
+            self.mode = mode
+
+        def complete(self, request):
+            if self.mode == "no_tool_but_capability":
+                data = {
+                    "can_answer_directly": False,
+                    "needs_tool": False,
+                    "existing_tool_sufficient": False,
+                    "suggested_existing_tool": None,
+                    "tool_needed": False,
+                    "capability": "prime_number_calculation",
+                    "reason": "simulated inconsistent LLM decision",
+                    "confidence": 0.8,
+                }
+            else:
+                data = {
+                    "can_answer_directly": False,
+                    "needs_tool": True,
+                    "existing_tool_sufficient": True,
+                    "suggested_existing_tool": "calculator",
+                    "tool_needed": False,
+                    "capability": "prime_number_calculation",
+                    "reason": "simulated over-broad calculator match",
+                    "confidence": 0.8,
+                }
+            return LLMResponse(
+                success=True,
+                provider=LLMProvider.MOCK,
+                provider_name="selftest",
+                model="selftest",
+                content=json.dumps(data),
+                parsed_json=data,
+                raw={"selftest": True, "mode": self.mode},
+            )
+
+    capability_guard_results = []
+    for mode in ["no_tool_but_capability", "calculator_overmatch"]:
+        try:
+            guard_result = LLMCapabilityGapAnalyzer(llm_runtime=_InconsistentCapabilityRuntime(mode)).analyze(
+                "Ich brauche ein Tool, das Prim-Zahlen berechnet."
+            )
+            capability_guard_results.append({
+                "mode": mode,
+                "ok": bool(guard_result.get("gap_detected") and guard_result.get("capability") == "prime_number_calculation"),
+                "source": guard_result.get("source"),
+                "reason": guard_result.get("reason"),
+            })
+        except Exception as exc:
+            capability_guard_results.append({"mode": mode, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
     ok = (
         all(r["ok"] for r in cli_results)
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
+        and all(r["ok"] for r in capability_guard_results)
     )
-    _json({"kind": "integration_hardening_selftest", "version": "29.6", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
+    _json({
+        "kind": "integration_hardening_selftest",
+        "version": "29.7.1",
+        "ok": ok,
+        "cli": cli_results,
+        "api": api_results,
+        "tool_generation": tool_generation_results,
+        "capability_gap_guard": capability_guard_results,
+    })
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())

@@ -157,6 +157,26 @@ class LLMCapabilityGapAnalyzer:
         confidence = self._effective_confidence(decision)
 
         if decision.existing_tool_sufficient and suggested_valid:
+            if not self._tool_semantically_supports_capability(state, suggested, capability):
+                return {
+                    "analysis_available": True,
+                    "safe_to_execute": False,
+                    "gap_detected": True,
+                    "capability": capability or suggested,
+                    "reason": (
+                        f"LLM suggested existing tool '{suggested}', but Python could not validate that "
+                        f"the tool metadata supports requested capability '{capability}'. Treating as capability gap."
+                    ),
+                    "existing_tools": sorted(tool_ids),
+                    "source": "llm_capability_gap_analyzer_validated_by_python",
+                    "decision": decision.model_dump(mode="json"),
+                    "confidence": min(confidence or 0.75, 0.8),
+                    "model_confidence": decision.confidence,
+                    "tool_available": False,
+                    "suggested_existing_tool": suggested,
+                    "llm_error": None,
+                    "raw": raw,
+                }
             return {
                 "analysis_available": True,
                 "safe_to_execute": True,
@@ -210,6 +230,29 @@ class LLMCapabilityGapAnalyzer:
                 "raw": raw,
             }
 
+        # Critical guardrail: when the LLM says the task cannot be answered directly,
+        # does not provide a valid existing tool, but still reports a requested capability,
+        # Python must not conclude "no gap". This was the observed failure for
+        # requests like "Ich brauche ein Tool, das Prim-Zahlen berechnet." where the
+        # model returned an internally inconsistent decision.
+        if not decision.can_answer_directly and not suggested_valid and capability:
+            return {
+                "analysis_available": True,
+                "safe_to_execute": False,
+                "gap_detected": True,
+                "capability": capability,
+                "reason": decision.reason or "LLM reported a capability need without a valid existing tool. Treating as capability gap.",
+                "existing_tools": sorted(tool_ids),
+                "source": "llm_capability_gap_analyzer_consistency_guard",
+                "decision": decision.model_dump(mode="json"),
+                "confidence": max(min(confidence or 0.65, 0.8), 0.6),
+                "model_confidence": decision.confidence,
+                "tool_available": False,
+                "suggested_existing_tool": suggested if suggested_valid else None,
+                "llm_error": None,
+                "raw": raw,
+            }
+
         return {
             "analysis_available": True,
             "safe_to_execute": bool(decision.can_answer_directly),
@@ -226,6 +269,26 @@ class LLMCapabilityGapAnalyzer:
             "llm_error": None,
             "raw": raw,
         }
+
+
+    def _tool_semantically_supports_capability(self, state: dict[str, Any], tool_id: str | None, capability: str | None) -> bool:
+        if not tool_id:
+            return False
+        if not capability:
+            # If no capability was extracted, accept only the LLM's explicit listed-tool selection.
+            return True
+        tool = next((t for t in state.get("tools", []) if str(t.get("id")) == str(tool_id)), None)
+        if not tool:
+            return False
+        haystack = " ".join(str(tool.get(k, "")) for k in ["id", "name", "description", "input_schema", "output_schema", "aliases"]).lower()
+        capability_tokens = [tok for tok in capability.lower().replace("-", "_").split("_") if len(tok) >= 4]
+        if not capability_tokens:
+            return True
+        # Generic metadata validation, not a domain keyword router: an existing tool must
+        # describe the requested capability in its own metadata. This blocks broad tools
+        # such as calculator from being accepted for prime_number_calculation unless the
+        # installed tool explicitly advertises prime-number support.
+        return all(tok in haystack for tok in capability_tokens[:2])
 
     def _effective_confidence(self, decision: CapabilityDecision) -> float:
         if decision.confidence and decision.confidence > 0:
