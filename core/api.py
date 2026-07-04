@@ -38,6 +38,7 @@ from .knowledge_evolution import KnowledgeEvolutionManager
 from .tool_evolution import ToolEvolutionManager
 from .core_evolution import CoreEvolutionManager
 from .decision_learning import DecisionLearningManager
+from .evolution_dashboard import EvolutionDashboardManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -136,7 +137,7 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.6-decision-learning")
+app = FastAPI(title="Pandora Agent", version="29.7-evolution-dashboard")
 
 
 
@@ -2058,7 +2059,7 @@ def api_system_web_routes():
         path = getattr(r, "path", None)
         methods = sorted(getattr(r, "methods", []) or [])
         name = getattr(r, "name", None)
-        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/core-evolution", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/core-evolution", "/evolution-dashboard", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
             routes.append({"path": path, "methods": methods, "name": name})
     return {"version": app.version, "routes": routes}
 
@@ -3587,6 +3588,52 @@ def web_knowledge_evolution_js():
 def web_knowledge_evolution_css():
     return FileResponse(WEB_DIR / "knowledge-evolution.css")
 
+
+# MVP 29.7 – Evolution Dashboard
+@app.get("/api/evolution-dashboard/status")
+def api_evolution_dashboard_status():
+    return EvolutionDashboardManager().status()
+
+
+@app.get("/api/evolution-dashboard/health")
+def api_evolution_dashboard_health():
+    return EvolutionDashboardManager().health()
+
+
+@app.get("/api/evolution-dashboard/summary")
+def api_evolution_dashboard_summary():
+    return EvolutionDashboardManager().summary()
+
+
+@app.get("/api/evolution-dashboard/statistics")
+def api_evolution_dashboard_statistics():
+    return EvolutionDashboardManager().statistics()
+
+
+@app.get("/api/evolution-dashboard/timeline")
+def api_evolution_dashboard_timeline(limit: int = 50):
+    return EvolutionDashboardManager().timeline(limit=limit)
+
+
+@app.get("/api/evolution-dashboard/overview")
+def api_evolution_dashboard_overview():
+    return EvolutionDashboardManager().overview()
+
+
+@app.get("/evolution-dashboard")
+def web_evolution_dashboard():
+    return FileResponse(WEB_DIR / "evolution-dashboard.html")
+
+
+@app.get("/web/evolution-dashboard.js")
+def web_evolution_dashboard_js():
+    return FileResponse(WEB_DIR / "evolution-dashboard.js")
+
+
+@app.get("/web/evolution-dashboard.css")
+def web_evolution_dashboard_css():
+    return FileResponse(WEB_DIR / "evolution-dashboard.css")
+
 # MVP 28.9.2 – CLI & API Integration Hardening
 @app.get("/api/integration/status")
 def api_integration_status():
@@ -3594,7 +3641,7 @@ def api_integration_status():
         "kind": "integration_hardening_status",
         "version": "29.6",
         "ok": True,
-        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts", "decision_learning_contracts"],
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts", "decision_learning_contracts", "evolution_dashboard_contracts"],
         "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
     }
 
@@ -3637,6 +3684,11 @@ def api_selftest_api_contracts():
         "/api/learning/history",
         "/api/learning/patterns",
         "/api/learning/statistics",
+        "/api/evolution-dashboard/status",
+        "/api/evolution-dashboard/summary",
+        "/api/evolution-dashboard/health",
+        "/api/evolution-dashboard/timeline",
+        "/api/evolution-dashboard/statistics",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]

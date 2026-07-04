@@ -109,6 +109,7 @@ from core.knowledge_evolution import KnowledgeEvolutionManager
 from core.tool_evolution import ToolEvolutionManager
 from core.core_evolution import CoreEvolutionManager
 from core.decision_learning import DecisionLearningManager
+from core.evolution_dashboard import EvolutionDashboardManager
 from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
@@ -862,6 +863,11 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "learning history", "argv": ["learning", "history"]},
         {"label": "learning patterns", "argv": ["learning", "patterns"]},
         {"label": "learning statistics", "argv": ["learning", "statistics"]},
+        {"label": "evolution-dashboard status", "argv": ["evolution-dashboard", "status"]},
+        {"label": "evolution-dashboard summary", "argv": ["evolution-dashboard", "summary"]},
+        {"label": "evolution-dashboard health", "argv": ["evolution-dashboard", "health"]},
+        {"label": "evolution-dashboard timeline", "argv": ["evolution-dashboard", "timeline"]},
+        {"label": "evolution-dashboard statistics", "argv": ["evolution-dashboard", "statistics"]},
     ]
 
 
@@ -904,6 +910,16 @@ def cmd_decision_learning_patterns(args): _json(DecisionLearningManager().patter
 def cmd_decision_learning_statistics(args): _json(DecisionLearningManager().statistics())
 def cmd_decision_learning_influence(args): _json(DecisionLearningManager().influence())
 def cmd_decision_learning_record(args): _json(DecisionLearningManager().record_manual(proposal_id=args.proposal_id, proposal_type=args.type, decision=args.decision, title=args.title, note=args.note, decided_by=args.decided_by, priority=args.priority, risk=args.risk))
+
+
+
+# MVP 29.7 – Evolution Dashboard
+def cmd_evolution_dashboard_status(args): _json(EvolutionDashboardManager().status())
+def cmd_evolution_dashboard_health(args): _json(EvolutionDashboardManager().health())
+def cmd_evolution_dashboard_summary(args): _json(EvolutionDashboardManager().summary())
+def cmd_evolution_dashboard_statistics(args): _json(EvolutionDashboardManager().statistics())
+def cmd_evolution_dashboard_timeline(args): _json(EvolutionDashboardManager().timeline(limit=args.limit))
+def cmd_evolution_dashboard_overview(args): _json(EvolutionDashboardManager().overview())
 
 def cmd_core_evolution_status(args): _json(CoreEvolutionManager().status())
 def cmd_core_evolution_health(args): _json(CoreEvolutionManager().health(limit=args.limit))
@@ -1386,6 +1402,13 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("decision-learning-influence"); p.set_defaults(func=cmd_decision_learning_influence)
     p = sub.add_parser("decision-learning-record"); p.add_argument("proposal_id"); p.add_argument("--type", default="tool"); p.add_argument("--decision", required=True); p.add_argument("--title", default="Manual decision"); p.add_argument("--note"); p.add_argument("--decided-by", default="user"); p.add_argument("--priority", type=int, default=50); p.add_argument("--risk", default="medium"); p.set_defaults(func=cmd_decision_learning_record)
 
+    p = sub.add_parser("evolution-dashboard-status"); p.set_defaults(func=cmd_evolution_dashboard_status)
+    p = sub.add_parser("evolution-dashboard-health"); p.set_defaults(func=cmd_evolution_dashboard_health)
+    p = sub.add_parser("evolution-dashboard-summary"); p.set_defaults(func=cmd_evolution_dashboard_summary)
+    p = sub.add_parser("evolution-dashboard-statistics"); p.set_defaults(func=cmd_evolution_dashboard_statistics)
+    p = sub.add_parser("evolution-dashboard-timeline"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_evolution_dashboard_timeline)
+    p = sub.add_parser("evolution-dashboard-overview"); p.set_defaults(func=cmd_evolution_dashboard_overview)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1720,6 +1743,13 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("decision-learning", "influence"): "decision-learning-influence",
         ("decision-learning", "record"): "decision-learning-record",
 
+
+        ("evolution-dashboard", "status"): "evolution-dashboard-status",
+        ("evolution-dashboard", "summary"): "evolution-dashboard-summary",
+        ("evolution-dashboard", "health"): "evolution-dashboard-health",
+        ("evolution-dashboard", "timeline"): "evolution-dashboard-timeline",
+        ("evolution-dashboard", "statistics"): "evolution-dashboard-statistics",
+        ("evolution-dashboard", "overview"): "evolution-dashboard-overview",
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",
         ("selftest", "integration"): "selftest-integration",

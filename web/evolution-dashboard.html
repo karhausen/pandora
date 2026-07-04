@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pandora – Evolution Dashboard</title>
+  <link rel="stylesheet" href="/web/evolution-dashboard.css" />
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Maintenance · Controlled Evolution</p>
+        <h1>Evolution Dashboard</h1>
+        <p>Gesamtüberblick über Genome, Observation, Patterns, Priorisierung, Proposal Queue, Tool/Knowledge/Core Evolution und Decision Learning.</p>
+      </div>
+      <button id="refresh">Aktualisieren</button>
+    </header>
+
+    <section class="grid cards" id="cards"></section>
+
+    <section class="panel">
+      <h2>Module</h2>
+      <div id="modules" class="module-grid"></div>
+    </section>
+
+    <section class="grid two">
+      <article class="panel">
+        <h2>Proposal Queue</h2>
+        <pre id="queue">Lade…</pre>
+      </article>
+      <article class="panel">
+        <h2>Decision Learning</h2>
+        <pre id="learning">Lade…</pre>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Evolution Timeline</h2>
+      <div id="timeline" class="timeline"></div>
+    </section>
+  </main>
+  <script src="/web/evolution-dashboard.js"></script>
+</body>
+</html>

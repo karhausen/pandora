@@ -1,0 +1,59 @@
+[
+  {
+    "goal_id": "goal_evolution_quality",
+    "title": "Evolution kontrolliert und nachvollziehbar halten",
+    "description": "Alle Verbesserungen laufen ueber Analyse, Proposal, Review, Tests und Benutzerfreigabe.",
+    "domain": "evolution",
+    "level": "strategic",
+    "status": "active",
+    "priority": "HIGH",
+    "priority_score": 86,
+    "progress": 55,
+    "parent_goal_id": null,
+    "evidence": [
+      "genome",
+      "proposal_queue",
+      "proposal_generator",
+      "proposal_evolution"
+    ],
+    "created_at": "2026-07-04T14:50:08.061667+00:00",
+    "updated_at": "2026-07-04T14:50:08.061688+00:00"
+  },
+  {
+    "goal_id": "goal_system_health",
+    "title": "Systemgesundheit messbar verbessern",
+    "description": "Observation, Pattern und Prioritization sollen konkrete Wartungs- und Verbesserungsentscheidungen unterstuetzen.",
+    "domain": "health",
+    "level": "tactical",
+    "status": "active",
+    "priority": "MEDIUM",
+    "priority_score": 72,
+    "progress": 45,
+    "parent_goal_id": "goal_evolution_quality",
+    "evidence": [
+      "self_observation",
+      "pattern_recognition",
+      "improvement_prioritization"
+    ],
+    "created_at": "2026-07-04T14:50:08.061693+00:00",
+    "updated_at": "2026-07-04T14:50:08.061695+00:00"
+  },
+  {
+    "goal_id": "goal_user_simplicity",
+    "title": "Benutzeroberflaeche einfach halten",
+    "description": "Die User-GUI bleibt auf Chat und klare Entscheidungen fokussiert; Komplexitaet gehoert ins Maintenance Center.",
+    "domain": "gui",
+    "level": "strategic",
+    "status": "active",
+    "priority": "HIGH",
+    "priority_score": 82,
+    "progress": 65,
+    "parent_goal_id": null,
+    "evidence": [
+      "user_gui_simplification",
+      "maintenance_center_restructure"
+    ],
+    "created_at": "2026-07-04T14:50:08.061697+00:00",
+    "updated_at": "2026-07-04T14:50:08.061699+00:00"
+  }
+]

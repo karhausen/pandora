@@ -1,3 +1,7 @@
+## MVP 29.7 – Evolution Dashboard
+
+Controlled Evolution overview with read-only dashboard, health, timeline, summary, statistics, CLI/API and GUI integration.
+
 # Pandora Agent – MVP 29.4 Tool Evolution
 
 Dieser Release baut auf MVP 29.3 auf und ergänzt eine kontrollierte Tool-Evolution-Schicht.
