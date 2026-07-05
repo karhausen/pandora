@@ -210,3 +210,24 @@ class ChatService:
             plan={},
             execution=execution,
         )
+
+    def create_session(self, title: str | None = None) -> dict:
+        """Create a chat session for the GUI/API.
+
+        Kept for API compatibility; MVP 30.4 only changed the chat run flow,
+        not session management.
+        """
+        return self.store.create(title=title).model_dump(mode="json")
+
+    def get_session(self, session_id: str) -> dict:
+        """Return one chat session for the GUI/API."""
+        return self.store.get(session_id).model_dump(mode="json")
+
+    def list_sessions(self) -> list[dict]:
+        """Return all chat sessions for the GUI/API."""
+        return self.store.list()
+
+    def delete_session(self, session_id: str) -> dict:
+        """Delete one chat session for the GUI/API."""
+        return self.store.delete(session_id)
+
