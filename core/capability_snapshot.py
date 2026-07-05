@@ -114,7 +114,8 @@ class CapabilitySnapshotBuilder:
         ]
         workflows = [
             {"id": "planner_worker", "description": "Plan and execute existing approved tools/skills."},
-            {"id": "tool_factory", "description": "Create a reviewable proposal for a missing tool/capability."},
+            {"id": "python_task_execution", "description": "Use approved local Python/tool execution for one-time deterministic computations when no persistent new capability is required."},
+            {"id": "tool_factory", "description": "Create a reviewable proposal for a missing persistent tool/capability only after existing capabilities are insufficient."},
             {"id": "llm_chat", "description": "Answer with LLM using approved memory/knowledge context."},
         ]
         for source in knowledge_sources:
@@ -162,6 +163,7 @@ class CapabilitySnapshotBuilder:
                 "Plan only against neutral CapabilityRecord objects, not hard-coded implementation categories.",
                 "The LLM proposes intent and needed capabilities; Pandora validates permissions and availability.",
                 "The LLM never directly reads files, executes tools, or writes code without Pandora approval.",
+                "Before creating a new capability proposal, first consider direct reasoning, knowledge, memory, existing tools, Python task execution, skills, and workflows.",
                 "If the semantic decision is unavailable, do not select an arbitrary tool fallback.",
             ],
         )

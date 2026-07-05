@@ -7,6 +7,7 @@ from .capability_snapshot import CapabilitySnapshot, CapabilitySnapshotBuilder
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType
 from .tool_registry import ToolRegistry
+from .cognitive_reasoning_layer import CognitiveReasoningLayer
 
 _ALLOWED_ACTIONS = {
     "answer_directly",
@@ -41,18 +42,23 @@ class CapabilityOrchestrator:
     snapshot_builder: CapabilitySnapshotBuilder | None = None
     llm_runtime: LLMRuntime | None = None
     tool_registry: ToolRegistry | None = None
+    reasoning_layer: CognitiveReasoningLayer | None = None
 
     def __post_init__(self) -> None:
         self.snapshot_builder = self.snapshot_builder or CapabilitySnapshotBuilder()
         self.llm_runtime = self.llm_runtime or LLMRuntime()
         self.tool_registry = self.tool_registry or ToolRegistry()
+        self.reasoning_layer = self.reasoning_layer or CognitiveReasoningLayer(llm_runtime=self.llm_runtime)
 
     def decide(self, task: str, *, provider_name: str | None = None, model: str | None = None) -> dict[str, Any]:
         snapshot = self.snapshot_builder.build()
-        raw = self._ask_llm(task, snapshot, provider_name=provider_name, model=model)
-        return self._validate(raw, task=task, snapshot=snapshot)
+        raw = self.reasoning_layer.reason(task, snapshot, provider_name=provider_name, model=model)
+        validated = self._validate(raw, task=task, snapshot=snapshot)
+        validated["cognitive_reasoning"] = raw
+        return validated
 
     def _ask_llm(self, task: str, snapshot: CapabilitySnapshot, *, provider_name: str | None, model: str | None) -> dict[str, Any]:
+        """Legacy compatibility only. The active path uses CognitiveReasoningLayer.reason()."""
         system_prompt = (
             "You are Pandora's semantic capability orchestrator. Return ONLY valid JSON. "
             "Do not answer the user. Do not execute tools. Do not request file contents. "

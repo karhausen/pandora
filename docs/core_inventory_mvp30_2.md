@@ -91,3 +91,11 @@ Nicht löschen, sondern gezielt entkoppeln:
 1. API-/CLI-Endpunkte markieren: active, compatibility, experimental.
 2. Import-Liste in `main.py` auf Lazy Imports reduzieren.
 3. Experimental-/Evolution-Bereiche erst nach Thinking-Core-Release wieder anfassen.
+
+## MVP 30.3 Ergänzung: Cognitive Reasoning Layer
+
+Der aktive Hauptfluss enthält jetzt vor der Capability-Auswahl eine Denkschicht:
+
+User Request → CapabilitySnapshot → CognitiveReasoningLayer → CapabilityOrchestrator Validation → Execution
+
+Ziel: Pandora darf nicht vorschnell Tool-Entwicklung auslösen. Eine neue Capability ist nur der letzte Schritt, nachdem vorhandene Fähigkeiten wie direkte Antwort, Knowledge, Memory, bestehende Tools, Python-Task-Execution, Skills oder Workflows geprüft wurden.
