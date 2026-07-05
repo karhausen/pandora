@@ -57,6 +57,47 @@ class CapabilityOrchestrator:
         validated["cognitive_reasoning"] = raw
         return validated
 
+
+    def _normalize_reasoning_schema(self, data: dict[str, Any]) -> dict[str, Any]:
+        """Accept older LLM/planner schemas but never let them fall through to chat.
+
+        Some local/mock providers still return the older task-analysis shape
+        {next_action, suggested_tools, suggested_skills}. If this is not adapted,
+        Pandora defaults to answer_with_context and may load unrelated knowledge
+        that changes the final answer. Normalization is based only on the
+        structured LLM recommendation, not on words in the user request.
+        """
+        if not isinstance(data, dict):
+            return {"action": "answer_with_context", "reason": "Invalid reasoning payload."}
+        normalized = dict(data)
+        if not normalized.get("action") and normalized.get("next_action"):
+            next_action = str(normalized.get("next_action") or "").strip()
+            if next_action in {"answer", "answer_directly"}:
+                normalized["action"] = "answer_directly"
+            elif next_action == "use_tool":
+                normalized["action"] = "use_tool"
+            elif next_action == "use_skill":
+                normalized["action"] = "use_tool" if normalized.get("suggested_tools") else "answer_with_context"
+            elif next_action in _ALLOWED_ACTIONS:
+                normalized["action"] = next_action
+        if not normalized.get("requested_tool"):
+            tools = normalized.get("suggested_tools")
+            if isinstance(tools, list) and tools:
+                normalized["requested_tool"] = str(tools[0]).strip()
+        if not normalized.get("requested_skill"):
+            skills = normalized.get("suggested_skills")
+            if isinstance(skills, list) and skills:
+                normalized["requested_skill"] = str(skills[0]).strip()
+        if not normalized.get("needed_capabilities"):
+            caps = normalized.get("required_capabilities")
+            if isinstance(caps, list):
+                normalized["needed_capabilities"] = [str(c) for c in caps]
+        # Tool/capability creation remains gated. Older payloads must not imply
+        # persistent creation unless the explicit confirmation flag is present.
+        if normalized.get("action") == "create_tool_proposal" and not normalized.get("persistent_capability_confirmed"):
+            normalized["persistent_capability_confirmed"] = False
+        return normalized
+
     def _ask_llm(self, task: str, snapshot: CapabilitySnapshot, *, provider_name: str | None, model: str | None) -> dict[str, Any]:
         """Legacy compatibility only. The active path uses CognitiveReasoningLayer.reason()."""
         system_prompt = (
@@ -98,6 +139,7 @@ class CapabilityOrchestrator:
         return dict(response.parsed_json)
 
     def _validate(self, data: dict[str, Any], *, task: str, snapshot: CapabilitySnapshot) -> dict[str, Any]:
+        data = self._normalize_reasoning_schema(data)
         action = str(data.get("action") or "answer_with_context").strip()
         if action not in _ALLOWED_ACTIONS:
             action = "answer_with_context"

@@ -36,6 +36,32 @@ class ChatService:
             "oder möchtest du ausdrücklich eine neue dauerhafte Pandora-Capability als Proposal erstellen lassen?"
         )
 
+
+    def _build_guarded_knowledge_context(
+        self,
+        task: str,
+        capability_decision: dict,
+        *,
+        provider_name: str | None = None,
+        model: str | None = None,
+    ) -> dict:
+        """Load knowledge only when the validated decision explicitly needs it.
+
+        This prevents unrelated Vault notes or old test plans from overriding
+        the active capability decision. The guard uses the structured decision,
+        not keywords from the user request.
+        """
+        action = capability_decision.get("action")
+        route = capability_decision.get("route")
+        needed_sources = capability_decision.get("needed_sources") or []
+        if route != "chat":
+            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "non_chat_route"}
+        if action in {"answer_directly", "clarify"}:
+            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": f"{action}_does_not_need_knowledge"}
+        if action not in {"answer_with_context", "use_knowledge", "use_memory"} and not needed_sources:
+            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "no_explicit_context_need"}
+        return self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
+
     async def run(
         self,
         task: str,
@@ -137,7 +163,12 @@ class ChatService:
             current_session = self.store.get(session.session_id) if save else session
             history = [m.model_dump(mode="json") for m in current_session.messages]
             context = self.memory.build_context(session.session_id, current_session.messages)
-            knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
+            knowledge = self._build_guarded_knowledge_context(
+                task,
+                capability_decision,
+                provider_name=provider_name,
+                model=model,
+            )
             merged_context = context.summary
             if knowledge.get("context_text"):
                 merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
