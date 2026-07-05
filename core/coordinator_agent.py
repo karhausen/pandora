@@ -52,6 +52,18 @@ class CoordinatorAgent:
                 model=model,
             )
 
+        if self.router.is_known_system_capability(task):
+            chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
+            return CoordinatorDecision(
+                route="chat",
+                reason="Known Pandora system capability can handle this request without tool-development analysis.",
+                confidence=0.9,
+                task=task,
+                session_id=session_id,
+                provider_name=chat_route.provider_name,
+                model=chat_route.model,
+            )
+
         self._last_tool_gap = None
         capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
         if capability_gap.get("gap_detected") or capability_gap.get("safe_to_execute") is False:

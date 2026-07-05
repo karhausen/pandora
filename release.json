@@ -1,6 +1,6 @@
 {
-  "version": "29.7.3",
-  "name": "pandora_agent_mvp_29_7_3_cognitive_execution_trace",
+  "version": "29.7.3.1",
+  "name": "Known Capability Preflight Fix",
   "based_on": "MVP 29.7.2 – Semantic Capability Decision Engine",
   "artifact": "pandora_agent_mvp_29_6_decision_learning_clean.zip",
   "controlled_evolution": true,
@@ -10,6 +10,6 @@
   "runtime_artifacts_removed": true,
   "title": "MVP 29.7.2 – Semantic Capability Decision Engine",
   "description": "LLM-first semantic capability decision with capability snapshot, Python validation, no keyword/pattern/capability-specific main path, and no mock bypass.",
-  "mvp": "MVP 29.7.3 – Cognitive Execution Trace",
+  "mvp": "29.7.3.1",
   "notes": "Adds observational execution trace sidebar and CLI/API trace endpoints."
 }

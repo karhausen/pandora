@@ -269,7 +269,10 @@ class KnowledgeContextService:
 
     def _looks_like_vault_topics_query(self, query: str) -> bool:
         q = (query or "").lower()
-        return ("vault" in q or "obsidian" in q) and any(word in q for word in ["topic", "topics", "themen", "thema", "tags", "schwerpunkte"])
+        return ("vault" in q or "obsidian" in q) and any(word in q for word in [
+            "topic", "topics", "themen", "thema", "tags", "schwerpunkte",
+            "was steht", "was ist", "inhalt", "inhalte", "überblick", "ueberblick", "overview",
+        ])
 
     def _obsidian_topics_payload(self, index: dict[str, Any], *, cloud_context: bool, company_context: bool, remaining_chars: int) -> dict[str, Any]:
         top_tags = index.get("top_tags", [])[:40]

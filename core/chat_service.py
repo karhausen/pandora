@@ -57,8 +57,11 @@ class ChatService:
             metadata = {"mode": "conversation_memory", "success": True}
 
         else:
-            capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
-            if capability_gap.get("gap_detected") or capability_gap.get("safe_to_execute") is False:
+            known_system_capability = self.router.is_known_system_capability(task)
+            capability_gap = {}
+            if not known_system_capability:
+                capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
+            if (not known_system_capability) and (capability_gap.get("gap_detected") or capability_gap.get("safe_to_execute") is False):
                 development = self.tool_development.analyze(
                     task,
                     auto_create=True,
@@ -80,7 +83,7 @@ class ChatService:
                 }
                 metadata = {"mode": "tool_development", "success": success, "proposal_id": proposal_id}
 
-            elif self.router.should_use_tools(task):
+            elif (not known_system_capability) and self.router.should_use_tools(task):
                 result = await self.orchestrator.run(task, provider_name=provider_name, model=model, save=save)
                 execution = result.get("execution", {})
                 answer = self.formatter.format_answer(task, execution)
@@ -99,7 +102,39 @@ class ChatService:
                 context = self.memory.build_context(session.session_id, current_session.messages)
                 knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
                 merged_context = context.summary
-                obsidian_diag = knowledge.get("diagnostics", {}).get("obsidian", {})
+                obsidian_diag = knowledge.get("obsidian", {}) or knowledge.get("diagnostics", {}).get("obsidian", {})
+                if self._asks_for_vault(task) and obsidian_diag and not obsidian_diag.get("status_ok") and obsidian_diag.get("issues"):
+                    issues = "; ".join(str(issue) for issue in obsidian_diag.get("issues", [])[:5])
+                    answer = "Obsidian-Vault ist aktuell nicht verfügbar oder nicht konfiguriert: " + issues
+                    success = True
+                    plan = {}
+                    execution = {
+                        "success": True,
+                        "final_output": {"message": answer},
+                        "mode": "known_capability_preflight",
+                        "provider_name": None,
+                        "model": None,
+                        "error": None,
+                        "context_used": False,
+                        "knowledge_context": knowledge.get("diagnostics", {}).get("knowledge_context", knowledge),
+                    }
+                    metadata = {"mode": "known_capability_preflight", "success": True, "knowledge_context": execution.get("knowledge_context", {})}
+                    assistant_message = self.store.add_message(
+                        session.session_id,
+                        "assistant",
+                        answer,
+                        metadata=metadata,
+                    ) if save else None
+                    return ChatRunResult(
+                        session_id=session.session_id,
+                        success=success,
+                        answer=answer,
+                        user_message=user_message,
+                        assistant_message=assistant_message,
+                        plan=plan,
+                        execution=execution,
+                    )
+
                 if obsidian_diag.get("blocked_reason") and self._asks_for_vault(task):
                     answer = obsidian_diag.get("user_message") or f"Obsidian-Kontext wurde blockiert: {obsidian_diag.get('blocked_reason')}"
                     success = True
@@ -208,7 +243,7 @@ class ChatService:
                         "cloud_context": knowledge.get("cloud_context"),
                         "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
                         "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
-                        "obsidian": knowledge.get("diagnostics", {}).get("obsidian", {}),
+                        "obsidian": knowledge.get("obsidian", {}) or knowledge.get("diagnostics", {}).get("obsidian", {}),
                         "route_target": knowledge.get("route_target", {}),
                         "cognitive_context": knowledge,
                     },
@@ -250,7 +285,10 @@ class ChatService:
 
     def _asks_for_vault_topics(self, task: str) -> bool:
         q = (task or "").lower()
-        return self._asks_for_vault(task) and any(word in q for word in ["topic", "topics", "themen", "thema", "tags", "schwerpunkte"])
+        return self._asks_for_vault(task) and any(word in q for word in [
+            "topic", "topics", "themen", "thema", "tags", "schwerpunkte",
+            "was steht", "was ist", "inhalt", "inhalte", "überblick", "ueberblick", "overview",
+        ])
 
     def _format_vault_topics_answer(self, obsidian_diag: dict) -> str:
         topics = obsidian_diag.get("topics") or {}

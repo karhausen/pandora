@@ -1080,6 +1080,19 @@ def cmd_selftest_integration(args):
                 raw={"selftest": True, "mode": self.mode},
             )
 
+    known_capability_results = []
+    try:
+        from core.coordinator_agent import CoordinatorAgent
+        obsidian_decision = CoordinatorAgent().decide("Was steht in meinem Obsidian-Vault?")
+        known_capability_results.append({
+            "case": "obsidian_vault_preflight",
+            "ok": obsidian_decision.route != "tool_development",
+            "route": obsidian_decision.route,
+            "reason": obsidian_decision.reason,
+        })
+    except Exception as exc:
+        known_capability_results.append({"case": "obsidian_vault_preflight", "ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
     capability_guard_results = []
     for mode in ["no_tool_but_capability", "calculator_overmatch"]:
         try:
@@ -1135,6 +1148,7 @@ def cmd_selftest_integration(args):
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
         and all(r["ok"] for r in capability_guard_results)
+        and all(r["ok"] for r in known_capability_results)
     )
     _json({
         "kind": "integration_hardening_selftest",
@@ -1144,6 +1158,7 @@ def cmd_selftest_integration(args):
         "api": api_results,
         "tool_generation": tool_generation_results,
         "capability_gap_guard": capability_guard_results,
+        "known_capability_preflight": known_capability_results,
     })
 
 def cmd_priority_engine_status(args):
