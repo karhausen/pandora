@@ -2,21 +2,21 @@ from __future__ import annotations
 
 from datetime import datetime, UTC
 
-from .chat_response_router import ChatResponseRouter
 from .chat_service import ChatService
 from .conversation_memory import ConversationMemory
 from .coordinator_log import CoordinatorLog
 from .tool_development_agent import ToolDevelopmentAgent
+from .capability_orchestrator import CapabilityOrchestrator
 from .models import CoordinatorDecision, CoordinatorResult
 from .model_router import ModelRouter
 
 
 class CoordinatorAgent:
     def __init__(self):
-        self.router = ChatResponseRouter()
         self.memory = ConversationMemory()
         self.chat_service = ChatService()
         self.tool_development = ToolDevelopmentAgent()
+        self.capability_orchestrator = CapabilityOrchestrator()
         self.log = CoordinatorLog()
         self._last_tool_gap: dict | None = None
 
@@ -27,89 +27,34 @@ class CoordinatorAgent:
         provider_name: str | None = None,
         model: str | None = None,
     ) -> CoordinatorDecision:
-        normalized = task.strip().lower()
+        """Select Pandora's route via LLM-led semantic capability orchestration.
 
-        if self.memory.answer_from_memory(task):
-            return CoordinatorDecision(
-                route="memory",
-                reason="Conversation memory can answer this directly.",
-                confidence=0.95,
-                task=task,
-                session_id=session_id,
-                provider_name=provider_name,
-                model=model,
-            )
-
-        deterministic_tool = self.router.deterministic_existing_tool(task)
-        if deterministic_tool:
-            return CoordinatorDecision(
-                route="planner_worker",
-                reason=f"Known deterministic tool can handle this directly: {deterministic_tool}.",
-                confidence=0.95,
-                task=task,
-                session_id=session_id,
-                provider_name=provider_name,
-                model=model,
-            )
-
-        if self.router.is_known_system_capability(task):
-            chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
-            return CoordinatorDecision(
-                route="chat",
-                reason="Known Pandora system capability can handle this request without tool-development analysis.",
-                confidence=0.9,
-                task=task,
-                session_id=session_id,
-                provider_name=chat_route.provider_name,
-                model=chat_route.model,
-            )
-
+        This method intentionally contains no keyword/pattern routing. The LLM
+        receives Pandora's current capability snapshot and returns a structured
+        recommendation. Python validates that recommendation before execution.
+        """
         self._last_tool_gap = None
-        capability_gap = self.tool_development.detect_gap(task, provider_name=provider_name, model=model)
-        if capability_gap.get("gap_detected") or capability_gap.get("safe_to_execute") is False:
-            self._last_tool_gap = capability_gap
-            return CoordinatorDecision(
-                route="tool_development",
-                reason=capability_gap.get("reason", "Capability gap analysis requires review."),
-                confidence=0.9 if capability_gap.get("gap_detected") else 0.55,
-                task=task,
-                session_id=session_id,
-                provider_name=provider_name,
-                model=model,
-            )
-
-        if self.router.should_use_tools(task):
-            return CoordinatorDecision(
-                route="planner_worker",
-                reason="Task appears to require a tool or structured execution.",
-                confidence=0.85,
-                task=task,
-                session_id=session_id,
-                provider_name=provider_name,
-                model=model,
-            )
-
-        if normalized:
-            chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
-            return CoordinatorDecision(
-                route="chat",
-                reason="Task is conversational/free-form text.",
-                confidence=0.8,
-                task=task,
-                session_id=session_id,
-                provider_name=chat_route.provider_name,
-                model=chat_route.model,
-            )
-
-        chat_route = ModelRouter().route("chat", provider_name_override=provider_name, model_override=model)
+        decision_payload = self.capability_orchestrator.decide(
+            task, provider_name=provider_name, model=model
+        )
+        if decision_payload["route"] == "tool_development":
+            capability = decision_payload.get("missing_capability") or decision_payload.get("requested_tool") or "unknown_capability"
+            self._last_tool_gap = {
+                "analysis_available": True,
+                "gap_detected": True,
+                "safe_to_execute": False,
+                "capability": capability,
+                "reason": decision_payload.get("reason"),
+                "semantic_decision": decision_payload,
+            }
         return CoordinatorDecision(
-            route="chat",
-            reason="Empty or unclear input; use chat fallback.",
-            confidence=0.4,
+            route=decision_payload["route"],
+            reason=decision_payload.get("reason", "Semantic capability decision."),
+            confidence=float(decision_payload.get("confidence") or 0.5),
             task=task,
             session_id=session_id,
-            provider_name=chat_route.provider_name,
-            model=chat_route.model,
+            provider_name=provider_name,
+            model=model,
         )
 
     async def run(

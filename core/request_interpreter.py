@@ -225,68 +225,37 @@ class RequestInterpreter:
         return normalized
 
     def _heuristic_interpretation(self, request: str, *, available_tools: list[dict[str, Any]], available_skills: list[dict[str, Any]], error: str | None = None) -> dict[str, Any]:
-        tool_ids = {t.get("id") for t in available_tools}
-        tools = []
-        gaps = []
-        lower = request.lower()
-        if any(w in lower for w in ["rechne", "berechne", "calculate"]):
-            available = "calculator" in tool_ids
-            tools.append({"id": "calculator", "reason": "Berechnung erkannt.", "required": True, "available": available})
-            if not available:
-                gaps.append({"type": "tool", "name": "calculator", "reason": "Berechnung benötigt ein Calculator-Tool."})
-        if any(w in lower for w in ["aktienkurs", "börsenkurs", "stock", "kurs der aktie"]):
-            available = "stock_price_lookup" in tool_ids
-            tools.append({"id": "stock_price_lookup", "reason": "Aktuelle Kursdaten benötigen ein Daten-Tool.", "required": True, "available": available})
-            if not available:
-                gaps.append({"type": "tool", "name": "stock_price_lookup", "reason": "Marktdaten-Tool fehlt."})
+        """Safe fallback when LLM interpretation is unavailable.
+
+        This fallback deliberately avoids inspecting request keywords. It returns
+        broad, policy-safe context spaces and never selects a tool, skill, gap,
+        or route. Final orchestration is handled by CapabilityOrchestrator.
+        """
         return {
             "kind": "request_interpretation",
             "request": request,
-            "intent": self._heuristic_intent(request),
+            "intent": "semantic_interpretation_unavailable",
             "summary": request[:160],
-            "source_spaces": self._heuristic_sources(request),
-            "tools": tools,
+            "source_spaces": ["conversation_memory", "user_knowledge", "obsidian_vault"],
+            "tools": [],
             "skills": [],
-            "capability_gaps": gaps,
-            "confidence": 0.55,
-            "reasoning_summary": "Fallback-Heuristik, weil keine valide LLM-Interpretation verfügbar war.",
-            "recommended_next_step": self._heuristic_next_step(request, tools),
-            "safety_notes": ["Fallback used; validate before execution."],
+            "capability_gaps": [],
+            "confidence": 0.2,
+            "reasoning_summary": "LLM interpretation unavailable; no keyword fallback was used.",
+            "recommended_next_step": "answer",
+            "safety_notes": ["No keyword routing. No tool selected by fallback."],
             "available": {"source_spaces": self.source_spaces, "tool_count": len(available_tools), "skill_count": len(available_skills)},
-            "interpreter": {"mode": "heuristic_fallback", "error": error},
+            "interpreter": {"mode": "safe_no_keyword_fallback", "error": error},
             "rule": "LLM recommends only; Python validates policies and execution.",
         }
 
     def _heuristic_sources(self, request: str) -> list[str]:
-        lower = request.lower()
-        sources = []
-        if any(w in lower for w in ["notiz", "vault", "obsidian", "markdown", "gestern geschrieben", "letzte idee"]):
-            sources.append("obsidian_vault")
-        if any(w in lower for w in ["was weißt", "wissen", "dokument", "projekt", "pandora"]):
-            sources.append("user_knowledge")
-        if any(w in lower for w in ["ich", "mein", "gespräch", "vorhin", "name"]):
-            sources.append("conversation_memory")
-        if any(w in lower for w in ["tool", "fähigkeit", "kannst du", "baue", "erzeuge"]):
-            sources.extend(["tool_registry", "skill_registry", "capability_graph"])
-        return list(dict.fromkeys(sources or ["conversation_memory", "user_knowledge"]))
+        return ["conversation_memory", "user_knowledge", "obsidian_vault"]
 
     def _heuristic_intent(self, request: str) -> str:
-        lower = request.lower()
-        if any(w in lower for w in ["notiz", "vault", "obsidian", "was weißt"]):
-            return "knowledge_lookup"
-        if any(w in lower for w in ["baue", "erzeuge", "tool", "mvp"]):
-            return "capability_or_build_request"
-        if any(w in lower for w in ["rechne", "berechne"]):
-            return "tool_use"
-        return "chat_or_analysis"
+        return "semantic_interpretation_unavailable"
 
     def _heuristic_next_step(self, request: str, tools: list[dict[str, Any]]) -> str:
-        if any(t.get("required") and not t.get("available") for t in tools):
-            return "tool_factory"
-        if tools:
-            return "tool_use"
-        if self._heuristic_intent(request) == "knowledge_lookup":
-            return "context_lookup"
         return "answer"
 
     def _bounded_float(self, value: Any, *, default: float) -> float:

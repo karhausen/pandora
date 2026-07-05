@@ -36,7 +36,7 @@ from core.llm_runtime import LLMRuntime
 from core.llm_profile_manager import LLMProfileManager
 from core.maintenance_manager import MaintenanceManager
 from core.model_router import ModelRouter
-from core.models import LLMRequest, LLMTaskType, LLMResponse, LLMProvider
+from core.models import LLMRequest, LLMTaskType
 from core.planner_agent import PlannerAgent
 from core.planner_worker_orchestrator import PlannerWorkerOrchestrator
 from core.proposal_review_inbox import ProposalReviewInbox
@@ -110,8 +110,7 @@ from core.tool_evolution import ToolEvolutionManager
 from core.core_evolution import CoreEvolutionManager
 from core.decision_learning import DecisionLearningManager
 from core.evolution_dashboard import EvolutionDashboardManager
-from core.execution_trace import ExecutionTraceManager
-from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer, SemanticCapabilityDecisionEngine
+from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -869,9 +868,6 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "evolution-dashboard health", "argv": ["evolution-dashboard", "health"]},
         {"label": "evolution-dashboard timeline", "argv": ["evolution-dashboard", "timeline"]},
         {"label": "evolution-dashboard statistics", "argv": ["evolution-dashboard", "statistics"]},
-        {"label": "execution-trace status", "argv": ["execution-trace", "status"]},
-        {"label": "execution-trace current", "argv": ["execution-trace", "current"]},
-        {"label": "execution-trace events", "argv": ["execution-trace", "events"]},
     ]
 
 
@@ -924,13 +920,6 @@ def cmd_evolution_dashboard_summary(args): _json(EvolutionDashboardManager().sum
 def cmd_evolution_dashboard_statistics(args): _json(EvolutionDashboardManager().statistics())
 def cmd_evolution_dashboard_timeline(args): _json(EvolutionDashboardManager().timeline(limit=args.limit))
 def cmd_evolution_dashboard_overview(args): _json(EvolutionDashboardManager().overview())
-
-def cmd_execution_trace_status(args): _json(ExecutionTraceManager().status())
-def cmd_execution_trace_current(args): _json(ExecutionTraceManager().current_state())
-def cmd_execution_trace_events(args): _json({"events": ExecutionTraceManager().events(trace_id=args.trace_id, limit=args.limit)})
-def cmd_execution_trace_reset(args): _json(ExecutionTraceManager().reset())
-def cmd_execution_trace_start(args): _json(ExecutionTraceManager().start(task=args.task, session_id=args.session_id))
-
 
 def cmd_core_evolution_status(args): _json(CoreEvolutionManager().status())
 def cmd_core_evolution_health(args): _json(CoreEvolutionManager().health(limit=args.limit))
@@ -1043,123 +1032,12 @@ def cmd_selftest_integration(args):
         except Exception as exc:
             tool_generation_results.append({"capability": capability, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
 
-    class _InconsistentCapabilityRuntime:
-        def __init__(self, mode: str):
-            self.mode = mode
-
-        def complete(self, request):
-            if self.mode == "no_tool_but_capability":
-                data = {
-                    "can_answer_directly": False,
-                    "needs_tool": False,
-                    "existing_tool_sufficient": False,
-                    "suggested_existing_tool": None,
-                    "tool_needed": False,
-                    "capability": "prime_number_calculation",
-                    "reason": "simulated inconsistent LLM decision",
-                    "confidence": 0.8,
-                }
-            else:
-                data = {
-                    "can_answer_directly": False,
-                    "needs_tool": True,
-                    "existing_tool_sufficient": True,
-                    "suggested_existing_tool": "calculator",
-                    "tool_needed": False,
-                    "capability": "prime_number_calculation",
-                    "reason": "simulated over-broad calculator match",
-                    "confidence": 0.8,
-                }
-            return LLMResponse(
-                success=True,
-                provider=LLMProvider.MOCK,
-                provider_name="selftest",
-                model="selftest",
-                content=json.dumps(data),
-                parsed_json=data,
-                raw={"selftest": True, "mode": self.mode},
-            )
-
-    known_capability_results = []
-    try:
-        from core.coordinator_agent import CoordinatorAgent
-        obsidian_decision = CoordinatorAgent().decide("Was steht in meinem Obsidian-Vault?")
-        known_capability_results.append({
-            "case": "obsidian_vault_preflight",
-            "ok": obsidian_decision.route != "tool_development",
-            "route": obsidian_decision.route,
-            "reason": obsidian_decision.reason,
-        })
-    except Exception as exc:
-        known_capability_results.append({"case": "obsidian_vault_preflight", "ok": False, "error": f"{type(exc).__name__}: {exc}"})
-
-    capability_guard_results = []
-    for mode in ["no_tool_but_capability", "calculator_overmatch"]:
-        try:
-            guard_result = LLMCapabilityGapAnalyzer(llm_runtime=_InconsistentCapabilityRuntime(mode)).analyze(
-                "Ich brauche ein Tool, das Prim-Zahlen berechnet."
-            )
-            capability_guard_results.append({
-                "mode": mode,
-                "ok": bool(guard_result.get("gap_detected") and guard_result.get("capability") == "prime_number_calculation"),
-                "source": guard_result.get("source"),
-                "reason": guard_result.get("reason"),
-            })
-        except Exception as exc:
-            capability_guard_results.append({"mode": mode, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
-
-    class _MockFallbackRuntime:
-        def complete(self, request):
-            data = {
-                "can_answer_directly": False,
-                "needs_tool": False,
-                "existing_tool_sufficient": False,
-                "suggested_existing_tool": None,
-                "tool_needed": False,
-                "capability": None,
-                "reason": "mock fallback",
-                "confidence": 0.0,
-            }
-            return LLMResponse(
-                success=True,
-                provider=LLMProvider.MOCK,
-                provider_name="mock",
-                model="mock",
-                content=json.dumps(data),
-                parsed_json=data,
-                raw={"mock": True, "mode": "capability_gate_non_authoritative"},
-            )
-
-    try:
-        mock_result = LLMCapabilityGapAnalyzer(llm_runtime=_MockFallbackRuntime()).analyze(
-            "Ich brauche ein Tool, das Prim-Zahlen berechnet."
-        )
-        capability_guard_results.append({
-            "mode": "mock_fallback_rejected",
-            "ok": bool(mock_result.get("analysis_available") is False and mock_result.get("safe_to_execute") is False),
-            "source": mock_result.get("source"),
-            "reason": mock_result.get("reason"),
-        })
-    except Exception as exc:
-        capability_guard_results.append({"mode": "mock_fallback_rejected", "ok": False, "error": f"{type(exc).__name__}: {exc}"})
-
     ok = (
         all(r["ok"] for r in cli_results)
         and all(r["ok"] for r in api_results)
         and all(r["ok"] for r in tool_generation_results)
-        and all(r["ok"] for r in capability_guard_results)
-        and all(r["ok"] for r in known_capability_results)
     )
-    _json({
-        "kind": "integration_hardening_selftest",
-        "version": "29.7.2",
-        "ok": ok,
-        "cli": cli_results,
-        "api": api_results,
-        "tool_generation": tool_generation_results,
-        "capability_gap_guard": capability_guard_results,
-        "known_capability_preflight": known_capability_results,
-    })
+    _json({"kind": "integration_hardening_selftest", "version": "29.6", "ok": ok, "cli": cli_results, "api": api_results, "tool_generation": tool_generation_results})
 
 def cmd_priority_engine_status(args):
     _json(PriorityEngine().status())
@@ -1531,12 +1409,6 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("evolution-dashboard-timeline"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_evolution_dashboard_timeline)
     p = sub.add_parser("evolution-dashboard-overview"); p.set_defaults(func=cmd_evolution_dashboard_overview)
 
-    p = sub.add_parser("execution-trace-status"); p.set_defaults(func=cmd_execution_trace_status)
-    p = sub.add_parser("execution-trace-current"); p.set_defaults(func=cmd_execution_trace_current)
-    p = sub.add_parser("execution-trace-events"); p.add_argument("--trace-id"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_execution_trace_events)
-    p = sub.add_parser("execution-trace-reset"); p.set_defaults(func=cmd_execution_trace_reset)
-    p = sub.add_parser("execution-trace-start"); p.add_argument("--task"); p.add_argument("--session-id"); p.set_defaults(func=cmd_execution_trace_start)
-
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1878,14 +1750,6 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("evolution-dashboard", "timeline"): "evolution-dashboard-timeline",
         ("evolution-dashboard", "statistics"): "evolution-dashboard-statistics",
         ("evolution-dashboard", "overview"): "evolution-dashboard-overview",
-        ("execution-trace", "status"): "execution-trace-status",
-        ("execution-trace", "current"): "execution-trace-current",
-        ("execution-trace", "events"): "execution-trace-events",
-        ("execution-trace", "reset"): "execution-trace-reset",
-        ("execution-trace", "start"): "execution-trace-start",
-        ("trace", "status"): "execution-trace-status",
-        ("trace", "current"): "execution-trace-current",
-        ("trace", "events"): "execution-trace-events",
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",
         ("selftest", "integration"): "selftest-integration",

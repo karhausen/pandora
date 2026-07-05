@@ -270,82 +270,6 @@ async function installSelectedProposal() {
   await loadProposals(selectedProposalId);
 }
 
-
-let currentTraceId = null;
-
-function renderTraceState(state) {
-  const current = document.getElementById("traceCurrentStep");
-  const list = document.getElementById("traceLedList");
-  const meta = document.getElementById("traceMeta");
-  if (!list) return;
-  const components = state?.components || {};
-  if (current) current.textContent = state?.current_step || "Idle";
-  list.innerHTML = "";
-  const order = ["local_llm", "cloud_llm", "python", "tool", "knowledge", "memory", "evolution", "proposal"];
-  for (const key of order) {
-    const item = components[key] || {label: key, state: "idle"};
-    const row = document.createElement("div");
-    row.className = "trace-led";
-    row.dataset.state = item.state || "idle";
-    row.title = item.detail || item.last_event || "";
-    row.innerHTML = `
-      <span class="trace-led-left"><span class="trace-dot"></span><span>${item.label || key}</span></span>
-      <span class="trace-state">${item.state || "idle"}</span>
-    `;
-    list.appendChild(row);
-  }
-  if (meta) {
-    const started = state?.started_at ? new Date(state.started_at).toLocaleTimeString() : "-";
-    const trace = state?.trace_id || "kein Trace";
-    meta.textContent = `${trace} · Start: ${started}`;
-  }
-}
-
-async function loadTraceEvents(traceId = currentTraceId) {
-  const box = document.getElementById("traceEvents");
-  if (!box) return;
-  const qs = traceId ? `?trace_id=${encodeURIComponent(traceId)}&limit=12` : "?limit=12";
-  const data = await api(`/api/execution-trace/events${qs}`);
-  const events = data.events || [];
-  box.innerHTML = "";
-  for (const event of events.slice().reverse()) {
-    const div = document.createElement("div");
-    div.className = "trace-event";
-    const time = event.timestamp ? new Date(event.timestamp).toLocaleTimeString() : "";
-    div.innerHTML = `<strong>${event.title || event.component}</strong><span>${time} · ${event.component} · ${event.state}</span>`;
-    box.appendChild(div);
-  }
-}
-
-async function startExecutionTrace(task) {
-  const started = await api("/api/execution-trace/start", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({task, session_id: currentSessionId})
-  });
-  currentTraceId = started.trace_id;
-  renderTraceState(started);
-  await loadTraceEvents(currentTraceId);
-  return currentTraceId;
-}
-
-async function updateExecutionTraceFromResult(result) {
-  const state = await api("/api/execution-trace/from-result", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({trace_id: currentTraceId, result})
-  });
-  renderTraceState(state);
-  await loadTraceEvents(currentTraceId);
-}
-
-async function loadExecutionTrace() {
-  const state = await api("/api/execution-trace/current");
-  currentTraceId = state.trace_id || currentTraceId;
-  renderTraceState(state);
-  await loadTraceEvents(currentTraceId);
-}
-
 async function runPandora() {
   const input = document.getElementById("taskInput");
   const task = input.value.trim();
@@ -354,7 +278,6 @@ async function runPandora() {
   await ensureSession();
   addMessage("user", task);
   setBusy(true);
-  await startExecutionTrace(task);
 
   const result = await api("/coordinator/run", {
     method: "POST",
@@ -365,8 +288,6 @@ async function runPandora() {
       save: true
     })
   });
-
-  await updateExecutionTraceFromResult(result);
 
   if (result.success) {
     currentSessionId = result.session_id;
@@ -397,7 +318,6 @@ async function loadUserStatus() {
 async function boot() {
   await loadUserStatus();
   await loadSessions();
-  await loadExecutionTrace();
   if (currentSessionId) {
     await loadCurrentSession();
   }

@@ -39,7 +39,6 @@ from .tool_evolution import ToolEvolutionManager
 from .core_evolution import CoreEvolutionManager
 from .decision_learning import DecisionLearningManager
 from .evolution_dashboard import EvolutionDashboardManager
-from .execution_trace import ExecutionTraceManager
 from .worker_agent import WorkerAgent
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .planner_agent import PlannerAgent
@@ -138,32 +137,10 @@ class UnifiedActionDecisionRequest(BaseModel):
     note: str | None = None
     decided_by: str = "user"
 
-app = FastAPI(title="Pandora Agent", version="29.7.3-cognitive-execution-trace")
+app = FastAPI(title="Pandora Agent", version="29.7-evolution-dashboard")
 
 
 
-class ExecutionTraceStartRequest(BaseModel):
-    task: str | None = None
-    session_id: str | None = None
-
-
-class ExecutionTraceRecordRequest(BaseModel):
-    trace_id: str | None = None
-    component: str
-    state: str
-    title: str
-    detail: str | None = None
-    duration_ms: float | None = None
-    provider_name: str | None = None
-    model: str | None = None
-    route: str | None = None
-    source: str = "api"
-    payload: dict[str, Any] | None = None
-
-
-class ExecutionTraceFromResultRequest(BaseModel):
-    trace_id: str | None = None
-    result: dict[str, Any]
 
 
 class ProposalGeneratorRequest(BaseModel):
@@ -3657,59 +3634,6 @@ def web_evolution_dashboard_js():
 def web_evolution_dashboard_css():
     return FileResponse(WEB_DIR / "evolution-dashboard.css")
 
-
-# MVP 29.7.3 – Cognitive Execution Trace
-@app.get("/api/execution-trace/status")
-def api_execution_trace_status():
-    return ExecutionTraceManager().status()
-
-
-@app.get("/api/execution-trace/current")
-def api_execution_trace_current():
-    return ExecutionTraceManager().current_state()
-
-
-@app.get("/api/execution-trace/events")
-def api_execution_trace_events(trace_id: str | None = None, limit: int = 100):
-    return {"kind": "execution_trace_events", "ok": True, "events": ExecutionTraceManager().events(trace_id=trace_id, limit=limit)}
-
-
-@app.post("/api/execution-trace/start")
-def api_execution_trace_start(req: ExecutionTraceStartRequest):
-    return ExecutionTraceManager().start(task=req.task, session_id=req.session_id)
-
-
-@app.post("/api/execution-trace/record")
-def api_execution_trace_record(req: ExecutionTraceRecordRequest):
-    return ExecutionTraceManager().record(
-        trace_id=req.trace_id,
-        component=req.component,
-        state=req.state,
-        title=req.title,
-        detail=req.detail,
-        duration_ms=req.duration_ms,
-        provider_name=req.provider_name,
-        model=req.model,
-        route=req.route,
-        source=req.source,
-        payload=req.payload,
-    )
-
-
-@app.post("/api/execution-trace/from-result")
-def api_execution_trace_from_result(req: ExecutionTraceFromResultRequest):
-    return ExecutionTraceManager().from_result(req.trace_id, req.result)
-
-
-@app.post("/api/execution-trace/reset")
-def api_execution_trace_reset():
-    return ExecutionTraceManager().reset()
-
-
-@app.get("/web/cognitive-trace.css")
-def web_cognitive_trace_css():
-    return FileResponse(WEB_DIR / "cognitive-trace.css")
-
 # MVP 28.9.2 – CLI & API Integration Hardening
 @app.get("/api/integration/status")
 def api_integration_status():
@@ -3765,9 +3689,6 @@ def api_selftest_api_contracts():
         "/api/evolution-dashboard/health",
         "/api/evolution-dashboard/timeline",
         "/api/evolution-dashboard/statistics",
-        "/api/execution-trace/status",
-        "/api/execution-trace/current",
-        "/api/execution-trace/events",
     ]
     routes = {getattr(route, "path", "") for route in app.routes}
     checks = [{"path": path, "ok": path in routes} for path in required]

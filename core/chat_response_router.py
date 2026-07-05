@@ -13,6 +13,10 @@ class ChatResponseRouter:
         "uppercase",
         "gross",
         "groß",
+        "word_count",
+        "wörter",
+        "woerter",
+        "wortanzahl",
         "reverse",
     ]
 
@@ -37,32 +41,16 @@ class ChatResponseRouter:
         if text.startswith("echo ") or text.startswith("wiederhole "):
             return "echo"
 
+        if "wörter" in text or "woerter" in text or "word count" in text or "wortanzahl" in text:
+            try:
+                from .tool_registry import ToolRegistry
+                registry = ToolRegistry()
+                registry.discover()
+                return registry.resolve_id("word_count")
+            except Exception:
+                return None
+
         return None
-
-    def is_known_system_capability(self, task: str) -> bool:
-        """Return True for built-in Pandora capabilities that must not be
-        blocked by semantic tool-gap analysis.
-
-        This is a conservative preflight for explicit system integrations, not
-        capability discovery. It prevents the Semantic Capability Decision
-        Engine from hijacking requests that Pandora can already route
-        deterministically, such as Obsidian/Knowledge/Memory lookups.
-        """
-        text = task.strip().lower()
-        if not text:
-            return False
-        if "obsidian" in text or "vault" in text:
-            return True
-        if any(marker in text for marker in [
-            "knowledge base",
-            "wissensbasis",
-            "mein wissen",
-            "memory",
-            "erinnerung",
-            "erinnerst du",
-        ]):
-            return True
-        return False
 
     def should_use_tools(self, task: str) -> bool:
         text = task.strip().lower()

@@ -70,15 +70,3 @@ python main.py learning influence
 ```
 
 Decision Learning never activates changes automatically.
-
-
-## MVP 29.7.1 – Capability Gap Guardrail Fix
-
-- Hardened LLM Capability Gap Analyzer against inconsistent LLM decisions.
-- Prevents broad existing tools such as calculator from masking missing specialized capabilities.
-- Adds integration selftest coverage for the prime-number tool request path.
-
-
-## MVP 29.7.3 – Cognitive Execution Trace
-
-Adds a read-only live execution trace sidebar for the User GUI plus CLI/API trace status endpoints.
