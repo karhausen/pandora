@@ -110,6 +110,7 @@ from core.tool_evolution import ToolEvolutionManager
 from core.core_evolution import CoreEvolutionManager
 from core.decision_learning import DecisionLearningManager
 from core.evolution_dashboard import EvolutionDashboardManager
+from core.execution_trace import ExecutionTraceManager
 from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer, SemanticCapabilityDecisionEngine
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
@@ -868,6 +869,9 @@ def _documented_cli_contracts() -> list[dict]:
         {"label": "evolution-dashboard health", "argv": ["evolution-dashboard", "health"]},
         {"label": "evolution-dashboard timeline", "argv": ["evolution-dashboard", "timeline"]},
         {"label": "evolution-dashboard statistics", "argv": ["evolution-dashboard", "statistics"]},
+        {"label": "execution-trace status", "argv": ["execution-trace", "status"]},
+        {"label": "execution-trace current", "argv": ["execution-trace", "current"]},
+        {"label": "execution-trace events", "argv": ["execution-trace", "events"]},
     ]
 
 
@@ -920,6 +924,13 @@ def cmd_evolution_dashboard_summary(args): _json(EvolutionDashboardManager().sum
 def cmd_evolution_dashboard_statistics(args): _json(EvolutionDashboardManager().statistics())
 def cmd_evolution_dashboard_timeline(args): _json(EvolutionDashboardManager().timeline(limit=args.limit))
 def cmd_evolution_dashboard_overview(args): _json(EvolutionDashboardManager().overview())
+
+def cmd_execution_trace_status(args): _json(ExecutionTraceManager().status())
+def cmd_execution_trace_current(args): _json(ExecutionTraceManager().current_state())
+def cmd_execution_trace_events(args): _json({"events": ExecutionTraceManager().events(trace_id=args.trace_id, limit=args.limit)})
+def cmd_execution_trace_reset(args): _json(ExecutionTraceManager().reset())
+def cmd_execution_trace_start(args): _json(ExecutionTraceManager().start(task=args.task, session_id=args.session_id))
+
 
 def cmd_core_evolution_status(args): _json(CoreEvolutionManager().status())
 def cmd_core_evolution_health(args): _json(CoreEvolutionManager().health(limit=args.limit))
@@ -1505,6 +1516,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("evolution-dashboard-timeline"); p.add_argument("--limit", type=int, default=50); p.set_defaults(func=cmd_evolution_dashboard_timeline)
     p = sub.add_parser("evolution-dashboard-overview"); p.set_defaults(func=cmd_evolution_dashboard_overview)
 
+    p = sub.add_parser("execution-trace-status"); p.set_defaults(func=cmd_execution_trace_status)
+    p = sub.add_parser("execution-trace-current"); p.set_defaults(func=cmd_execution_trace_current)
+    p = sub.add_parser("execution-trace-events"); p.add_argument("--trace-id"); p.add_argument("--limit", type=int, default=100); p.set_defaults(func=cmd_execution_trace_events)
+    p = sub.add_parser("execution-trace-reset"); p.set_defaults(func=cmd_execution_trace_reset)
+    p = sub.add_parser("execution-trace-start"); p.add_argument("--task"); p.add_argument("--session-id"); p.set_defaults(func=cmd_execution_trace_start)
+
     p = sub.add_parser("release-status"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_status)
     p = sub.add_parser("release-clean"); p.add_argument("root", nargs="?", default="."); p.set_defaults(func=cmd_release_clean)
     p = sub.add_parser("release-build"); p.add_argument("--root", default="."); p.add_argument("--version", default="mvp-24.6-action-workflow-chains"); p.add_argument("--based-on", default="mvp-24.4-learning-pattern-actions"); p.add_argument("--output", default="dist/pandora_release.zip"); p.add_argument("--skip-audit", action="store_true"); p.set_defaults(func=cmd_release_build)
@@ -1846,6 +1863,14 @@ def _normalize_nested_cli_args(argv: list[str]) -> list[str]:
         ("evolution-dashboard", "timeline"): "evolution-dashboard-timeline",
         ("evolution-dashboard", "statistics"): "evolution-dashboard-statistics",
         ("evolution-dashboard", "overview"): "evolution-dashboard-overview",
+        ("execution-trace", "status"): "execution-trace-status",
+        ("execution-trace", "current"): "execution-trace-current",
+        ("execution-trace", "events"): "execution-trace-events",
+        ("execution-trace", "reset"): "execution-trace-reset",
+        ("execution-trace", "start"): "execution-trace-start",
+        ("trace", "status"): "execution-trace-status",
+        ("trace", "current"): "execution-trace-current",
+        ("trace", "events"): "execution-trace-events",
         ("selftest", "cli"): "selftest-cli",
         ("selftest", "api"): "selftest-api",
         ("selftest", "integration"): "selftest-integration",

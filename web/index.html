@@ -6,8 +6,10 @@
   <title>Pandora Chat</title>
   <link rel="stylesheet" href="/web/user.css" />
   <link rel="stylesheet" href="/web/shared.css" />
+  <link rel="stylesheet" href="/web/cognitive-trace.css" />
 </head>
 <body>
+  <div class="trace-layout">
   <main class="app simplified-user-gui">
     <header class="hero simple-hero">
       <div>
@@ -78,6 +80,18 @@
     </section>
   </main>
 
-  <script src="/web/user.js?v=28.2"></script>
+  <aside class="trace-sidebar" aria-label="Pandora Live Trace">
+    <h2>Pandora Live</h2>
+    <div class="trace-current">
+      <span class="label">Aktueller Schritt</span>
+      <strong id="traceCurrentStep">Idle</strong>
+    </div>
+    <div class="trace-led-list" id="traceLedList"></div>
+    <div class="trace-meta" id="traceMeta">Trace bereit.</div>
+    <div class="trace-events" id="traceEvents"></div>
+  </aside>
+</div>
+
+  <script src="/web/user.js?v=29.7.3"></script>
 </body>
 </html>
