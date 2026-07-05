@@ -1,3 +1,19 @@
+```yaml
+---
+title: Pandora Roadmap Phase 5
+tags:
+  notiz  
+  pandora
+#  prompt
+visibility: public
+cloud_allowed: false
+company_allowed: true
+priority: high
+owner: thomas
+last_reviewed: 2026-07-04
+---
+```
+
 # Pandora Roadmap -- Phase 5: Cognitive Live Console
 
 ## Vor Phase 5 -- Evolution Stabilization

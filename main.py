@@ -110,7 +110,7 @@ from core.tool_evolution import ToolEvolutionManager
 from core.core_evolution import CoreEvolutionManager
 from core.decision_learning import DecisionLearningManager
 from core.evolution_dashboard import EvolutionDashboardManager
-from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer
+from core.capability_gap_analyzer import LLMCapabilityGapAnalyzer, SemanticCapabilityDecisionEngine
 from core.release_manager import ReleaseManager
 from core.rollback_manager import RollbackManager
 from core.sandbox import Sandbox
@@ -1084,6 +1084,41 @@ def cmd_selftest_integration(args):
         except Exception as exc:
             capability_guard_results.append({"mode": mode, "ok": False, "error": f"{type(exc).__name__}: {exc}"})
 
+    class _MockFallbackRuntime:
+        def complete(self, request):
+            data = {
+                "can_answer_directly": False,
+                "needs_tool": False,
+                "existing_tool_sufficient": False,
+                "suggested_existing_tool": None,
+                "tool_needed": False,
+                "capability": None,
+                "reason": "mock fallback",
+                "confidence": 0.0,
+            }
+            return LLMResponse(
+                success=True,
+                provider=LLMProvider.MOCK,
+                provider_name="mock",
+                model="mock",
+                content=json.dumps(data),
+                parsed_json=data,
+                raw={"mock": True, "mode": "capability_gate_non_authoritative"},
+            )
+
+    try:
+        mock_result = LLMCapabilityGapAnalyzer(llm_runtime=_MockFallbackRuntime()).analyze(
+            "Ich brauche ein Tool, das Prim-Zahlen berechnet."
+        )
+        capability_guard_results.append({
+            "mode": "mock_fallback_rejected",
+            "ok": bool(mock_result.get("analysis_available") is False and mock_result.get("safe_to_execute") is False),
+            "source": mock_result.get("source"),
+            "reason": mock_result.get("reason"),
+        })
+    except Exception as exc:
+        capability_guard_results.append({"mode": "mock_fallback_rejected", "ok": False, "error": f"{type(exc).__name__}: {exc}"})
+
     ok = (
         all(r["ok"] for r in cli_results)
         and all(r["ok"] for r in api_results)
@@ -1092,7 +1127,7 @@ def cmd_selftest_integration(args):
     )
     _json({
         "kind": "integration_hardening_selftest",
-        "version": "29.7.1",
+        "version": "29.7.2",
         "ok": ok,
         "cli": cli_results,
         "api": api_results,

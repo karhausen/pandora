@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from .capability_gap_analyzer import LLMCapabilityGapAnalyzer
+from .capability_gap_analyzer import SemanticCapabilityDecisionEngine
 from .llm_runtime import LLMRuntime
 from .models import CapabilityDecision, LLMRequest, LLMTaskType, ToolDevelopmentResult
 from .tool_proposal_manager import ToolProposalManager
@@ -33,7 +33,7 @@ class ToolDevelopmentAgent:
         self.registry.discover()
         self.proposal_manager = proposal_manager or ToolProposalManager()
         self.llm_runtime = llm_runtime or LLMRuntime()
-        self.gap_analyzer = LLMCapabilityGapAnalyzer(tool_registry=self.registry, llm_runtime=self.llm_runtime)
+        self.gap_analyzer = SemanticCapabilityDecisionEngine(tool_registry=self.registry, llm_runtime=self.llm_runtime)
         self.detector = detector  # legacy placeholder; not used for routing decisions
 
     def _existing_tool_ids(self) -> set[str]:
@@ -47,7 +47,7 @@ class ToolDevelopmentAgent:
         model: str | None = None,
         timeout: float | None = 10.0,
     ) -> dict[str, Any]:
-        # MVP 29.4.1: capability gaps are decided semantically by the LLM
+        # MVP 29.7.2: capability decisions are made by the Semantic Capability Decision Engine
         # using Pandora's current state. Python only validates availability and
         # prevents unsafe fallbacks. No keyword/pattern detector may select a
         # missing capability here.
@@ -84,8 +84,8 @@ class ToolDevelopmentAgent:
 
         if not gap.get("analysis_available", True):
             status = "analysis_unavailable"
-            message = "Fähigkeitsprüfung nicht möglich. Es wurde bewusst kein unpassendes Fallback-Tool ausgeführt."
-            error = gap.get("llm_error")
+            message = "Fähigkeitsprüfung nicht möglich. Es wurde bewusst kein unpassendes Fallback-Tool ausgeführt. Bitte LLM-Verbindung/Provider prüfen oder im Maintenance-Bereich als Review-Fall behandeln."
+            error = None
         elif gap.get("gap_detected"):
             status = "gap_detected"
             message = f"Fehlende Fähigkeit erkannt: {gap.get('capability')}"

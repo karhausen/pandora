@@ -10,51 +10,22 @@ class MockLLMClient:
         task_l = str(request.context.get("task", request.prompt)).lower()
 
         if request.task_type.value == "tool_selection" and request.expect_json:
-            available_tools = request.context.get("available_tools", []) or []
-            tool_ids = {tool.get("id") for tool in available_tools if isinstance(tool, dict)}
-            capability = None
-            existing_tool = None
-            reason = "Mock capability gate: direct answer possible."
-            tool_needed = False
-            can_answer = True
-            if any(x in task_l for x in ["primzahl", "primzahlen", "prim-zahl", "prim-zahlen", "prime number", "prime_numbers"]):
-                capability = "prime_number_calculation"
-                can_answer = False
-                tool_needed = capability not in tool_ids
-                reason = "Mock semantic analyzer: listed tools cannot calculate or validate prime numbers as a dedicated capability."
-            elif any(x in task_l for x in ["rechne", "berechne", "calculate", "2+3"]):
-                existing_tool = "calculator" if "calculator" in tool_ids else None
-                capability = "calculation"
-                can_answer = False
-                tool_needed = existing_tool is None
-                reason = "Mock capability gate: calculation requires calculator tool."
-            elif any(x in task_l for x in ["börse", "boerse", "aktienkurs", "börsenkurs", "stock price", "kurs abrufen"]):
-                capability = "stock_price_lookup"
-                can_answer = False
-                tool_needed = capability not in tool_ids
-                reason = "Mock capability gate: current market prices require live data tool."
-            elif any(x in task_l for x in ["wetter", "weather"]):
-                capability = "weather_lookup"
-                can_answer = False
-                tool_needed = capability not in tool_ids
-                reason = "Mock capability gate: current weather requires live data tool."
-            elif any(x in task_l for x in ["wörter", "woerter", "worte", "word count", "begriffe"]):
-                capability = "word_count"
-                can_answer = False
-                tool_needed = capability not in tool_ids
-                reason = "Mock semantic analyzer: listed tools cannot count words unless word_count is installed."
+            # Mock responses are deliberately non-authoritative for runtime
+            # semantic capability decisions. The real Semantic Capability
+            # Decision Engine rejects mock/fallback decisions so Python never
+            # smuggles keyword or capability-specific logic into production.
             data = {
-                "can_answer_directly": can_answer and not tool_needed and existing_tool is None,
-                "needs_tool": bool(tool_needed or existing_tool),
-                "existing_tool_sufficient": bool(existing_tool),
-                "suggested_existing_tool": existing_tool,
-                "tool_needed": bool(tool_needed),
-                "capability": capability,
-                "reason": reason,
-                "confidence": 0.9 if (tool_needed or existing_tool) else 0.75,
+                "can_answer_directly": False,
+                "needs_tool": False,
+                "existing_tool_sufficient": False,
+                "suggested_existing_tool": None,
+                "tool_needed": False,
+                "capability": None,
+                "reason": "Mock provider is not authoritative for semantic capability decisions.",
+                "confidence": 0.0,
             }
             content = json.dumps(data, ensure_ascii=False)
-            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "capability_gate"})
+            return LLMResponse(success=True, provider=self.provider, provider_name=provider_name, model=model, content=content, parsed_json=data, raw={"mock": True, "mode": "capability_gate_non_authoritative"})
 
         if request.task_type.value == "tool_generation" and request.expect_json:
             design = request.context.get("design", {}) or {}
