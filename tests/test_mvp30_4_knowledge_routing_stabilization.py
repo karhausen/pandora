@@ -61,8 +61,13 @@ async def test_knowledge_intent_false_goes_directly_to_llm_without_vault(monkeyp
         ),
     )
 
-    def forbidden_build_for_chat(*args, **kwargs):
-        raise AssertionError("Vault/Knowledge must not be loaded for direct LLM questions")
+    def no_context_build_for_chat(query, *, provider_name=None, model=None, limit=None):
+        return {
+            "source_count": 0,
+            "sources": [],
+            "context_text": "",
+            "diagnostics": {"obsidian": {"enabled": True, "status_ok": True}},
+        }
 
     captured = {}
 
@@ -70,7 +75,7 @@ async def test_knowledge_intent_false_goes_directly_to_llm_without_vault(monkeyp
         captured["context_summary"] = context_summary
         return {"success": True, "answer": "Eine Primzahl ist ...", "provider_name": "mock", "model": "mock"}
 
-    monkeypatch.setattr(service.knowledge_context, "build_for_chat", forbidden_build_for_chat)
+    monkeypatch.setattr(service.knowledge_context, "build_for_chat", no_context_build_for_chat)
     monkeypatch.setattr(service.chat_responder, "respond", fake_respond)
 
     result = await service.run("Was ist eine Primzahl?", save=False)
@@ -80,6 +85,48 @@ async def test_knowledge_intent_false_goes_directly_to_llm_without_vault(monkeyp
     assert execution["capability_decision"]["action"] == "answer_directly"
     assert execution["knowledge_context"]["source_count"] == 0
     assert "Knowledge Kontext" not in (captured["context_summary"] or "")
+
+
+@pytest.mark.asyncio
+async def test_router_false_but_retrieval_hits_uses_vault_context(monkeypatch):
+    service = ChatService()
+
+    monkeypatch.setattr(
+        service.knowledge_intent_router,
+        "decide",
+        lambda task, provider_name=None, model=None: KnowledgeIntentDecision(
+            needs_knowledge=False,
+            confidence=0.9,
+            reason="Router incorrectly chose direct chat.",
+            mode="test",
+        ),
+    )
+
+    def fake_build_for_chat(query, *, provider_name=None, model=None, limit=None):
+        return {
+            "source_count": 1,
+            "sources": [{"source_type": "obsidian", "relative_path": "Projekte/Pandora/Tests/test_prompts.md"}],
+            "context_text": "# Test-Prompts\n- Welche Test-Prompts habe ich?",
+            "diagnostics": {"obsidian": {"enabled": True, "status_ok": True}},
+        }
+
+    captured = {}
+
+    def fake_respond(task, *, history, context_summary, provider_name=None, model=None):
+        captured["context_summary"] = context_summary
+        return {"success": True, "answer": "Gefunden: Test-Prompts", "provider_name": "mock", "model": "mock"}
+
+    monkeypatch.setattr(service.knowledge_context, "build_for_chat", fake_build_for_chat)
+    monkeypatch.setattr(service.chat_responder, "respond", fake_respond)
+
+    result = await service.run("Welche Test-Prompts habe ich?", save=False)
+    execution = result.execution
+
+    assert result.success is True
+    assert execution["capability_decision"]["action"] == "answer_with_context"
+    assert execution["capability_decision"]["knowledge_intent"]["mode"] == "retrieval_validated_knowledge"
+    assert execution["knowledge_context"]["source_count"] == 1
+    assert "Knowledge Kontext" in captured["context_summary"]
 
 
 def test_mvp30_4_disables_tool_and_gap_paths_in_chat_service_source():

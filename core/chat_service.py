@@ -126,6 +126,22 @@ class ChatService:
             knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model, limit=5)
             knowledge["guarded"] = False
             knowledge["guard_reason"] = "knowledge_intent_true"
+        else:
+            # MVP 30.4.2: Trust but verify. The LLM router may incorrectly
+            # classify a personal/project knowledge question as direct chat.
+            # We therefore run a bounded, policy-aware retrieval validation.
+            # This is not keyword routing: the decision is based on actual
+            # approved knowledge hits from Pandora's stores.
+            probe = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model, limit=3)
+            if probe.get("source_count", 0) > 0 and probe.get("context_text"):
+                knowledge = probe
+                knowledge["guarded"] = False
+                knowledge["guard_reason"] = "retrieval_validation_found_context"
+                knowledge_intent.needs_knowledge = True
+                knowledge_intent.reason = "Knowledge router said direct chat, but approved Vault/Knowledge retrieval found relevant context."
+                knowledge_intent.mode = "retrieval_validated_knowledge"
+            else:
+                knowledge = {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "retrieval_validation_no_context", "diagnostics": probe.get("diagnostics", {})}
 
         merged_context = memory_context.summary
         if knowledge.get("context_text"):
