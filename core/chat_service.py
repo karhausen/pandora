@@ -8,6 +8,7 @@ from .models import ChatRunResult
 from .planner_worker_orchestrator import PlannerWorkerOrchestrator
 from .tool_development_agent import ToolDevelopmentAgent
 from .capability_orchestrator import CapabilityOrchestrator
+from .knowledge_intent_router import KnowledgeIntentRouter
 from .user_response import UserResponseFormatter
 
 
@@ -21,6 +22,7 @@ class ChatService:
         self.knowledge_context = CognitiveContextBuilder()
         self.tool_development = ToolDevelopmentAgent()
         self.capability_orchestrator = CapabilityOrchestrator()
+        self.knowledge_intent_router = KnowledgeIntentRouter()
 
 
     def _clarification_answer(self, task: str, capability_decision: dict) -> str:
@@ -95,6 +97,12 @@ class ChatService:
         model: str | None = None,
         save: bool = True,
     ) -> ChatRunResult:
+        """Run MVP 30.4 chat flow: Knowledge/Vault + LLM only.
+
+        This MVP intentionally does not execute tools, create proposals, or run
+        planner/worker. Those layers come later after Vault/Memory and normal LLM
+        interaction are stable.
+        """
         if session_id:
             try:
                 session = self.store.get(session_id)
@@ -103,150 +111,88 @@ class ChatService:
         else:
             session = self.store.create(title=task[:60])
 
-        user_message = self.store.add_message(session.session_id, "user", task) if save else None
-
+        user_message = None
         if save:
+            user_message = self.store.add_message(session.session_id, "user", task)
             self.memory.extract_and_store(task, session_id=session.session_id)
 
-        memory_answer = self.memory.answer_from_memory(task)
-        capability_decision = self.capability_orchestrator.decide(task, provider_name=provider_name, model=model)
+        current_session = self.store.get(session.session_id) if save else session
+        history = [m.model_dump(mode="json") for m in current_session.messages]
+        memory_context = self.memory.build_context(session.session_id, current_session.messages)
 
-        if capability_decision.get("action") == "clarify":
-            answer = self._clarification_answer(task, capability_decision)
-            success = True
-            plan = {}
-            execution = {
-                "success": True,
-                "final_output": {"message": answer},
-                "mode": "clarification",
-                "capability_decision": capability_decision,
-                "error": None,
-            }
-            metadata = {"mode": "clarification", "success": True, "capability_decision": capability_decision}
+        knowledge_intent = self.knowledge_intent_router.decide(task, provider_name=provider_name, model=model)
+        knowledge = {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "knowledge_not_needed"}
+        if knowledge_intent.needs_knowledge:
+            knowledge = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model, limit=5)
+            knowledge["guarded"] = False
+            knowledge["guard_reason"] = "knowledge_intent_true"
 
-        elif memory_answer and capability_decision.get("route") == "chat":
-            answer = memory_answer
-            success = True
-            plan = {}
-            execution = {
-                "success": True,
-                "final_output": {"message": answer},
-                "mode": "conversation_memory",
-                "capability_decision": capability_decision,
-                "error": None,
-            }
-            metadata = {"mode": "conversation_memory", "success": True, "capability_decision": capability_decision}
+        merged_context = memory_context.summary
+        if knowledge.get("context_text"):
+            merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
 
-        elif capability_decision.get("route") == "tool_development":
-            capability = capability_decision.get("missing_capability") or capability_decision.get("requested_tool") or "unknown_capability"
-            precomputed_gap = {
-                "analysis_available": True,
-                "gap_detected": True,
-                "safe_to_execute": False,
-                "capability": capability,
-                "reason": capability_decision.get("reason"),
-                "semantic_decision": capability_decision,
-            }
-            development = self.tool_development.analyze(
-                task,
-                auto_create=True,
-                provider_name=provider_name,
-                model=model,
-                precomputed_gap=precomputed_gap,
-            )
-            proposal = development.proposal or {}
-            proposal_id = proposal.get("id")
-            answer = development.message + (f" Proposal-ID: {proposal_id}." if proposal_id else "")
-            success = development.error is None
-            plan = {}
-            execution = {
-                "success": success,
-                "mode": "tool_development",
-                "tool_development": development.model_dump(mode="json"),
-                "proposal_id": proposal_id,
-                "capability_decision": capability_decision,
-                "error": development.error,
-            }
-            metadata = {"mode": "tool_development", "success": success, "proposal_id": proposal_id, "capability_decision": capability_decision}
+        llm_result = self.chat_responder.respond(
+            task,
+            history=history,
+            context_summary=merged_context,
+            provider_name=provider_name,
+            model=model,
+        )
+        answer = llm_result.get("answer") or "Ich habe verstanden."
+        success = bool(llm_result.get("success"))
 
-        elif capability_decision.get("route") == "planner_worker":
-            result = await self.orchestrator.run(task, provider_name=provider_name, model=model, save=save)
-            execution = result.get("execution", {})
-            answer = self.formatter.format_answer(task, execution)
-            plan = result.get("plan", {})
-            success = bool(result.get("success"))
-            execution["capability_decision"] = capability_decision
-            metadata = {
-                "mode": "planner_worker",
-                "plan_id": plan.get("plan_id"),
-                "execution_id": execution.get("execution_id"),
-                "success": success,
-                "capability_decision": capability_decision,
-            }
-
-        else:
-            current_session = self.store.get(session.session_id) if save else session
-            history = [m.model_dump(mode="json") for m in current_session.messages]
-            context = self.memory.build_context(session.session_id, current_session.messages)
-            knowledge = self._build_guarded_knowledge_context(
-                task,
-                capability_decision,
-                provider_name=provider_name,
-                model=model,
-            )
-            merged_context = context.summary
-            if knowledge.get("context_text"):
-                merged_context = (merged_context + "\n\n" if merged_context else "") + "Knowledge Kontext (User Knowledge Base + freigegebene externe Quellen):\n" + knowledge["context_text"]
-            llm_result = self.chat_responder.respond(
-                task,
-                history=history,
-                context_summary=merged_context,
-                provider_name=provider_name,
-                model=model,
-            )
-            answer = llm_result.get("answer") or "Ich habe verstanden."
-            success = bool(llm_result.get("success"))
-            plan = {}
-            execution = {
-                "success": success,
-                "final_output": {"message": answer},
-                "mode": "llm_chat",
-                "provider_name": llm_result.get("provider_name"),
-                "model": llm_result.get("model"),
-                "error": llm_result.get("error"),
-                "fallback_used": llm_result.get("fallback_used", False),
-                "primary_provider_name": llm_result.get("primary_provider_name"),
-                "primary_model": llm_result.get("primary_model"),
-                "fallback_reason": llm_result.get("fallback_reason"),
-                "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
-                "context_used": True,
-                "capability_decision": capability_decision,
-                "knowledge_context": {
-                    "source_count": knowledge.get("source_count", 0),
-                    "sources": knowledge.get("sources", []),
-                    "target": knowledge.get("target"),
-                    "cloud_context": knowledge.get("cloud_context"),
-                    "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
-                    "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
-                    "obsidian": knowledge.get("diagnostics", {}).get("obsidian", {}),
-                    "route_target": knowledge.get("route_target", {}),
-                    "cognitive_context": knowledge,
-                },
-            }
-            metadata = {
-                "mode": "llm_chat",
-                "success": success,
-                "provider_name": llm_result.get("provider_name"),
-                "model": llm_result.get("model"),
-                "fallback_used": llm_result.get("fallback_used", False),
-                "primary_provider_name": llm_result.get("primary_provider_name"),
-                "primary_model": llm_result.get("primary_model"),
-                "fallback_reason": llm_result.get("fallback_reason"),
-                "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
-                "context_used": True,
-                "capability_decision": capability_decision,
-                "knowledge_context": execution.get("knowledge_context", {}),
-            }
+        capability_decision = {
+            "mvp": "30.4",
+            "route": "chat",
+            "action": "answer_with_context" if knowledge_intent.needs_knowledge else "answer_directly",
+            "knowledge_first": True,
+            "tools_enabled": False,
+            "planner_worker_enabled": False,
+            "capability_gap_enabled": False,
+            "reason": knowledge_intent.reason,
+            "knowledge_intent": knowledge_intent.model_dump(),
+            "no_keyword_routing": True,
+        }
+        execution = {
+            "success": success,
+            "final_output": {"message": answer},
+            "mode": "llm_chat",
+            "provider_name": llm_result.get("provider_name"),
+            "model": llm_result.get("model"),
+            "error": llm_result.get("error"),
+            "fallback_used": llm_result.get("fallback_used", False),
+            "primary_provider_name": llm_result.get("primary_provider_name"),
+            "primary_model": llm_result.get("primary_model"),
+            "fallback_reason": llm_result.get("fallback_reason"),
+            "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
+            "context_used": bool(merged_context),
+            "capability_decision": capability_decision,
+            "knowledge_context": {
+                "source_count": knowledge.get("source_count", 0),
+                "sources": knowledge.get("sources", []),
+                "target": knowledge.get("target"),
+                "cloud_context": knowledge.get("cloud_context"),
+                "blocked_local_only_count": knowledge.get("blocked_local_only_count", 0),
+                "blocked_obsidian_count": knowledge.get("blocked_obsidian_count", 0),
+                "obsidian": knowledge.get("diagnostics", {}).get("obsidian", {}),
+                "route_target": knowledge.get("route_target", {}),
+                "cognitive_context": knowledge,
+            },
+        }
+        metadata = {
+            "mode": "llm_chat",
+            "success": success,
+            "provider_name": llm_result.get("provider_name"),
+            "model": llm_result.get("model"),
+            "fallback_used": llm_result.get("fallback_used", False),
+            "primary_provider_name": llm_result.get("primary_provider_name"),
+            "primary_model": llm_result.get("primary_model"),
+            "fallback_reason": llm_result.get("fallback_reason"),
+            "routing_diagnostics": llm_result.get("routing_diagnostics", {}),
+            "context_used": bool(merged_context),
+            "capability_decision": capability_decision,
+            "knowledge_context": execution.get("knowledge_context", {}),
+        }
 
         assistant_message = self.store.add_message(
             session.session_id,
@@ -261,21 +207,6 @@ class ChatService:
             answer=answer,
             user_message=user_message,
             assistant_message=assistant_message,
-            plan=plan,
+            plan={},
             execution=execution,
         )
-
-    def create_session(self, title: str | None = None) -> dict:
-        return self.store.create(title=title).model_dump(mode="json")
-
-    def get_session(self, session_id: str) -> dict:
-        return self.store.get(session_id).model_dump(mode="json")
-
-    def list_sessions(self) -> list[dict]:
-        return self.store.list()
-
-    def delete_session(self, session_id: str) -> dict:
-        return self.store.delete(session_id)
-
-    def _answer_from_execution(self, execution: dict) -> str:
-        return self.formatter.format_answer("", execution)

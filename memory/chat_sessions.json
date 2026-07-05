@@ -1,0 +1,32 @@
+{
+  "sessions": [
+    {
+      "session_id": "chat_423808b3a897",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-05T17:02:03.729241+00:00",
+      "updated_at": "2026-07-05T17:02:03.729241+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_e1dc5a79dd21",
+      "title": "Was ist eine Primzahl?",
+      "created_at": "2026-07-05T17:01:45.377708+00:00",
+      "updated_at": "2026-07-05T17:01:45.377708+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_e54676fbe4d2",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-05T17:01:45.222895+00:00",
+      "updated_at": "2026-07-05T17:01:45.222895+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_3a3a4d5eab38",
+      "title": "Was ist eine Primzahl?",
+      "created_at": "2026-07-05T17:02:03.737107+00:00",
+      "updated_at": "2026-07-05T17:02:03.737107+00:00",
+      "message_count": 0
+    }
+  ]
+}

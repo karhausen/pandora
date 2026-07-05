@@ -3,15 +3,14 @@
 title: Pandora Notiz
 tags:
   notiz  
-#  pandora
-#  todo
-#  Idee
+  pandora
+ todo
 visibility: public
 cloud_allowed: false
 company_allowed: true
 priority: high
 owner: thomas
-last_reviewed: 2026-07-04
+last_reviewed: 2026-07-05
 ---
 ```
 
@@ -20,6 +19,11 @@ last_reviewed: 2026-07-04
 ## [[Stand]]: 
 
 ## [[Notiz]]:
+ - Zuerst sollte der Zugriff auf das Vault sauber funktionieren und sicher sein, weil dort später mein Wissen drin stecken soll!
+ - Weiter hin muss bei allgemeinen Fragen der Pfad zum LLM, also zu Dir oder einem andern LLM, funktionieren.
+ - Wenn das sauber und 100 % sicher ist, dann noch mal an die Tools gehen.
+ - Als erstes, schon vorhandene Tools sicher benutzen können.
+ - Erst danach nochmal an die capability gap gehen.
 
 ### Deployment von Pandora
 ```text
