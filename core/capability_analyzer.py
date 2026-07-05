@@ -199,17 +199,9 @@ class CapabilityAnalyzer:
             if isinstance(gap, dict):
                 add_gap(str(gap.get("type") or "knowledge"), str(gap.get("name") or gap.get("capability") or "unknown"), str(gap.get("reason") or "Interpreter reported a capability gap."), "request_interpreter", "medium")
 
-        lower = request.lower()
-        if any(w in lower for w in ["baue ein tool", "bau ein tool", "erstelle ein tool", "tool bauen", "fehlendes tool", "tool xy"]):
-            add_gap("tool", "requested_tool", "User explicitly requested creation or extension of a tool.", "request_text", "high")
-        if any(w in lower for w in ["aktienkurs", "börsenkurs", "historische aktien", "stock history", "kursdaten", "aktienkurse"]):
-            known_tool_names = {str(t.get("id") or "") for t in tools}
-            if "stock_history_lookup" not in known_tool_names and not any(g["type"] == "tool" and g["name"] == "stock_history_lookup" for g in gaps):
-                add_gap("tool", "stock_history_lookup", "Historical market data requires a dedicated, policy-validated tool.", "request_text", "high")
-        if any(w in lower for w in ["verbessere pandora", "core verbessern", "architektur", "release", "mvp"]):
-            add_gap("core", "core_improvement", "User request concerns Pandora architecture or release evolution.", "request_text", "medium")
-        if any(w in lower for w in ["weiß nichts", "dokumentation fehlt", "knowledge gap", "wissen ergänzen"]):
-            add_gap("knowledge", "knowledge_update", "User request indicates missing or insufficient knowledge.", "request_text", "medium")
+        # MVP 30.2 cleanup: no request-text keyword heuristics here.
+        # Capability gaps may only come from structured interpreter/LLM output
+        # or registry availability checks above.
         return gaps
 
     def _recommended_actions(

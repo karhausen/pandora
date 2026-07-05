@@ -9,6 +9,12 @@ class ActionPlanner:
         self.registry.discover()
 
     def plan(self, task: str, analysis: dict) -> AgentAction:
+        """Create an action only from structured LLM/capability analysis.
+
+        MVP 30.2 cleanup removed keyword/rule fallbacks from the planner.
+        If the LLM/capability layer did not request a tool or skill, the safe
+        default is an answer action, not a guessed tool execution.
+        """
         risk = str(analysis.get("risk_level", "LOW")).upper()
         if risk == "HIGH":
             return AgentAction(type=AgentActionType.REJECT, reason="High-risk task requires explicit review.")
@@ -16,31 +22,18 @@ class ActionPlanner:
         skills = analysis.get("suggested_skills") or []
         if skills:
             skill_id = skills[0]
-            return AgentAction(type=AgentActionType.SKILL, skill_id=skill_id, payload=self._payload_from_task(task), reason=f"LLM suggested skill {skill_id}")
+            return AgentAction(type=AgentActionType.SKILL, skill_id=skill_id, payload=self._payload_from_task(task), reason=f"Structured analysis suggested skill {skill_id}")
 
         tools = analysis.get("suggested_tools") or []
         if tools:
             tool_id = self._first_known_tool(tools)
-            return AgentAction(type=AgentActionType.TOOL, tool_id=tool_id, payload=self._payload_for_tool(tool_id, task), reason=f"LLM suggested tool {tool_id}")
+            return AgentAction(type=AgentActionType.TOOL, tool_id=tool_id, payload=self._payload_for_tool(tool_id, task), reason=f"Structured analysis suggested tool {tool_id}")
 
-        task_l = task.lower()
-        if "rechne" in task_l or "calculate" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="calculator", payload=self._payload_for_tool("calculator", task), reason="Rule fallback detected calculation.")
-        if "groß" in task_l or "uppercase" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="uppercase", payload=self._payload_for_tool("uppercase", task), reason="Rule fallback detected uppercase.")
-        if "json format" in task_l or "pretty json" in task_l or "json formatieren" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="json_pretty", payload=self._payload_for_tool("json_pretty", task), reason="Rule fallback detected JSON formatting.")
-        if "word count" in task_l or "wörter zählen" in task_l or "wörter" in task_l or "woerter" in task_l or "wortanzahl" in task_l:
-            tool_id = self._resolve_tool_id("word_count") or "word_count"
-            return AgentAction(type=AgentActionType.TOOL, tool_id=tool_id, payload=self._payload_for_tool("word_count", task), reason="Rule fallback detected word count.")
-        if "reverse text" in task_l or "text umdrehen" in task_l or "rückwärts" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="text_reverse", payload=self._payload_for_tool("text_reverse", task), reason="Rule fallback detected text reverse.")
-        if "timestamp" in task_l or "zeitstempel" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="timestamp", payload=self._payload_for_tool("timestamp", task), reason="Rule fallback detected timestamp.")
-        if "echo" in task_l or "wiederhole" in task_l:
-            return AgentAction(type=AgentActionType.TOOL, tool_id="echo", payload=self._payload_for_tool("echo", task), reason="Rule fallback detected echo.")
-
-        return AgentAction(type=AgentActionType.ANSWER, payload={"text": "Keine Tool-Ausführung nötig."}, reason="No suitable tool or skill needed.")
+        return AgentAction(
+            type=AgentActionType.ANSWER,
+            payload={"text": "Keine Tool-Ausführung nötig."},
+            reason="No structured tool or skill request. No keyword fallback used.",
+        )
 
     def _resolve_tool_id(self, tool_id: str) -> str | None:
         return self.registry.resolve_id(tool_id)

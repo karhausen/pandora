@@ -1,0 +1,3695 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+WEB_DIR = Path(__file__).resolve().parent.parent / 'web'
+from fastapi import Body, FastAPI, HTTPException
+from fastapi.responses import FileResponse, PlainTextResponse
+from pydantic import BaseModel
+from .agent_loop import AgentLoop
+from .capability_expansion_manager import CapabilityExpansionManager
+from .capability_workflow import CapabilityWorkflow
+from .tool_proposal_manager import ToolProposalManager
+from .tool_review_agent import ToolReviewAgent
+from .tool_development_agent import ToolDevelopmentAgent
+from .capability_gap_analyzer import LLMCapabilityGapAnalyzer
+from .tool_design_agent import ToolDesignAgent
+from .tool_activation_manager import ToolActivationManager
+from .heartbeat import Heartbeat
+from .control_core import ControlCore
+from .core_status import CoreStatusService
+from .nightly_reflection import NightlyReflection
+from .safety_gate import SafetyGate
+from .coordinator_agent import CoordinatorAgent
+from .conversation_memory import ConversationMemory
+from .user_response import UserResponseFormatter
+from .chat_service import ChatService
+from .user_gui_simplification import UserGuiSimplificationService
+from .maintenance_center import MaintenanceCenterService
+from .genome import EvolutionService
+from .observation import SelfObservationManager
+from .pattern import PatternRecognitionManager
+from .prioritization import ImprovementPrioritizationManager
+from .proposal_queue import UnifiedProposalQueueManager
+from .proposal_generator import ProposalGeneratorManager
+from .proposal_evolution import ProposalEvolutionManager
+from .adaptive_goals import AdaptiveGoalManager
+from .knowledge_evolution import KnowledgeEvolutionManager
+from .tool_evolution import ToolEvolutionManager
+from .core_evolution import CoreEvolutionManager
+from .decision_learning import DecisionLearningManager
+from .evolution_dashboard import EvolutionDashboardManager
+from .worker_agent import WorkerAgent
+from .planner_worker_orchestrator import PlannerWorkerOrchestrator
+from .planner_agent import PlannerAgent
+from .reality_check import RealityCheck
+from .core_version_manager import CoreVersionManager
+from .activation_manager import ActivationManager
+from .rollback_manager import RollbackManager
+from .stability_monitor import StabilityMonitor
+from .sandbox import Sandbox
+from .documentation_generator import DocumentationGenerator
+from .governance import Governance
+from .changelog_manager import ChangelogManager
+from .cloud_expert import CloudExpert
+from .config_manager import ConfigManager
+from .learning_engine import LearningEngine
+from .learning_insights import LearningInsightService
+from .learning_feedback_loop import LearningFeedbackLoop
+from .learning_pattern_detector import LearningPatternDetector
+from .learning_pattern_actions import LearningPatternActionService
+from .llm_config import LLMConfig
+from .llm_runtime import LLMRuntime
+from .llm_profile_manager import LLMProfileManager
+from .model_router import ModelRouter
+from .models import LLMRequest, LLMTaskType
+from .task_journal import TaskJournal
+from .tool_executor import ToolExecutor
+from .tool_registry import ToolRegistry
+from .tool_lifecycle_manager import ToolLifecycleManager
+from .skill_registry import SkillRegistry
+from .skill_proposal_manager import SkillProposalManager
+from .skill_activation_manager import SkillActivationManager
+from .proposal_review_inbox import ProposalReviewInbox
+from .proposal_approval_workflow import ProposalApprovalWorkflow
+from .gui_approval_api import GuiApprovalApiService
+from .operations_dashboard import OperationsDashboardService
+from .operations_cockpit import OperationsCockpitService
+from .operations_health import OperationsHealthService
+from .operations_issue_detector import OperationsIssueDetector
+from .operations_issue_actions import OperationsIssueActionService
+from .guided_self_improvement import GuidedSelfImprovementService
+from .tool_center import ToolCenterService
+from .skill_center import SkillCenterService
+from .memory_explorer import MemoryExplorerService
+from .night_mode_dashboard import NightModeDashboardService
+from .night_review_engine import NightReviewEngine
+from .review_scheduler import ReviewSchedulerService
+from .llm_profile_center import LLMProfileCenterService
+from .llm_routing_editor import LLMRoutingEditorService
+from .user_knowledge_base import UserKnowledgeBaseService
+from .knowledge_context import KnowledgeContextService
+from .cognitive_context_builder import CognitiveContextBuilder
+from .request_interpreter import RequestInterpreter
+from .capability_analyzer import CapabilityAnalyzer
+from .python_orchestrator import PythonOrchestrator
+from .cognitive_context_pipeline import CognitiveContextPipeline
+from .tool_recommendation_workflow import ToolRecommendationWorkflow
+from .knowledge_recommendation_workflow import KnowledgeRecommendationWorkflow
+from .core_recommendation_workflow import CoreRecommendationWorkflow
+from .working_memory import WorkingMemory
+from .central_decision_engine import CentralDecisionEngine
+from .approval_interaction_workflow import ApprovalInteractionWorkflow
+from .proposal_review_loop import ProposalReviewLoop
+from .proposal_execution_gate import ProposalExecutionGate
+from .cognitive_integration_regression import CognitiveIntegrationRegressionService
+from .gui_decision_inbox import GuiDecisionInbox
+from .cognitive_planning_engine import CognitivePlanningEngine
+from .adaptive_source_selection import AdaptiveSourceSelector
+from .adaptive_tool_selection import AdaptiveToolSelector
+from .goal_manager import GoalManager
+from .priority_engine import PriorityEngine
+from .review_cycle_engine import ReviewCycleEngine
+from .cognitive_dashboard import CognitiveDashboardService
+from .review_to_action_workflow import ReviewToActionWorkflow
+from .action_proposal_handoff import ActionProposalHandoff
+from .cognitive_identity import CognitiveIdentityService
+from .personality_layer import PersonalityLayerService
+from .personality_layer_regression import PersonalityLayerRegressionService
+from .knowledge_governance import KnowledgeGovernanceService
+from .knowledge_editor import KnowledgeEditorService
+from .capability_graph import CapabilityGraphService
+from .capability_gap_intelligence import CapabilityGapIntelligenceService
+from .capability_actions import CapabilityActionService
+from .registration_validator import RegistrationValidator
+from .obsidian_vault import ObsidianVaultService, ObsidianSafetyError
+from .obsidian_inbox_review import ObsidianInboxReviewService
+from .obsidian_import_candidates import ObsidianImportCandidateService
+from .obsidian_import_execution import ObsidianImportExecutionService
+from .unified_action_inbox import UnifiedActionInboxService
+from .action_workflow import ActionWorkflowService
+from .workflow_dashboard import WorkflowDashboardService
+from .release_manager import ReleaseManager
+
+
+class UnifiedActionDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+app = FastAPI(title="Pandora Agent", version="29.7-evolution-dashboard")
+
+
+
+
+
+class ProposalGeneratorRequest(BaseModel):
+    request: str
+    proposal_type: str | None = None
+    context: dict[str, Any] | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 8.0
+    use_llm: bool = False
+
+
+class ProposalGeneratorBatchRequest(BaseModel):
+    items: list[dict[str, Any]]
+    enqueue: bool = False
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 8.0
+    use_llm: bool = False
+
+
+class ProposalEvolutionSnapshotRequest(BaseModel):
+    proposal: dict[str, Any]
+    change_note: str = "Manual snapshot"
+    source: str = "api"
+    created_by: str = "user"
+
+
+class ProposalEvolutionQueueSnapshotRequest(BaseModel):
+    item_id: str
+    change_note: str = "Snapshot from queue"
+    created_by: str = "user"
+
+
+class ProposalEvolutionDiffRequest(BaseModel):
+    old: dict[str, Any]
+    new: dict[str, Any]
+
+
+class ProposalEvolutionImproveRequest(BaseModel):
+    proposal: dict[str, Any] | None = None
+    item_id: str | None = None
+    instruction: str
+    enqueue: bool = False
+    created_by: str = "user"
+    use_llm: bool = False
+
+
+class ProposalQueueEnqueueRequest(BaseModel):
+    proposal: dict[str, Any]
+
+
+class ProposalQueueFactoryRequest(BaseModel):
+    request: str
+    proposal_type: str | None = None
+    source: str = "manual"
+
+
+class ProposalQueueDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+
+class DecisionLearningRecordRequest(BaseModel):
+    proposal_id: str
+    proposal_type: str = "tool"
+    decision: str
+    title: str = "Manual decision"
+    note: str | None = None
+    decided_by: str = "user"
+    priority: int = 50
+    risk: str = "medium"
+
+class ToolProposalTaskRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+
+
+class ToolDevelopmentRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+    auto_create: bool = True
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float | None = 10.0
+
+
+class ToolDevelopmentCapabilityRequest(BaseModel):
+    capability: str
+
+
+class ToolDesignRequest(BaseModel):
+    capability: str
+    task: str | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float = 30.0
+
+
+class ToolActivationRequest(BaseModel):
+    test_payload: dict | None = None
+
+
+
+class ToolGenerateRequest(BaseModel):
+    capability: str
+    provider_name: str | None = None
+    model: str | None = None
+    max_attempts: int = 2
+    run_tests: bool = True
+
+
+class CloudExpertSmokeRequest(BaseModel):
+    prompt: str | None = None
+    live: bool = False
+    timeout: float = 20.0
+
+
+class ToolProposalCapabilityRequest(BaseModel):
+    capability: str
+
+
+
+
+class CapabilityWorkflowRequest(BaseModel):
+    task: str
+    activate: bool = False
+    retry: bool = False
+
+
+class CapabilityEvaluateRequest(BaseModel):
+    task: str
+    analysis: dict | None = None
+    auto_propose: bool = True
+
+
+class AgentRunRequest(BaseModel):
+    task: str
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float | None = None
+
+class LLMAnalyzeRequest(BaseModel):
+    task: str
+    provider_name: str | None = None
+    model: str | None = None
+    timeout: float | None = None
+
+class LLMCompleteRequest(BaseModel):
+    prompt: str
+    task_type: str = "chat"
+    provider_name: str | None = None
+    model: str | None = None
+    expect_json: bool = False
+    timeout: float = 20.0
+
+
+class SkillProposalJournalRequest(BaseModel):
+    name: str | None = None
+
+
+class SkillActivationRequest(BaseModel):
+    test_payload: dict | None = None
+
+
+
+class LearnRequest(BaseModel):
+    limit: int = 200
+
+
+
+class RealityCheckRequest(BaseModel):
+    iterations: int = 3
+    delay: float = 0.0
+    run_pytest: bool = False
+
+
+
+
+class WorkerExecutePlanRequest(BaseModel):
+    plan_id: str
+    save: bool = True
+
+
+class PlannerWorkerRunRequest(BaseModel):
+    task: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
+class PlannerAgentRequest(BaseModel):
+    task: str
+    provider_name: str | None = "mock"
+    model: str | None = None
+    save: bool = True
+
+
+
+
+
+class CoordinatorRunRequest(BaseModel):
+    task: str
+    session_id: str | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    save: bool = True
+
+
+class ChatRunRequest(BaseModel):
+    task: str
+    session_id: str | None = None
+    provider_name: str | None = None
+    model: str | None = None
+    save: bool = True
+
+
+class ChatSessionCreateRequest(BaseModel):
+    title: str | None = None
+
+
+class ObsidianExportRequest(BaseModel):
+    title: str
+    content: str = ""
+    category: str = "Knowledge"
+    tags: list[str] = []
+    suggested_folder: str | None = None
+
+
+class ObsidianInboxMarkRequest(BaseModel):
+    status: str
+    note: str | None = None
+    reviewed_by: str = "user"
+
+
+class ObsidianImportCandidateDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+
+class ObsidianImportExecuteRequest(BaseModel):
+    confirm: bool = False
+    overwrite: bool = False
+    executed_by: str = "user"
+
+
+def _obsidian_api_call(func):
+    try:
+        return func()
+    except ObsidianSafetyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+class UserRunRequest(BaseModel):
+    task: str
+    provider_name: str | None = None
+    model: str | None = None
+    save: bool = True
+
+
+class RunToolRequest(BaseModel):
+    payload: dict = {}
+    task: str | None = None
+
+
+
+class GuiApprovalDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "user"
+
+
+class OperationsMaintenanceRunRequest(BaseModel):
+    limit: int = 200
+    force: bool = False
+    window_start: str = "02:00"
+    window_end: str = "05:00"
+
+
+class GuiToolActionRequest(BaseModel):
+    action: str
+
+
+class GuiSkillActionRequest(BaseModel):
+    action: str
+
+
+
+
+def get_user_knowledge_service() -> UserKnowledgeBaseService:
+    return UserKnowledgeBaseService()
+
+
+
+
+@app.get("/api/obsidian/status")
+def api_obsidian_status():
+    return ObsidianVaultService().status()
+
+@app.post("/api/obsidian/reindex")
+def api_obsidian_reindex(limit: int = 10000, write: bool = True):
+    return _obsidian_api_call(lambda: ObsidianVaultService().index(limit=limit, write=write))
+
+@app.get("/api/obsidian/search")
+def api_obsidian_search(query: str, limit: int = 20, include_content: bool = False):
+    return _obsidian_api_call(lambda: ObsidianVaultService().search(query, limit=limit, include_content=include_content))
+
+
+@app.get("/api/obsidian/context-preview")
+def api_obsidian_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    # Reuse the same policy-safe context builder that the chat path uses.
+    payload = KnowledgeContextService(max_files=limit).build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+    obsidian = payload.get("obsidian", {})
+    return {
+        "kind": "obsidian_context_preview",
+        "ok": True,
+        "query": query,
+        "target": payload.get("target"),
+        "cloud_context": payload.get("cloud_context"),
+        "obsidian": obsidian,
+        "obsidian_source_count": obsidian.get("source_count", 0),
+        "blocked_obsidian_count": payload.get("blocked_obsidian_count", 0),
+        "context_chars": payload.get("context_chars", 0),
+        "sources": [src for src in payload.get("sources", []) if src.get("source_type") == "obsidian"],
+        "rule": "Obsidian context: local=allowed, company requires OBSIDIAN_COMPANY_ALLOWED=true, public cloud requires OBSIDIAN_CLOUD_ALLOWED=true",
+    }
+
+@app.get("/api/obsidian/tags")
+def api_obsidian_tags(limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianVaultService().tags(limit=limit))
+
+@app.get("/api/obsidian/frontmatter/validate")
+def api_obsidian_frontmatter_validate(limit: int = 10000):
+    return _obsidian_api_call(lambda: ObsidianVaultService().validate_frontmatter(limit=limit))
+
+@app.post("/api/obsidian/ensure-inbox")
+def api_obsidian_ensure_inbox():
+    return _obsidian_api_call(lambda: ObsidianVaultService().ensure_inbox())
+
+@app.post("/api/obsidian/export")
+def api_obsidian_export(req: ObsidianExportRequest):
+    return _obsidian_api_call(lambda: ObsidianVaultService().export_markdown(
+        title=req.title,
+        content=req.content,
+        category=req.category,
+        tags=req.tags,
+        suggested_folder=req.suggested_folder,
+    ))
+
+
+@app.get("/api/obsidian/inbox/status")
+def api_obsidian_inbox_status():
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().status())
+
+@app.get("/api/obsidian/inbox/items")
+def api_obsidian_inbox_items(status: str | None = None, category: str | None = None, limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().list_items(status=status, category=category, limit=limit))
+
+@app.get("/api/obsidian/inbox/items/{item_path:path}")
+def api_obsidian_inbox_item(item_path: str):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().show_item(item_path))
+
+@app.post("/api/obsidian/inbox/items/{item_path:path}/mark")
+def api_obsidian_inbox_mark(item_path: str, req: ObsidianInboxMarkRequest):
+    return _obsidian_api_call(lambda: ObsidianInboxReviewService().mark_item(item_path, status=req.status, note=req.note, reviewed_by=req.reviewed_by))
+
+
+
+@app.get("/api/obsidian/import-candidates/status")
+def api_obsidian_import_candidates_status():
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().status())
+
+@app.post("/api/obsidian/import-candidates/build")
+def api_obsidian_import_candidates_build(query: str | None = None, limit: int = 50, write: bool = True):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().build(query=query, limit=limit, write=write))
+
+@app.get("/api/obsidian/import-candidates")
+def api_obsidian_import_candidates(include_reviewed: bool = False, target_area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().list_candidates(include_reviewed=include_reviewed, target_area=target_area, status=status, query=query, limit=limit))
+
+@app.get("/api/obsidian/import-candidates/{candidate_id:path}")
+def api_obsidian_import_candidate(candidate_id: str):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().show(candidate_id))
+
+@app.post("/api/obsidian/import-candidates/{candidate_id:path}/decision")
+def api_obsidian_import_candidate_decision(candidate_id: str, req: ObsidianImportCandidateDecisionRequest):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().decide(candidate_id, decision=req.decision, note=req.note, decided_by=req.decided_by))
+
+@app.get("/api/obsidian/import-executions/status")
+def api_obsidian_import_executions_status():
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().status())
+
+@app.get("/api/obsidian/import-executions")
+def api_obsidian_import_executions(limit: int = 200):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().list_executions(limit=limit))
+
+@app.get("/api/obsidian/import-candidates/{candidate_id:path}/execution-plan")
+def api_obsidian_import_candidate_execution_plan(candidate_id: str, overwrite: bool = False):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite))
+
+@app.post("/api/obsidian/import-candidates/{candidate_id:path}/execute")
+def api_obsidian_import_candidate_execute(candidate_id: str, req: ObsidianImportExecuteRequest):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().execute(candidate_id, confirm=req.confirm, overwrite=req.overwrite, executed_by=req.executed_by))
+
+
+@app.get("/api/obsidian/import-review")
+def api_obsidian_import_review(include_reviewed: bool = True, target_area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    """GUI-friendly aggregate view for Obsidian import candidates."""
+    candidates = ObsidianImportCandidateService().list_candidates(
+        include_reviewed=include_reviewed,
+        target_area=target_area,
+        status=status,
+        query=query,
+        limit=limit,
+    )
+    executions = ObsidianImportExecutionService().list_executions(limit=limit)
+    return {
+        "kind": "obsidian_import_review_dashboard",
+        "ok": True,
+        "candidates": candidates.get("candidates", []),
+        "candidate_summary": candidates.get("summary", {}),
+        "candidate_count": candidates.get("total_count", candidates.get("count", 0)),
+        "executions": executions.get("executions", []),
+        "execution_count": executions.get("count", 0),
+        "safety": {
+            "obsidian_read_only": True,
+            "imports_write_user_knowledge_only": True,
+            "requires_accepted_candidate": True,
+            "requires_confirm": True,
+            "overwrite_default": False,
+        },
+    }
+
+@app.get("/api/obsidian/import-review/{candidate_id:path}")
+def api_obsidian_import_review_detail(candidate_id: str, overwrite: bool = False):
+    detail = ObsidianImportCandidateService().show(candidate_id)
+    plan = ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite) if detail.get("found") else None
+    return {
+        "kind": "obsidian_import_review_detail",
+        "found": detail.get("found", False),
+        "candidate": detail.get("candidate"),
+        "source_preview": detail.get("source_preview"),
+        "execution_plan": plan,
+        "safety": detail.get("safety", {}),
+    }
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/decision")
+def api_obsidian_import_review_decision(candidate_id: str, req: ObsidianImportCandidateDecisionRequest):
+    return _obsidian_api_call(lambda: ObsidianImportCandidateService().decide(candidate_id, decision=req.decision, note=req.note, decided_by=req.decided_by))
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/plan")
+def api_obsidian_import_review_plan(candidate_id: str, overwrite: bool = False):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().build_plan(candidate_id, overwrite=overwrite))
+
+@app.post("/api/obsidian/import-review/{candidate_id:path}/execute")
+def api_obsidian_import_review_execute(candidate_id: str, req: ObsidianImportExecuteRequest):
+    return _obsidian_api_call(lambda: ObsidianImportExecutionService().execute(candidate_id, confirm=req.confirm, overwrite=req.overwrite, executed_by=req.executed_by))
+
+@app.get("/api/gui/knowledge/dashboard")
+def gui_knowledge_dashboard(query: str | None = None, limit: int = 20):
+    return get_user_knowledge_service().dashboard(query=query, limit=limit)
+
+
+@app.get("/api/gui/knowledge/status")
+def gui_knowledge_status():
+    return get_user_knowledge_service().status()
+
+
+@app.post("/api/gui/knowledge/ensure-structure")
+def gui_knowledge_ensure_structure():
+    return get_user_knowledge_service().ensure_structure()
+
+
+@app.get("/api/gui/knowledge/areas")
+def gui_knowledge_areas():
+    return get_user_knowledge_service().areas()
+
+
+@app.get("/api/gui/knowledge/areas/{area}")
+def gui_knowledge_area(area: str, limit: int = 200):
+    try:
+        return get_user_knowledge_service().list_area(area, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/knowledge/areas/{area}/files/{relative_path:path}")
+def gui_knowledge_file(area: str, relative_path: str, max_lines: int = 160):
+    try:
+        payload = get_user_knowledge_service().show_file(area, relative_path, max_lines=max_lines)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="knowledge file not found")
+    return payload
+
+
+@app.get("/api/gui/knowledge/search")
+def gui_knowledge_search(query: str, limit: int = 50, cloud_context: bool = False):
+    return get_user_knowledge_service().search(query=query, limit=limit, cloud_context=cloud_context)
+
+
+@app.get("/api/gui/knowledge/context-preview")
+def gui_knowledge_context_preview(query: str, target: str = "local", limit: int = 10):
+    return get_user_knowledge_service().context_preview(query=query, target=target, limit=limit)
+
+
+def get_knowledge_editor_service() -> KnowledgeEditorService:
+    return KnowledgeEditorService()
+
+
+class KnowledgeEditorSaveRequest(BaseModel):
+    area: str
+    relative_path: str
+    metadata: dict[str, Any] | None = None
+    body: str = ""
+    overwrite: bool = False
+
+
+class KnowledgeEditorFolderRequest(BaseModel):
+    area: str
+    relative_path: str
+
+
+class KnowledgeEditorMoveRequest(BaseModel):
+    source_area: str
+    source_path: str
+    target_area: str
+    target_path: str
+    overwrite: bool = False
+
+
+class KnowledgeEditorDeleteRequest(BaseModel):
+    area: str
+    relative_path: str
+    confirm: bool = False
+
+
+@app.get("/api/gui/knowledge/editor/status")
+def gui_knowledge_editor_status():
+    return get_knowledge_editor_service().status()
+
+
+@app.get("/api/gui/knowledge/editor/tree")
+def gui_knowledge_editor_tree():
+    return get_knowledge_editor_service().tree()
+
+
+@app.get("/api/gui/knowledge/editor/template")
+def gui_knowledge_editor_template(area: str = "public", relative_path: str = "new-note.md"):
+    try:
+        return get_knowledge_editor_service().metadata_template(area=area, relative_path=relative_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/knowledge/editor/files/{area}/{relative_path:path}")
+def gui_knowledge_editor_file(area: str, relative_path: str):
+    try:
+        return get_knowledge_editor_service().read_file(area=area, relative_path=relative_path)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/files")
+def gui_knowledge_editor_save(req: KnowledgeEditorSaveRequest):
+    try:
+        return get_knowledge_editor_service().save_file(area=req.area, relative_path=req.relative_path, metadata=req.metadata, body=req.body, overwrite=req.overwrite)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/folders")
+def gui_knowledge_editor_create_folder(req: KnowledgeEditorFolderRequest):
+    try:
+        return get_knowledge_editor_service().create_folder(area=req.area, relative_path=req.relative_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/move")
+def gui_knowledge_editor_move(req: KnowledgeEditorMoveRequest):
+    try:
+        return get_knowledge_editor_service().move_file(source_area=req.source_area, source_path=req.source_path, target_area=req.target_area, target_path=req.target_path, overwrite=req.overwrite)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/gui/knowledge/editor/delete")
+def gui_knowledge_editor_delete(req: KnowledgeEditorDeleteRequest):
+    try:
+        return get_knowledge_editor_service().delete_path(area=req.area, relative_path=req.relative_path, confirm=req.confirm)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def get_knowledge_context_service() -> KnowledgeContextService:
+    return KnowledgeContextService()
+
+
+@app.get("/api/cognitive/context/status")
+def api_cognitive_context_status():
+    return CognitiveContextBuilder().status()
+
+@app.get("/api/cognitive/request-interpreter/status")
+def api_request_interpreter_status():
+    return RequestInterpreter().status()
+
+@app.get("/api/cognitive/request-interpreter/preview")
+def api_request_interpreter_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return RequestInterpreter().interpret(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/capability-analyzer/status")
+def api_capability_analyzer_status():
+    return CapabilityAnalyzer().status()
+
+@app.get("/api/cognitive/capability-analyzer/preview")
+def api_capability_analyzer_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CapabilityAnalyzer().analyze(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/python-orchestrator/status")
+def api_python_orchestrator_status():
+    return PythonOrchestrator().status()
+
+@app.get("/api/cognitive/python-orchestrator/preview")
+def api_python_orchestrator_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return PythonOrchestrator().plan(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/context/preview")
+def api_cognitive_context_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    return CognitiveContextBuilder().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
+@app.get("/api/cognitive/pipeline/status")
+def api_cognitive_pipeline_status():
+    return CognitiveContextPipeline().status()
+
+@app.get("/api/cognitive/pipeline/preview")
+def api_cognitive_pipeline_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5, timeout: float = 8.0):
+    return CognitiveContextPipeline().preview(query, provider_name=provider_name, model=model, limit=limit, timeout=timeout)
+
+@app.get("/api/cognitive/tool-recommendation/status")
+def api_tool_recommendation_status():
+    return ToolRecommendationWorkflow().status()
+
+@app.get("/api/cognitive/tool-recommendation/preview")
+def api_tool_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return ToolRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/knowledge-recommendation/status")
+def api_knowledge_recommendation_status():
+    return KnowledgeRecommendationWorkflow().status()
+
+@app.get("/api/cognitive/knowledge-recommendation/preview")
+def api_knowledge_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return KnowledgeRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/core-recommendation/status")
+def api_core_recommendation_status():
+    return CoreRecommendationWorkflow().status()
+
+@app.get("/api/cognitive/core-recommendation/preview")
+def api_core_recommendation_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CoreRecommendationWorkflow().prepare(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/central-decision/status")
+def api_central_decision_status():
+    return CentralDecisionEngine().status()
+
+@app.get("/api/cognitive/central-decision/preview")
+def api_central_decision_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, include_review_packages: bool = True):
+    return CentralDecisionEngine().decide(query, provider_name=provider_name, model=model, timeout=timeout, include_review_packages=include_review_packages)
+
+
+@app.get("/api/cognitive/approval-interaction/status")
+def api_approval_interaction_status():
+    return ApprovalInteractionWorkflow().status()
+
+@app.get("/api/cognitive/approval-interaction/preview")
+def api_approval_interaction_preview(query: str, user_decision: str | None = None, note: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return ApprovalInteractionWorkflow().preview(query, user_decision=user_decision, note=note, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/proposal-review-loop/status")
+def api_proposal_review_loop_status():
+    return ProposalReviewLoop().status()
+
+@app.get("/api/cognitive/proposal-review-loop/preview")
+def api_proposal_review_loop_preview(query: str, approval_decision: str | None = "ja", review_decision: str | None = None, review_note: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return ProposalReviewLoop().preview(query, approval_decision=approval_decision, review_decision=review_decision, review_note=review_note, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/integration/status")
+def api_cognitive_integration_status():
+    return CognitiveIntegrationRegressionService().status()
+
+@app.get("/api/cognitive/integration/preview")
+def api_cognitive_integration_preview(query: str, user_decision: str | None = None, review_decision: str | None = None, execution_decision: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, include_context_pipeline: bool = True):
+    return CognitiveIntegrationRegressionService().preview(query, user_decision=user_decision, review_decision=review_decision, execution_decision=execution_decision, provider_name=provider_name, model=model, timeout=timeout, include_context_pipeline=include_context_pipeline)
+
+@app.get("/api/cognitive/regression/run")
+def api_cognitive_regression_run(provider_name: str | None = None, model: str | None = None, timeout: float = 1.5):
+    return CognitiveIntegrationRegressionService().run_regression(provider_name=provider_name, model=model, timeout=timeout)
+
+
+
+
+
+@app.get("/api/cognitive/planning/status")
+def api_cognitive_planning_status():
+    return CognitivePlanningEngine().status()
+
+@app.get("/api/cognitive/planning/preview")
+def api_cognitive_planning_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CognitivePlanningEngine().plan(query, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/adaptive-source-selection/status")
+def api_adaptive_source_selection_status():
+    return AdaptiveSourceSelector().status()
+
+@app.get("/api/cognitive/adaptive-source-selection/preview")
+def api_adaptive_source_selection_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_sources: int = 5):
+    return AdaptiveSourceSelector().select(query, provider_name=provider_name, model=model, timeout=timeout, max_sources=max_sources)
+
+
+@app.get("/api/cognitive/goal-manager/status")
+def api_goal_manager_status():
+    return GoalManager().status()
+
+@app.get("/api/cognitive/goal-manager/preview")
+def api_goal_manager_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_goals: int = 5):
+    return GoalManager().propose(query, provider_name=provider_name, model=model, timeout=timeout, max_goals=max_goals)
+
+@app.get("/api/cognitive/priority-engine/status")
+def api_priority_engine_status():
+    return PriorityEngine().status()
+
+@app.get("/api/cognitive/priority-engine/preview")
+def api_priority_engine_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return PriorityEngine().prioritize(query, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+
+@app.get("/api/cognitive/review-cycle/status")
+def api_review_cycle_status():
+    return ReviewCycleEngine().status()
+
+@app.get("/api/cognitive/review-cycle/preview")
+def api_review_cycle_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ReviewCycleEngine().build_review(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/dashboard/status")
+def api_cognitive_dashboard_status():
+    return CognitiveDashboardService().status()
+
+@app.get("/api/cognitive/dashboard/preview")
+def api_cognitive_dashboard_preview(query: str, cadence: str = "weekly", provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return CognitiveDashboardService().dashboard(query, cadence=cadence, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+
+@app.get("/api/cognitive/review-to-action/status")
+def api_review_to_action_status():
+    return ReviewToActionWorkflow().status()
+
+@app.get("/api/cognitive/review-to-action/preview")
+def api_review_to_action_preview(query: str, cadence: str = "weekly", user_action: str | None = None, action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ReviewToActionWorkflow().preview(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/action-proposal-handoff/status")
+def api_action_proposal_handoff_status():
+    return ActionProposalHandoff().status()
+
+@app.get("/api/cognitive/action-proposal-handoff/preview")
+def api_action_proposal_handoff_preview(query: str, cadence: str = "weekly", user_action: str = "ja", action_id: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_items: int = 8):
+    return ActionProposalHandoff().prepare(query, cadence=cadence, user_action=user_action, action_id=action_id, provider_name=provider_name, model=model, timeout=timeout, max_items=max_items)
+
+@app.get("/api/cognitive/identity/status")
+def api_cognitive_identity_status():
+    return CognitiveIdentityService().status()
+
+@app.get("/api/cognitive/identity/card")
+def api_cognitive_identity_card():
+    return CognitiveIdentityService().identity_card()
+
+@app.get("/api/cognitive/identity/boundaries")
+def api_cognitive_identity_boundaries():
+    return CognitiveIdentityService().capability_boundaries()
+
+@app.get("/api/cognitive/identity/self-model")
+def api_cognitive_identity_self_model(query: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return CognitiveIdentityService().self_model(query, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/personality/status")
+def api_personality_status():
+    return PersonalityLayerService().status()
+
+@app.get("/api/cognitive/personality/profile")
+def api_personality_profile(profile: str | None = None):
+    return PersonalityLayerService().profile(profile)
+
+@app.get("/api/cognitive/personality/style-contract")
+def api_personality_style_contract(profile: str | None = None):
+    return PersonalityLayerService().style_contract(profile)
+
+@app.get("/api/cognitive/prompt/package")
+def api_prompt_package(query: str, profile: str | None = None, output_contract: str | None = None):
+    return PersonalityLayerService().prompt_package(query, profile_name=profile, output_contract=output_contract)
+
+@app.get("/api/cognitive/prompt/preview")
+def api_prompt_preview(query: str, profile: str | None = None, output_contract: str | None = None):
+    return PersonalityLayerService().prompt_preview(query, profile_name=profile, output_contract=output_contract)
+
+@app.get("/api/cognitive/personality/regression")
+def api_personality_regression():
+    return PersonalityLayerRegressionService().run()
+
+@app.get("/api/cognitive/adaptive-tool-selection/status")
+def api_adaptive_tool_selection_status():
+    return AdaptiveToolSelector().status()
+
+@app.get("/api/cognitive/adaptive-tool-selection/preview")
+def api_adaptive_tool_selection_preview(query: str, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0, max_tools: int = 3):
+    return AdaptiveToolSelector().select(query, provider_name=provider_name, model=model, timeout=timeout, max_tools=max_tools)
+
+@app.get("/api/cognitive/gui-decision-inbox/status")
+def api_gui_decision_inbox_status():
+    return GuiDecisionInbox().status()
+
+@app.get("/api/cognitive/gui-decision-inbox/preview")
+def api_gui_decision_inbox_preview(query: str, user_action: str | None = None, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    return GuiDecisionInbox().preview(query, user_action=user_action, provider_name=provider_name, model=model, timeout=timeout)
+
+@app.get("/api/cognitive/proposal-execution-gate/status")
+def api_proposal_execution_gate_status():
+    return ProposalExecutionGate().status()
+
+@app.get("/api/cognitive/proposal-execution-gate/preview")
+def api_proposal_execution_gate_preview(query: str, review_decision: str | None = "passt", execution_decision: str | None = None, test_ok: bool = False, audit_ok: bool = False, provider_name: str | None = None, model: str | None = None, timeout: float = 8.0):
+    payload = {"purpose": query}
+    test_report = {"ok": True} if test_ok else None
+    audit_report = {"ok": True} if audit_ok else None
+    return ProposalExecutionGate().preview(query, proposal_payload=payload, review_decision=review_decision, execution_decision=execution_decision, test_report=test_report, audit_report=audit_report, provider_name=provider_name, model=model, timeout=timeout)
+
+
+@app.get("/api/cognitive/working-memory/status")
+def api_working_memory_status():
+    return WorkingMemory().status()
+
+@app.get("/api/cognitive/working-memory/preview")
+def api_working_memory_preview(query: str, max_items: int = 5):
+    wm = WorkingMemory()
+    seed = {
+        "goals": [f"Answer or handle request: {query}"],
+        "open_questions": ["Welche Quellen und Fähigkeiten sind für diese Aufgabe wirklich relevant?"],
+        "priorities": ["Kontext korrekt sammeln", "Keine automatische Persistenz", "Freigabegrenzen beachten"],
+    }
+    wm.start(query, seed=seed)
+    return {
+        "kind": "working_memory_preview",
+        "status": wm.status(),
+        "snapshot": wm.snapshot(),
+        "prompt_summary": wm.summarize_for_prompt(max_items=max_items),
+    }
+
+
+@app.get("/api/gui/knowledge/context-injection-preview")
+def gui_knowledge_context_injection_preview(query: str, provider_name: str | None = None, model: str | None = None, limit: int = 5):
+    return get_knowledge_context_service().build_for_chat(query, provider_name=provider_name, model=model, limit=limit)
+
+
+def get_knowledge_governance_service() -> KnowledgeGovernanceService:
+    return KnowledgeGovernanceService()
+
+
+@app.get("/api/gui/knowledge/governance")
+def gui_knowledge_governance(limit: int = 500):
+    return get_knowledge_governance_service().run(limit=limit)
+
+
+@app.get("/api/gui/knowledge/governance/status")
+def gui_knowledge_governance_status():
+    return get_knowledge_governance_service().status()
+
+
+@app.get("/api/gui/knowledge/metadata")
+def gui_knowledge_metadata(limit: int = 500):
+    return get_knowledge_governance_service().metadata_index(limit=limit)
+
+
+class KnowledgeMetadataValidationRequest(BaseModel):
+    metadata: dict[str, Any]
+    area: str = "public"
+    relative_path: str = "inline.md"
+
+
+@app.post("/api/gui/knowledge/metadata/validate")
+def gui_knowledge_metadata_validate(req: KnowledgeMetadataValidationRequest):
+    return get_knowledge_governance_service().validate_metadata(req.metadata, area=req.area, relative_path=req.relative_path)
+
+
+
+
+def get_capability_graph_service() -> CapabilityGraphService:
+    return CapabilityGraphService()
+
+
+@app.get("/api/capabilities")
+def api_capabilities(query: str | None = None, limit: int = 200):
+    return get_capability_graph_service().list_capabilities(query=query, limit=limit)
+
+
+@app.get("/api/capabilities/graph")
+def api_capability_graph():
+    return get_capability_graph_service().load_graph()
+
+
+@app.post("/api/capabilities/rebuild")
+def api_capability_rebuild():
+    return get_capability_graph_service().rebuild(write=True)
+
+
+
+
+def get_capability_intelligence_service() -> CapabilityGapIntelligenceService:
+    return CapabilityGapIntelligenceService()
+
+
+@app.get("/api/capabilities/intelligence")
+def api_capability_intelligence(limit: int = 50):
+    return get_capability_intelligence_service().analyze(limit=limit)
+
+
+@app.post("/api/capabilities/intelligence/rebuild")
+def api_capability_intelligence_rebuild(limit: int = 50):
+    return get_capability_intelligence_service().analyze(rebuild=True, limit=limit)
+
+
+
+class CapabilityActionDecisionRequest(BaseModel):
+    decision: str
+    note: str | None = None
+    decided_by: str = "web-gui"
+
+
+def get_capability_action_service() -> CapabilityActionService:
+    return CapabilityActionService()
+
+
+@app.get("/api/capabilities/actions")
+def api_capability_actions(
+    include_reviewed: bool = False,
+    limit: int = 200,
+    action_type: str | None = None,
+    priority: str | None = None,
+    status: str | None = None,
+    query: str | None = None,
+):
+    return get_capability_action_service().list_actions(
+        include_reviewed=include_reviewed,
+        limit=limit,
+        action_type=action_type,
+        priority=priority,
+        status=status,
+        query=query,
+    )
+
+
+@app.get("/api/capabilities/actions/dashboard")
+def api_capability_actions_dashboard():
+    return get_capability_action_service().dashboard()
+
+
+@app.get("/api/capabilities/actions/status")
+def api_capability_actions_status():
+    return get_capability_action_service().status()
+
+
+@app.post("/api/capabilities/actions/rebuild")
+def api_capability_actions_rebuild(limit: int = 50, write: bool = True):
+    return get_capability_action_service().rebuild(limit=limit, write=write)
+
+
+@app.get("/api/capabilities/actions/{action_id:path}")
+def api_capability_action_show(action_id: str):
+    payload = get_capability_action_service().show(action_id)
+    if not payload.get("found"):
+        raise HTTPException(status_code=404, detail="capability action not found")
+    return payload
+
+
+@app.post("/api/capabilities/actions/{action_id:path}/decision")
+def api_capability_action_decision(action_id: str, req: CapabilityActionDecisionRequest):
+    payload = get_capability_action_service().decide(
+        action_id,
+        decision=req.decision,
+        note=req.note,
+        decided_by=req.decided_by,
+    )
+    if not payload.get("ok"):
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+@app.get("/api/capabilities/{capability:path}")
+def api_capability_show(capability: str):
+    payload = get_capability_graph_service().show_capability(capability)
+    if not payload.get("found"):
+        raise HTTPException(status_code=404, detail=payload.get("error", "capability not found"))
+    return payload
+
+def get_memory_explorer_service() -> MemoryExplorerService:
+    return MemoryExplorerService()
+
+
+@app.get("/api/gui/memory/dashboard")
+def gui_memory_dashboard(query: str | None = None, limit: int = 20):
+    return get_memory_explorer_service().dashboard(query=query, limit=limit)
+
+
+@app.get("/api/gui/memory/areas")
+def gui_memory_areas():
+    return get_memory_explorer_service().areas()
+
+
+@app.get("/api/gui/memory/areas/{area}")
+def gui_memory_area(area: str, limit: int = 200):
+    try:
+        return get_memory_explorer_service().list_area(area, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.get("/api/gui/memory/areas/{area}/files/{relative_path:path}")
+def gui_memory_file(area: str, relative_path: str, max_lines: int = 120):
+    try:
+        payload = get_memory_explorer_service().show_file(area, relative_path, max_lines=max_lines)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="memory file not found")
+    return payload
+
+
+@app.get("/api/gui/memory/search")
+def gui_memory_search(query: str, limit: int = 50):
+    return get_memory_explorer_service().search(query=query, limit=limit)
+
+
+def get_tool_center_service() -> ToolCenterService:
+    return ToolCenterService()
+
+
+@app.get("/api/gui/tools/dashboard")
+def gui_tools_dashboard():
+    return get_tool_center_service().dashboard()
+
+
+@app.get("/api/gui/tools")
+def gui_tools_list(status: str | None = None, include_stats: bool = True):
+    return get_tool_center_service().list_tools(status=status, include_stats=include_stats)
+
+
+@app.get("/api/gui/tools/{tool_id:path}")
+def gui_tools_show(tool_id: str):
+    payload = get_tool_center_service().show_tool(tool_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="tool not found")
+    return payload
+
+
+@app.post("/api/gui/tools/{tool_id:path}/action")
+def gui_tools_action(tool_id: str, req: GuiToolActionRequest):
+    try:
+        payload = get_tool_center_service().set_tool_status(tool_id, req.action)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("success") is False and payload.get("error") == "Tool not found":
+        raise HTTPException(status_code=404, detail="tool not found")
+    if payload.get("success") is False:
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+
+@app.get("/api/gui/tools/{tool_id:path}/stats")
+def gui_tools_stats(tool_id: str):
+    return get_tool_center_service().stats(tool_id)
+
+
+
+def get_skill_center_service() -> SkillCenterService:
+    return SkillCenterService()
+
+
+@app.get("/api/gui/skills/dashboard")
+def gui_skills_dashboard(limit: int = 20):
+    return get_skill_center_service().dashboard(limit=limit)
+
+
+@app.get("/api/gui/skills")
+def gui_skills_list(status: str | None = None):
+    return get_skill_center_service().list_skills(status=status)
+
+
+@app.get("/api/gui/skills/candidates")
+def gui_skills_candidates(limit: int = 50):
+    return get_skill_center_service().list_candidates(limit=limit)
+
+
+@app.get("/api/gui/skills/activation-log")
+def gui_skills_activation_log(limit: int = 20):
+    return get_skill_center_service().activation_log(limit=limit)
+
+
+@app.get("/api/gui/skills/candidates/{proposal_id:path}")
+def gui_skills_candidate_show(proposal_id: str):
+    payload = get_skill_center_service().show_candidate(proposal_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="skill candidate not found")
+    return payload
+
+
+@app.get("/api/gui/skills/{skill_id:path}")
+def gui_skills_show(skill_id: str):
+    payload = get_skill_center_service().show_skill(skill_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="skill not found")
+    return payload
+
+
+@app.post("/api/gui/skills/{skill_id:path}/action")
+def gui_skills_action(skill_id: str, req: GuiSkillActionRequest):
+    try:
+        payload = get_skill_center_service().set_skill_status(skill_id, req.action)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("success") is False and payload.get("error") == "Skill not found":
+        raise HTTPException(status_code=404, detail="skill not found")
+    if payload.get("success") is False:
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+
+def get_operations_dashboard_service() -> OperationsDashboardService:
+    return OperationsDashboardService()
+
+
+def get_operations_cockpit_service() -> OperationsCockpitService:
+    return OperationsCockpitService()
+
+
+
+
+def get_operations_health_service() -> OperationsHealthService:
+    return OperationsHealthService()
+
+def get_operations_issue_service() -> OperationsIssueActionService:
+    return OperationsIssueActionService()
+
+def get_guided_self_improvement_service() -> GuidedSelfImprovementService:
+    return GuidedSelfImprovementService()
+
+
+
+@app.get("/api/gui/operations-health/status")
+def gui_operations_health_status():
+    return get_operations_health_service().status()
+
+
+@app.get("/api/gui/operations-health/checks")
+def gui_operations_health_checks():
+    service = get_operations_health_service()
+    return {"kind": "operations_health_checks", "checks": service.run_checks(), "safety": service.safety()}
+
+
+@app.get("/api/operations/issues")
+def api_operations_issues(include_reviewed: bool = False, limit: int = 200):
+    return get_operations_issue_service().list_actions(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.get("/api/operations/issues/scan")
+def api_operations_issue_scan():
+    return OperationsIssueDetector().scan()
+
+
+@app.get("/api/operations/issues/{issue_id}")
+def api_operations_issue_show(issue_id: str):
+    detail = OperationsIssueDetector().show(issue_id)
+    if not detail.get("found"):
+        action = get_operations_issue_service().show(issue_id)
+        if action.get("found"):
+            return action
+    return detail
+
+
+@app.post("/api/operations/issues/create-actions")
+def api_operations_issue_create_actions():
+    return get_operations_issue_service().create_actions(write=True)
+
+
+@app.get("/api/gui/operations-issues/dashboard")
+def gui_operations_issues_dashboard(include_reviewed: bool = False, limit: int = 200):
+    service = get_operations_issue_service()
+    return {
+        "kind": "operations_issues_dashboard",
+        "status": service.status(),
+        "scan": service.scan(),
+        "actions": service.list_actions(include_reviewed=include_reviewed, limit=limit),
+        "safety": service.status().get("safety", {}),
+    }
+
+
+@app.post("/api/gui/operations-issues/create-actions")
+def gui_operations_issues_create_actions():
+    return get_operations_issue_service().create_actions(write=True)
+
+
+
+@app.get("/api/guided-improvement/status")
+def api_guided_improvement_status():
+    return get_guided_self_improvement_service().status()
+
+
+@app.get("/api/guided-improvement/recommendations")
+def api_guided_improvements(include_reviewed: bool = False, limit: int = 200):
+    return get_guided_self_improvement_service().list_recommendations(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/guided-improvement/rebuild")
+def api_guided_improvement_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return get_guided_self_improvement_service().rebuild(write=bool(payload.get("write", True)), limit=int(payload.get("limit", 200)))
+
+
+@app.get("/api/guided-improvement/recommendations/{recommendation_id}")
+def api_guided_improvement_show(recommendation_id: str):
+    return get_guided_self_improvement_service().show(recommendation_id)
+
+
+@app.post("/api/guided-improvement/recommendations/{recommendation_id}/decision")
+def api_guided_improvement_decide(recommendation_id: str, payload: dict[str, str]):
+    return get_guided_self_improvement_service().decide(recommendation_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+@app.get("/api/gui/guided-improvement/dashboard")
+def gui_guided_improvement_dashboard(include_reviewed: bool = False, limit: int = 200):
+    service = get_guided_self_improvement_service()
+    return {
+        "kind": "guided_self_improvement_dashboard",
+        "status": service.status(),
+        "recommendations": service.list_recommendations(include_reviewed=include_reviewed, limit=limit),
+        "safety": service.status().get("safety", {}),
+    }
+
+
+@app.post("/api/gui/guided-improvement/rebuild")
+def gui_guided_improvement_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return get_guided_self_improvement_service().rebuild(write=bool(payload.get("write", True)), limit=int(payload.get("limit", 200)))
+
+@app.get("/api/gui/operations-cockpit/dashboard")
+def gui_operations_cockpit_dashboard(limit: int = 100):
+    return get_operations_cockpit_service().dashboard(limit=limit)
+
+
+@app.post("/api/gui/operations-cockpit/night-review-preview")
+def gui_operations_cockpit_night_review_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_cockpit_service().run_night_review_preview(limit=req.limit)
+
+
+@app.post("/api/gui/operations-cockpit/scheduler-run")
+def gui_operations_cockpit_scheduler_run(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_cockpit_service().run_scheduler_manual(limit=req.limit, write=True, create_actions=True)
+
+
+@app.get("/api/gui/operations/dashboard")
+def gui_operations_dashboard(limit: int = 50):
+    return get_operations_dashboard_service().summary(limit=limit)
+
+
+@app.post("/api/gui/operations/maintenance/preview")
+def gui_operations_maintenance_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_dashboard_service().maintenance_preview(
+        limit=req.limit,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
+
+
+@app.post("/api/gui/operations/maintenance/run")
+def gui_operations_maintenance_run(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_operations_dashboard_service().run_maintenance(
+        limit=req.limit,
+        force=req.force,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
+
+
+
+def get_night_mode_dashboard_service() -> NightModeDashboardService:
+    return NightModeDashboardService()
+
+
+@app.get("/api/gui/night-mode/dashboard")
+def gui_night_mode_dashboard(limit: int = 20):
+    return get_night_mode_dashboard_service().dashboard(limit=limit)
+
+
+@app.get("/api/gui/night-mode/reports")
+def gui_night_mode_reports(limit: int = 50):
+    return get_night_mode_dashboard_service().reports(limit=limit)
+
+
+@app.get("/api/gui/night-mode/reports/{report_id:path}")
+def gui_night_mode_report_show(report_id: str):
+    try:
+        payload = get_night_mode_dashboard_service().show_report(report_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="night mode report not found")
+    return payload
+
+
+@app.post("/api/gui/night-mode/maintenance/preview")
+def gui_night_mode_maintenance_preview(req: OperationsMaintenanceRunRequest | None = None):
+    req = req or OperationsMaintenanceRunRequest()
+    return get_night_mode_dashboard_service().maintenance_preview(
+        limit=req.limit,
+        window_start=req.window_start,
+        window_end=req.window_end,
+    )
+
+def get_gui_approval_service() -> GuiApprovalApiService:
+    return GuiApprovalApiService()
+
+
+
+
+@app.get("/api/gui/llm-profiles/dashboard")
+def gui_llm_profiles_dashboard():
+    return LLMProfileCenterService().dashboard()
+
+
+@app.get("/api/gui/llm-profiles/profiles")
+def gui_llm_profiles_profiles():
+    return LLMProfileCenterService().profiles()
+
+
+@app.post("/api/gui/llm-profiles/profile")
+def gui_llm_profiles_set_profile(req: dict = Body(...)):
+    result = LLMProfileCenterService().set_profile(str(req.get("profile", "")))
+    if not result.get("success", False):
+        raise HTTPException(status_code=400, detail=result)
+    return result
+
+
+@app.get("/api/gui/llm-profiles/providers")
+def gui_llm_profiles_providers():
+    return LLMProfileCenterService().providers()
+
+
+@app.get("/api/gui/llm-profiles/routes")
+def gui_llm_profiles_routes():
+    return LLMProfileCenterService().routes()
+
+
+@app.post("/api/gui/llm-profiles/smoke-preview")
+def gui_llm_profiles_smoke_preview(req: dict = Body(...)):
+    return LLMProfileCenterService().smoke_preview(provider=str(req.get("provider", "cloud_expert")))
+
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/status")
+def gui_llm_routing_editor_status():
+    return LLMRoutingEditorService().status()
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/routes")
+def gui_llm_routing_editor_routes():
+    return LLMRoutingEditorService().routes()
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/preview")
+def gui_llm_routing_editor_preview(req: dict = Body(...)):
+    return LLMRoutingEditorService().preview_update(req.get("updates") or [])
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/apply")
+def gui_llm_routing_editor_apply(req: dict = Body(...)):
+    result = LLMRoutingEditorService().apply_update(req.get("updates") or [], actor=str(req.get("actor", "user-gui")))
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result)
+    return result
+
+
+@app.get("/api/gui/llm-profiles/routing-editor/audit")
+def gui_llm_routing_editor_audit(limit: int = 50):
+    return LLMRoutingEditorService().audit(limit=limit)
+
+
+@app.post("/api/gui/llm-profiles/routing-editor/rollback")
+def gui_llm_routing_editor_rollback(req: dict | None = Body(None)):
+    result = LLMRoutingEditorService().rollback((req or {}).get("backup_path"))
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result)
+    return result
+
+@app.get("/api/gui/approval/status")
+def gui_approval_status():
+    return get_gui_approval_service().approval.status()
+
+
+@app.get("/api/gui/approval/dashboard")
+def gui_approval_dashboard(limit: int = 100):
+    return get_gui_approval_service().dashboard(limit=limit)
+
+
+@app.get("/api/gui/approval/inbox")
+def gui_approval_inbox(include_reviewed: bool = False, limit: int = 100):
+    return get_gui_approval_service().list_inbox(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.get("/api/gui/approval/inbox/{item_id:path}")
+def gui_approval_item(item_id: str):
+    payload = get_gui_approval_service().show_item(item_id)
+    if payload.get("found") is False:
+        raise HTTPException(status_code=404, detail="review inbox item not found")
+    return payload
+
+
+@app.post("/api/gui/approval/inbox/{item_id:path}/decision")
+def gui_approval_decision(item_id: str, req: GuiApprovalDecisionRequest):
+    try:
+        payload = get_gui_approval_service().decide(
+            item_id,
+            decision=req.decision,
+            note=req.note,
+            decided_by=req.decided_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if payload.get("ok") is False and payload.get("reason") == "item not found":
+        raise HTTPException(status_code=404, detail="review inbox item not found")
+    if payload.get("ok") is False:
+        raise HTTPException(status_code=400, detail=payload)
+    return payload
+
+
+@app.get("/api/gui/approval/audit")
+def gui_approval_audit(limit: int = 100):
+    return get_gui_approval_service().audit(limit=limit)
+
+
+
+@app.get("/api/system/registration-validation")
+def api_registration_validation():
+    return RegistrationValidator().validate()
+
+@app.get("/api/system/registration-validation/cli")
+def api_registration_validation_cli():
+    return RegistrationValidator().validate_cli()
+
+@app.get("/status")
+def status():
+    return CoreStatusService().status()
+
+@app.get("/control/status")
+def control_status():
+    return ControlCore().status()
+
+@app.get("/control/routes")
+def control_routes():
+    return ControlCore().routes()
+
+@app.post("/control/safety-check")
+def control_safety_check(payload: dict = Body(default={})): 
+    return SafetyGate().evaluate(payload.get("action", "unknown"), paths=payload.get("paths") or [], approved=bool(payload.get("approved"))).model_dump()
+
+@app.post("/control/nightly-reflection")
+def control_nightly_reflection(payload: dict = Body(default={})): 
+    return NightlyReflection().run(limit=int(payload.get("limit", 200)))
+
+@app.get("/heartbeat")
+async def heartbeat():
+    return await Heartbeat().check()
+
+@app.get("/tools")
+def tools():
+    registry = ToolRegistry(); discovered = registry.discover()
+    return {"discovered": discovered, "tools": [t.model_dump(mode="json") for t in registry.list()]}
+
+@app.post("/tools/{tool_id}/run")
+async def run_tool(tool_id: str, req: RunToolRequest):
+    registry = ToolRegistry(); registry.discover()
+    return (await ToolExecutor(registry).run_tool(tool_id, req.payload, task=req.task)).model_dump()
+
+@app.get("/tools/{tool_id}/info")
+def tool_info(tool_id: str):
+    return ToolLifecycleManager().info(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/enable")
+def tool_enable(tool_id: str):
+    return ToolLifecycleManager().enable(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/disable")
+def tool_disable(tool_id: str):
+    return ToolLifecycleManager().disable(tool_id).model_dump(mode="json")
+
+
+@app.post("/tools/{tool_id}/deprecate")
+def tool_deprecate(tool_id: str):
+    return ToolLifecycleManager().deprecate(tool_id).model_dump(mode="json")
+
+
+@app.delete("/tools/{tool_id}")
+def tool_uninstall(tool_id: str, keep_file: bool = False):
+    return ToolLifecycleManager().uninstall(tool_id, delete_file=not keep_file).model_dump(mode="json")
+
+
+@app.get("/tools/{tool_id}/stats")
+def tool_stats(tool_id: str):
+    return ToolLifecycleManager().stats(tool_id)
+
+
+@app.get("/tool-stats")
+def tool_stats_all():
+    return ToolLifecycleManager().stats()
+
+@app.get("/skills")
+def skills():
+    registry = SkillRegistry(); discovered = registry.discover()
+    return {"discovered": discovered, "skills": [s.model_dump(mode="json") for s in registry.list()]}
+
+@app.get("/config/paths")
+def config_paths():
+    return ConfigManager().summary()
+
+
+@app.get("/llm/config")
+def llm_config():
+    return LLMConfig().public_config()
+
+@app.get("/llm/config/security")
+def llm_config_security():
+    issues = LLMConfig().validate_no_inline_secrets()
+    return {"ok": not issues, "issues": issues}
+
+
+@app.get("/model-router/routes")
+def model_router_routes():
+    return {"routes": ModelRouter().all_routes()}
+
+
+@app.get("/model-router/route/{purpose}")
+def model_router_route(purpose: str, provider_name: str | None = None, model: str | None = None):
+    return ModelRouter().route(purpose, provider_name_override=provider_name, model_override=model).model_dump(mode="json")
+
+
+
+
+@app.get("/cloud-expert/status")
+def cloud_expert_status():
+    return CloudExpert().status()
+
+
+@app.post("/cloud-expert/smoke")
+def cloud_expert_smoke(req: CloudExpertSmokeRequest):
+    return CloudExpert().smoke(prompt=req.prompt, live=req.live, timeout=req.timeout)
+
+
+@app.get("/llm/profile/status")
+def llm_profile_status():
+    return LLMProfileManager().status()
+
+
+@app.post("/llm/profile")
+def llm_profile_set(req: dict = Body(...)):
+    return LLMProfileManager().set_profile(str(req.get("profile", "")))
+
+
+@app.get("/llm/provider/status/{provider}")
+def llm_provider_status(provider: str = "cloud_expert"):
+    return LLMProfileManager().provider_status(provider)
+
+
+@app.post("/llm/provider/smoke")
+def llm_provider_smoke(req: dict = Body(...)):
+    return LLMProfileManager().smoke(provider=req.get("provider", "cloud_expert"), prompt=req.get("prompt"), live=bool(req.get("live", False)), timeout=float(req.get("timeout", 20.0)))
+
+
+@app.post("/llm/analyze")
+def llm_analyze(req: LLMAnalyzeRequest):
+    return LLMRuntime().analyze_task(req.task, provider_name=req.provider_name, model=req.model, timeout=req.timeout).model_dump(mode="json")
+
+@app.post("/llm/complete")
+def llm_complete(req: LLMCompleteRequest):
+    request = LLMRequest(task_type=LLMTaskType(req.task_type), prompt=req.prompt, provider_name=req.provider_name, model=req.model, expect_json=req.expect_json, timeout=req.timeout)
+    return LLMRuntime().complete(request).model_dump(mode="json")
+
+@app.post("/agent/run")
+async def agent_run(req: AgentRunRequest):
+    return (await AgentLoop().run(req.task, provider_name=req.provider_name, model=req.model, timeout=req.timeout)).model_dump(mode="json")
+
+@app.get("/agent/journal")
+def agent_journal(limit: int = 20):
+    return {"journal": TaskJournal().list(limit)}
+
+@app.get("/agent/last")
+def agent_last():
+    return TaskJournal().last()
+
+
+@app.post("/tool-proposals/from-task")
+def tool_proposal_from_task(req: ToolProposalTaskRequest):
+    return ToolProposalManager().propose_from_task(req.task, analysis=req.analysis)
+
+
+@app.post("/api/capability-gap/analyze")
+def capability_gap_analyze(req: ToolDevelopmentRequest):
+    return LLMCapabilityGapAnalyzer().analyze(
+        req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
+    )
+
+
+@app.post("/tool-development/analyze")
+def tool_development_analyze(req: ToolDevelopmentRequest):
+    return ToolDevelopmentAgent().analyze(
+        req.task,
+        analysis=req.analysis,
+        auto_create=req.auto_create,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
+    ).model_dump(mode="json")
+
+
+@app.post("/tool-development/propose")
+def tool_development_propose(req: ToolDevelopmentCapabilityRequest):
+    return ToolDevelopmentAgent().analyze(
+        req.capability,
+        analysis={"missing_capabilities": [req.capability]},
+        auto_create=True,
+    ).model_dump(mode="json")
+
+
+@app.post("/tool-design/design")
+def tool_design_design(req: ToolDesignRequest):
+    return ToolDesignAgent().design(
+        req.capability,
+        task=req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        timeout=req.timeout,
+    ).model_dump(mode="json")
+
+
+@app.post("/tool-proposals/for-capability")
+def tool_proposal_for_capability(req: ToolProposalCapabilityRequest):
+    return ToolProposalManager().propose_for_capability(req.capability)
+
+
+@app.get("/tool-proposals")
+def tool_proposal_list():
+    return {"tool_proposals": ToolProposalManager().list()}
+
+
+@app.get("/tool-proposals/{proposal_id}")
+def tool_proposal_show(proposal_id: str):
+    return ToolProposalManager().show(proposal_id)
+
+
+
+
+@app.post("/tool-proposals/{proposal_id}/approve")
+def tool_proposal_approve(proposal_id: str, note: str | None = Body(default=None)):
+    return ToolProposalManager().approve(proposal_id, note=note)
+
+
+@app.post("/tool-proposals/{proposal_id}/reject")
+def tool_proposal_reject(proposal_id: str, reason: str | None = Body(default=None)):
+    return ToolProposalManager().reject(proposal_id, reason=reason)
+
+
+@app.post("/tool-proposals/{proposal_id}/install")
+async def tool_proposal_install(proposal_id: str, req: ToolActivationRequest | None = None):
+    payload = req.test_payload if req else None
+    return (await ToolActivationManager().activate(proposal_id, test_payload=payload)).model_dump(mode="json")
+
+@app.post("/tool-proposals/{proposal_id}/prepare-activation")
+def tool_proposal_prepare_activation(proposal_id: str):
+    return ToolProposalManager().prepare_activation_copy(proposal_id)
+
+
+@app.post("/tool-proposals/{proposal_id}/activate")
+async def tool_proposal_activate(proposal_id: str, req: ToolActivationRequest | None = None):
+    payload = req.test_payload if req else None
+    return (await ToolActivationManager().activate(proposal_id, test_payload=payload)).model_dump(mode="json")
+
+
+@app.get("/tool-activations")
+def tool_activation_log(limit: int = 20):
+    return {"activations": ToolActivationManager().list_log(limit)}
+
+
+@app.post("/capabilities/evaluate")
+def capability_evaluate(req: CapabilityEvaluateRequest):
+    return CapabilityExpansionManager().evaluate_task(req.task, analysis=req.analysis, auto_propose=req.auto_propose)
+
+
+@app.get("/capabilities/events")
+def capability_events(limit: int = 20):
+    return {"events": CapabilityExpansionManager().list_events(limit)}
+
+
+@app.get("/capabilities/last")
+def capability_last():
+    return CapabilityExpansionManager().last_event()
+
+
+@app.post("/capabilities/workflow")
+async def capability_workflow(req: CapabilityWorkflowRequest):
+    return (await CapabilityWorkflow().run(req.task, activate=req.activate, retry=req.retry, mode="api")).model_dump(mode="json")
+
+
+@app.get("/capabilities/workflows")
+def capability_workflows(limit: int = 20):
+    return {"workflows": CapabilityWorkflow().list(limit)}
+
+
+@app.get("/capabilities/workflows/last")
+def capability_workflow_last():
+    return CapabilityWorkflow().last()
+
+
+@app.post("/skill-proposals/from-journal")
+def skill_proposal_from_journal(req: SkillProposalJournalRequest):
+    return SkillProposalManager().propose_from_journal(name=req.name)
+
+
+@app.get("/skill-proposals")
+def skill_proposal_list():
+    return {"skill_proposals": SkillProposalManager().list()}
+
+
+@app.get("/skill-proposals/{proposal_id}")
+def skill_proposal_show(proposal_id: str):
+    return SkillProposalManager().show(proposal_id)
+
+
+@app.post("/skill-proposals/{proposal_id}/activate")
+async def skill_proposal_activate(proposal_id: str, req: SkillActivationRequest | None = None):
+    payload = req.test_payload if req else None
+    return (await SkillActivationManager().activate(proposal_id, test_payload=payload)).model_dump(mode="json")
+
+
+@app.get("/skill-activations")
+def skill_activation_log(limit: int = 20):
+    return {"activations": SkillActivationManager().list_log(limit)}
+
+
+
+
+@app.get("/api/actions/dashboard")
+def api_unified_action_dashboard(limit: int = 500):
+    return UnifiedActionInboxService().dashboard(limit=limit)
+
+@app.get("/api/actions")
+def api_unified_actions(include_done: bool = False, area: str | None = None, status: str | None = None, query: str | None = None, limit: int = 200):
+    return UnifiedActionInboxService().list_actions(include_done=include_done, area=area, status=status, query=query, limit=limit)
+
+@app.get("/api/actions/{action_id}")
+def api_unified_action_detail(action_id: str):
+    return UnifiedActionInboxService().show(action_id)
+
+@app.post("/api/actions/{action_id}/decision")
+def api_unified_action_decision(action_id: str, req: UnifiedActionDecisionRequest):
+    return UnifiedActionInboxService().decide(action_id, decision=req.decision, note=req.note, decided_by=req.decided_by)
+
+
+
+
+@app.get("/api/workflows")
+def api_workflows():
+    return ActionWorkflowService().list_workflows()
+
+@app.get("/api/workflows/status")
+def api_workflow_status():
+    return ActionWorkflowService().status()
+
+@app.get("/api/workflows/{workflow_id}")
+def api_workflow_detail(workflow_id: str):
+    return ActionWorkflowService().show_workflow(workflow_id)
+
+@app.post("/api/workflows/{workflow_id}/continue")
+def api_workflow_continue(workflow_id: str):
+    return {"kind": "action_workflow_continue", "ok": False, "reason": "Continue by approving the current action in the Action Inbox.", "workflow": ActionWorkflowService().show_workflow(workflow_id)}
+
+
+
+@app.get("/api/night-review/status")
+def api_night_review_status():
+    return NightReviewEngine().status()
+
+@app.post("/api/night-review/run")
+def api_night_review_run(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return NightReviewEngine().run(limit=int(payload.get("limit", 200)), write=bool(payload.get("write", True)), create_actions=bool(payload.get("create_actions", True)))
+
+@app.get("/api/night-review/reports")
+def api_night_review_reports(limit: int = 50):
+    return NightReviewEngine().list_reports(limit=limit)
+
+@app.get("/api/night-review/reports/{report_id}")
+def api_night_review_show(report_id: str):
+    return NightReviewEngine().show_report(report_id)
+
+@app.get("/api/night-review/recommendations")
+def api_night_review_recommendations(include_reviewed: bool = False, limit: int = 100):
+    return NightReviewEngine().list_recommendations(include_reviewed=include_reviewed, limit=limit)
+
+@app.post("/api/night-review/recommendations/{recommendation_id}/decision")
+def api_night_review_decide(recommendation_id: str, payload: dict[str, str]):
+    return NightReviewEngine().decide_recommendation(recommendation_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+@app.get("/api/review-scheduler/status")
+def api_review_scheduler_status():
+    return ReviewSchedulerService().status()
+
+@app.post("/api/review-scheduler/run")
+def api_review_scheduler_run(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return ReviewSchedulerService().run_manual(
+        limit=int(payload.get("limit") or 0) or None,
+        write=bool(payload.get("write", True)),
+        create_actions=bool(payload.get("create_actions", True)),
+    )
+
+@app.post("/api/review-scheduler/run-if-due")
+def api_review_scheduler_run_if_due(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return ReviewSchedulerService().run_if_due(force=bool(payload.get("force", False)))
+
+@app.get("/api/review-scheduler/history")
+def api_review_scheduler_history(limit: int = 50):
+    return ReviewSchedulerService().history(limit=limit)
+
+@app.get("/api/workflow-dashboard/status")
+def api_workflow_dashboard_status():
+    return WorkflowDashboardService().status()
+
+@app.get("/api/workflow-dashboard")
+def api_workflow_dashboard(limit: int = 200):
+    return WorkflowDashboardService().dashboard(limit=limit)
+
+@app.get("/api/workflow-dashboard/workflows")
+def api_workflow_dashboard_workflows(state: str | None = None, query: str | None = None, limit: int = 200):
+    return WorkflowDashboardService().list_workflows(state=state, query=query, limit=limit)
+
+@app.get("/api/workflow-dashboard/workflows/{workflow_id}")
+def api_workflow_dashboard_detail(workflow_id: str):
+    return WorkflowDashboardService().show(workflow_id)
+
+
+@app.get("/api/gui/user-simplification/status")
+def api_gui_user_simplification_status():
+    return UserGuiSimplificationService().status()
+
+@app.get("/api/gui/maintenance-center/status")
+def api_gui_maintenance_center_status():
+    return MaintenanceCenterService().status()
+
+@app.get("/api/gui/maintenance-center/navigation-contract")
+def api_gui_maintenance_center_navigation_contract():
+    return MaintenanceCenterService().navigation_contract()
+
+@app.get("/maintenance")
+def web_maintenance():
+    return FileResponse(WEB_DIR / "maintenance.html")
+
+@app.get("/web/maintenance.js")
+def web_maintenance_js():
+    return FileResponse(WEB_DIR / "maintenance.js")
+
+@app.get("/web/maintenance.css")
+def web_maintenance_css():
+    return FileResponse(WEB_DIR / "maintenance.css")
+
+@app.get("/api/release/status")
+def api_release_status(root: str = "."):
+    return ReleaseManager(root).status()
+
+@app.get("/api/system/web-routes")
+def api_system_web_routes():
+    routes = []
+    for r in app.routes:
+        path = getattr(r, "path", None)
+        methods = sorted(getattr(r, "methods", []) or [])
+        name = getattr(r, "name", None)
+        if path and (path.startswith("/web") or path in {"/", "/night-review", "/review-scheduler", "/workflow-dashboard", "/action-inbox", "/decision-inbox", "/approval", "/operations", "/operations-cockpit", "/operations-health", "/operations-issues", "/guided-improvement", "/knowledge-base", "/knowledge-editor", "/obsidian-vault", "/obsidian-import-review", "/capability-explorer", "/tools-center", "/tool-evolution", "/core-evolution", "/evolution-dashboard", "/skills-center", "/llm-profiles", "/learning", "/cognitive-dashboard", "/maintenance"}):
+            routes.append({"path": path, "methods": methods, "name": name})
+    return {"version": app.version, "routes": routes}
+
+
+@app.get("/api/release/audit")
+def api_release_audit(root: str = "."):
+    return ReleaseManager(root).audit()
+
+
+@app.get("/")
+def web_index():
+    return FileResponse(WEB_DIR / "index.html")
+
+@app.get("/web/app.js")
+def web_js():
+    return FileResponse(WEB_DIR / "app.js")
+
+@app.get("/web/style.css")
+def web_css():
+    return FileResponse(WEB_DIR / "style.css")
+
+
+@app.get("/web/shared.css")
+def web_shared_css():
+    return FileResponse(WEB_DIR / "shared.css")
+
+
+
+
+@app.get("/action-inbox")
+def web_action_inbox():
+    return FileResponse(WEB_DIR / "action-inbox.html")
+
+@app.get("/action-inbox/{action_id}")
+def web_action_detail(action_id: str):
+    return FileResponse(WEB_DIR / "action-inbox.html")
+
+@app.get("/web/action-inbox.js")
+def web_action_inbox_js():
+    return FileResponse(WEB_DIR / "action-inbox.js")
+
+@app.get("/web/action-inbox.css")
+def web_action_inbox_css():
+    return FileResponse(WEB_DIR / "action-inbox.css")
+
+
+
+
+
+
+@app.get("/night-review")
+def web_night_review():
+    return FileResponse(WEB_DIR / "night-review.html")
+
+@app.get("/web/night-review.js")
+def web_night_review_js():
+    return FileResponse(WEB_DIR / "night-review.js")
+
+@app.get("/web/night-review.css")
+def web_night_review_css():
+    return FileResponse(WEB_DIR / "night-review.css")
+
+
+@app.get("/review-scheduler")
+def web_review_scheduler():
+    return FileResponse(WEB_DIR / "review-scheduler.html")
+
+@app.get("/web/review-scheduler.js")
+def web_review_scheduler_js():
+    return FileResponse(WEB_DIR / "review-scheduler.js")
+
+@app.get("/web/review-scheduler.css")
+def web_review_scheduler_css():
+    return FileResponse(WEB_DIR / "review-scheduler.css")
+
+@app.get("/workflow-dashboard")
+def web_workflow_dashboard():
+    return FileResponse(WEB_DIR / "workflow-dashboard.html")
+
+@app.get("/web/workflow-dashboard.js")
+def web_workflow_dashboard_js():
+    return FileResponse(WEB_DIR / "workflow-dashboard.js")
+
+@app.get("/web/workflow-dashboard.css")
+def web_workflow_dashboard_css():
+    return FileResponse(WEB_DIR / "workflow-dashboard.css")
+
+@app.get("/learning")
+def web_learning():
+    return FileResponse(WEB_DIR / "learning.html")
+
+@app.get("/web/learning.js")
+def web_learning_js():
+    return FileResponse(WEB_DIR / "learning.js")
+
+@app.get("/web/learning.css")
+def web_learning_css():
+    return FileResponse(WEB_DIR / "learning.css")
+
+
+@app.get("/approval")
+def web_approval():
+    return FileResponse(WEB_DIR / "approval.html")
+
+
+@app.get("/decision-inbox")
+def web_decision_inbox():
+    return FileResponse(WEB_DIR / "decision-inbox.html")
+
+@app.get("/cognitive-dashboard")
+def web_cognitive_dashboard():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.html")
+
+@app.get("/web/decision-inbox.js")
+def web_decision_inbox_js():
+    return FileResponse(WEB_DIR / "decision-inbox.js")
+
+@app.get("/web/decision-inbox.css")
+def web_decision_inbox_css():
+    return FileResponse(WEB_DIR / "decision-inbox.css")
+
+@app.get("/web/cognitive-dashboard.js")
+def web_cognitive_dashboard_js():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.js")
+
+@app.get("/web/cognitive-dashboard.css")
+def web_cognitive_dashboard_css():
+    return FileResponse(WEB_DIR / "cognitive-dashboard.css")
+
+
+
+@app.get("/operations-cockpit")
+def web_operations_cockpit():
+    return FileResponse(WEB_DIR / "operations-cockpit.html")
+
+@app.get("/web/operations-cockpit.js")
+def web_operations_cockpit_js():
+    return FileResponse(WEB_DIR / "operations-cockpit.js")
+
+@app.get("/web/operations-cockpit.css")
+def web_operations_cockpit_css():
+    return FileResponse(WEB_DIR / "operations-cockpit.css")
+
+@app.get("/operations")
+def web_operations():
+    return FileResponse(WEB_DIR / "operations.html")
+
+
+@app.get("/tools-center")
+def web_tool_center():
+    return FileResponse(WEB_DIR / "tool-center.html")
+
+
+@app.get("/skills-center")
+def web_skill_center():
+    return FileResponse(WEB_DIR / "skill-center.html")
+
+
+@app.get("/memory-explorer")
+def web_memory_explorer():
+    return FileResponse(WEB_DIR / "memory-explorer.html")
+
+
+@app.get("/night-mode")
+def web_night_mode():
+    return FileResponse(WEB_DIR / "night-mode.html")
+
+
+@app.get("/llm-profiles")
+def web_llm_profiles():
+    return FileResponse(WEB_DIR / "llm-profile-center.html")
+
+
+@app.get("/knowledge-base")
+def web_knowledge_base():
+    return FileResponse(WEB_DIR / "knowledge-base.html")
+
+
+@app.get("/knowledge-editor")
+def web_knowledge_editor():
+    return FileResponse(WEB_DIR / "knowledge-editor.html")
+
+
+@app.get("/capability-explorer")
+def web_capability_explorer():
+    return FileResponse(WEB_DIR / "capability-explorer.html")
+
+
+@app.get("/obsidian-vault")
+def web_obsidian_vault():
+    return FileResponse(WEB_DIR / "obsidian-vault.html")
+
+
+@app.get("/obsidian-import-review")
+def web_obsidian_import_review():
+    return FileResponse(WEB_DIR / "obsidian-import-review.html")
+
+
+@app.get("/web/capability-explorer.js")
+def web_capability_explorer_js():
+    return FileResponse(WEB_DIR / "capability-explorer.js")
+
+
+@app.get("/web/capability-explorer.css")
+def web_capability_explorer_css():
+    return FileResponse(WEB_DIR / "capability-explorer.css")
+
+
+@app.get("/web/knowledge-base.js")
+def web_knowledge_base_js():
+    return FileResponse(WEB_DIR / "knowledge-base.js")
+
+
+@app.get("/web/knowledge-base.css")
+def web_knowledge_base_css():
+    return FileResponse(WEB_DIR / "knowledge-base.css")
+
+
+@app.get("/web/knowledge-editor.js")
+def web_knowledge_editor_js():
+    return FileResponse(WEB_DIR / "knowledge-editor.js")
+
+
+@app.get("/web/knowledge-editor.css")
+def web_knowledge_editor_css():
+    return FileResponse(WEB_DIR / "knowledge-editor.css")
+
+
+@app.get("/web/obsidian-vault.js")
+def web_obsidian_vault_js():
+    return FileResponse(WEB_DIR / "obsidian-vault.js")
+
+
+@app.get("/web/obsidian-vault.css")
+def web_obsidian_vault_css():
+    return FileResponse(WEB_DIR / "obsidian-vault.css")
+
+
+@app.get("/web/obsidian-import-review.js")
+def web_obsidian_import_review_js():
+    return FileResponse(WEB_DIR / "obsidian-import-review.js")
+
+@app.get("/web/obsidian-import-review.css")
+def web_obsidian_import_review_css():
+    return FileResponse(WEB_DIR / "obsidian-import-review.css")
+
+
+@app.get("/web/llm-profile-center.js")
+def web_llm_profile_center_js():
+    return FileResponse(WEB_DIR / "llm-profile-center.js")
+
+
+@app.get("/web/llm-profile-center.css")
+def web_llm_profile_center_css():
+    return FileResponse(WEB_DIR / "llm-profile-center.css")
+
+
+@app.get("/web/approval.js")
+def web_approval_js():
+    return FileResponse(WEB_DIR / "approval.js")
+
+
+@app.get("/web/approval.css")
+def web_approval_css():
+    return FileResponse(WEB_DIR / "approval.css")
+
+
+@app.get("/web/operations.js")
+def web_operations_js():
+    return FileResponse(WEB_DIR / "operations.js")
+
+
+@app.get("/web/operations.css")
+def web_operations_css():
+    return FileResponse(WEB_DIR / "operations.css")
+
+
+@app.get("/web/tool-center.js")
+def web_tool_center_js():
+    return FileResponse(WEB_DIR / "tool-center.js")
+
+
+@app.get("/web/tool-center.css")
+def web_tool_center_css():
+    return FileResponse(WEB_DIR / "tool-center.css")
+
+
+@app.get("/web/skill-center.js")
+def web_skill_center_js():
+    return FileResponse(WEB_DIR / "skill-center.js")
+
+
+@app.get("/web/skill-center.css")
+def web_skill_center_css():
+    return FileResponse(WEB_DIR / "skill-center.css")
+
+
+@app.get("/web/memory-explorer.js")
+def web_memory_explorer_js():
+    return FileResponse(WEB_DIR / "memory-explorer.js")
+
+
+@app.get("/web/memory-explorer.css")
+def web_memory_explorer_css():
+    return FileResponse(WEB_DIR / "memory-explorer.css")
+
+
+@app.get("/web/night-mode.js")
+def web_night_mode_js():
+    return FileResponse(WEB_DIR / "night-mode.js")
+
+
+@app.get("/web/night-mode.css")
+def web_night_mode_css():
+    return FileResponse(WEB_DIR / "night-mode.css")
+
+
+@app.post("/learning/run")
+def learning_run(req: LearnRequest):
+    return LearningEngine().learn_from_journal(limit=req.limit).model_dump(mode="json")
+
+
+@app.get("/learning/rankings")
+def learning_rankings():
+    return LearningEngine().rankings()
+
+
+@app.get("/learning/failures")
+def learning_failures():
+    return LearningEngine().failures()
+
+
+@app.get("/learning/recommendations")
+def learning_recommendations():
+    return LearningEngine().recommendations()
+
+
+@app.get("/learning/strategies")
+def learning_strategies():
+    return LearningEngine().strategies()
+
+
+@app.get("/learning/events")
+def learning_events(limit: int = 20):
+    return {"events": LearningEngine().learning_events(limit)}
+
+
+
+
+@app.get("/api/learning/status")
+def api_learning_status():
+    return LearningEngine().status()
+
+
+@app.get("/api/learning/metrics")
+def api_learning_metrics(rebuild: bool = False):
+    return LearningEngine().metrics(rebuild=rebuild)
+
+
+@app.get("/api/learning/patterns")
+def api_learning_patterns(rebuild: bool = False):
+    return LearningEngine().patterns(rebuild=rebuild)
+
+
+@app.get("/api/learning/events")
+def api_learning_events(limit: int = 100, event_type: str | None = None):
+    return {"kind": "learning_events", "events": LearningEngine().events(limit=limit, event_type=event_type)}
+
+
+@app.post("/api/learning/collect")
+def api_learning_collect(req: LearnRequest):
+    return LearningEngine().collect(limit=req.limit, write=True)
+
+
+@app.post("/api/learning/rebuild")
+def api_learning_rebuild(req: LearnRequest):
+    return LearningEngine().rebuild(limit=req.limit, write=True)
+
+
+@app.get("/api/learning/insights")
+def api_learning_insights(rebuild: bool = False, write: bool = True):
+    if rebuild:
+        return LearningInsightService().rebuild(write=write)
+    return LearningInsightService().list_insights(include_reviewed=True, limit=200)
+
+
+@app.get("/api/learning/insights/status")
+def api_learning_insight_status():
+    return LearningInsightService().status()
+
+
+@app.get("/api/learning/insights/{insight_id}")
+def api_learning_insight_detail(insight_id: str):
+    return LearningInsightService().show(insight_id)
+
+
+@app.post("/api/learning/insights/{insight_id}/decision")
+def api_learning_insight_decision(insight_id: str, payload: dict[str, str]):
+    return LearningInsightService().decide(insight_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+
+
+@app.get("/api/learning/feedback/status")
+def api_learning_feedback_status():
+    return LearningFeedbackLoop().status()
+
+
+@app.post("/api/learning/feedback/collect")
+def api_learning_feedback_collect(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningFeedbackLoop().collect(limit=int(payload.get("limit", 1000)), write=bool(payload.get("write", True)))
+
+
+@app.get("/api/learning/feedback/report")
+def api_learning_feedback_report(limit: int = 200):
+    return LearningFeedbackLoop().report(limit=limit)
+
+
+@app.post("/api/learning/feedback/{action_id}/record")
+def api_learning_feedback_record(action_id: str, payload: dict[str, str]):
+    return LearningFeedbackLoop().record_decision(action_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"), source="api")
+
+
+
+
+@app.get("/api/learning/pattern-detection/status")
+def api_learning_pattern_status():
+    return LearningPatternDetector().status()
+
+
+@app.get("/api/learning/pattern-detection")
+def api_learning_patterns_detect(include_reviewed: bool = False, limit: int = 100):
+    return LearningPatternDetector().list_patterns(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/learning/pattern-detection/rebuild")
+def api_learning_patterns_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningPatternDetector().rebuild(limit=int(payload.get("limit", 2000)), write=bool(payload.get("write", True)))
+
+
+@app.get("/api/learning/pattern-detection/{pattern_id}")
+def api_learning_pattern_detail(pattern_id: str):
+    return LearningPatternDetector().show(pattern_id)
+
+
+@app.post("/api/learning/pattern-detection/{pattern_id}/decision")
+def api_learning_pattern_decision(pattern_id: str, payload: dict[str, str]):
+    return LearningPatternDetector().decide(pattern_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+
+
+
+@app.get("/api/learning/pattern-actions/status")
+def api_learning_pattern_action_status():
+    return LearningPatternActionService().status()
+
+
+@app.get("/api/learning/pattern-actions")
+def api_learning_pattern_actions(include_reviewed: bool = False, limit: int = 100):
+    return LearningPatternActionService().list_actions(include_reviewed=include_reviewed, limit=limit)
+
+
+@app.post("/api/learning/pattern-actions/rebuild")
+def api_learning_pattern_actions_rebuild(payload: dict[str, object] | None = None):
+    payload = payload or {}
+    return LearningPatternActionService().rebuild(
+        limit=int(payload.get("limit", 2000)),
+        write=bool(payload.get("write", True)),
+        rebuild_patterns=bool(payload.get("rebuild_patterns", False)),
+    )
+
+
+@app.get("/api/learning/pattern-actions/{action_id}")
+def api_learning_pattern_action_detail(action_id: str):
+    return LearningPatternActionService().show(action_id)
+
+
+@app.post("/api/learning/pattern-actions/{action_id}/decision")
+def api_learning_pattern_action_decision(action_id: str, payload: dict[str, str]):
+    return LearningPatternActionService().decide(action_id, decision=payload.get("decision", "reviewed"), note=payload.get("note"))
+
+@app.post("/docs/generate")
+def docs_generate():
+    return DocumentationGenerator().generate()
+
+
+@app.get("/docs/architecture-report")
+def docs_architecture_report():
+    return DocumentationGenerator().architecture_report()
+
+
+@app.get("/governance/check")
+def governance_check():
+    return Governance().check()
+
+
+@app.get("/changelog")
+def changelog():
+    return {"content": ChangelogManager().read()}
+
+
+@app.post("/sandbox/tools/{tool_id}/run")
+def sandbox_run_tool(tool_id: str, req: RunToolRequest):
+    return Sandbox().run_tool(tool_id, req.payload)
+
+
+@app.get("/sandbox/policies")
+def sandbox_policies():
+    return Sandbox().policy_report()
+
+
+@app.get("/sandbox/logs")
+def sandbox_logs(limit: int = 20):
+    return {"logs": Sandbox().logs(limit)}
+
+
+@app.post("/tool-generation/generate")
+def tool_generation_generate(req: ToolGenerateRequest):
+    return ToolProposalManager().generate_with_llm(
+        req.capability,
+        provider_name=req.provider_name,
+        model=req.model,
+        max_attempts=req.max_attempts,
+        run_tests=req.run_tests,
+    )
+
+
+@app.post("/tool-review/review")
+def tool_review(req: ToolReviewRequest):
+    return ToolReviewAgent().review(req.code, design=req.design)
+
+
+@app.get("/tool-quality/{proposal_id}")
+def tool_quality(proposal_id: str):
+    return ToolProposalManager().quality_check(proposal_id)
+
+
+@app.get("/tool-generation/logs")
+def tool_generation_logs(limit: int = 20):
+    from .tool_generation_log import ToolGenerationLog
+    return {"logs": ToolGenerationLog().list(limit)}
+
+
+@app.get("/core/status")
+def core_status():
+    return CoreVersionManager().status()
+
+
+@app.get("/core/versions")
+def core_versions():
+    return CoreVersionManager().list_versions()
+
+
+@app.post("/core/snapshot")
+async def core_snapshot(notes: str | None = None):
+    return await CoreVersionManager().snapshot(notes=notes)
+
+
+@app.post("/core/smoke")
+async def core_smoke(run_pytest: bool = False):
+    return await CoreVersionManager().smoke(run_pytest=run_pytest)
+
+
+@app.post("/core/activate/{version_id}")
+async def core_activate(version_id: str):
+    return await ActivationManager().activate(version_id)
+
+
+@app.post("/core/rollback")
+def core_rollback(version_id: str | None = None):
+    return RollbackManager().rollback(version_id)
+
+
+@app.get("/core/rollback-log")
+def core_rollback_log(limit: int = 20):
+    return {"log": RollbackManager().log(limit)}
+
+
+@app.get("/core/stability")
+async def core_stability():
+    return await StabilityMonitor().check()
+
+
+@app.post("/reality-check/run")
+async def reality_check_run(req: RealityCheckRequest):
+    return (await RealityCheck().run(iterations=req.iterations, delay=req.delay, run_pytest=req.run_pytest)).model_dump(mode="json")
+
+
+@app.get("/reality-check/logs")
+def reality_check_logs(limit: int = 20):
+    return {"logs": RealityCheck().logs(limit)}
+
+
+@app.get("/reality-check/report")
+def reality_check_report():
+    return RealityCheck().report()
+
+
+@app.post("/planner/plan")
+def planner_plan(req: PlannerAgentRequest):
+    return PlannerAgent().plan(req.task, provider_name=req.provider_name, model=req.model, save=req.save).model_dump(mode="json")
+
+
+@app.get("/planner/plans")
+def planner_plans():
+    return {"plans": PlannerAgent().list_plans()}
+
+
+@app.get("/planner/plans/{plan_id}")
+def planner_get_plan(plan_id: str):
+    return PlannerAgent().get_plan(plan_id)
+
+
+@app.get("/planner/logs")
+def planner_logs(limit: int = 20):
+    return {"logs": PlannerAgent().logs(limit)}
+
+
+@app.post("/worker/execute-plan")
+async def worker_execute_plan(req: WorkerExecutePlanRequest):
+    return (await WorkerAgent().execute_plan_id(req.plan_id, save=req.save)).model_dump(mode="json")
+
+
+@app.get("/worker/executions")
+def worker_executions():
+    return {"executions": WorkerAgent().list_executions()}
+
+
+@app.get("/worker/executions/{execution_id}")
+def worker_get_execution(execution_id: str):
+    return WorkerAgent().get_execution(execution_id)
+
+
+@app.get("/worker/logs")
+def worker_logs(limit: int = 20):
+    return {"logs": WorkerAgent().logs(limit)}
+
+
+@app.post("/planner-worker/run")
+async def planner_worker_run(req: PlannerWorkerRunRequest):
+    return await PlannerWorkerOrchestrator().run(req.task, provider_name=req.provider_name, model=req.model, save=req.save)
+
+
+@app.get("/admin")
+def web_admin():
+    return FileResponse(WEB_DIR / "admin.html")
+
+
+@app.get("/web/user.js")
+def web_user_js():
+    return FileResponse(WEB_DIR / "user.js")
+
+
+@app.get("/web/user.css")
+def web_user_css():
+    return FileResponse(WEB_DIR / "user.css")
+
+
+def _user_answer_from_execution(execution: dict) -> str:
+    if not execution.get("success"):
+        return execution.get("error") or "Die Aufgabe konnte nicht erfolgreich ausgeführt werden."
+
+    output = execution.get("final_output")
+    if isinstance(output, dict):
+        if "result" in output:
+            return str(output["result"])
+        if "text" in output:
+            return str(output["text"])
+        if "message" in output:
+            return str(output["message"])
+    if output is None:
+        return "Erledigt."
+    return str(output)
+
+
+@app.post("/user/run")
+async def user_run(req: UserRunRequest):
+    result = await CoordinatorAgent().run(
+        req.task,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )
+    return {
+        "success": result.success,
+        "answer": result.answer,
+        "session_id": result.session_id,
+        "route": result.route,
+        "decision": result.decision.model_dump(mode="json"),
+        "plan_id": result.plan.get("plan_id"),
+        "execution_id": result.execution.get("execution_id"),
+        "plan": result.plan,
+        "execution": result.execution,
+        "error": result.error,
+    }
+
+@app.get("/user/status")
+def user_status():
+    route = ModelRouter().route("chat").model_dump(mode="json")
+    providers = LLMRoutingEditorService().available_providers()
+    return {
+        "ready": True,
+        "version": "mvp-23.2-capability-gap-intelligence",
+        "providers": providers,
+        "active_chat_route": route,
+        "routing_editor_url": "/llm-profiles",
+        "provider_selection_mode": "central_routing",
+    }
+
+
+@app.post("/chat/run")
+async def chat_run(req: ChatRunRequest):
+    return (await ChatService().run(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )).model_dump(mode="json")
+
+
+@app.post("/chat/sessions")
+def chat_create_session(req: ChatSessionCreateRequest):
+    return ChatService().create_session(req.title)
+
+
+@app.get("/chat/sessions")
+def chat_sessions():
+    return {"sessions": ChatService().list_sessions()}
+
+
+@app.get("/chat/sessions/{session_id}")
+def chat_get_session(session_id: str):
+    try:
+        return ChatService().get_session(session_id)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Chat session not found")
+
+
+@app.delete("/chat/sessions/{session_id}")
+def chat_delete_session(session_id: str):
+    return ChatService().delete_session(session_id)
+
+
+@app.get("/memory/conversation")
+def conversation_memory_get():
+    return {"facts": [fact.model_dump(mode="json") for fact in ConversationMemory().facts()]}
+
+
+@app.delete("/memory/conversation/{key}")
+def conversation_memory_forget(key: str):
+    return ConversationMemory().forget_fact(key)
+
+
+@app.get("/memory/conversation/logs")
+def conversation_memory_logs(limit: int = 20):
+    return {"logs": ConversationMemory().log.list(limit)}
+
+
+@app.post("/coordinator/run")
+async def coordinator_run(req: CoordinatorRunRequest):
+    return (await CoordinatorAgent().run(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+        save=req.save,
+    )).model_dump(mode="json")
+
+
+@app.post("/coordinator/decide")
+def coordinator_decide(req: CoordinatorRunRequest):
+    return CoordinatorAgent().decide(
+        req.task,
+        session_id=req.session_id,
+        provider_name=req.provider_name,
+        model=req.model,
+    ).model_dump(mode="json")
+
+
+@app.get("/coordinator/logs")
+def coordinator_logs(limit: int = 20):
+    return {"logs": CoordinatorAgent().logs(limit)}
+
+
+@app.get("/operations-issues")
+def operations_issues_page():
+    return FileResponse(WEB_DIR / "operations-issues.html")
+
+
+@app.get("/web/operations-issues.js")
+def operations_issues_js():
+    return FileResponse(WEB_DIR / "operations-issues.js")
+
+
+@app.get("/web/operations-issues.css")
+def operations_issues_css():
+    return FileResponse(WEB_DIR / "operations-issues.css")
+
+
+
+
+@app.get("/guided-improvement")
+def guided_improvement_page():
+    return FileResponse(WEB_DIR / "guided-improvement.html")
+
+
+@app.get("/web/guided-improvement.js")
+def guided_improvement_js():
+    return FileResponse(WEB_DIR / "guided-improvement.js")
+
+
+@app.get("/web/guided-improvement.css")
+def guided_improvement_css():
+    return FileResponse(WEB_DIR / "guided-improvement.css")
+
+@app.get("/operations-health")
+def operations_health_page():
+    return FileResponse(WEB_DIR / "operations-health.html")
+
+
+@app.get("/web/operations-health.js")
+def operations_health_js():
+    return FileResponse(WEB_DIR / "operations-health.js")
+
+
+@app.get("/web/operations-health.css")
+def operations_health_css():
+    return FileResponse(WEB_DIR / "operations-health.css")
+
+
+# MVP 28.4 – Pandora Genome & Unified Evolution Model
+@app.get("/api/evolution/status")
+def api_evolution_status():
+    return EvolutionService().status()
+
+
+@app.get("/api/evolution/genome")
+def api_evolution_genome():
+    return EvolutionService().genome()
+
+
+@app.get("/api/evolution/genome/validate")
+def api_evolution_genome_validate():
+    return EvolutionService().validate_genome()
+
+
+@app.get("/api/evolution/lifecycle")
+def api_evolution_lifecycle():
+    return EvolutionService().lifecycle()
+
+
+@app.get("/api/evolution/types")
+def api_evolution_types():
+    return EvolutionService().types()
+
+
+@app.get("/api/evolution/rules")
+def api_evolution_rules():
+    return EvolutionService().rules()
+
+
+@app.get("/api/evolution/migration-preview")
+def api_evolution_migration_preview():
+    return EvolutionService().migration_preview()
+
+
+@app.post("/api/evolution/proposals/normalize")
+def api_evolution_normalize_proposal(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().normalize_proposal(payload)
+
+
+@app.get("/api/evolution/factory/status")
+def api_evolution_factory_status():
+    return EvolutionService().factory_status()
+
+
+@app.get("/api/evolution/factory/routes")
+def api_evolution_factory_routes():
+    return EvolutionService().factory_routes()
+
+
+@app.post("/api/evolution/factory/proposals")
+def api_evolution_factory_create(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().factory_create(payload)
+
+
+@app.post("/api/evolution/factory/batch-preview")
+def api_evolution_factory_batch_preview(payload: dict[str, Any] = Body(...)):
+    return EvolutionService().factory_batch_preview(payload)
+
+
+@app.get("/api/evolution/factory/preview")
+def api_evolution_factory_preview(request: str, type: str | None = None, source: str = "manual"):
+    return EvolutionService().factory_preview(request, proposal_type=type, source=source)
+
+
+@app.get("/api/evolution/factory/migration-plan")
+def api_evolution_factory_migration_plan():
+    return EvolutionService().factory_migration_plan()
+
+
+@app.get("/evolution")
+def web_evolution():
+    return FileResponse(WEB_DIR / "evolution.html")
+
+
+@app.get("/web/evolution.js")
+def web_evolution_js():
+    return FileResponse(WEB_DIR / "evolution.js")
+
+
+@app.get("/web/evolution.css")
+def web_evolution_css():
+    return FileResponse(WEB_DIR / "evolution.css")
+
+
+# MVP 28.6 – Self Observation Engine
+@app.get("/api/observation/status")
+def api_observation_status():
+    return SelfObservationManager().status()
+
+
+@app.get("/api/observation/health")
+def api_observation_health():
+    return SelfObservationManager().health()
+
+
+@app.get("/api/observation/events")
+def api_observation_events(limit: int = 50, component: str | None = None):
+    return SelfObservationManager().events(limit=limit, component=component)
+
+
+@app.post("/api/observation/events")
+def api_observation_record_event(payload: dict[str, Any] = Body(...)):
+    return SelfObservationManager().observe(payload)
+
+
+@app.get("/api/observation/statistics")
+def api_observation_statistics():
+    return SelfObservationManager().statistics()
+
+
+@app.get("/api/observation/runtime")
+def api_observation_runtime():
+    return SelfObservationManager().runtime()
+
+
+@app.get("/api/observation/export")
+def api_observation_export(limit: int = 500):
+    return SelfObservationManager().export(limit=limit)
+
+
+@app.get("/observation")
+def web_observation():
+    return FileResponse(WEB_DIR / "observation.html")
+
+
+@app.get("/web/observation.js")
+def web_observation_js():
+    return FileResponse(WEB_DIR / "observation.js")
+
+
+@app.get("/web/observation.css")
+def web_observation_css():
+    return FileResponse(WEB_DIR / "observation.css")
+
+
+# MVP 28.7 – Pattern Recognition Engine
+@app.get("/api/pattern/status")
+def api_pattern_status():
+    return PatternRecognitionManager().status()
+
+
+@app.get("/api/pattern/health")
+def api_pattern_health():
+    return PatternRecognitionManager().health()
+
+
+@app.get("/api/pattern/detect")
+def api_pattern_detect(limit: int = 500, save: bool = False):
+    return PatternRecognitionManager().detect(limit=limit, save=save)
+
+
+@app.get("/api/pattern/patterns")
+def api_pattern_patterns(limit: int = 50, type: str | None = None):
+    return PatternRecognitionManager().patterns(limit=limit, pattern_type=type)
+
+
+@app.get("/api/pattern/statistics")
+def api_pattern_statistics(limit: int = 500):
+    return PatternRecognitionManager().statistics(limit=limit)
+
+
+@app.get("/pattern")
+def web_pattern():
+    return FileResponse(WEB_DIR / "pattern.html")
+
+
+@app.get("/web/pattern.js")
+def web_pattern_js():
+    return FileResponse(WEB_DIR / "pattern.js")
+
+
+@app.get("/web/pattern.css")
+def web_pattern_css():
+    return FileResponse(WEB_DIR / "pattern.css")
+
+
+# MVP 28.8 – Improvement Prioritization
+@app.get("/api/prioritization/status")
+def api_prioritization_status():
+    return ImprovementPrioritizationManager().status()
+
+
+@app.get("/api/prioritization/health")
+def api_prioritization_health():
+    return ImprovementPrioritizationManager().health()
+
+
+@app.get("/api/prioritization/candidates")
+def api_prioritization_candidates(limit: int = 100):
+    return ImprovementPrioritizationManager().candidates(limit=limit)
+
+
+@app.get("/api/prioritization/prioritize")
+def api_prioritization_prioritize(limit: int = 100, save: bool = False):
+    return ImprovementPrioritizationManager().prioritize(limit=limit, save=save)
+
+
+@app.get("/api/prioritization/queue")
+def api_prioritization_queue(limit: int = 50, level: str | None = None):
+    return ImprovementPrioritizationManager().queue(limit=limit, level=level)
+
+
+@app.get("/api/prioritization/history")
+def api_prioritization_history(limit: int = 20):
+    return ImprovementPrioritizationManager().history(limit=limit)
+
+
+@app.get("/api/prioritization/weights")
+def api_prioritization_weights():
+    return ImprovementPrioritizationManager().weights()
+
+
+@app.get("/prioritization")
+def web_prioritization():
+    return FileResponse(WEB_DIR / "prioritization.html")
+
+
+@app.get("/web/prioritization.js")
+def web_prioritization_js():
+    return FileResponse(WEB_DIR / "prioritization.js")
+
+
+@app.get("/web/prioritization.css")
+def web_prioritization_css():
+    return FileResponse(WEB_DIR / "prioritization.css")
+
+
+
+# MVP 29.0 – Proposal Generator
+@app.get("/api/proposal-generator/status")
+def api_proposal_generator_status():
+    return ProposalGeneratorManager().status()
+
+
+@app.post("/api/proposal-generator/prompt")
+def api_proposal_generator_prompt(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().prompt(req.request, proposal_type=req.proposal_type, context=req.context)
+
+
+@app.post("/api/proposal-generator/generate")
+def api_proposal_generator_generate(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().generate(req.request, proposal_type=req.proposal_type, context=req.context, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.post("/api/proposal-generator/enqueue")
+def api_proposal_generator_enqueue(req: ProposalGeneratorRequest):
+    return ProposalGeneratorManager().enqueue(req.request, proposal_type=req.proposal_type, context=req.context, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.post("/api/proposal-generator/batch")
+def api_proposal_generator_batch(req: ProposalGeneratorBatchRequest):
+    return ProposalGeneratorManager().batch(req.items, enqueue=req.enqueue, provider_name=req.provider_name, model=req.model, timeout=req.timeout, use_llm=req.use_llm)
+
+
+@app.get("/proposal-generator")
+def web_proposal_generator():
+    return FileResponse(WEB_DIR / "proposal-generator.html")
+
+
+@app.get("/web/proposal-generator.js")
+def web_proposal_generator_js():
+    return FileResponse(WEB_DIR / "proposal-generator.js")
+
+
+@app.get("/web/proposal-generator.css")
+def web_proposal_generator_css():
+    return FileResponse(WEB_DIR / "proposal-generator.css")
+
+
+# MVP 29.1 – Proposal Evolution
+@app.get("/api/proposal-evolution/status")
+def api_proposal_evolution_status():
+    return ProposalEvolutionManager().status()
+
+
+@app.post("/api/proposal-evolution/snapshot")
+def api_proposal_evolution_snapshot(req: ProposalEvolutionSnapshotRequest):
+    return ProposalEvolutionManager().snapshot(req.proposal, change_note=req.change_note, source=req.source, created_by=req.created_by)
+
+
+@app.post("/api/proposal-evolution/snapshot-queue")
+def api_proposal_evolution_snapshot_queue(req: ProposalEvolutionQueueSnapshotRequest):
+    return ProposalEvolutionManager().snapshot_from_queue(req.item_id, change_note=req.change_note, created_by=req.created_by)
+
+
+@app.get("/api/proposal-evolution/history")
+def api_proposal_evolution_history(proposal_id: str | None = None, limit: int = 50):
+    return ProposalEvolutionManager().history(proposal_id=proposal_id, limit=limit)
+
+
+@app.get("/api/proposal-evolution/compare/{proposal_id}")
+def api_proposal_evolution_compare(proposal_id: str, from_version: int, to_version: int):
+    return ProposalEvolutionManager().compare(proposal_id, from_version, to_version)
+
+
+@app.post("/api/proposal-evolution/diff")
+def api_proposal_evolution_diff(req: ProposalEvolutionDiffRequest):
+    return ProposalEvolutionManager().diff(req.old, req.new)
+
+
+@app.post("/api/proposal-evolution/improve")
+def api_proposal_evolution_improve(req: ProposalEvolutionImproveRequest):
+    manager = ProposalEvolutionManager()
+    if req.item_id:
+        return manager.improve_from_queue(req.item_id, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
+    if req.proposal is None:
+        return {"kind": "proposal_evolution_improve", "version": "29.6", "ok": False, "error": "proposal or item_id required"}
+    return manager.improve(req.proposal, instruction=req.instruction, enqueue=req.enqueue, created_by=req.created_by, use_llm=req.use_llm)
+
+
+@app.get("/proposal-evolution")
+def web_proposal_evolution():
+    return FileResponse(WEB_DIR / "proposal-evolution.html")
+
+
+@app.get("/web/proposal-evolution.js")
+def web_proposal_evolution_js():
+    return FileResponse(WEB_DIR / "proposal-evolution.js")
+
+
+@app.get("/web/proposal-evolution.css")
+def web_proposal_evolution_css():
+    return FileResponse(WEB_DIR / "proposal-evolution.css")
+
+# MVP 28.9 – Unified Proposal Queue
+@app.get("/api/proposal-queue/status")
+def api_proposal_queue_status():
+    return UnifiedProposalQueueManager().status()
+
+
+@app.get("/api/proposal-queue/items")
+def api_proposal_queue_items(limit: int = 100, status: str | None = None, type: str | None = None, min_priority: int | None = None, query: str | None = None):
+    return UnifiedProposalQueueManager().list(limit=limit, status=status, proposal_type=type, min_priority=min_priority, query=query)
+
+
+@app.get("/api/proposal-queue/item/{item_id}")
+def api_proposal_queue_item(item_id: str):
+    return UnifiedProposalQueueManager().show(item_id)
+
+
+@app.post("/api/proposal-queue/enqueue")
+def api_proposal_queue_enqueue(req: ProposalQueueEnqueueRequest):
+    return UnifiedProposalQueueManager().enqueue(req.proposal)
+
+
+@app.post("/api/proposal-queue/from-factory")
+def api_proposal_queue_from_factory(req: ProposalQueueFactoryRequest):
+    return UnifiedProposalQueueManager().enqueue_from_factory_preview(req.request, proposal_type=req.proposal_type, source=req.source)
+
+
+@app.post("/api/proposal-queue/import-prioritized")
+def api_proposal_queue_import_prioritized(limit: int = 50, min_priority: int = 60, save_prioritization: bool = False):
+    return UnifiedProposalQueueManager().import_prioritized(limit=limit, min_priority=min_priority, save_prioritization=save_prioritization)
+
+
+@app.post("/api/proposal-queue/item/{item_id}/decide")
+def api_proposal_queue_decide(item_id: str, req: ProposalQueueDecisionRequest):
+    return UnifiedProposalQueueManager().decide(item_id, decision=req.decision, note=req.note, decided_by=req.decided_by)
+
+
+@app.get("/api/proposal-queue/history")
+def api_proposal_queue_history(limit: int = 50):
+    return UnifiedProposalQueueManager().history(limit=limit)
+
+
+@app.get("/api/proposal-queue/statistics")
+def api_proposal_queue_statistics():
+    return UnifiedProposalQueueManager().statistics()
+
+
+@app.get("/proposal-queue")
+def web_proposal_queue():
+    return FileResponse(WEB_DIR / "proposal-queue.html")
+
+
+@app.get("/web/proposal-queue.js")
+def web_proposal_queue_js():
+    return FileResponse(WEB_DIR / "proposal-queue.js")
+
+
+@app.get("/web/proposal-queue.css")
+def web_proposal_queue_css():
+    return FileResponse(WEB_DIR / "proposal-queue.css")
+
+
+# MVP 29.6 – Decision Learning
+@app.get("/api/learning/status")
+def api_decision_learning_status():
+    return DecisionLearningManager().status()
+
+
+@app.get("/api/learning/history")
+def api_decision_learning_history(limit: int = 100, type: str | None = None, decision: str | None = None):
+    return DecisionLearningManager().history(limit=limit, proposal_type=type, decision=decision)
+
+
+@app.get("/api/learning/patterns")
+def api_decision_learning_patterns(min_count: int = 2):
+    return DecisionLearningManager().patterns(min_count=min_count)
+
+
+@app.get("/api/learning/statistics")
+def api_decision_learning_statistics():
+    return DecisionLearningManager().statistics()
+
+
+@app.get("/api/learning/influence")
+def api_decision_learning_influence():
+    return DecisionLearningManager().influence()
+
+
+@app.post("/api/learning/record")
+def api_decision_learning_record(req: DecisionLearningRecordRequest):
+    return DecisionLearningManager().record_manual(proposal_id=req.proposal_id, proposal_type=req.proposal_type, decision=req.decision, title=req.title, note=req.note, decided_by=req.decided_by, priority=req.priority, risk=req.risk)
+
+
+@app.get("/decision-learning")
+def web_decision_learning():
+    return FileResponse(WEB_DIR / "decision-learning.html")
+
+
+@app.get("/web/decision-learning.js")
+def web_decision_learning_js():
+    return FileResponse(WEB_DIR / "decision-learning.js")
+
+
+@app.get("/web/decision-learning.css")
+def web_decision_learning_css():
+    return FileResponse(WEB_DIR / "decision-learning.css")
+
+# MVP 28.9.1 – Compatibility aliases for documented 28.x API naming
+@app.get("/api/genome/status")
+def api_genome_status_alias():
+    return EvolutionService().status()
+
+
+@app.get("/api/genome")
+def api_genome_alias():
+    return EvolutionService().genome()
+
+
+@app.get("/api/genome/validate")
+def api_genome_validate_alias():
+    return EvolutionService().validate_genome()
+
+
+@app.get("/api/evolution-factory/status")
+def api_evolution_factory_status_alias():
+    return EvolutionService().factory_status()
+
+
+@app.get("/api/evolution-factory/routes")
+def api_evolution_factory_routes_alias():
+    return EvolutionService().factory_routes()
+
+
+@app.get("/api/evolution-factory/preview")
+def api_evolution_factory_preview_alias(request: str, type: str | None = None, source: str = "manual"):
+    return EvolutionService().factory_preview(request, proposal_type=type, source=source)
+
+
+@app.get("/api/pattern-recognition/status")
+def api_pattern_recognition_status_alias():
+    return PatternRecognitionManager().status()
+
+
+@app.get("/api/pattern-recognition/health")
+def api_pattern_recognition_health_alias():
+    return PatternRecognitionManager().health()
+
+
+@app.get("/api/pattern-recognition/patterns")
+def api_pattern_recognition_patterns_alias(limit: int = 50, type: str | None = None):
+    return PatternRecognitionManager().patterns(limit=limit, pattern_type=type)
+
+
+@app.get("/api/priority/status")
+def api_priority_status_alias():
+    return ImprovementPrioritizationManager().status()
+
+
+@app.get("/api/priority/queue")
+def api_priority_queue_alias(limit: int = 50, level: str | None = None):
+    return ImprovementPrioritizationManager().queue(limit=limit, level=level)
+
+
+@app.get("/api/priority/weights")
+def api_priority_weights_alias():
+    return ImprovementPrioritizationManager().weights()
+
+
+
+# MVP 29.2 – Adaptive Goals
+@app.get("/api/goals/status")
+def api_adaptive_goals_status():
+    return AdaptiveGoalManager().status()
+
+
+@app.get("/api/goals/list")
+def api_adaptive_goals_list(status: str | None = None, domain: str | None = None, limit: int = 100):
+    return AdaptiveGoalManager().list(status=status, domain=domain, limit=limit)
+
+
+@app.get("/api/goals/show/{goal_id}")
+def api_adaptive_goals_show(goal_id: str):
+    return AdaptiveGoalManager().show(goal_id)
+
+
+@app.get("/api/goals/history")
+def api_adaptive_goals_history(limit: int = 50):
+    return AdaptiveGoalManager().history(limit=limit)
+
+
+@app.get("/api/goals/evaluate")
+def api_adaptive_goals_evaluate():
+    return AdaptiveGoalManager().evaluate()
+
+
+@app.post("/api/goals/reprioritize")
+def api_adaptive_goals_reprioritize(write: bool = False):
+    return AdaptiveGoalManager().reprioritize(write=write)
+
+
+@app.get("/adaptive-goals")
+def web_adaptive_goals():
+    return FileResponse(WEB_DIR / "adaptive-goals.html")
+
+
+@app.get("/web/adaptive-goals.js")
+def web_adaptive_goals_js():
+    return FileResponse(WEB_DIR / "adaptive-goals.js")
+
+
+@app.get("/web/adaptive-goals.css")
+def web_adaptive_goals_css():
+    return FileResponse(WEB_DIR / "adaptive-goals.css")
+
+
+
+# MVP 29.3 – Knowledge Evolution
+@app.get("/api/knowledge-evolution/status")
+def api_knowledge_evolution_status():
+    return KnowledgeEvolutionManager().status()
+
+
+@app.get("/api/knowledge-evolution/health")
+def api_knowledge_evolution_health(limit: int = 500):
+    return KnowledgeEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/gaps")
+def api_knowledge_evolution_gaps(limit: int = 500):
+    return KnowledgeEvolutionManager().gaps(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/freshness")
+def api_knowledge_evolution_freshness(limit: int = 500):
+    return KnowledgeEvolutionManager().freshness(limit=limit)
+
+
+@app.get("/api/knowledge-evolution/proposals")
+def api_knowledge_evolution_proposals(limit: int = 500, min_severity: str = "warning"):
+    return KnowledgeEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/knowledge-evolution/enqueue")
+def api_knowledge_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return KnowledgeEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/knowledge-evolution/history")
+def api_knowledge_evolution_history(limit: int = 50):
+    return KnowledgeEvolutionManager().history(limit=limit)
+
+
+# MVP 29.4 – Tool Evolution
+@app.get("/api/tool-evolution/status")
+def api_tool_evolution_status():
+    return ToolEvolutionManager().status()
+
+
+@app.get("/api/tool-evolution/health")
+def api_tool_evolution_health(limit: int = 500):
+    return ToolEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/tool-evolution/reviews")
+def api_tool_evolution_reviews(limit: int = 500):
+    return ToolEvolutionManager().reviews(limit=limit)
+
+
+@app.get("/api/tool-evolution/lifecycle")
+def api_tool_evolution_lifecycle(limit: int = 500):
+    return ToolEvolutionManager().lifecycle(limit=limit)
+
+
+@app.get("/api/tool-evolution/proposals")
+def api_tool_evolution_proposals(limit: int = 500, min_severity: str = "warning"):
+    return ToolEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/tool-evolution/enqueue")
+def api_tool_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return ToolEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/tool-evolution/history")
+def api_tool_evolution_history(limit: int = 50):
+    return ToolEvolutionManager().history(limit=limit)
+
+
+@app.get("/tool-evolution")
+def web_tool_evolution():
+    return FileResponse(WEB_DIR / "tool-evolution.html")
+
+
+@app.get("/web/tool-evolution.js")
+def web_tool_evolution_js():
+    return FileResponse(WEB_DIR / "tool-evolution.js")
+
+
+@app.get("/web/tool-evolution.css")
+def web_tool_evolution_css():
+    return FileResponse(WEB_DIR / "tool-evolution.css")
+
+
+
+
+# MVP 29.5 – Core Evolution
+@app.get("/api/core-evolution/status")
+def api_core_evolution_status():
+    return CoreEvolutionManager().status()
+
+
+@app.get("/api/core-evolution/health")
+def api_core_evolution_health(limit: int = 2000):
+    return CoreEvolutionManager().health(limit=limit)
+
+
+@app.get("/api/core-evolution/analysis")
+def api_core_evolution_analysis(limit: int = 2000, query: str | None = None):
+    return CoreEvolutionManager().analysis(limit=limit, query=query)
+
+
+@app.get("/api/core-evolution/refactoring")
+def api_core_evolution_refactoring(limit: int = 2000, min_severity: str = "warning"):
+    return CoreEvolutionManager().refactoring(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/core-evolution/proposals")
+def api_core_evolution_proposals(limit: int = 2000, min_severity: str = "warning"):
+    return CoreEvolutionManager().proposals(limit=limit, min_severity=min_severity, enqueue=False)
+
+
+@app.post("/api/core-evolution/enqueue")
+def api_core_evolution_enqueue(limit: int = 50, min_severity: str = "warning"):
+    return CoreEvolutionManager().enqueue(limit=limit, min_severity=min_severity)
+
+
+@app.get("/api/core-evolution/history")
+def api_core_evolution_history(limit: int = 50):
+    return CoreEvolutionManager().history(limit=limit)
+
+
+@app.get("/core-evolution")
+def web_core_evolution():
+    return FileResponse(WEB_DIR / "core-evolution.html")
+
+
+@app.get("/web/core-evolution.js")
+def web_core_evolution_js():
+    return FileResponse(WEB_DIR / "core-evolution.js")
+
+
+@app.get("/web/core-evolution.css")
+def web_core_evolution_css():
+    return FileResponse(WEB_DIR / "core-evolution.css")
+
+
+@app.get("/knowledge-evolution")
+def web_knowledge_evolution():
+    return FileResponse(WEB_DIR / "knowledge-evolution.html")
+
+
+@app.get("/web/knowledge-evolution.js")
+def web_knowledge_evolution_js():
+    return FileResponse(WEB_DIR / "knowledge-evolution.js")
+
+
+@app.get("/web/knowledge-evolution.css")
+def web_knowledge_evolution_css():
+    return FileResponse(WEB_DIR / "knowledge-evolution.css")
+
+
+# MVP 29.7 – Evolution Dashboard
+@app.get("/api/evolution-dashboard/status")
+def api_evolution_dashboard_status():
+    return EvolutionDashboardManager().status()
+
+
+@app.get("/api/evolution-dashboard/health")
+def api_evolution_dashboard_health():
+    return EvolutionDashboardManager().health()
+
+
+@app.get("/api/evolution-dashboard/summary")
+def api_evolution_dashboard_summary():
+    return EvolutionDashboardManager().summary()
+
+
+@app.get("/api/evolution-dashboard/statistics")
+def api_evolution_dashboard_statistics():
+    return EvolutionDashboardManager().statistics()
+
+
+@app.get("/api/evolution-dashboard/timeline")
+def api_evolution_dashboard_timeline(limit: int = 50):
+    return EvolutionDashboardManager().timeline(limit=limit)
+
+
+@app.get("/api/evolution-dashboard/overview")
+def api_evolution_dashboard_overview():
+    return EvolutionDashboardManager().overview()
+
+
+@app.get("/evolution-dashboard")
+def web_evolution_dashboard():
+    return FileResponse(WEB_DIR / "evolution-dashboard.html")
+
+
+@app.get("/web/evolution-dashboard.js")
+def web_evolution_dashboard_js():
+    return FileResponse(WEB_DIR / "evolution-dashboard.js")
+
+
+@app.get("/web/evolution-dashboard.css")
+def web_evolution_dashboard_css():
+    return FileResponse(WEB_DIR / "evolution-dashboard.css")
+
+# MVP 28.9.2 – CLI & API Integration Hardening
+@app.get("/api/integration/status")
+def api_integration_status():
+    return {
+        "kind": "integration_hardening_status",
+        "version": "29.6",
+        "ok": True,
+        "scope": ["cli_contracts", "api_routes", "documented_28x_aliases", "proposal_generator_contracts", "proposal_evolution_contracts", "adaptive_goals_contracts", "knowledge_evolution_contracts", "tool_evolution_contracts", "decision_learning_contracts", "evolution_dashboard_contracts"],
+        "purpose": "Ensures documented CLI/API commands are registered before further Evolution MVPs are built.",
+    }
+
+
+@app.get("/api/selftest/api")
+def api_selftest_api_contracts():
+    required = [
+        "/api/evolution/status",
+        "/api/genome/status",
+        "/api/evolution/factory/status",
+        "/api/evolution-factory/status",
+        "/api/observation/status",
+        "/api/pattern/status",
+        "/api/pattern-recognition/status",
+        "/api/prioritization/status",
+        "/api/priority/status",
+        "/api/proposal-generator/status",
+        "/api/proposal-queue/status",
+        "/api/proposal-queue/items",
+        "/api/proposal-queue/enqueue",
+        "/api/proposal-generator/generate",
+        "/api/proposal-generator/enqueue",
+        "/api/proposal-queue/from-factory",
+        "/api/goals/status",
+        "/api/goals/list",
+        "/api/goals/evaluate",
+        "/api/goals/reprioritize",
+        "/api/knowledge-evolution/status",
+        "/api/knowledge-evolution/health",
+        "/api/knowledge-evolution/gaps",
+        "/api/knowledge-evolution/proposals",
+        "/api/tool-evolution/status",
+        "/api/tool-evolution/health",
+        "/api/tool-evolution/reviews",
+        "/api/tool-evolution/proposals",
+        "/api/core-evolution/status",
+        "/api/core-evolution/health",
+        "/api/core-evolution/proposals",
+        "/api/learning/status",
+        "/api/learning/history",
+        "/api/learning/patterns",
+        "/api/learning/statistics",
+        "/api/evolution-dashboard/status",
+        "/api/evolution-dashboard/summary",
+        "/api/evolution-dashboard/health",
+        "/api/evolution-dashboard/timeline",
+        "/api/evolution-dashboard/statistics",
+    ]
+    routes = {getattr(route, "path", "") for route in app.routes}
+    checks = [{"path": path, "ok": path in routes} for path in required]
+    return {"kind": "api_route_contract_selftest", "version": "29.6", "ok": all(c["ok"] for c in checks), "checks": checks}
