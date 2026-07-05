@@ -114,9 +114,17 @@ class CapabilityOrchestrator:
         self.tool_registry.discover()
         available_tool_ids = {tool.id for tool in self.tool_registry.list()}
         if action == "use_tool" and requested_tool and requested_tool not in available_tool_ids:
-            action = "create_tool_proposal"
-            route = "tool_development"
+            # Missing tool is not enough to create something. A persistent
+            # capability proposal needs explicit confirmation; otherwise the
+            # safe route is clarification.
+            action = "clarify"
+            route = "chat"
             data["missing_capability"] = data.get("missing_capability") or requested_tool
+            data["clarification_needed"] = "missing_requested_tool_requires_user_confirmation"
+        if action == "create_tool_proposal" and not bool(data.get("persistent_capability_confirmed") or data.get("user_confirmed_creation")):
+            action = "clarify"
+            route = "chat"
+            data["clarification_needed"] = "persistent_capability_creation_requires_confirmation"
         if action == "use_tool" and not requested_tool:
             # Planner/worker may still select from the approved registry. This is
             # not a keyword fallback; it is a validated LLM recommendation that a
@@ -135,6 +143,8 @@ class CapabilityOrchestrator:
             "requested_skill": requested_skill,
             "missing_capability": data.get("missing_capability"),
             "approved_context_query": str(data.get("approved_context_query") or task),
+            "persistent_capability_confirmed": bool(data.get("persistent_capability_confirmed") or data.get("user_confirmed_creation")),
+            "clarification_needed": data.get("clarification_needed"),
             "semantic_decision": data,
             "snapshot_summary": {
                 "capability_count": len(snapshot.capabilities),

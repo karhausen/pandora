@@ -22,6 +22,20 @@ class ChatService:
         self.tool_development = ToolDevelopmentAgent()
         self.capability_orchestrator = CapabilityOrchestrator()
 
+
+    def _clarification_answer(self, task: str, capability_decision: dict) -> str:
+        missing = capability_decision.get("missing_capability") or capability_decision.get("requested_tool")
+        if missing:
+            return (
+                f"Ich bin mir noch nicht sicher, ob dafür wirklich eine neue dauerhafte Pandora-Capability nötig ist. "
+                f"Ich kann zuerst mit vorhandenen Fähigkeiten arbeiten, zum Beispiel per Python/Workflow. "
+                f"Möchtest du {missing} nur einmal nutzen/berechnen lassen, oder soll ich daraus wirklich ein dauerhaftes Tool/Proposal für Pandora erstellen?"
+            )
+        return (
+            "Ich brauche dazu eine kurze Klärung: Soll ich das mit vorhandenen Fähigkeiten lösen, "
+            "oder möchtest du ausdrücklich eine neue dauerhafte Pandora-Capability als Proposal erstellen lassen?"
+        )
+
     async def run(
         self,
         task: str,
@@ -46,7 +60,20 @@ class ChatService:
         memory_answer = self.memory.answer_from_memory(task)
         capability_decision = self.capability_orchestrator.decide(task, provider_name=provider_name, model=model)
 
-        if memory_answer and capability_decision.get("route") == "chat":
+        if capability_decision.get("action") == "clarify":
+            answer = self._clarification_answer(task, capability_decision)
+            success = True
+            plan = {}
+            execution = {
+                "success": True,
+                "final_output": {"message": answer},
+                "mode": "clarification",
+                "capability_decision": capability_decision,
+                "error": None,
+            }
+            metadata = {"mode": "clarification", "success": True, "capability_decision": capability_decision}
+
+        elif memory_answer and capability_decision.get("route") == "chat":
             answer = memory_answer
             success = True
             plan = {}
