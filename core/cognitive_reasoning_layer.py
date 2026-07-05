@@ -48,6 +48,8 @@ class CognitiveReasoningLayer:
             "Tool/capability creation requires explicit confirmation that the user wants a persistent installed capability, not just one-time help. "
             "If that confirmation is missing, choose clarify and ask whether Pandora should solve it once with existing capabilities or create a persistent capability. "
             "If the user only needs a one-time computation or explanation, prefer answer_directly or use_tool/workflow with existing capabilities. "
+            "If the user asks about their own stored material, project notes, TODOs, test prompts, prior work, Vault, memory, or documents, do not answer directly from general knowledge. Choose use_knowledge or use_memory and request the relevant sources. "
+            "For tool use, also check the input contract. A calculator tool is only suitable when an arithmetic expression is available. Do not map every computational or programming request to calculator. "
             "Never provide generic step-by-step tool-development advice as the final path. Decide: existing capability, clarify, or confirmed proposal. "
             "Schema: {action:string, route:string, confidence:number, user_goal:string, reason:string, "
             "existing_capability_sufficient:boolean, new_capability_required:boolean, persistent_capability_confirmed:boolean, "

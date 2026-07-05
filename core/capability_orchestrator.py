@@ -98,6 +98,25 @@ class CapabilityOrchestrator:
             normalized["persistent_capability_confirmed"] = False
         return normalized
 
+
+    def _has_arithmetic_expression(self, task: str) -> bool:
+        """Validate calculator input contract without routing by task keywords.
+
+        The calculator capability accepts arithmetic expressions, not arbitrary
+        natural-language tasks. This guard prevents planner/worker from feeding
+        free text into the calculator and failing with SyntaxError.
+        """
+        import re
+
+        candidates = re.findall(r"[0-9][0-9+\-*/().\s]*", task or "")
+        for candidate in candidates:
+            c = candidate.strip()
+            if not c:
+                continue
+            if any(op in c for op in ["+", "-", "*", "/"]) or (c.startswith("(") and c.endswith(")")):
+                return True
+        return False
+
     def _ask_llm(self, task: str, snapshot: CapabilitySnapshot, *, provider_name: str | None, model: str | None) -> dict[str, Any]:
         """Legacy compatibility only. The active path uses CognitiveReasoningLayer.reason()."""
         system_prompt = (
@@ -155,6 +174,16 @@ class CapabilityOrchestrator:
         normalized_needed_capabilities = [str(c).strip() for c in needed_capabilities if str(c).strip()]
         self.tool_registry.discover()
         available_tool_ids = {tool.id for tool in self.tool_registry.list()}
+        if action == "use_tool" and requested_tool == "calculator" and not self._has_arithmetic_expression(task):
+            # The LLM may correctly see a computation need but choose the wrong
+            # concrete tool. The calculator only accepts arithmetic expressions.
+            # Do not execute it with natural language; ask whether to solve once
+            # with an existing Python-capable path or create a persistent tool.
+            action = "clarify"
+            route = "chat"
+            data["missing_capability"] = data.get("missing_capability") or "computation_workflow"
+            data["requested_tool"] = requested_tool
+            data["clarification_needed"] = "requested_tool_input_contract_not_satisfied"
         if action == "use_tool" and requested_tool and requested_tool not in available_tool_ids:
             # Missing tool is not enough to create something. A persistent
             # capability proposal needs explicit confirmation; otherwise the

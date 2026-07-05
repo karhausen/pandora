@@ -25,6 +25,13 @@ class ChatService:
 
     def _clarification_answer(self, task: str, capability_decision: dict) -> str:
         missing = capability_decision.get("missing_capability") or capability_decision.get("requested_tool")
+        clarification = capability_decision.get("clarification_needed")
+        if clarification == "requested_tool_input_contract_not_satisfied":
+            return (
+                "Die vorhandene Calculator-Capability passt dafür nicht sauber, weil sie nur direkte Rechenausdrücke ausführt. "
+                "Für Primzahlen in einem frei wählbaren Bereich wäre eher Python oder eine eigene dauerhafte Capability passend. "
+                "Soll ich dir zuerst ein einfaches Python-Skript dafür erstellen, oder soll Pandora wirklich ein dauerhaftes Primzahlen-Tool als Proposal anlegen?"
+            )
         if missing:
             return (
                 f"Ich bin mir noch nicht sicher, ob dafür wirklich eine neue dauerhafte Pandora-Capability nötig ist. "
