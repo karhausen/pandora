@@ -27,6 +27,18 @@ class ActionPlanner:
         tools = analysis.get("suggested_tools") or []
         if tools:
             tool_id = self._first_known_tool(tools)
+            if tool_id == "calculator" and not self._task_contains_calculator_expression(task):
+                return AgentAction(
+                    type=AgentActionType.ANSWER,
+                    payload={
+                        "message": (
+                            "Die vorhandene Calculator-Capability passt dafür nicht sauber, "
+                            "weil sie nur direkte Rechenausdrücke ausführt. Für diese Aufgabe brauche ich "
+                            "entweder einen konkreten Ausdruck oder eine andere sichere Ausführung, z. B. Python."
+                        )
+                    },
+                    reason="Calculator contract rejected natural-language payload. No tool execution performed.",
+                )
             return AgentAction(type=AgentActionType.TOOL, tool_id=tool_id, payload=self._payload_for_tool(tool_id, task), reason=f"Structured analysis suggested tool {tool_id}")
 
         return AgentAction(
@@ -64,6 +76,21 @@ class ActionPlanner:
         if tool_id == "timestamp":
             return {}
         return {"text": task, "input": task}
+
+
+    def _task_contains_calculator_expression(self, task: str) -> bool:
+        """Return True only for a concrete arithmetic expression.
+
+        This protects the calculator tool contract. It is not used to decide
+        whether a task should use calculator; that decision still comes from
+        structured capability analysis.
+        """
+        candidates = re.findall(r"[0-9][0-9+\-*/().\s]*", task or "")
+        for candidate in candidates:
+            candidate = candidate.strip()
+            if any(op in candidate for op in "+-*/") and len(re.findall(r"\d+", candidate)) >= 2:
+                return True
+        return False
 
     def _extract_expression(self, task: str) -> str:
         # Pick the first arithmetic-looking segment that actually contains a digit.

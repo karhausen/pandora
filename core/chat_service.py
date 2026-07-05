@@ -25,13 +25,6 @@ class ChatService:
 
     def _clarification_answer(self, task: str, capability_decision: dict) -> str:
         missing = capability_decision.get("missing_capability") or capability_decision.get("requested_tool")
-        clarification = capability_decision.get("clarification_needed")
-        if clarification == "requested_tool_input_contract_not_satisfied":
-            return (
-                "Die vorhandene Calculator-Capability passt dafür nicht sauber, weil sie nur direkte Rechenausdrücke ausführt. "
-                "Für Primzahlen in einem frei wählbaren Bereich wäre eher Python oder eine eigene dauerhafte Capability passend. "
-                "Soll ich dir zuerst ein einfaches Python-Skript dafür erstellen, oder soll Pandora wirklich ein dauerhaftes Primzahlen-Tool als Proposal anlegen?"
-            )
         if missing:
             return (
                 f"Ich bin mir noch nicht sicher, ob dafür wirklich eine neue dauerhafte Pandora-Capability nötig ist. "
@@ -52,22 +45,47 @@ class ChatService:
         provider_name: str | None = None,
         model: str | None = None,
     ) -> dict:
-        """Load knowledge only when the validated decision explicitly needs it.
+        """Build policy-safe knowledge context for chat answers.
 
-        This prevents unrelated Vault notes or old test plans from overriding
-        the active capability decision. The guard uses the structured decision,
-        not keywords from the user request.
+        The guard has two jobs:
+        1. Do not load Vault/Knowledge for non-chat execution routes, so old
+           project notes cannot bend a tool/task decision into another path.
+        2. Do not blindly trust an LLM "answer_directly" recommendation when
+           the local knowledge search can produce relevant, policy-approved
+           context. This is a safety net for questions about stored user/project
+           information, without routing by request keywords.
         """
         action = capability_decision.get("action")
         route = capability_decision.get("route")
         needed_sources = capability_decision.get("needed_sources") or []
         if route != "chat":
             return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "non_chat_route"}
-        if action in {"answer_directly", "clarify"}:
-            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": f"{action}_does_not_need_knowledge"}
-        if action not in {"answer_with_context", "use_knowledge", "use_memory"} and not needed_sources:
-            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "no_explicit_context_need"}
-        return self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
+        if action == "clarify":
+            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "clarify_does_not_need_knowledge"}
+
+        if action in {"answer_with_context", "use_knowledge", "use_memory"} or needed_sources:
+            payload = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model)
+            payload["guarded"] = False
+            payload["guard_reason"] = "explicit_context_need"
+            return payload
+
+        if action == "answer_directly":
+            # LLMs can be overconfident and say "answer_directly" for questions
+            # whose answer actually lives in Vault/Memory. We run a bounded,
+            # policy-aware retrieval and only attach context if the ranker found
+            # relevant sources. This is not a route decision from user keywords;
+            # it is retrieval validation against Pandora's knowledge stores.
+            payload = self.knowledge_context.build_for_chat(task, provider_name=provider_name, model=model, limit=3)
+            if payload.get("source_count", 0) > 0 and payload.get("context_text"):
+                payload["guarded"] = False
+                payload["guard_reason"] = "knowledge_safety_net_found_relevant_context"
+                capability_decision["action"] = "answer_with_context"
+                capability_decision["route"] = "chat"
+                capability_decision["knowledge_safety_net"] = True
+                return payload
+            return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "answer_directly_no_relevant_knowledge_found", "diagnostics": payload.get("diagnostics", {})}
+
+        return {"source_count": 0, "sources": [], "context_text": "", "guarded": True, "guard_reason": "no_explicit_context_need"}
 
     async def run(
         self,
