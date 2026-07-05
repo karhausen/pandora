@@ -57,8 +57,9 @@ class CapabilityOrchestrator:
             "You are Pandora's semantic capability orchestrator. Return ONLY valid JSON. "
             "Do not answer the user. Do not execute tools. Do not request file contents. "
             "Never route by keywords or phrases in the request. Decide by semantic meaning and by the capability snapshot. "
+            "Plan against snapshot.capabilities, which contains unified CapabilityRecord entries for tools, skills, knowledge, memory and workflows. "
             "Schema: {action:string, route:string, confidence:number, reason:string, "
-            "needed_sources:list[string], requested_tool:string|null, requested_skill:string|null, "
+            "needed_capabilities:list[string], needed_sources:list[string], requested_tool:string|null, requested_skill:string|null, "
             "missing_capability:string|null, approved_context_query:string|null}. "
             "Allowed actions: answer_directly, answer_with_context, use_knowledge, use_memory, use_tool, create_tool_proposal, clarify."
         )
@@ -80,6 +81,7 @@ class CapabilityOrchestrator:
                 "route": "chat",
                 "confidence": 0.25,
                 "reason": "Semantic capability decision unavailable; using safe LLM chat with approved context only, without tool fallback.",
+                "needed_capabilities": ["memory:conversation_memory", "knowledge:user_knowledge_base", "knowledge:obsidian_vault", "workflow:llm_chat"],
                 "needed_sources": ["conversation_memory", "user_knowledge_base", "obsidian_vault"],
                 "requested_tool": None,
                 "requested_skill": None,
@@ -97,6 +99,12 @@ class CapabilityOrchestrator:
         requested_tool = data.get("requested_tool")
         if requested_tool:
             requested_tool = str(requested_tool).strip()
+        requested_skill = data.get("requested_skill")
+        if requested_skill:
+            requested_skill = str(requested_skill).strip()
+        capability_ids = {str(c.get("id")) for c in snapshot.capabilities if isinstance(c, dict)}
+        needed_capabilities = data.get("needed_capabilities") if isinstance(data.get("needed_capabilities"), list) else []
+        normalized_needed_capabilities = [str(c).strip() for c in needed_capabilities if str(c).strip()]
         self.tool_registry.discover()
         available_tool_ids = {tool.id for tool in self.tool_registry.list()}
         if action == "use_tool" and requested_tool and requested_tool not in available_tool_ids:
@@ -114,13 +122,17 @@ class CapabilityOrchestrator:
             "route": route,
             "confidence": float(data.get("confidence") or 0.5),
             "reason": str(data.get("reason") or "Semantic capability decision."),
+            "needed_capabilities": normalized_needed_capabilities,
+            "unknown_needed_capabilities": [cap for cap in normalized_needed_capabilities if cap not in capability_ids],
             "needed_sources": [str(s) for s in sources],
             "requested_tool": requested_tool,
-            "requested_skill": data.get("requested_skill"),
+            "requested_skill": requested_skill,
             "missing_capability": data.get("missing_capability"),
             "approved_context_query": str(data.get("approved_context_query") or task),
             "semantic_decision": data,
             "snapshot_summary": {
+                "capability_count": len(snapshot.capabilities),
+                "capability_kinds": sorted({str(c.get("kind")) for c in snapshot.capabilities if isinstance(c, dict)}),
                 "tool_count": len(snapshot.tools),
                 "skill_count": len(snapshot.skills),
                 "knowledge_sources": [s.get("id") for s in snapshot.knowledge_sources],
