@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType
 
@@ -31,7 +33,7 @@ class LLMChatResponder:
             provider_name=provider_name,
             model=model,
             expect_json=False,
-            timeout=30.0,
+            timeout=float(os.getenv("PANDORA_CHAT_LLM_TIMEOUT", "90")),
         ))
 
         routing_diagnostics = self._routing_diagnostics(response.raw)

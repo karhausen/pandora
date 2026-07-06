@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 import json
+import os
 
 from .llm_runtime import LLMRuntime
 from .models import LLMRequest, LLMTaskType
@@ -114,7 +115,7 @@ class LLMRoutePlanner:
             provider_name=provider_name or "cloud_expert",
             model=model,
             expect_json=True,
-            timeout=30.0,
+            timeout=float(os.getenv("PANDORA_ROUTE_PLANNER_TIMEOUT", "90")),
             allow_provider_fallback=False,
             context={"task": task, "purpose": "llm_led_route_selection"},
         ))

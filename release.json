@@ -1,6 +1,6 @@
 {
-  "version": "30.4.1",
-  "name": "MVP 30.4.1 – Route Planner Provider Fix",
+  "version": "30.4.3",
+  "name": "MVP 30.4.3 – LLM Timeout & Light Cleanup",
   "based_on": "MVP 29.6 – Decision Learning",
   "artifact": "pandora_agent_mvp_29_6_decision_learning_clean.zip",
   "controlled_evolution": true,
