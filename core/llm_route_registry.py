@@ -57,7 +57,7 @@ class PromptBuilder:
     rules for requesting sources. It does not decide which route is correct.
     """
 
-    def build(self, task: str, routes: list[RouteSpec], history: list[dict] | None = None) -> str:
+    def build(self, task: str, routes: list[RouteSpec], history: list[dict] | None = None, route_results: list[dict] | None = None) -> str:
         active_routes = [r for r in routes if r.enabled]
         route_payload = [
             {
@@ -72,16 +72,27 @@ class PromptBuilder:
         history_text = "\n".join(
             f"{m.get('role', 'unknown')}: {m.get('content', '')}" for m in (history or [])[-6:]
         )
+        collected_text = ""
+        if route_results:
+            lines = []
+            for idx, item in enumerate(route_results, start=1):
+                route = item.get("route") or item.get("kind") or "unknown"
+                count = item.get("source_count", 0)
+                query = item.get("route_query") or item.get("route_request", {}).get("input", {}).get("query") or ""
+                lines.append(f"{idx}. route={route}; sources={count}; query={query}")
+            collected_text = "\n".join(lines)
         return (
             "Du bist Pandoras LLM-Routenplaner. Du entscheidest fachlich, welche Quelle oder Route fuer die Anfrage benoetigt wird.\n"
             "Der Python-Router entscheidet NICHT fachlich; er validiert und fuehrt nur deine Route aus.\n"
             "Waehle genau EINE Route aus der Liste. Tools, Tool-Entwicklung, Planner/Worker und Capability-Gaps sind in diesem MVP deaktiviert.\n"
+            "Du darfst mehrere Runden ermoeglichen: Wenn noch Kontext fehlt, fordere zuerst eine Quellenroute an. Wenn genug Kontext gesammelt wurde, waehle direct_answer fuer die finale Antwortphase.\n"
             "Wenn die Frage sich auf gespeichertes Wissen, Projektnotizen, Obsidian, vorhandene Prompts, Todos, Roadmaps oder Benutzerdaten bezieht, fordere Kontext ueber eine Knowledge-/Vault-Route an.\n"
             "Wenn allgemeines Weltwissen ohne gespeicherte Benutzerdaten reicht, waehle direct_answer.\n"
             "Antworte NUR mit gueltigem JSON in diesem Schema:\n"
             "{\"route\": string, \"input\": object, \"reason\": string, \"confidence\": number}\n\n"
             f"Verfuegbare Routen:\n{json.dumps(route_payload, ensure_ascii=False, indent=2)}\n\n"
             f"Bisheriger Verlauf:\n{history_text}\n\n"
+            f"Bereits ausgefuehrte Routen in dieser Anfrage:\n{collected_text or 'keine'}\n\n"
             f"Nutzeranfrage:\n{task}"
         )
 
@@ -101,8 +112,9 @@ class LLMRoutePlanner:
         history: list[dict] | None = None,
         provider_name: str | None = None,
         model: str | None = None,
+        route_results: list[dict] | None = None,
     ) -> dict[str, Any]:
-        prompt = self.prompt_builder.build(task, routes, history=history)
+        prompt = self.prompt_builder.build(task, routes, history=history, route_results=route_results)
         # Route selection is a real LLM decision. Do not fall back to the mock
         # client for live chat requests: a mock clarification would be another
         # hidden Python-side decision and would hide the actual configuration
