@@ -7,6 +7,7 @@ from .cognitive_context_builder import CognitiveContextBuilder
 from .models import ChatRunResult
 from .user_response import UserResponseFormatter
 from .llm_route_registry import LLMRoutePlanner, RouteRegistry
+from .route_context_builder import RouteContextBuilder
 
 
 class ChatService:
@@ -26,36 +27,17 @@ class ChatService:
         self.knowledge_context = CognitiveContextBuilder()
         self.route_registry = RouteRegistry()
         self.route_planner = LLMRoutePlanner()
+        self.route_context_builder = RouteContextBuilder()
         self._active_session_id: str | None = None
 
     def _build_final_context(self, route_result: dict, memory_summary: str) -> str:
         return self._build_final_context_from_results([route_result], memory_summary)
 
     def _build_final_context_from_results(self, route_results: list[dict], memory_summary: str) -> str:
-        parts: list[str] = []
-        if memory_summary:
-            parts.append("Gesprächsgedächtnis:\n" + memory_summary)
-        source_lines: list[str] = []
-        for route_result in route_results:
-            if route_result.get("context_text"):
-                kind = route_result.get("kind") or route_result.get("route") or "context"
-                parts.append(f"Von Pandora bereitgestellter Kontext ({kind}):\n" + route_result["context_text"])
-            if route_result.get("sources"):
-                for src in route_result.get("sources", []):
-                    if isinstance(src, dict):
-                        label = src.get("relative_path") or src.get("source_id") or src.get("source_type") or str(src)
-                    else:
-                        label = str(src)
-                    source_lines.append(label)
-        if source_lines:
-            deduped = []
-            seen = set()
-            for label in source_lines:
-                if label not in seen:
-                    seen.add(label)
-                    deduped.append(label)
-            parts.append("Verwendbare Quellen:\n" + "\n".join(f"{idx}. {label}" for idx, label in enumerate(deduped, start=1)))
-        return "\n\n".join(parts)
+        return self.route_context_builder.build(route_results, memory_summary).context_text
+
+    def _build_final_context_metadata(self, route_results: list[dict], memory_summary: str) -> dict:
+        return self.route_context_builder.build(route_results, memory_summary).as_metadata()
 
     def _respond_with_context(
         self,
@@ -166,6 +148,7 @@ class ChatService:
             }
         else:
             final_context = self._build_final_context_from_results(route_loop, memory_context.summary)
+            final_context_metadata = self._build_final_context_metadata(route_loop, memory_context.summary)
             llm_result = self._respond_with_context(
                 task,
                 history,
@@ -193,6 +176,7 @@ class ChatService:
                 "route_loop": route_loop,
                 "planner_loop": planner_loop,
                 "context_used": bool(final_context),
+                "context_metadata": final_context_metadata,
                 "available_routes": [r.id for r in self.route_registry.available_specs()],
                 "disabled_future_routes": [r.id for r in self.route_registry.all_specs() if not r.enabled],
             }
@@ -204,6 +188,7 @@ class ChatService:
                 "route": last_route_result.get("route"),
                 "route_planner": planner_loop[-1] if planner_loop else {},
                 "context_used": bool(final_context),
+                "context_metadata": final_context_metadata,
             }
 
         assistant_message = self.store.add_message(

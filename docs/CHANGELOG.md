@@ -1,3 +1,13 @@
+
+## MVP 30.6 – Route Context Builder
+
+- Added `RouteContextBuilder` for deterministic final context assembly after LLM-requested routes.
+- Added context metadata to chat execution output.
+- Deduplicates source labels and tracks route kinds.
+- Adds `PANDORA_ROUTE_CONTEXT_MAX_CHARS` for context budget control.
+- Keeps tools, skills, capability gap and tool factory disabled.
+- Tests: 32 passed.
+
 # MVP 28.8 – Improvement Prioritization
 
 - Added `core/prioritization` package.
