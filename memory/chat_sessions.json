@@ -1,6 +1,62 @@
 {
   "sessions": [
     {
+      "session_id": "chat_23a3d4bac2fa",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-06T12:38:29.437784+00:00",
+      "updated_at": "2026-07-06T12:38:29.437784+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_ed5b06384191",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-06T12:38:29.415061+00:00",
+      "updated_at": "2026-07-06T12:38:29.415061+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_875f7c1d80f3",
+      "title": "Test",
+      "created_at": "2026-07-06T12:38:29.387623+00:00",
+      "updated_at": "2026-07-06T12:38:29.387623+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_929df3d95785",
+      "title": "Was ist die Pandora Roadmap?",
+      "created_at": "2026-07-06T12:37:56.911213+00:00",
+      "updated_at": "2026-07-06T12:37:56.911213+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_6f56ef860089",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-06T12:37:56.903245+00:00",
+      "updated_at": "2026-07-06T12:37:56.903245+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_3671f66702ee",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-06T12:37:56.888976+00:00",
+      "updated_at": "2026-07-06T12:37:56.888976+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_a9641d15457a",
+      "title": "Test",
+      "created_at": "2026-07-06T12:37:56.868854+00:00",
+      "updated_at": "2026-07-06T12:37:56.868854+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_d43c1a7e911c",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-06T12:16:11.837277+00:00",
+      "updated_at": "2026-07-06T12:16:11.837277+00:00",
+      "message_count": 0
+    },
+    {
       "session_id": "chat_c3be0fa3fe12",
       "title": "Welche Test-Prompts habe ich?",
       "created_at": "2026-07-06T12:16:11.820072+00:00",
@@ -85,10 +141,10 @@
       "message_count": 0
     },
     {
-      "session_id": "chat_d43c1a7e911c",
-      "title": "Was weißt du über Pandora?",
-      "created_at": "2026-07-06T12:16:11.837277+00:00",
-      "updated_at": "2026-07-06T12:16:11.837277+00:00",
+      "session_id": "chat_c1388f03117e",
+      "title": "Was ist die Pandora Roadmap?",
+      "created_at": "2026-07-06T12:38:29.447675+00:00",
+      "updated_at": "2026-07-06T12:38:29.447675+00:00",
       "message_count": 0
     }
   ]

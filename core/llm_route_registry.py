@@ -85,7 +85,9 @@ class PromptBuilder:
             "Du bist Pandoras LLM-Routenplaner. Du entscheidest fachlich, welche Quelle oder Route fuer die Anfrage benoetigt wird.\n"
             "Der Python-Router entscheidet NICHT fachlich; er validiert und fuehrt nur deine Route aus.\n"
             "Waehle genau EINE Route aus der Liste. Tools, Tool-Entwicklung, Planner/Worker und Capability-Gaps sind in diesem MVP deaktiviert.\n"
-            "Du darfst mehrere Runden ermoeglichen: Wenn noch Kontext fehlt, fordere zuerst eine Quellenroute an. Wenn genug Kontext gesammelt wurde, waehle direct_answer fuer die finale Antwortphase.\n"
+            "Du steuerst eine kurze Conversation Loop mit Pandora. In jeder Runde waehle genau eine Route.\n"
+            "Wenn Kontext fehlt, fordere eine Quellenroute an (vault_search oder memory_search).\n"
+            "Wenn genug Kontext gesammelt wurde oder kein Kontext noetig ist, waehle direct_answer fuer die finale Antwortphase.\n"
             "Wenn die Frage sich auf gespeichertes Wissen, Projektnotizen, Obsidian, vorhandene Prompts, Todos, Roadmaps oder Benutzerdaten bezieht, fordere Kontext ueber eine Knowledge-/Vault-Route an.\n"
             "Wenn allgemeines Weltwissen ohne gespeicherte Benutzerdaten reicht, waehle direct_answer.\n"
             "Antworte NUR mit gueltigem JSON in diesem Schema:\n"
@@ -198,7 +200,7 @@ class RouteRegistry:
         self._handlers: dict[str, RouteHandler] = {}
         self.register(RouteSpec(
             id="direct_answer",
-            description="Use this for a general question that can be answered without stored user knowledge.",
+            description="Use this when enough context is already available, or when the question can be answered without stored user knowledge. This starts the final answer pass.",
             input_schema={},
             enabled=True,
             safety_note="No local files or tools are accessed.",

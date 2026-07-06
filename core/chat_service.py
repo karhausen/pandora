@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from .chat_session_store import ChatSessionStore
 from .conversation_memory import ConversationMemory
 from .llm_chat_responder import LLMChatResponder
@@ -93,7 +95,8 @@ class ChatService:
         route_loop: list[dict] = []
         planner_loop: list[dict] = []
         seen_route_keys: set[tuple[str, str]] = set()
-        max_route_rounds = 3
+        max_route_rounds = max(1, int(os.getenv("PANDORA_LLM_CONVERSATION_MAX_ROUNDS", "3")))
+        loop_stop_reason = "max_rounds"
 
         for _round in range(max_route_rounds):
             planner_result = self.route_planner.choose_route(
@@ -109,6 +112,7 @@ class ChatService:
             route_key = (route_request.route, str(route_request.input.get("query") or route_request.input.get("question") or ""))
 
             if route_key in seen_route_keys and route_request.route not in {"direct_answer", "clarify_user"}:
+                loop_stop_reason = "repeated_route_guard"
                 break
             seen_route_keys.add(route_key)
 
@@ -122,6 +126,7 @@ class ChatService:
             route_loop.append(route_result)
 
             if route_result.get("route") in {"direct_answer", "clarify_user"}:
+                loop_stop_reason = f"terminal_route:{route_result.get('route')}"
                 break
 
         last_route_result = route_loop[-1] if route_loop else {"route": "direct_answer", "context_text": "", "sources": [], "source_count": 0}
@@ -138,6 +143,7 @@ class ChatService:
                 "route_planner": planner_loop[-1] if planner_loop else {},
                 "route_loop": route_loop,
                 "planner_loop": planner_loop,
+                "conversation_loop": {"max_rounds": max_route_rounds, "rounds": len(route_loop), "stop_reason": loop_stop_reason},
                 "error": None,
             }
             metadata = {
@@ -175,8 +181,10 @@ class ChatService:
                 "route_planner": planner_loop[-1] if planner_loop else {},
                 "route_loop": route_loop,
                 "planner_loop": planner_loop,
+                "conversation_loop": {"max_rounds": max_route_rounds, "rounds": len(route_loop), "stop_reason": loop_stop_reason},
                 "context_used": bool(final_context),
                 "context_metadata": final_context_metadata,
+                "conversation_loop": {"max_rounds": max_route_rounds, "rounds": len(route_loop), "stop_reason": loop_stop_reason},
                 "available_routes": [r.id for r in self.route_registry.available_specs()],
                 "disabled_future_routes": [r.id for r in self.route_registry.all_specs() if not r.enabled],
             }
@@ -189,6 +197,7 @@ class ChatService:
                 "route_planner": planner_loop[-1] if planner_loop else {},
                 "context_used": bool(final_context),
                 "context_metadata": final_context_metadata,
+                "conversation_loop": {"max_rounds": max_route_rounds, "rounds": len(route_loop), "stop_reason": loop_stop_reason},
             }
 
         assistant_message = self.store.add_message(

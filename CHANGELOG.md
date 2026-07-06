@@ -1,3 +1,13 @@
+# Changelog
+
+## MVP 30.7 – LLM Conversation Loop
+
+- Explizite LLM-Conversation-Loop ergänzt.
+- Ausführung enthält `conversation_loop`-Metadaten.
+- Maximale Runden über `PANDORA_LLM_CONVERSATION_MAX_ROUNDS` konfigurierbar.
+- Release-Dateien nach `release/` verschoben.
+- Tools/Skills/Capability-Gap bleiben deaktiviert.
+
 # MVP 29.6 – Decision Learning
 
 - Added Decision Learning as controlled experience layer.
