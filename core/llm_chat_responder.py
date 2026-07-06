@@ -72,19 +72,10 @@ class LLMChatResponder:
             f"{m.get('role', 'unknown')}: {m.get('content', '')}" for m in last_messages
         )
         context_text = context_summary or ""
-        context_instruction = (
-            "Wenn im Abschnitt 'Gesprächskontext und bekannte Fakten' Vault-/Knowledge-Inhalte stehen, "
-            "hast du Zugriff auf genau diese bereitgestellten Inhalte. Sage dann nicht, dass du keinen Zugriff hast. "
-            "Beantworte die Frage anhand dieses Kontextes und nenne nach Möglichkeit sichtbare Quellen/Titel. "
-            "Wenn kein passender Kontext vorhanden ist, sage klar, dass Pandora dazu nichts Relevantes gefunden hat."
-            if context_text.strip()
-            else "Es wurde kein Vault-/Knowledge-Kontext bereitgestellt. Beantworte nur allgemeine Fragen direkt."
-        )
         return (
             "Du bist Pandora, ein lokaler hilfreicher KI-Agent. "
             "Antworte freundlich, kurz und praktisch. "
-            "Nutze bekannte Fakten und den Gesprächsverlauf, wenn sie relevant sind. "
-            f"{context_instruction}\n\n"
+            "Nutze bekannte Fakten und den Gesprächsverlauf, wenn sie relevant sind.\n\n"
             f"Gesprächskontext und bekannte Fakten:\n{context_text}\n\n"
             f"Bisheriger Verlauf:\n{history_text}\n\n"
             f"Nutzer: {task}\n"

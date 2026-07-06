@@ -47,12 +47,8 @@ def test_confirmed_persistent_capability_can_route_to_tool_development():
     assert decision["route"] == "tool_development"
 
 
-def test_chat_service_has_dedicated_clarification_answer_for_tool_creation_ambiguity():
+def test_chat_service_routes_tool_creation_to_disabled_future_route_not_development():
     service = ChatService()
-    answer = service._clarification_answer(
-        "Ich brauche ein Tool, das Primzahlen berechnet.",
-        {"missing_capability": "prime_number_tool"},
-    )
-    assert "dauerhafte" in answer
-    assert "einmal" in answer.lower()
-    assert "Proposal" in answer or "Tool" in answer
+    disabled = {r.id for r in service.route_registry.all_specs() if not r.enabled}
+    assert "capability_gap" in disabled
+    assert "tool_execute" in disabled

@@ -22,21 +22,15 @@ def test_legacy_next_action_use_tool_is_not_downgraded_to_chat():
     assert decision["requested_tool"] == "calculator"
 
 
-def test_guarded_context_skips_knowledge_for_direct_or_clarify_paths():
+
+def test_chat_service_no_longer_uses_guarded_context_decision_layer():
     service = ChatService()
-    direct = service._build_guarded_knowledge_context("irrelevant", {"route": "chat", "action": "answer_directly"})
-    clarify = service._build_guarded_knowledge_context("irrelevant", {"route": "chat", "action": "clarify"})
-    assert direct["source_count"] == 0
-    assert clarify["source_count"] == 0
-    assert direct["guarded"] is True
-    assert clarify["guarded"] is True
+    assert not hasattr(service, "_build_guarded_knowledge_context")
+    assert hasattr(service, "route_registry")
+    assert hasattr(service, "route_planner")
 
 
-def test_guarded_context_skips_knowledge_for_tool_execution_decision():
+def test_tool_execution_route_is_disabled_in_mvp30_4():
     service = ChatService()
-    guarded = service._build_guarded_knowledge_context(
-        "Berechenbare Aufgabe",
-        {"route": "planner_worker", "action": "use_tool", "requested_tool": "calculator"},
-    )
-    assert guarded["source_count"] == 0
-    assert guarded["guard_reason"] == "non_chat_route"
+    disabled = {r.id for r in service.route_registry.all_specs() if not r.enabled}
+    assert "tool_execute" in disabled

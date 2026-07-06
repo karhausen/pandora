@@ -1,101 +1,24 @@
 {
   "sessions": [
     {
-      "session_id": "chat_299ab659bf0b",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:38:10.701154+00:00",
-      "updated_at": "2026-07-05T17:38:10.701154+00:00",
+      "session_id": "chat_78d78bf96a2f",
+      "title": "Test",
+      "created_at": "2026-07-06T10:36:30.938004+00:00",
+      "updated_at": "2026-07-06T10:36:30.938004+00:00",
       "message_count": 0
     },
     {
-      "session_id": "chat_5a08812b872e",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:38:10.693038+00:00",
-      "updated_at": "2026-07-05T17:38:10.693038+00:00",
+      "session_id": "chat_4fc1a762e662",
+      "title": "Test",
+      "created_at": "2026-07-06T10:36:13.263184+00:00",
+      "updated_at": "2026-07-06T10:36:13.263184+00:00",
       "message_count": 0
     },
     {
-      "session_id": "chat_31a898d3cff3",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:38:10.686305+00:00",
-      "updated_at": "2026-07-05T17:38:10.686305+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_f840947d420d",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:38:03.112664+00:00",
-      "updated_at": "2026-07-05T17:38:03.112664+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_3d87eaa96f7d",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:38:03.106545+00:00",
-      "updated_at": "2026-07-05T17:38:03.106545+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_4711a8cf2e13",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:38:03.099696+00:00",
-      "updated_at": "2026-07-05T17:38:03.099696+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_e80cbce9cee5",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:32:09.189142+00:00",
-      "updated_at": "2026-07-05T17:32:09.189142+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_b8b3a3c19516",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:32:09.181640+00:00",
-      "updated_at": "2026-07-05T17:32:09.181640+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_a3b2ba03ecc4",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:31:58.050185+00:00",
-      "updated_at": "2026-07-05T17:31:58.050185+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_dff6794edbb0",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:31:58.042145+00:00",
-      "updated_at": "2026-07-05T17:31:58.042145+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_3a3a4d5eab38",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:02:03.737107+00:00",
-      "updated_at": "2026-07-05T17:02:03.737107+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_423808b3a897",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:02:03.729241+00:00",
-      "updated_at": "2026-07-05T17:02:03.729241+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_e1dc5a79dd21",
-      "title": "Was ist eine Primzahl?",
-      "created_at": "2026-07-05T17:01:45.377708+00:00",
-      "updated_at": "2026-07-05T17:01:45.377708+00:00",
-      "message_count": 0
-    },
-    {
-      "session_id": "chat_e54676fbe4d2",
-      "title": "Welche Test-Prompts habe ich?",
-      "created_at": "2026-07-05T17:01:45.222895+00:00",
-      "updated_at": "2026-07-05T17:01:45.222895+00:00",
+      "session_id": "chat_d93aa0c85b1b",
+      "title": "Test",
+      "created_at": "2026-07-06T11:19:05.115559+00:00",
+      "updated_at": "2026-07-06T11:19:05.115559+00:00",
       "message_count": 0
     }
   ]

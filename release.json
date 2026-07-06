@@ -1,11 +1,14 @@
 {
-  "version": "29.7",
-  "name": "MVP 29.7 – Evolution Dashboard",
+  "version": "30.4.1",
+  "name": "MVP 30.4.1 – Route Planner Provider Fix",
   "based_on": "MVP 29.6 – Decision Learning",
   "artifact": "pandora_agent_mvp_29_6_decision_learning_clean.zip",
   "controlled_evolution": true,
   "activates_changes": false,
   "created_at": "2026-07-04T14:50:56.544506+00:00",
   "clean_release": true,
-  "runtime_artifacts_removed": true
+  "runtime_artifacts_removed": true,
+  "mvp": "30.4",
+  "notes": "Router is a dispatcher only; LLM selects active route. Tools and capability gap disabled in chat main path.",
+  "base": "MVP 30.4 – LLM-Led Route Registry"
 }
