@@ -13,10 +13,21 @@ class OpenAICompatibleClient:
         base_url = provider_config.get("base_url", "http://localhost:1234/v1").rstrip("/")
         api_key = provider_config.get("api_key") or os.environ.get(provider_config.get("api_key_env", ""), "lm-studio")
         timeout = float(request.timeout or provider_config.get("timeout", 20.0))
-        messages = [{"role": "system", "content": request.system_prompt or "You are Pandora's structured LLM runtime. Return valid JSON when requested."}]
+        # Some OpenAI-compatible backends (hosted vLLM/LiteLLM) reject
+        # additional system messages after the first one. Keep exactly one
+        # optional system message at index 0 and put runtime context into the
+        # user message instead. This preserves provider compatibility without
+        # letting Python make any routing decision.
+        system_content = request.system_prompt or "You are Pandora's structured LLM runtime. Return valid JSON when requested."
+        user_content = request.prompt
         if request.context:
-            messages.append({"role": "system", "content": "Context JSON: " + json.dumps(request.context, ensure_ascii=False)})
-        messages.append({"role": "user", "content": request.prompt})
+            user_content = (
+                "Runtime context JSON:\n"
+                + json.dumps(request.context, ensure_ascii=False)
+                + "\n\nUser task:\n"
+                + request.prompt
+            )
+        messages = [{"role": "system", "content": system_content}, {"role": "user", "content": user_content}]
         payload = {"model": model, "messages": messages, "temperature": provider_config.get("temperature", 0.2), "stream": False}
         if request.expect_json and provider_config.get("supports_response_format", False):
             payload["response_format"] = {"type": "json_object"}
