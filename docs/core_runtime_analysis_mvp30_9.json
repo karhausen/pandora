@@ -10,7 +10,7 @@
     "core.api"
   ],
   "counts": {
-    "python_files_total": 291,
+    "python_files_total": 292,
     "core_modules_total": 266,
     "reachable_core_modules": 181,
     "not_reachable_core_modules": 85,
@@ -19,7 +19,7 @@
   "modules": [
     {
       "module": "core.__init__",
-      "path": "core/__init__.py",
+      "path": "core\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -32,7 +32,7 @@
     },
     {
       "module": "core.action_chain",
-      "path": "core/action_chain.py",
+      "path": "core\\action_chain.py",
       "imports_core": [],
       "imported_by": [
         "core.action_workflow"
@@ -51,7 +51,7 @@
     },
     {
       "module": "core.action_planner",
-      "path": "core/action_planner.py",
+      "path": "core\\action_planner.py",
       "imports_core": [
         "core.models",
         "core.tool_registry"
@@ -80,7 +80,7 @@
     },
     {
       "module": "core.action_proposal_engine",
-      "path": "core/action_proposal_engine.py",
+      "path": "core\\action_proposal_engine.py",
       "imports_core": [
         "core.capability_actions"
       ],
@@ -102,7 +102,7 @@
     },
     {
       "module": "core.action_proposal_handoff",
-      "path": "core/action_proposal_handoff.py",
+      "path": "core\\action_proposal_handoff.py",
       "imports_core": [
         "core.core_recommendation_workflow",
         "core.knowledge_recommendation_workflow",
@@ -132,7 +132,7 @@
     },
     {
       "module": "core.action_state_machine",
-      "path": "core/action_state_machine.py",
+      "path": "core\\action_state_machine.py",
       "imports_core": [],
       "imported_by": [
         "core.action_workflow"
@@ -150,7 +150,7 @@
     },
     {
       "module": "core.action_workflow",
-      "path": "core/action_workflow.py",
+      "path": "core\\action_workflow.py",
       "imports_core": [
         "core.action_chain",
         "core.action_state_machine",
@@ -183,7 +183,7 @@
     },
     {
       "module": "core.activation_manager",
-      "path": "core/activation_manager.py",
+      "path": "core\\activation_manager.py",
       "imports_core": [
         "core.core_version_manager",
         "core.models"
@@ -204,7 +204,7 @@
     },
     {
       "module": "core.adaptive_goals.__init__",
-      "path": "core/adaptive_goals/__init__.py",
+      "path": "core\\adaptive_goals\\__init__.py",
       "imports_core": [
         "core.adaptive_goals.adaptive_goal_manager"
       ],
@@ -220,7 +220,7 @@
     },
     {
       "module": "core.adaptive_goals.adaptive_goal_manager",
-      "path": "core/adaptive_goals/adaptive_goal_manager.py",
+      "path": "core\\adaptive_goals\\adaptive_goal_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.adaptive_goals.__init__"
@@ -253,7 +253,7 @@
     },
     {
       "module": "core.adaptive_planner",
-      "path": "core/adaptive_planner.py",
+      "path": "core\\adaptive_planner.py",
       "imports_core": [
         "core.action_planner",
         "core.strategy_memory"
@@ -275,7 +275,7 @@
     },
     {
       "module": "core.adaptive_source_selection",
-      "path": "core/adaptive_source_selection.py",
+      "path": "core\\adaptive_source_selection.py",
       "imports_core": [
         "core.cognitive_planning_engine",
         "core.llm_config",
@@ -304,7 +304,7 @@
     },
     {
       "module": "core.adaptive_tool_selection",
-      "path": "core/adaptive_tool_selection.py",
+      "path": "core\\adaptive_tool_selection.py",
       "imports_core": [
         "core.cognitive_planning_engine",
         "core.llm_config",
@@ -339,7 +339,7 @@
     },
     {
       "module": "core.agent_loop",
-      "path": "core/agent_loop.py",
+      "path": "core\\agent_loop.py",
       "imports_core": [
         "core.adaptive_planner",
         "core.capability_expansion_manager",
@@ -372,7 +372,7 @@
     },
     {
       "module": "core.api",
-      "path": "core/api.py",
+      "path": "core\\api.py",
       "imports_core": [
         "core.action_proposal_handoff",
         "core.action_workflow",
@@ -1134,7 +1134,7 @@
     },
     {
       "module": "core.approval_interaction_workflow",
-      "path": "core/approval_interaction_workflow.py",
+      "path": "core\\approval_interaction_workflow.py",
       "imports_core": [
         "core.central_decision_engine"
       ],
@@ -1163,7 +1163,7 @@
     },
     {
       "module": "core.build_manager",
-      "path": "core/build_manager.py",
+      "path": "core\\build_manager.py",
       "imports_core": [
         "core.build_manifest",
         "core.release_audit"
@@ -1185,7 +1185,7 @@
     },
     {
       "module": "core.build_manifest",
-      "path": "core/build_manifest.py",
+      "path": "core\\build_manifest.py",
       "imports_core": [],
       "imported_by": [
         "core.build_manager",
@@ -1204,7 +1204,7 @@
     },
     {
       "module": "core.capability_actions",
-      "path": "core/capability_actions.py",
+      "path": "core\\capability_actions.py",
       "imports_core": [
         "core.capability_gap_intelligence",
         "core.config"
@@ -1247,7 +1247,7 @@
     },
     {
       "module": "core.capability_analyzer",
-      "path": "core/capability_analyzer.py",
+      "path": "core\\capability_analyzer.py",
       "imports_core": [
         "core.request_interpreter",
         "core.skill_registry",
@@ -1284,7 +1284,7 @@
     },
     {
       "module": "core.capability_detector",
-      "path": "core/capability_detector.py",
+      "path": "core\\capability_detector.py",
       "imports_core": [
         "core.tool_registry"
       ],
@@ -1308,7 +1308,7 @@
     },
     {
       "module": "core.capability_event_log",
-      "path": "core/capability_event_log.py",
+      "path": "core\\capability_event_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -1331,7 +1331,7 @@
     },
     {
       "module": "core.capability_expansion_manager",
-      "path": "core/capability_expansion_manager.py",
+      "path": "core\\capability_expansion_manager.py",
       "imports_core": [
         "core.capability_detector",
         "core.capability_event_log",
@@ -1359,7 +1359,7 @@
     },
     {
       "module": "core.capability_gap_analyzer",
-      "path": "core/capability_gap_analyzer.py",
+      "path": "core\\capability_gap_analyzer.py",
       "imports_core": [
         "core.llm_runtime",
         "core.models",
@@ -1389,7 +1389,7 @@
     },
     {
       "module": "core.capability_gap_intelligence",
-      "path": "core/capability_gap_intelligence.py",
+      "path": "core\\capability_gap_intelligence.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -1419,7 +1419,7 @@
     },
     {
       "module": "core.capability_gap_pipeline",
-      "path": "core/capability_gap_pipeline.py",
+      "path": "core\\capability_gap_pipeline.py",
       "imports_core": [
         "core.capability_event_log",
         "core.config",
@@ -1456,7 +1456,7 @@
     },
     {
       "module": "core.capability_graph",
-      "path": "core/capability_graph.py",
+      "path": "core\\capability_graph.py",
       "imports_core": [
         "core.config",
         "core.knowledge_metadata",
@@ -1509,7 +1509,7 @@
     },
     {
       "module": "core.capability_model",
-      "path": "core/capability_model.py",
+      "path": "core\\capability_model.py",
       "imports_core": [],
       "imported_by": [
         "core.capability_snapshot",
@@ -1527,7 +1527,7 @@
     },
     {
       "module": "core.capability_orchestrator",
-      "path": "core/capability_orchestrator.py",
+      "path": "core\\capability_orchestrator.py",
       "imports_core": [
         "core.capability_snapshot",
         "core.cognitive_reasoning_layer",
@@ -1556,7 +1556,7 @@
     },
     {
       "module": "core.capability_registry",
-      "path": "core/capability_registry.py",
+      "path": "core\\capability_registry.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -1579,7 +1579,7 @@
     },
     {
       "module": "core.capability_relationships",
-      "path": "core/capability_relationships.py",
+      "path": "core\\capability_relationships.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -1602,7 +1602,7 @@
     },
     {
       "module": "core.capability_snapshot",
-      "path": "core/capability_snapshot.py",
+      "path": "core\\capability_snapshot.py",
       "imports_core": [
         "core.capability_model",
         "core.skill_registry",
@@ -1630,7 +1630,7 @@
     },
     {
       "module": "core.capability_workflow",
-      "path": "core/capability_workflow.py",
+      "path": "core\\capability_workflow.py",
       "imports_core": [
         "core.agent_loop",
         "core.capability_expansion_manager",
@@ -1659,7 +1659,7 @@
     },
     {
       "module": "core.capability_workflow_log",
-      "path": "core/capability_workflow_log.py",
+      "path": "core\\capability_workflow_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -1681,7 +1681,7 @@
     },
     {
       "module": "core.central_decision_engine",
-      "path": "core/central_decision_engine.py",
+      "path": "core\\central_decision_engine.py",
       "imports_core": [
         "core.core_recommendation_workflow",
         "core.knowledge_recommendation_workflow",
@@ -1727,7 +1727,7 @@
     },
     {
       "module": "core.changelog_manager",
-      "path": "core/changelog_manager.py",
+      "path": "core\\changelog_manager.py",
       "imports_core": [
         "core.config"
       ],
@@ -1751,7 +1751,7 @@
     },
     {
       "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
+      "path": "core\\chat_response_router.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -1772,7 +1772,7 @@
     },
     {
       "module": "core.chat_service",
-      "path": "core/chat_service.py",
+      "path": "core\\chat_service.py",
       "imports_core": [
         "core.chat_session_store",
         "core.cognitive_context_builder",
@@ -1817,7 +1817,7 @@
     },
     {
       "module": "core.chat_session_store",
-      "path": "core/chat_session_store.py",
+      "path": "core\\chat_session_store.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -1845,7 +1845,7 @@
     },
     {
       "module": "core.cloud_expert",
-      "path": "core/cloud_expert.py",
+      "path": "core\\cloud_expert.py",
       "imports_core": [
         "core.llm_config",
         "core.llm_runtime",
@@ -1870,7 +1870,7 @@
     },
     {
       "module": "core.cloud_tool_code_generator",
-      "path": "core/cloud_tool_code_generator.py",
+      "path": "core\\cloud_tool_code_generator.py",
       "imports_core": [
         "core.llm_runtime",
         "core.model_router",
@@ -1911,7 +1911,7 @@
     },
     {
       "module": "core.cognitive_context_builder",
-      "path": "core/cognitive_context_builder.py",
+      "path": "core\\cognitive_context_builder.py",
       "imports_core": [
         "core.capability_analyzer",
         "core.knowledge_context",
@@ -1940,7 +1940,7 @@
     },
     {
       "module": "core.cognitive_context_pipeline",
-      "path": "core/cognitive_context_pipeline.py",
+      "path": "core\\cognitive_context_pipeline.py",
       "imports_core": [
         "core.capability_analyzer",
         "core.cognitive_context_builder",
@@ -1969,7 +1969,7 @@
     },
     {
       "module": "core.cognitive_dashboard",
-      "path": "core/cognitive_dashboard.py",
+      "path": "core\\cognitive_dashboard.py",
       "imports_core": [
         "core.central_decision_engine",
         "core.goal_manager",
@@ -2004,7 +2004,7 @@
     },
     {
       "module": "core.cognitive_identity",
-      "path": "core/cognitive_identity.py",
+      "path": "core\\cognitive_identity.py",
       "imports_core": [
         "core.capability_graph",
         "core.cognitive_dashboard",
@@ -2037,7 +2037,7 @@
     },
     {
       "module": "core.cognitive_integration_regression",
-      "path": "core/cognitive_integration_regression.py",
+      "path": "core\\cognitive_integration_regression.py",
       "imports_core": [
         "core.approval_interaction_workflow",
         "core.central_decision_engine",
@@ -2068,7 +2068,7 @@
     },
     {
       "module": "core.cognitive_planning_engine",
-      "path": "core/cognitive_planning_engine.py",
+      "path": "core\\cognitive_planning_engine.py",
       "imports_core": [
         "core.central_decision_engine",
         "core.request_interpreter",
@@ -2106,7 +2106,7 @@
     },
     {
       "module": "core.cognitive_reasoning_layer",
-      "path": "core/cognitive_reasoning_layer.py",
+      "path": "core\\cognitive_reasoning_layer.py",
       "imports_core": [
         "core.capability_snapshot",
         "core.llm_runtime",
@@ -2128,7 +2128,7 @@
     },
     {
       "module": "core.config",
-      "path": "core/config.py",
+      "path": "core\\config.py",
       "imports_core": [],
       "imported_by": [
         "core.action_workflow",
@@ -2206,7 +2206,7 @@
     },
     {
       "module": "core.config_manager",
-      "path": "core/config_manager.py",
+      "path": "core\\config_manager.py",
       "imports_core": [
         "core.config"
       ],
@@ -2235,7 +2235,7 @@
     },
     {
       "module": "core.context_ranker",
-      "path": "core/context_ranker.py",
+      "path": "core\\context_ranker.py",
       "imports_core": [],
       "imported_by": [
         "core.knowledge_context"
@@ -2260,7 +2260,7 @@
     },
     {
       "module": "core.control_core",
-      "path": "core/control_core.py",
+      "path": "core\\control_core.py",
       "imports_core": [
         "core.coordinator_agent",
         "core.core_status",
@@ -2288,7 +2288,7 @@
     },
     {
       "module": "core.conversation_memory",
-      "path": "core/conversation_memory.py",
+      "path": "core\\conversation_memory.py",
       "imports_core": [
         "core.config",
         "core.conversation_memory_log",
@@ -2320,7 +2320,7 @@
     },
     {
       "module": "core.conversation_memory_log",
-      "path": "core/conversation_memory_log.py",
+      "path": "core\\conversation_memory_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -2341,7 +2341,7 @@
     },
     {
       "module": "core.coordinator_agent",
-      "path": "core/coordinator_agent.py",
+      "path": "core\\coordinator_agent.py",
       "imports_core": [
         "core.capability_orchestrator",
         "core.chat_service",
@@ -2370,7 +2370,7 @@
     },
     {
       "module": "core.coordinator_log",
-      "path": "core/coordinator_log.py",
+      "path": "core\\coordinator_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -2391,7 +2391,7 @@
     },
     {
       "module": "core.core_evolution.__init__",
-      "path": "core/core_evolution/__init__.py",
+      "path": "core\\core_evolution\\__init__.py",
       "imports_core": [
         "core.core_evolution.core_evolution_manager"
       ],
@@ -2407,7 +2407,7 @@
     },
     {
       "module": "core.core_evolution.core_evolution_manager",
-      "path": "core/core_evolution/core_evolution_manager.py",
+      "path": "core\\core_evolution\\core_evolution_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.core_evolution.__init__"
@@ -2444,7 +2444,7 @@
     },
     {
       "module": "core.core_governance_review",
-      "path": "core/core_governance_review.py",
+      "path": "core\\core_governance_review.py",
       "imports_core": [
         "core.config",
         "core.core_status",
@@ -2472,7 +2472,7 @@
     },
     {
       "module": "core.core_recommendation_workflow",
-      "path": "core/core_recommendation_workflow.py",
+      "path": "core\\core_recommendation_workflow.py",
       "imports_core": [
         "core.python_orchestrator"
       ],
@@ -2505,7 +2505,7 @@
     },
     {
       "module": "core.core_smoke_runner",
-      "path": "core/core_smoke_runner.py",
+      "path": "core\\core_smoke_runner.py",
       "imports_core": [
         "core.heartbeat",
         "core.models",
@@ -2535,7 +2535,7 @@
     },
     {
       "module": "core.core_snapshot",
-      "path": "core/core_snapshot.py",
+      "path": "core\\core_snapshot.py",
       "imports_core": [
         "core.config"
       ],
@@ -2555,7 +2555,7 @@
     },
     {
       "module": "core.core_status",
-      "path": "core/core_status.py",
+      "path": "core\\core_status.py",
       "imports_core": [
         "core.config",
         "core.llm_profile_manager",
@@ -2595,7 +2595,7 @@
     },
     {
       "module": "core.core_version_manager",
-      "path": "core/core_version_manager.py",
+      "path": "core\\core_version_manager.py",
       "imports_core": [
         "core.config",
         "core.core_smoke_runner",
@@ -2631,7 +2631,7 @@
     },
     {
       "module": "core.decision_learning.__init__",
-      "path": "core/decision_learning/__init__.py",
+      "path": "core\\decision_learning\\__init__.py",
       "imports_core": [
         "core.decision_learning.decision_learning_manager"
       ],
@@ -2647,7 +2647,7 @@
     },
     {
       "module": "core.decision_learning.decision_learning_manager",
-      "path": "core/decision_learning/decision_learning_manager.py",
+      "path": "core\\decision_learning\\decision_learning_manager.py",
       "imports_core": [
         "core.decision_learning.decision_storage"
       ],
@@ -2675,7 +2675,7 @@
     },
     {
       "module": "core.decision_learning.decision_storage",
-      "path": "core/decision_learning/decision_storage.py",
+      "path": "core\\decision_learning\\decision_storage.py",
       "imports_core": [],
       "imported_by": [
         "core.decision_learning.decision_learning_manager"
@@ -2705,7 +2705,7 @@
     },
     {
       "module": "core.documentation_generator",
-      "path": "core/documentation_generator.py",
+      "path": "core\\documentation_generator.py",
       "imports_core": [
         "core.changelog_manager",
         "core.config",
@@ -2729,7 +2729,7 @@
     },
     {
       "module": "core.evolution_dashboard.__init__",
-      "path": "core/evolution_dashboard/__init__.py",
+      "path": "core\\evolution_dashboard\\__init__.py",
       "imports_core": [
         "core.evolution_dashboard.evolution_dashboard_manager"
       ],
@@ -2745,7 +2745,7 @@
     },
     {
       "module": "core.evolution_dashboard.evolution_dashboard_manager",
-      "path": "core/evolution_dashboard/evolution_dashboard_manager.py",
+      "path": "core\\evolution_dashboard\\evolution_dashboard_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.evolution_dashboard.__init__"
@@ -2777,7 +2777,7 @@
     },
     {
       "module": "core.execution_context",
-      "path": "core/execution_context.py",
+      "path": "core\\execution_context.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -2794,7 +2794,7 @@
     },
     {
       "module": "core.execution_policy",
-      "path": "core/execution_policy.py",
+      "path": "core\\execution_policy.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -2817,7 +2817,7 @@
     },
     {
       "module": "core.failure_analyzer",
-      "path": "core/failure_analyzer.py",
+      "path": "core\\failure_analyzer.py",
       "imports_core": [],
       "imported_by": [
         "core.learning_engine"
@@ -2834,7 +2834,7 @@
     },
     {
       "module": "core.genome.__init__",
-      "path": "core/genome/__init__.py",
+      "path": "core\\genome\\__init__.py",
       "imports_core": [
         "core.genome.evolution_factory",
         "core.genome.evolution_lifecycle",
@@ -2856,7 +2856,7 @@
     },
     {
       "module": "core.genome.evolution_factory",
-      "path": "core/genome/evolution_factory.py",
+      "path": "core\\genome\\evolution_factory.py",
       "imports_core": [
         "core.genome.evolution_proposal",
         "core.genome.genome_manager"
@@ -2890,7 +2890,7 @@
     },
     {
       "module": "core.genome.evolution_lifecycle",
-      "path": "core/genome/evolution_lifecycle.py",
+      "path": "core\\genome\\evolution_lifecycle.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.__init__",
@@ -2916,7 +2916,7 @@
     },
     {
       "module": "core.genome.evolution_proposal",
-      "path": "core/genome/evolution_proposal.py",
+      "path": "core\\genome\\evolution_proposal.py",
       "imports_core": [
         "core.genome.evolution_lifecycle"
       ],
@@ -2945,7 +2945,7 @@
     },
     {
       "module": "core.genome.evolution_service",
-      "path": "core/genome/evolution_service.py",
+      "path": "core\\genome\\evolution_service.py",
       "imports_core": [
         "core.genome.evolution_factory",
         "core.genome.evolution_proposal",
@@ -2982,7 +2982,7 @@
     },
     {
       "module": "core.genome.genome",
-      "path": "core/genome/genome.py",
+      "path": "core\\genome\\genome.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.__init__",
@@ -3012,7 +3012,7 @@
     },
     {
       "module": "core.genome.genome_loader",
-      "path": "core/genome/genome_loader.py",
+      "path": "core\\genome\\genome_loader.py",
       "imports_core": [
         "core.genome.genome"
       ],
@@ -3036,7 +3036,7 @@
     },
     {
       "module": "core.genome.genome_manager",
-      "path": "core/genome/genome_manager.py",
+      "path": "core\\genome\\genome_manager.py",
       "imports_core": [
         "core.genome.evolution_lifecycle",
         "core.genome.evolution_proposal",
@@ -3072,7 +3072,7 @@
     },
     {
       "module": "core.genome.genome_rules",
-      "path": "core/genome/genome_rules.py",
+      "path": "core\\genome\\genome_rules.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.genome_manager",
@@ -3090,7 +3090,7 @@
     },
     {
       "module": "core.genome.genome_schema",
-      "path": "core/genome/genome_schema.py",
+      "path": "core\\genome\\genome_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.genome_validator"
@@ -3105,7 +3105,7 @@
     },
     {
       "module": "core.genome.genome_validator",
-      "path": "core/genome/genome_validator.py",
+      "path": "core\\genome\\genome_validator.py",
       "imports_core": [
         "core.genome.evolution_lifecycle",
         "core.genome.genome",
@@ -3130,7 +3130,7 @@
     },
     {
       "module": "core.goal_manager",
-      "path": "core/goal_manager.py",
+      "path": "core\\goal_manager.py",
       "imports_core": [
         "core.central_decision_engine",
         "core.cognitive_planning_engine"
@@ -3163,7 +3163,7 @@
     },
     {
       "module": "core.governance",
-      "path": "core/governance.py",
+      "path": "core\\governance.py",
       "imports_core": [
         "core.config"
       ],
@@ -3185,7 +3185,7 @@
     },
     {
       "module": "core.gui_approval_api",
-      "path": "core/gui_approval_api.py",
+      "path": "core\\gui_approval_api.py",
       "imports_core": [
         "core.config",
         "core.proposal_approval_workflow",
@@ -3215,7 +3215,7 @@
     },
     {
       "module": "core.gui_decision_inbox",
-      "path": "core/gui_decision_inbox.py",
+      "path": "core\\gui_decision_inbox.py",
       "imports_core": [
         "core.central_decision_engine"
       ],
@@ -3245,7 +3245,7 @@
     },
     {
       "module": "core.guided_self_improvement",
-      "path": "core/guided_self_improvement.py",
+      "path": "core\\guided_self_improvement.py",
       "imports_core": [
         "core.capability_actions",
         "core.config",
@@ -3289,7 +3289,7 @@
     },
     {
       "module": "core.heartbeat",
-      "path": "core/heartbeat.py",
+      "path": "core\\heartbeat.py",
       "imports_core": [
         "core.core_status",
         "core.llm_config",
@@ -3326,7 +3326,7 @@
     },
     {
       "module": "core.isolation_runner",
-      "path": "core/isolation_runner.py",
+      "path": "core\\isolation_runner.py",
       "imports_core": [
         "core.config",
         "core.models",
@@ -3349,7 +3349,7 @@
     },
     {
       "module": "core.knowledge_context",
-      "path": "core/knowledge_context.py",
+      "path": "core\\knowledge_context.py",
       "imports_core": [
         "core.context_ranker",
         "core.llm_config",
@@ -3385,7 +3385,7 @@
     },
     {
       "module": "core.knowledge_editor",
-      "path": "core/knowledge_editor.py",
+      "path": "core\\knowledge_editor.py",
       "imports_core": [
         "core.knowledge_governance",
         "core.knowledge_metadata",
@@ -3419,7 +3419,7 @@
     },
     {
       "module": "core.knowledge_evolution.__init__",
-      "path": "core/knowledge_evolution/__init__.py",
+      "path": "core\\knowledge_evolution\\__init__.py",
       "imports_core": [
         "core.knowledge_evolution.knowledge_evolution_manager"
       ],
@@ -3435,7 +3435,7 @@
     },
     {
       "module": "core.knowledge_evolution.knowledge_evolution_manager",
-      "path": "core/knowledge_evolution/knowledge_evolution_manager.py",
+      "path": "core\\knowledge_evolution\\knowledge_evolution_manager.py",
       "imports_core": [
         "core.knowledge_governance",
         "core.user_knowledge_base"
@@ -3472,7 +3472,7 @@
     },
     {
       "module": "core.knowledge_governance",
-      "path": "core/knowledge_governance.py",
+      "path": "core\\knowledge_governance.py",
       "imports_core": [
         "core.knowledge_metadata",
         "core.user_knowledge_base"
@@ -3514,7 +3514,7 @@
     },
     {
       "module": "core.knowledge_metadata",
-      "path": "core/knowledge_metadata.py",
+      "path": "core\\knowledge_metadata.py",
       "imports_core": [],
       "imported_by": [
         "core.capability_graph",
@@ -3536,7 +3536,7 @@
     },
     {
       "module": "core.knowledge_recommendation_workflow",
-      "path": "core/knowledge_recommendation_workflow.py",
+      "path": "core\\knowledge_recommendation_workflow.py",
       "imports_core": [
         "core.python_orchestrator"
       ],
@@ -3566,7 +3566,7 @@
     },
     {
       "module": "core.learning_collector",
-      "path": "core/learning_collector.py",
+      "path": "core\\learning_collector.py",
       "imports_core": [
         "core.learning_storage",
         "core.unified_action_inbox"
@@ -3590,7 +3590,7 @@
     },
     {
       "module": "core.learning_engine",
-      "path": "core/learning_engine.py",
+      "path": "core\\learning_engine.py",
       "imports_core": [
         "core.config",
         "core.failure_analyzer",
@@ -3640,7 +3640,7 @@
     },
     {
       "module": "core.learning_feedback_loop",
-      "path": "core/learning_feedback_loop.py",
+      "path": "core\\learning_feedback_loop.py",
       "imports_core": [
         "core.learning_storage",
         "core.unified_action_inbox"
@@ -3670,7 +3670,7 @@
     },
     {
       "module": "core.learning_insights",
-      "path": "core/learning_insights.py",
+      "path": "core\\learning_insights.py",
       "imports_core": [
         "core.config",
         "core.learning_metrics",
@@ -3710,7 +3710,7 @@
     },
     {
       "module": "core.learning_metrics",
-      "path": "core/learning_metrics.py",
+      "path": "core\\learning_metrics.py",
       "imports_core": [],
       "imported_by": [
         "core.learning_engine",
@@ -3730,7 +3730,7 @@
     },
     {
       "module": "core.learning_pattern_actions",
-      "path": "core/learning_pattern_actions.py",
+      "path": "core\\learning_pattern_actions.py",
       "imports_core": [
         "core.config",
         "core.learning_pattern_detector"
@@ -3771,7 +3771,7 @@
     },
     {
       "module": "core.learning_pattern_detector",
-      "path": "core/learning_pattern_detector.py",
+      "path": "core\\learning_pattern_detector.py",
       "imports_core": [
         "core.config",
         "core.learning_storage"
@@ -3814,7 +3814,7 @@
     },
     {
       "module": "core.learning_storage",
-      "path": "core/learning_storage.py",
+      "path": "core\\learning_storage.py",
       "imports_core": [
         "core.config"
       ],
@@ -3848,7 +3848,7 @@
     },
     {
       "module": "core.llm_chat_responder",
-      "path": "core/llm_chat_responder.py",
+      "path": "core\\llm_chat_responder.py",
       "imports_core": [
         "core.llm_runtime",
         "core.models"
@@ -3873,7 +3873,7 @@
     },
     {
       "module": "core.llm_clients.__init__",
-      "path": "core/llm_clients/__init__.py",
+      "path": "core\\llm_clients\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -3887,7 +3887,7 @@
     },
     {
       "module": "core.llm_clients.mock",
-      "path": "core/llm_clients/mock.py",
+      "path": "core\\llm_clients\\mock.py",
       "imports_core": [
         "core.models"
       ],
@@ -3906,7 +3906,7 @@
     },
     {
       "module": "core.llm_clients.ollama",
-      "path": "core/llm_clients/ollama.py",
+      "path": "core\\llm_clients\\ollama.py",
       "imports_core": [
         "core.models"
       ],
@@ -3925,7 +3925,7 @@
     },
     {
       "module": "core.llm_clients.openai_compatible",
-      "path": "core/llm_clients/openai_compatible.py",
+      "path": "core\\llm_clients\\openai_compatible.py",
       "imports_core": [
         "core.models"
       ],
@@ -3948,7 +3948,7 @@
     },
     {
       "module": "core.llm_config",
-      "path": "core/llm_config.py",
+      "path": "core\\llm_config.py",
       "imports_core": [
         "core.config"
       ],
@@ -3996,7 +3996,7 @@
     },
     {
       "module": "core.llm_profile_center",
-      "path": "core/llm_profile_center.py",
+      "path": "core\\llm_profile_center.py",
       "imports_core": [
         "core.llm_config",
         "core.llm_profile_manager",
@@ -4027,7 +4027,7 @@
     },
     {
       "module": "core.llm_profile_manager",
-      "path": "core/llm_profile_manager.py",
+      "path": "core\\llm_profile_manager.py",
       "imports_core": [
         "core.config",
         "core.llm_config",
@@ -4057,7 +4057,7 @@
     },
     {
       "module": "core.llm_reliability",
-      "path": "core/llm_reliability.py",
+      "path": "core\\llm_reliability.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -4087,7 +4087,7 @@
     },
     {
       "module": "core.llm_route_registry",
-      "path": "core/llm_route_registry.py",
+      "path": "core\\llm_route_registry.py",
       "imports_core": [
         "core.llm_runtime",
         "core.models"
@@ -4135,7 +4135,7 @@
     },
     {
       "module": "core.llm_router",
-      "path": "core/llm_router.py",
+      "path": "core\\llm_router.py",
       "imports_core": [
         "core.llm_config",
         "core.model_router",
@@ -4158,7 +4158,7 @@
     },
     {
       "module": "core.llm_routing_editor",
-      "path": "core/llm_routing_editor.py",
+      "path": "core\\llm_routing_editor.py",
       "imports_core": [
         "core.config",
         "core.llm_config",
@@ -4196,7 +4196,7 @@
     },
     {
       "module": "core.llm_runtime",
-      "path": "core/llm_runtime.py",
+      "path": "core\\llm_runtime.py",
       "imports_core": [
         "core.llm_clients.mock",
         "core.llm_clients.ollama",
@@ -4240,7 +4240,7 @@
     },
     {
       "module": "core.llm_tool_generator",
-      "path": "core/llm_tool_generator.py",
+      "path": "core\\llm_tool_generator.py",
       "imports_core": [
         "core.llm_runtime",
         "core.model_router",
@@ -4266,7 +4266,7 @@
     },
     {
       "module": "core.maintenance_center",
-      "path": "core/maintenance_center.py",
+      "path": "core\\maintenance_center.py",
       "imports_core": [],
       "imported_by": [
         "core.api",
@@ -4294,7 +4294,7 @@
     },
     {
       "module": "core.maintenance_manager",
-      "path": "core/maintenance_manager.py",
+      "path": "core\\maintenance_manager.py",
       "imports_core": [
         "core.capability_gap_pipeline",
         "core.config",
@@ -4335,7 +4335,7 @@
     },
     {
       "module": "core.memory_explorer",
-      "path": "core/memory_explorer.py",
+      "path": "core\\memory_explorer.py",
       "imports_core": [
         "core.config"
       ],
@@ -4366,7 +4366,7 @@
     },
     {
       "module": "core.memory_gateway",
-      "path": "core/memory_gateway.py",
+      "path": "core\\memory_gateway.py",
       "imports_core": [
         "core.config"
       ],
@@ -4391,7 +4391,7 @@
     },
     {
       "module": "core.model_router",
-      "path": "core/model_router.py",
+      "path": "core\\model_router.py",
       "imports_core": [
         "core.llm_config",
         "core.models"
@@ -4431,7 +4431,7 @@
     },
     {
       "module": "core.models",
-      "path": "core/models.py",
+      "path": "core\\models.py",
       "imports_core": [],
       "imported_by": [
         "core.action_planner",
@@ -4563,7 +4563,7 @@
     },
     {
       "module": "core.night_mode_dashboard",
-      "path": "core/night_mode_dashboard.py",
+      "path": "core\\night_mode_dashboard.py",
       "imports_core": [
         "core.config",
         "core.maintenance_manager",
@@ -4592,7 +4592,7 @@
     },
     {
       "module": "core.night_review_engine",
-      "path": "core/night_review_engine.py",
+      "path": "core\\night_review_engine.py",
       "imports_core": [
         "core.capability_gap_intelligence",
         "core.config",
@@ -4643,7 +4643,7 @@
     },
     {
       "module": "core.nightly_reflection",
-      "path": "core/nightly_reflection.py",
+      "path": "core\\nightly_reflection.py",
       "imports_core": [
         "core.memory_gateway",
         "core.task_journal",
@@ -4667,7 +4667,7 @@
     },
     {
       "module": "core.observation.__init__",
-      "path": "core/observation/__init__.py",
+      "path": "core\\observation\\__init__.py",
       "imports_core": [
         "core.observation.event_bus",
         "core.observation.event_logger",
@@ -4687,7 +4687,7 @@
     },
     {
       "module": "core.observation.detectors.__init__",
-      "path": "core/observation/detectors/__init__.py",
+      "path": "core\\observation\\detectors\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4701,7 +4701,7 @@
     },
     {
       "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
+      "path": "core\\observation\\detectors\\capability_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4720,7 +4720,7 @@
     },
     {
       "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
+      "path": "core\\observation\\detectors\\gui_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4739,7 +4739,7 @@
     },
     {
       "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
+      "path": "core\\observation\\detectors\\memory_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4758,7 +4758,7 @@
     },
     {
       "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
+      "path": "core\\observation\\detectors\\review_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4777,7 +4777,7 @@
     },
     {
       "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
+      "path": "core\\observation\\detectors\\runtime_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4796,7 +4796,7 @@
     },
     {
       "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
+      "path": "core\\observation\\detectors\\tool_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4815,7 +4815,7 @@
     },
     {
       "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
+      "path": "core\\observation\\detectors\\workflow_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -4834,7 +4834,7 @@
     },
     {
       "module": "core.observation.event_bus",
-      "path": "core/observation/event_bus.py",
+      "path": "core\\observation\\event_bus.py",
       "imports_core": [
         "core.observation.event_logger"
       ],
@@ -4857,7 +4857,7 @@
     },
     {
       "module": "core.observation.event_logger",
-      "path": "core/observation/event_logger.py",
+      "path": "core\\observation\\event_logger.py",
       "imports_core": [
         "core.observation.observation_schema",
         "core.observation.observation_storage"
@@ -4882,7 +4882,7 @@
     },
     {
       "module": "core.observation.observation_engine",
-      "path": "core/observation/observation_engine.py",
+      "path": "core\\observation\\observation_engine.py",
       "imports_core": [
         "core.observation.event_bus",
         "core.observation.observation_storage"
@@ -4912,7 +4912,7 @@
     },
     {
       "module": "core.observation.observation_manager",
-      "path": "core/observation/observation_manager.py",
+      "path": "core\\observation\\observation_manager.py",
       "imports_core": [
         "core.observation.observation_engine"
       ],
@@ -4940,7 +4940,7 @@
     },
     {
       "module": "core.observation.observation_schema",
-      "path": "core/observation/observation_schema.py",
+      "path": "core\\observation\\observation_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.observation.__init__",
@@ -4963,7 +4963,7 @@
     },
     {
       "module": "core.observation.observation_storage",
-      "path": "core/observation/observation_storage.py",
+      "path": "core\\observation\\observation_storage.py",
       "imports_core": [
         "core.observation.observation_schema"
       ],
@@ -4993,7 +4993,7 @@
     },
     {
       "module": "core.obsidian_export",
-      "path": "core/obsidian_export.py",
+      "path": "core\\obsidian_export.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -5012,7 +5012,7 @@
     },
     {
       "module": "core.obsidian_import_candidates",
-      "path": "core/obsidian_import_candidates.py",
+      "path": "core\\obsidian_import_candidates.py",
       "imports_core": [
         "core.config",
         "core.obsidian_vault"
@@ -5057,7 +5057,7 @@
     },
     {
       "module": "core.obsidian_import_execution",
-      "path": "core/obsidian_import_execution.py",
+      "path": "core\\obsidian_import_execution.py",
       "imports_core": [
         "core.config",
         "core.knowledge_editor",
@@ -5091,7 +5091,7 @@
     },
     {
       "module": "core.obsidian_inbox_review",
-      "path": "core/obsidian_inbox_review.py",
+      "path": "core\\obsidian_inbox_review.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -5120,7 +5120,7 @@
     },
     {
       "module": "core.obsidian_indexer",
-      "path": "core/obsidian_indexer.py",
+      "path": "core\\obsidian_indexer.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -5139,7 +5139,7 @@
     },
     {
       "module": "core.obsidian_search",
-      "path": "core/obsidian_search.py",
+      "path": "core\\obsidian_search.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -5158,7 +5158,7 @@
     },
     {
       "module": "core.obsidian_vault",
-      "path": "core/obsidian_vault.py",
+      "path": "core\\obsidian_vault.py",
       "imports_core": [],
       "imported_by": [
         "core.api",
@@ -5219,7 +5219,7 @@
     },
     {
       "module": "core.operations_cockpit",
-      "path": "core/operations_cockpit.py",
+      "path": "core\\operations_cockpit.py",
       "imports_core": [
         "core.night_review_engine",
         "core.operations_dashboard",
@@ -5250,7 +5250,7 @@
     },
     {
       "module": "core.operations_dashboard",
-      "path": "core/operations_dashboard.py",
+      "path": "core\\operations_dashboard.py",
       "imports_core": [
         "core.core_status",
         "core.maintenance_manager",
@@ -5277,7 +5277,7 @@
     },
     {
       "module": "core.operations_health",
-      "path": "core/operations_health.py",
+      "path": "core\\operations_health.py",
       "imports_core": [
         "core.core_status",
         "core.registration_validator"
@@ -5312,7 +5312,7 @@
     },
     {
       "module": "core.operations_issue_actions",
-      "path": "core/operations_issue_actions.py",
+      "path": "core\\operations_issue_actions.py",
       "imports_core": [
         "core.config",
         "core.operations_issue_detector"
@@ -5343,7 +5343,7 @@
     },
     {
       "module": "core.operations_issue_detector",
-      "path": "core/operations_issue_detector.py",
+      "path": "core\\operations_issue_detector.py",
       "imports_core": [
         "core.config",
         "core.operations_health"
@@ -5373,7 +5373,7 @@
     },
     {
       "module": "core.operations_issue_workflow",
-      "path": "core/operations_issue_workflow.py",
+      "path": "core\\operations_issue_workflow.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5392,7 +5392,7 @@
     },
     {
       "module": "core.pattern.__init__",
-      "path": "core/pattern/__init__.py",
+      "path": "core\\pattern\\__init__.py",
       "imports_core": [
         "core.pattern.pattern_engine",
         "core.pattern.pattern_manager",
@@ -5410,7 +5410,7 @@
     },
     {
       "module": "core.pattern.pattern_detector",
-      "path": "core/pattern/pattern_detector.py",
+      "path": "core\\pattern\\pattern_detector.py",
       "imports_core": [
         "core.pattern.pattern_schema"
       ],
@@ -5441,7 +5441,7 @@
     },
     {
       "module": "core.pattern.pattern_engine",
-      "path": "core/pattern/pattern_engine.py",
+      "path": "core\\pattern\\pattern_engine.py",
       "imports_core": [
         "core.observation.observation_storage",
         "core.pattern.pattern_detector",
@@ -5470,7 +5470,7 @@
     },
     {
       "module": "core.pattern.pattern_manager",
-      "path": "core/pattern/pattern_manager.py",
+      "path": "core\\pattern\\pattern_manager.py",
       "imports_core": [
         "core.pattern.pattern_engine"
       ],
@@ -5496,7 +5496,7 @@
     },
     {
       "module": "core.pattern.pattern_schema",
-      "path": "core/pattern/pattern_schema.py",
+      "path": "core\\pattern\\pattern_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.pattern.__init__",
@@ -5518,7 +5518,7 @@
     },
     {
       "module": "core.pattern.pattern_storage",
-      "path": "core/pattern/pattern_storage.py",
+      "path": "core\\pattern\\pattern_storage.py",
       "imports_core": [
         "core.pattern.pattern_schema"
       ],
@@ -5544,7 +5544,7 @@
     },
     {
       "module": "core.permission_manager",
-      "path": "core/permission_manager.py",
+      "path": "core\\permission_manager.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -5565,7 +5565,7 @@
     },
     {
       "module": "core.personality_layer",
-      "path": "core/personality_layer.py",
+      "path": "core\\personality_layer.py",
       "imports_core": [
         "core.cognitive_identity"
       ],
@@ -5594,7 +5594,7 @@
     },
     {
       "module": "core.personality_layer_regression",
-      "path": "core/personality_layer_regression.py",
+      "path": "core\\personality_layer_regression.py",
       "imports_core": [
         "core.personality_layer"
       ],
@@ -5615,7 +5615,7 @@
     },
     {
       "module": "core.planner_agent",
-      "path": "core/planner_agent.py",
+      "path": "core\\planner_agent.py",
       "imports_core": [
         "core.action_planner",
         "core.capability_detector",
@@ -5652,7 +5652,7 @@
     },
     {
       "module": "core.planner_agent_log",
-      "path": "core/planner_agent_log.py",
+      "path": "core\\planner_agent_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -5673,7 +5673,7 @@
     },
     {
       "module": "core.planner_worker_orchestrator",
-      "path": "core/planner_worker_orchestrator.py",
+      "path": "core\\planner_worker_orchestrator.py",
       "imports_core": [
         "core.planner_agent",
         "core.worker_agent"
@@ -5695,7 +5695,7 @@
     },
     {
       "module": "core.prioritization.__init__",
-      "path": "core/prioritization/__init__.py",
+      "path": "core\\prioritization\\__init__.py",
       "imports_core": [
         "core.prioritization.prioritization_engine",
         "core.prioritization.priority_manager",
@@ -5713,7 +5713,7 @@
     },
     {
       "module": "core.prioritization.evaluators.benefit",
-      "path": "core/prioritization/evaluators/benefit.py",
+      "path": "core\\prioritization\\evaluators\\benefit.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5730,7 +5730,7 @@
     },
     {
       "module": "core.prioritization.evaluators.confidence",
-      "path": "core/prioritization/evaluators/confidence.py",
+      "path": "core\\prioritization\\evaluators\\confidence.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5747,7 +5747,7 @@
     },
     {
       "module": "core.prioritization.evaluators.effort",
-      "path": "core/prioritization/evaluators/effort.py",
+      "path": "core\\prioritization\\evaluators\\effort.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5764,7 +5764,7 @@
     },
     {
       "module": "core.prioritization.evaluators.frequency",
-      "path": "core/prioritization/evaluators/frequency.py",
+      "path": "core\\prioritization\\evaluators\\frequency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5781,7 +5781,7 @@
     },
     {
       "module": "core.prioritization.evaluators.risk",
-      "path": "core/prioritization/evaluators/risk.py",
+      "path": "core\\prioritization\\evaluators\\risk.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5798,7 +5798,7 @@
     },
     {
       "module": "core.prioritization.evaluators.urgency",
-      "path": "core/prioritization/evaluators/urgency.py",
+      "path": "core\\prioritization\\evaluators\\urgency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5815,7 +5815,7 @@
     },
     {
       "module": "core.prioritization.evaluators.user_value",
-      "path": "core/prioritization/evaluators/user_value.py",
+      "path": "core\\prioritization\\evaluators\\user_value.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -5832,7 +5832,7 @@
     },
     {
       "module": "core.prioritization.prioritization_engine",
-      "path": "core/prioritization/prioritization_engine.py",
+      "path": "core\\prioritization\\prioritization_engine.py",
       "imports_core": [
         "core.prioritization.priority_schema",
         "core.prioritization.priority_storage",
@@ -5865,7 +5865,7 @@
     },
     {
       "module": "core.prioritization.priority_manager",
-      "path": "core/prioritization/priority_manager.py",
+      "path": "core\\prioritization\\priority_manager.py",
       "imports_core": [
         "core.prioritization.prioritization_engine"
       ],
@@ -5893,7 +5893,7 @@
     },
     {
       "module": "core.prioritization.priority_schema",
-      "path": "core/prioritization/priority_schema.py",
+      "path": "core\\prioritization\\priority_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.prioritization.__init__",
@@ -5918,7 +5918,7 @@
     },
     {
       "module": "core.prioritization.priority_storage",
-      "path": "core/prioritization/priority_storage.py",
+      "path": "core\\prioritization\\priority_storage.py",
       "imports_core": [
         "core.prioritization.priority_schema"
       ],
@@ -5944,7 +5944,7 @@
     },
     {
       "module": "core.prioritization.scoring_engine",
-      "path": "core/prioritization/scoring_engine.py",
+      "path": "core\\prioritization\\scoring_engine.py",
       "imports_core": [
         "core.prioritization.priority_schema",
         "core.prioritization.scoring_models"
@@ -5974,7 +5974,7 @@
     },
     {
       "module": "core.prioritization.scoring_models",
-      "path": "core/prioritization/scoring_models.py",
+      "path": "core\\prioritization\\scoring_models.py",
       "imports_core": [],
       "imported_by": [
         "core.prioritization.prioritization_engine",
@@ -5992,7 +5992,7 @@
     },
     {
       "module": "core.priority_engine",
-      "path": "core/priority_engine.py",
+      "path": "core\\priority_engine.py",
       "imports_core": [
         "core.central_decision_engine",
         "core.core_recommendation_workflow",
@@ -6028,7 +6028,7 @@
     },
     {
       "module": "core.process_guard",
-      "path": "core/process_guard.py",
+      "path": "core\\process_guard.py",
       "imports_core": [],
       "imported_by": [
         "core.isolation_runner"
@@ -6045,7 +6045,7 @@
     },
     {
       "module": "core.proposal_approval_workflow",
-      "path": "core/proposal_approval_workflow.py",
+      "path": "core\\proposal_approval_workflow.py",
       "imports_core": [
         "core.config",
         "core.proposal_review_inbox"
@@ -6078,7 +6078,7 @@
     },
     {
       "module": "core.proposal_evolution.__init__",
-      "path": "core/proposal_evolution/__init__.py",
+      "path": "core\\proposal_evolution\\__init__.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution",
         "core.proposal_evolution.proposal_evolution_manager"
@@ -6095,7 +6095,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution",
-      "path": "core/proposal_evolution/proposal_evolution.py",
+      "path": "core\\proposal_evolution\\proposal_evolution.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution_storage"
       ],
@@ -6129,7 +6129,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution_manager",
-      "path": "core/proposal_evolution/proposal_evolution_manager.py",
+      "path": "core\\proposal_evolution\\proposal_evolution_manager.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution"
       ],
@@ -6158,7 +6158,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution_storage",
-      "path": "core/proposal_evolution/proposal_evolution_storage.py",
+      "path": "core\\proposal_evolution\\proposal_evolution_storage.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_evolution.proposal_evolution"
@@ -6186,7 +6186,7 @@
     },
     {
       "module": "core.proposal_execution_gate",
-      "path": "core/proposal_execution_gate.py",
+      "path": "core\\proposal_execution_gate.py",
       "imports_core": [
         "core.proposal_review_loop"
       ],
@@ -6215,7 +6215,7 @@
     },
     {
       "module": "core.proposal_generator.__init__",
-      "path": "core/proposal_generator/__init__.py",
+      "path": "core\\proposal_generator\\__init__.py",
       "imports_core": [
         "core.proposal_generator.proposal_generator",
         "core.proposal_generator.proposal_generator_manager"
@@ -6232,7 +6232,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_generator",
-      "path": "core/proposal_generator/proposal_generator.py",
+      "path": "core\\proposal_generator\\proposal_generator.py",
       "imports_core": [
         "core.llm_runtime",
         "core.models",
@@ -6269,7 +6269,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_generator_manager",
-      "path": "core/proposal_generator/proposal_generator_manager.py",
+      "path": "core\\proposal_generator\\proposal_generator_manager.py",
       "imports_core": [
         "core.proposal_generator.proposal_generator"
       ],
@@ -6295,7 +6295,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_prompt",
-      "path": "core/proposal_generator/proposal_prompt.py",
+      "path": "core\\proposal_generator\\proposal_prompt.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_generator.proposal_generator"
@@ -6312,7 +6312,7 @@
     },
     {
       "module": "core.proposal_queue.__init__",
-      "path": "core/proposal_queue/__init__.py",
+      "path": "core\\proposal_queue\\__init__.py",
       "imports_core": [
         "core.proposal_queue.queue_manager",
         "core.proposal_queue.queue_schema",
@@ -6330,7 +6330,7 @@
     },
     {
       "module": "core.proposal_queue.queue_manager",
-      "path": "core/proposal_queue/queue_manager.py",
+      "path": "core\\proposal_queue\\queue_manager.py",
       "imports_core": [
         "core.proposal_queue.queue_schema",
         "core.proposal_queue.queue_storage"
@@ -6362,7 +6362,7 @@
     },
     {
       "module": "core.proposal_queue.queue_schema",
-      "path": "core/proposal_queue/queue_schema.py",
+      "path": "core\\proposal_queue\\queue_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_queue.__init__",
@@ -6388,7 +6388,7 @@
     },
     {
       "module": "core.proposal_queue.queue_storage",
-      "path": "core/proposal_queue/queue_storage.py",
+      "path": "core\\proposal_queue\\queue_storage.py",
       "imports_core": [
         "core.proposal_queue.queue_schema"
       ],
@@ -6419,7 +6419,7 @@
     },
     {
       "module": "core.proposal_review_inbox",
-      "path": "core/proposal_review_inbox.py",
+      "path": "core\\proposal_review_inbox.py",
       "imports_core": [
         "core.config"
       ],
@@ -6458,7 +6458,7 @@
     },
     {
       "module": "core.proposal_review_loop",
-      "path": "core/proposal_review_loop.py",
+      "path": "core\\proposal_review_loop.py",
       "imports_core": [
         "core.approval_interaction_workflow"
       ],
@@ -6491,7 +6491,7 @@
     },
     {
       "module": "core.python_orchestrator",
-      "path": "core/python_orchestrator.py",
+      "path": "core\\python_orchestrator.py",
       "imports_core": [
         "core.capability_analyzer",
         "core.llm_config",
@@ -6528,7 +6528,7 @@
     },
     {
       "module": "core.reality_check",
-      "path": "core/reality_check.py",
+      "path": "core\\reality_check.py",
       "imports_core": [
         "core.core_smoke_runner",
         "core.heartbeat",
@@ -6556,7 +6556,7 @@
     },
     {
       "module": "core.reality_check_log",
-      "path": "core/reality_check_log.py",
+      "path": "core\\reality_check_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -6577,7 +6577,7 @@
     },
     {
       "module": "core.recommendation_engine",
-      "path": "core/recommendation_engine.py",
+      "path": "core\\recommendation_engine.py",
       "imports_core": [],
       "imported_by": [
         "core.learning_engine"
@@ -6594,7 +6594,7 @@
     },
     {
       "module": "core.recovery",
-      "path": "core/recovery.py",
+      "path": "core\\recovery.py",
       "imports_core": [
         "core.heartbeat"
       ],
@@ -6615,7 +6615,7 @@
     },
     {
       "module": "core.registration_validator",
-      "path": "core/registration_validator.py",
+      "path": "core\\registration_validator.py",
       "imports_core": [],
       "imported_by": [
         "core.api",
@@ -6644,7 +6644,7 @@
     },
     {
       "module": "core.release_audit",
-      "path": "core/release_audit.py",
+      "path": "core\\release_audit.py",
       "imports_core": [],
       "imported_by": [
         "core.build_manager",
@@ -6665,7 +6665,7 @@
     },
     {
       "module": "core.release_manager",
-      "path": "core/release_manager.py",
+      "path": "core\\release_manager.py",
       "imports_core": [
         "core.build_manager",
         "core.build_manifest",
@@ -6693,7 +6693,7 @@
     },
     {
       "module": "core.request_interpreter",
-      "path": "core/request_interpreter.py",
+      "path": "core\\request_interpreter.py",
       "imports_core": [
         "core.llm_config",
         "core.llm_runtime",
@@ -6733,7 +6733,7 @@
     },
     {
       "module": "core.resource_monitor",
-      "path": "core/resource_monitor.py",
+      "path": "core\\resource_monitor.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -6752,7 +6752,7 @@
     },
     {
       "module": "core.result_evaluator",
-      "path": "core/result_evaluator.py",
+      "path": "core\\result_evaluator.py",
       "imports_core": [],
       "imported_by": [
         "core.agent_loop"
@@ -6769,7 +6769,7 @@
     },
     {
       "module": "core.review_cycle_engine",
-      "path": "core/review_cycle_engine.py",
+      "path": "core\\review_cycle_engine.py",
       "imports_core": [
         "core.central_decision_engine",
         "core.goal_manager",
@@ -6800,7 +6800,7 @@
     },
     {
       "module": "core.review_scheduler",
-      "path": "core/review_scheduler.py",
+      "path": "core\\review_scheduler.py",
       "imports_core": [
         "core.config",
         "core.night_review_engine"
@@ -6833,7 +6833,7 @@
     },
     {
       "module": "core.review_to_action_workflow",
-      "path": "core/review_to_action_workflow.py",
+      "path": "core\\review_to_action_workflow.py",
       "imports_core": [
         "core.approval_interaction_workflow",
         "core.proposal_review_loop",
@@ -6869,7 +6869,7 @@
     },
     {
       "module": "core.rollback_manager",
-      "path": "core/rollback_manager.py",
+      "path": "core\\rollback_manager.py",
       "imports_core": [
         "core.config",
         "core.core_version_manager",
@@ -6893,7 +6893,7 @@
     },
     {
       "module": "core.route_context_builder",
-      "path": "core/route_context_builder.py",
+      "path": "core\\route_context_builder.py",
       "imports_core": [],
       "imported_by": [
         "core.chat_service",
@@ -6915,7 +6915,7 @@
     },
     {
       "module": "core.safety_gate",
-      "path": "core/safety_gate.py",
+      "path": "core\\safety_gate.py",
       "imports_core": [
         "core.config"
       ],
@@ -6941,7 +6941,7 @@
     },
     {
       "module": "core.sandbox",
-      "path": "core/sandbox.py",
+      "path": "core\\sandbox.py",
       "imports_core": [
         "core.execution_policy",
         "core.isolation_runner",
@@ -6969,7 +6969,7 @@
     },
     {
       "module": "core.sandbox_log",
-      "path": "core/sandbox_log.py",
+      "path": "core\\sandbox_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -6990,7 +6990,7 @@
     },
     {
       "module": "core.security",
-      "path": "core/security.py",
+      "path": "core\\security.py",
       "imports_core": [
         "core.safety_gate"
       ],
@@ -7007,7 +7007,7 @@
     },
     {
       "module": "core.skill_activation_manager",
-      "path": "core/skill_activation_manager.py",
+      "path": "core\\skill_activation_manager.py",
       "imports_core": [
         "core.config",
         "core.models",
@@ -7035,7 +7035,7 @@
     },
     {
       "module": "core.skill_candidate_pipeline",
-      "path": "core/skill_candidate_pipeline.py",
+      "path": "core\\skill_candidate_pipeline.py",
       "imports_core": [
         "core.skill_proposal_manager",
         "core.task_journal"
@@ -7062,7 +7062,7 @@
     },
     {
       "module": "core.skill_center",
-      "path": "core/skill_center.py",
+      "path": "core\\skill_center.py",
       "imports_core": [
         "core.models",
         "core.skill_activation_manager",
@@ -7094,7 +7094,7 @@
     },
     {
       "module": "core.skill_executor",
-      "path": "core/skill_executor.py",
+      "path": "core\\skill_executor.py",
       "imports_core": [
         "core.models",
         "core.skill_registry",
@@ -7119,7 +7119,7 @@
     },
     {
       "module": "core.skill_generator",
-      "path": "core/skill_generator.py",
+      "path": "core\\skill_generator.py",
       "imports_core": [
         "core.models"
       ],
@@ -7139,7 +7139,7 @@
     },
     {
       "module": "core.skill_pattern_detector",
-      "path": "core/skill_pattern_detector.py",
+      "path": "core\\skill_pattern_detector.py",
       "imports_core": [
         "core.task_journal"
       ],
@@ -7159,7 +7159,7 @@
     },
     {
       "module": "core.skill_proposal_manager",
-      "path": "core/skill_proposal_manager.py",
+      "path": "core\\skill_proposal_manager.py",
       "imports_core": [
         "core.config",
         "core.models",
@@ -7189,7 +7189,7 @@
     },
     {
       "module": "core.skill_registry",
-      "path": "core/skill_registry.py",
+      "path": "core\\skill_registry.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -7230,7 +7230,7 @@
     },
     {
       "module": "core.skill_validator",
-      "path": "core/skill_validator.py",
+      "path": "core\\skill_validator.py",
       "imports_core": [
         "core.skill_executor",
         "core.skill_registry",
@@ -7253,7 +7253,7 @@
     },
     {
       "module": "core.stability_monitor",
-      "path": "core/stability_monitor.py",
+      "path": "core\\stability_monitor.py",
       "imports_core": [
         "core.core_version_manager",
         "core.heartbeat"
@@ -7274,7 +7274,7 @@
     },
     {
       "module": "core.stability_reporter",
-      "path": "core/stability_reporter.py",
+      "path": "core\\stability_reporter.py",
       "imports_core": [
         "core.config"
       ],
@@ -7296,7 +7296,7 @@
     },
     {
       "module": "core.strategy_memory",
-      "path": "core/strategy_memory.py",
+      "path": "core\\strategy_memory.py",
       "imports_core": [
         "core.config"
       ],
@@ -7320,7 +7320,7 @@
     },
     {
       "module": "core.task_execution_store",
-      "path": "core/task_execution_store.py",
+      "path": "core\\task_execution_store.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -7343,7 +7343,7 @@
     },
     {
       "module": "core.task_journal",
-      "path": "core/task_journal.py",
+      "path": "core\\task_journal.py",
       "imports_core": [
         "core.config"
       ],
@@ -7372,7 +7372,7 @@
     },
     {
       "module": "core.task_plan_store",
-      "path": "core/task_plan_store.py",
+      "path": "core\\task_plan_store.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -7396,7 +7396,7 @@
     },
     {
       "module": "core.tool_activation_manager",
-      "path": "core/tool_activation_manager.py",
+      "path": "core\\tool_activation_manager.py",
       "imports_core": [
         "core.config",
         "core.models",
@@ -7426,7 +7426,7 @@
     },
     {
       "module": "core.tool_center",
-      "path": "core/tool_center.py",
+      "path": "core\\tool_center.py",
       "imports_core": [
         "core.tool_lifecycle_manager",
         "core.tool_registry"
@@ -7453,7 +7453,7 @@
     },
     {
       "module": "core.tool_code_prompt",
-      "path": "core/tool_code_prompt.py",
+      "path": "core\\tool_code_prompt.py",
       "imports_core": [
         "core.models"
       ],
@@ -7472,7 +7472,7 @@
     },
     {
       "module": "core.tool_design_agent",
-      "path": "core/tool_design_agent.py",
+      "path": "core\\tool_design_agent.py",
       "imports_core": [
         "core.llm_runtime",
         "core.model_router",
@@ -7500,7 +7500,7 @@
     },
     {
       "module": "core.tool_development_agent",
-      "path": "core/tool_development_agent.py",
+      "path": "core\\tool_development_agent.py",
       "imports_core": [
         "core.capability_gap_analyzer",
         "core.llm_runtime",
@@ -7527,7 +7527,7 @@
     },
     {
       "module": "core.tool_evolution.__init__",
-      "path": "core/tool_evolution/__init__.py",
+      "path": "core\\tool_evolution\\__init__.py",
       "imports_core": [
         "core.tool_evolution.tool_evolution_manager"
       ],
@@ -7543,7 +7543,7 @@
     },
     {
       "module": "core.tool_evolution.tool_evolution_manager",
-      "path": "core/tool_evolution/tool_evolution_manager.py",
+      "path": "core\\tool_evolution\\tool_evolution_manager.py",
       "imports_core": [
         "core.tool_lifecycle_manager",
         "core.tool_registry"
@@ -7581,7 +7581,7 @@
     },
     {
       "module": "core.tool_executor",
-      "path": "core/tool_executor.py",
+      "path": "core\\tool_executor.py",
       "imports_core": [
         "core.models",
         "core.sandbox",
@@ -7612,7 +7612,7 @@
     },
     {
       "module": "core.tool_generation_log",
-      "path": "core/tool_generation_log.py",
+      "path": "core\\tool_generation_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -7635,7 +7635,7 @@
     },
     {
       "module": "core.tool_generation_runner",
-      "path": "core/tool_generation_runner.py",
+      "path": "core\\tool_generation_runner.py",
       "imports_core": [],
       "imported_by": [
         "core.tool_proposal_manager"
@@ -7652,7 +7652,7 @@
     },
     {
       "module": "core.tool_generator",
-      "path": "core/tool_generator.py",
+      "path": "core\\tool_generator.py",
       "imports_core": [
         "core.models"
       ],
@@ -7676,7 +7676,7 @@
     },
     {
       "module": "core.tool_improvement_pipeline",
-      "path": "core/tool_improvement_pipeline.py",
+      "path": "core\\tool_improvement_pipeline.py",
       "imports_core": [
         "core.config"
       ],
@@ -7706,7 +7706,7 @@
     },
     {
       "module": "core.tool_lifecycle_manager",
-      "path": "core/tool_lifecycle_manager.py",
+      "path": "core\\tool_lifecycle_manager.py",
       "imports_core": [
         "core.config",
         "core.models",
@@ -7743,7 +7743,7 @@
     },
     {
       "module": "core.tool_proposal_manager",
-      "path": "core/tool_proposal_manager.py",
+      "path": "core\\tool_proposal_manager.py",
       "imports_core": [
         "core.capability_detector",
         "core.cloud_tool_code_generator",
@@ -7794,7 +7794,7 @@
     },
     {
       "module": "core.tool_quality_gate",
-      "path": "core/tool_quality_gate.py",
+      "path": "core\\tool_quality_gate.py",
       "imports_core": [
         "core.models"
       ],
@@ -7821,7 +7821,7 @@
     },
     {
       "module": "core.tool_recommendation_workflow",
-      "path": "core/tool_recommendation_workflow.py",
+      "path": "core\\tool_recommendation_workflow.py",
       "imports_core": [
         "core.python_orchestrator"
       ],
@@ -7851,7 +7851,7 @@
     },
     {
       "module": "core.tool_registry",
-      "path": "core/tool_registry.py",
+      "path": "core\\tool_registry.py",
       "imports_core": [
         "core.config",
         "core.models"
@@ -7905,7 +7905,7 @@
     },
     {
       "module": "core.tool_repair_manager",
-      "path": "core/tool_repair_manager.py",
+      "path": "core\\tool_repair_manager.py",
       "imports_core": [
         "core.llm_tool_generator",
         "core.models"
@@ -7926,7 +7926,7 @@
     },
     {
       "module": "core.tool_review_agent",
-      "path": "core/tool_review_agent.py",
+      "path": "core\\tool_review_agent.py",
       "imports_core": [
         "core.models"
       ],
@@ -7951,7 +7951,7 @@
     },
     {
       "module": "core.tool_skill_ranker",
-      "path": "core/tool_skill_ranker.py",
+      "path": "core\\tool_skill_ranker.py",
       "imports_core": [],
       "imported_by": [
         "core.learning_engine"
@@ -7968,7 +7968,7 @@
     },
     {
       "module": "core.tool_test_generator",
-      "path": "core/tool_test_generator.py",
+      "path": "core\\tool_test_generator.py",
       "imports_core": [
         "core.models"
       ],
@@ -7991,7 +7991,7 @@
     },
     {
       "module": "core.tool_validator",
-      "path": "core/tool_validator.py",
+      "path": "core\\tool_validator.py",
       "imports_core": [
         "core.models",
         "core.tool_review_agent"
@@ -8013,7 +8013,7 @@
     },
     {
       "module": "core.unified_action_inbox",
-      "path": "core/unified_action_inbox.py",
+      "path": "core\\unified_action_inbox.py",
       "imports_core": [
         "core.action_workflow",
         "core.config",
@@ -8066,7 +8066,7 @@
     },
     {
       "module": "core.user_gui_simplification",
-      "path": "core/user_gui_simplification.py",
+      "path": "core\\user_gui_simplification.py",
       "imports_core": [
         "core.maintenance_center"
       ],
@@ -8089,7 +8089,7 @@
     },
     {
       "module": "core.user_knowledge_base",
-      "path": "core/user_knowledge_base.py",
+      "path": "core\\user_knowledge_base.py",
       "imports_core": [
         "core.config",
         "core.knowledge_metadata"
@@ -8131,7 +8131,7 @@
     },
     {
       "module": "core.user_response",
-      "path": "core/user_response.py",
+      "path": "core\\user_response.py",
       "imports_core": [],
       "imported_by": [
         "core.api",
@@ -8151,7 +8151,7 @@
     },
     {
       "module": "core.worker_agent",
-      "path": "core/worker_agent.py",
+      "path": "core\\worker_agent.py",
       "imports_core": [
         "core.models",
         "core.skill_executor",
@@ -8185,7 +8185,7 @@
     },
     {
       "module": "core.worker_agent_log",
-      "path": "core/worker_agent_log.py",
+      "path": "core\\worker_agent_log.py",
       "imports_core": [
         "core.config"
       ],
@@ -8206,7 +8206,7 @@
     },
     {
       "module": "core.workflow_dashboard",
-      "path": "core/workflow_dashboard.py",
+      "path": "core\\workflow_dashboard.py",
       "imports_core": [
         "core.action_workflow",
         "core.unified_action_inbox"
@@ -8238,7 +8238,7 @@
     },
     {
       "module": "core.working_memory",
-      "path": "core/working_memory.py",
+      "path": "core\\working_memory.py",
       "imports_core": [],
       "imported_by": [
         "core.api",
@@ -8275,7 +8275,7 @@
   "legacy_candidates_static_only": [
     {
       "module": "core.action_proposal_engine",
-      "path": "core/action_proposal_engine.py",
+      "path": "core\\action_proposal_engine.py",
       "imports_core": [
         "core.capability_actions"
       ],
@@ -8297,7 +8297,7 @@
     },
     {
       "module": "core.capability_registry",
-      "path": "core/capability_registry.py",
+      "path": "core\\capability_registry.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -8320,7 +8320,7 @@
     },
     {
       "module": "core.capability_relationships",
-      "path": "core/capability_relationships.py",
+      "path": "core\\capability_relationships.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -8343,7 +8343,7 @@
     },
     {
       "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
+      "path": "core\\chat_response_router.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8364,7 +8364,7 @@
     },
     {
       "module": "core.execution_context",
-      "path": "core/execution_context.py",
+      "path": "core\\execution_context.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8381,7 +8381,7 @@
     },
     {
       "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
+      "path": "core\\observation\\detectors\\capability_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8400,7 +8400,7 @@
     },
     {
       "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
+      "path": "core\\observation\\detectors\\gui_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8419,7 +8419,7 @@
     },
     {
       "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
+      "path": "core\\observation\\detectors\\memory_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8438,7 +8438,7 @@
     },
     {
       "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
+      "path": "core\\observation\\detectors\\review_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8457,7 +8457,7 @@
     },
     {
       "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
+      "path": "core\\observation\\detectors\\runtime_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8476,7 +8476,7 @@
     },
     {
       "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
+      "path": "core\\observation\\detectors\\tool_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8495,7 +8495,7 @@
     },
     {
       "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
+      "path": "core\\observation\\detectors\\workflow_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8514,7 +8514,7 @@
     },
     {
       "module": "core.obsidian_export",
-      "path": "core/obsidian_export.py",
+      "path": "core\\obsidian_export.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -8533,7 +8533,7 @@
     },
     {
       "module": "core.obsidian_indexer",
-      "path": "core/obsidian_indexer.py",
+      "path": "core\\obsidian_indexer.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -8552,7 +8552,7 @@
     },
     {
       "module": "core.obsidian_search",
-      "path": "core/obsidian_search.py",
+      "path": "core\\obsidian_search.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -8571,7 +8571,7 @@
     },
     {
       "module": "core.operations_issue_workflow",
-      "path": "core/operations_issue_workflow.py",
+      "path": "core\\operations_issue_workflow.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8590,7 +8590,7 @@
     },
     {
       "module": "core.prioritization.evaluators.benefit",
-      "path": "core/prioritization/evaluators/benefit.py",
+      "path": "core\\prioritization\\evaluators\\benefit.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8607,7 +8607,7 @@
     },
     {
       "module": "core.prioritization.evaluators.confidence",
-      "path": "core/prioritization/evaluators/confidence.py",
+      "path": "core\\prioritization\\evaluators\\confidence.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8624,7 +8624,7 @@
     },
     {
       "module": "core.prioritization.evaluators.effort",
-      "path": "core/prioritization/evaluators/effort.py",
+      "path": "core\\prioritization\\evaluators\\effort.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8641,7 +8641,7 @@
     },
     {
       "module": "core.prioritization.evaluators.frequency",
-      "path": "core/prioritization/evaluators/frequency.py",
+      "path": "core\\prioritization\\evaluators\\frequency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8658,7 +8658,7 @@
     },
     {
       "module": "core.prioritization.evaluators.risk",
-      "path": "core/prioritization/evaluators/risk.py",
+      "path": "core\\prioritization\\evaluators\\risk.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8675,7 +8675,7 @@
     },
     {
       "module": "core.prioritization.evaluators.urgency",
-      "path": "core/prioritization/evaluators/urgency.py",
+      "path": "core\\prioritization\\evaluators\\urgency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8692,7 +8692,7 @@
     },
     {
       "module": "core.prioritization.evaluators.user_value",
-      "path": "core/prioritization/evaluators/user_value.py",
+      "path": "core\\prioritization\\evaluators\\user_value.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8709,7 +8709,7 @@
     },
     {
       "module": "core.recovery",
-      "path": "core/recovery.py",
+      "path": "core\\recovery.py",
       "imports_core": [
         "core.heartbeat"
       ],
@@ -8730,7 +8730,7 @@
     },
     {
       "module": "core.resource_monitor",
-      "path": "core/resource_monitor.py",
+      "path": "core\\resource_monitor.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8749,7 +8749,7 @@
     },
     {
       "module": "core.security",
-      "path": "core/security.py",
+      "path": "core\\security.py",
       "imports_core": [
         "core.safety_gate"
       ],
@@ -8768,7 +8768,7 @@
   "not_reachable_from_entrypoints": [
     {
       "module": "core.__init__",
-      "path": "core/__init__.py",
+      "path": "core\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8781,7 +8781,7 @@
     },
     {
       "module": "core.action_proposal_engine",
-      "path": "core/action_proposal_engine.py",
+      "path": "core\\action_proposal_engine.py",
       "imports_core": [
         "core.capability_actions"
       ],
@@ -8803,7 +8803,7 @@
     },
     {
       "module": "core.adaptive_goals.__init__",
-      "path": "core/adaptive_goals/__init__.py",
+      "path": "core\\adaptive_goals\\__init__.py",
       "imports_core": [
         "core.adaptive_goals.adaptive_goal_manager"
       ],
@@ -8819,7 +8819,7 @@
     },
     {
       "module": "core.adaptive_goals.adaptive_goal_manager",
-      "path": "core/adaptive_goals/adaptive_goal_manager.py",
+      "path": "core\\adaptive_goals\\adaptive_goal_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.adaptive_goals.__init__"
@@ -8852,7 +8852,7 @@
     },
     {
       "module": "core.capability_registry",
-      "path": "core/capability_registry.py",
+      "path": "core\\capability_registry.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -8875,7 +8875,7 @@
     },
     {
       "module": "core.capability_relationships",
-      "path": "core/capability_relationships.py",
+      "path": "core\\capability_relationships.py",
       "imports_core": [
         "core.capability_graph"
       ],
@@ -8898,7 +8898,7 @@
     },
     {
       "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
+      "path": "core\\chat_response_router.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -8919,7 +8919,7 @@
     },
     {
       "module": "core.core_evolution.__init__",
-      "path": "core/core_evolution/__init__.py",
+      "path": "core\\core_evolution\\__init__.py",
       "imports_core": [
         "core.core_evolution.core_evolution_manager"
       ],
@@ -8935,7 +8935,7 @@
     },
     {
       "module": "core.core_evolution.core_evolution_manager",
-      "path": "core/core_evolution/core_evolution_manager.py",
+      "path": "core\\core_evolution\\core_evolution_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.core_evolution.__init__"
@@ -8972,7 +8972,7 @@
     },
     {
       "module": "core.decision_learning.__init__",
-      "path": "core/decision_learning/__init__.py",
+      "path": "core\\decision_learning\\__init__.py",
       "imports_core": [
         "core.decision_learning.decision_learning_manager"
       ],
@@ -8988,7 +8988,7 @@
     },
     {
       "module": "core.decision_learning.decision_learning_manager",
-      "path": "core/decision_learning/decision_learning_manager.py",
+      "path": "core\\decision_learning\\decision_learning_manager.py",
       "imports_core": [
         "core.decision_learning.decision_storage"
       ],
@@ -9016,7 +9016,7 @@
     },
     {
       "module": "core.decision_learning.decision_storage",
-      "path": "core/decision_learning/decision_storage.py",
+      "path": "core\\decision_learning\\decision_storage.py",
       "imports_core": [],
       "imported_by": [
         "core.decision_learning.decision_learning_manager"
@@ -9046,7 +9046,7 @@
     },
     {
       "module": "core.evolution_dashboard.__init__",
-      "path": "core/evolution_dashboard/__init__.py",
+      "path": "core\\evolution_dashboard\\__init__.py",
       "imports_core": [
         "core.evolution_dashboard.evolution_dashboard_manager"
       ],
@@ -9062,7 +9062,7 @@
     },
     {
       "module": "core.evolution_dashboard.evolution_dashboard_manager",
-      "path": "core/evolution_dashboard/evolution_dashboard_manager.py",
+      "path": "core\\evolution_dashboard\\evolution_dashboard_manager.py",
       "imports_core": [],
       "imported_by": [
         "core.evolution_dashboard.__init__"
@@ -9094,7 +9094,7 @@
     },
     {
       "module": "core.execution_context",
-      "path": "core/execution_context.py",
+      "path": "core\\execution_context.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9111,7 +9111,7 @@
     },
     {
       "module": "core.genome.__init__",
-      "path": "core/genome/__init__.py",
+      "path": "core\\genome\\__init__.py",
       "imports_core": [
         "core.genome.evolution_factory",
         "core.genome.evolution_lifecycle",
@@ -9133,7 +9133,7 @@
     },
     {
       "module": "core.genome.evolution_factory",
-      "path": "core/genome/evolution_factory.py",
+      "path": "core\\genome\\evolution_factory.py",
       "imports_core": [
         "core.genome.evolution_proposal",
         "core.genome.genome_manager"
@@ -9167,7 +9167,7 @@
     },
     {
       "module": "core.genome.evolution_lifecycle",
-      "path": "core/genome/evolution_lifecycle.py",
+      "path": "core\\genome\\evolution_lifecycle.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.__init__",
@@ -9193,7 +9193,7 @@
     },
     {
       "module": "core.genome.evolution_proposal",
-      "path": "core/genome/evolution_proposal.py",
+      "path": "core\\genome\\evolution_proposal.py",
       "imports_core": [
         "core.genome.evolution_lifecycle"
       ],
@@ -9222,7 +9222,7 @@
     },
     {
       "module": "core.genome.evolution_service",
-      "path": "core/genome/evolution_service.py",
+      "path": "core\\genome\\evolution_service.py",
       "imports_core": [
         "core.genome.evolution_factory",
         "core.genome.evolution_proposal",
@@ -9259,7 +9259,7 @@
     },
     {
       "module": "core.genome.genome",
-      "path": "core/genome/genome.py",
+      "path": "core\\genome\\genome.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.__init__",
@@ -9289,7 +9289,7 @@
     },
     {
       "module": "core.genome.genome_loader",
-      "path": "core/genome/genome_loader.py",
+      "path": "core\\genome\\genome_loader.py",
       "imports_core": [
         "core.genome.genome"
       ],
@@ -9313,7 +9313,7 @@
     },
     {
       "module": "core.genome.genome_manager",
-      "path": "core/genome/genome_manager.py",
+      "path": "core\\genome\\genome_manager.py",
       "imports_core": [
         "core.genome.evolution_lifecycle",
         "core.genome.evolution_proposal",
@@ -9349,7 +9349,7 @@
     },
     {
       "module": "core.genome.genome_rules",
-      "path": "core/genome/genome_rules.py",
+      "path": "core\\genome\\genome_rules.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.genome_manager",
@@ -9367,7 +9367,7 @@
     },
     {
       "module": "core.genome.genome_schema",
-      "path": "core/genome/genome_schema.py",
+      "path": "core\\genome\\genome_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.genome.genome_validator"
@@ -9382,7 +9382,7 @@
     },
     {
       "module": "core.genome.genome_validator",
-      "path": "core/genome/genome_validator.py",
+      "path": "core\\genome\\genome_validator.py",
       "imports_core": [
         "core.genome.evolution_lifecycle",
         "core.genome.genome",
@@ -9407,7 +9407,7 @@
     },
     {
       "module": "core.knowledge_evolution.__init__",
-      "path": "core/knowledge_evolution/__init__.py",
+      "path": "core\\knowledge_evolution\\__init__.py",
       "imports_core": [
         "core.knowledge_evolution.knowledge_evolution_manager"
       ],
@@ -9423,7 +9423,7 @@
     },
     {
       "module": "core.knowledge_evolution.knowledge_evolution_manager",
-      "path": "core/knowledge_evolution/knowledge_evolution_manager.py",
+      "path": "core\\knowledge_evolution\\knowledge_evolution_manager.py",
       "imports_core": [
         "core.knowledge_governance",
         "core.user_knowledge_base"
@@ -9460,7 +9460,7 @@
     },
     {
       "module": "core.llm_clients.__init__",
-      "path": "core/llm_clients/__init__.py",
+      "path": "core\\llm_clients\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9474,7 +9474,7 @@
     },
     {
       "module": "core.observation.__init__",
-      "path": "core/observation/__init__.py",
+      "path": "core\\observation\\__init__.py",
       "imports_core": [
         "core.observation.event_bus",
         "core.observation.event_logger",
@@ -9494,7 +9494,7 @@
     },
     {
       "module": "core.observation.detectors.__init__",
-      "path": "core/observation/detectors/__init__.py",
+      "path": "core\\observation\\detectors\\__init__.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9508,7 +9508,7 @@
     },
     {
       "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
+      "path": "core\\observation\\detectors\\capability_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9527,7 +9527,7 @@
     },
     {
       "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
+      "path": "core\\observation\\detectors\\gui_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9546,7 +9546,7 @@
     },
     {
       "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
+      "path": "core\\observation\\detectors\\memory_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9565,7 +9565,7 @@
     },
     {
       "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
+      "path": "core\\observation\\detectors\\review_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9584,7 +9584,7 @@
     },
     {
       "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
+      "path": "core\\observation\\detectors\\runtime_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9603,7 +9603,7 @@
     },
     {
       "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
+      "path": "core\\observation\\detectors\\tool_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9622,7 +9622,7 @@
     },
     {
       "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
+      "path": "core\\observation\\detectors\\workflow_detector.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9641,7 +9641,7 @@
     },
     {
       "module": "core.observation.event_bus",
-      "path": "core/observation/event_bus.py",
+      "path": "core\\observation\\event_bus.py",
       "imports_core": [
         "core.observation.event_logger"
       ],
@@ -9664,7 +9664,7 @@
     },
     {
       "module": "core.observation.event_logger",
-      "path": "core/observation/event_logger.py",
+      "path": "core\\observation\\event_logger.py",
       "imports_core": [
         "core.observation.observation_schema",
         "core.observation.observation_storage"
@@ -9689,7 +9689,7 @@
     },
     {
       "module": "core.observation.observation_engine",
-      "path": "core/observation/observation_engine.py",
+      "path": "core\\observation\\observation_engine.py",
       "imports_core": [
         "core.observation.event_bus",
         "core.observation.observation_storage"
@@ -9719,7 +9719,7 @@
     },
     {
       "module": "core.observation.observation_manager",
-      "path": "core/observation/observation_manager.py",
+      "path": "core\\observation\\observation_manager.py",
       "imports_core": [
         "core.observation.observation_engine"
       ],
@@ -9747,7 +9747,7 @@
     },
     {
       "module": "core.observation.observation_schema",
-      "path": "core/observation/observation_schema.py",
+      "path": "core\\observation\\observation_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.observation.__init__",
@@ -9770,7 +9770,7 @@
     },
     {
       "module": "core.observation.observation_storage",
-      "path": "core/observation/observation_storage.py",
+      "path": "core\\observation\\observation_storage.py",
       "imports_core": [
         "core.observation.observation_schema"
       ],
@@ -9800,7 +9800,7 @@
     },
     {
       "module": "core.obsidian_export",
-      "path": "core/obsidian_export.py",
+      "path": "core\\obsidian_export.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -9819,7 +9819,7 @@
     },
     {
       "module": "core.obsidian_indexer",
-      "path": "core/obsidian_indexer.py",
+      "path": "core\\obsidian_indexer.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -9838,7 +9838,7 @@
     },
     {
       "module": "core.obsidian_search",
-      "path": "core/obsidian_search.py",
+      "path": "core\\obsidian_search.py",
       "imports_core": [
         "core.obsidian_vault"
       ],
@@ -9857,7 +9857,7 @@
     },
     {
       "module": "core.operations_issue_workflow",
-      "path": "core/operations_issue_workflow.py",
+      "path": "core\\operations_issue_workflow.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -9876,7 +9876,7 @@
     },
     {
       "module": "core.pattern.__init__",
-      "path": "core/pattern/__init__.py",
+      "path": "core\\pattern\\__init__.py",
       "imports_core": [
         "core.pattern.pattern_engine",
         "core.pattern.pattern_manager",
@@ -9894,7 +9894,7 @@
     },
     {
       "module": "core.pattern.pattern_detector",
-      "path": "core/pattern/pattern_detector.py",
+      "path": "core\\pattern\\pattern_detector.py",
       "imports_core": [
         "core.pattern.pattern_schema"
       ],
@@ -9925,7 +9925,7 @@
     },
     {
       "module": "core.pattern.pattern_engine",
-      "path": "core/pattern/pattern_engine.py",
+      "path": "core\\pattern\\pattern_engine.py",
       "imports_core": [
         "core.observation.observation_storage",
         "core.pattern.pattern_detector",
@@ -9954,7 +9954,7 @@
     },
     {
       "module": "core.pattern.pattern_manager",
-      "path": "core/pattern/pattern_manager.py",
+      "path": "core\\pattern\\pattern_manager.py",
       "imports_core": [
         "core.pattern.pattern_engine"
       ],
@@ -9980,7 +9980,7 @@
     },
     {
       "module": "core.pattern.pattern_schema",
-      "path": "core/pattern/pattern_schema.py",
+      "path": "core\\pattern\\pattern_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.pattern.__init__",
@@ -10002,7 +10002,7 @@
     },
     {
       "module": "core.pattern.pattern_storage",
-      "path": "core/pattern/pattern_storage.py",
+      "path": "core\\pattern\\pattern_storage.py",
       "imports_core": [
         "core.pattern.pattern_schema"
       ],
@@ -10028,7 +10028,7 @@
     },
     {
       "module": "core.prioritization.__init__",
-      "path": "core/prioritization/__init__.py",
+      "path": "core\\prioritization\\__init__.py",
       "imports_core": [
         "core.prioritization.prioritization_engine",
         "core.prioritization.priority_manager",
@@ -10046,7 +10046,7 @@
     },
     {
       "module": "core.prioritization.evaluators.benefit",
-      "path": "core/prioritization/evaluators/benefit.py",
+      "path": "core\\prioritization\\evaluators\\benefit.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10063,7 +10063,7 @@
     },
     {
       "module": "core.prioritization.evaluators.confidence",
-      "path": "core/prioritization/evaluators/confidence.py",
+      "path": "core\\prioritization\\evaluators\\confidence.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10080,7 +10080,7 @@
     },
     {
       "module": "core.prioritization.evaluators.effort",
-      "path": "core/prioritization/evaluators/effort.py",
+      "path": "core\\prioritization\\evaluators\\effort.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10097,7 +10097,7 @@
     },
     {
       "module": "core.prioritization.evaluators.frequency",
-      "path": "core/prioritization/evaluators/frequency.py",
+      "path": "core\\prioritization\\evaluators\\frequency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10114,7 +10114,7 @@
     },
     {
       "module": "core.prioritization.evaluators.risk",
-      "path": "core/prioritization/evaluators/risk.py",
+      "path": "core\\prioritization\\evaluators\\risk.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10131,7 +10131,7 @@
     },
     {
       "module": "core.prioritization.evaluators.urgency",
-      "path": "core/prioritization/evaluators/urgency.py",
+      "path": "core\\prioritization\\evaluators\\urgency.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10148,7 +10148,7 @@
     },
     {
       "module": "core.prioritization.evaluators.user_value",
-      "path": "core/prioritization/evaluators/user_value.py",
+      "path": "core\\prioritization\\evaluators\\user_value.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10165,7 +10165,7 @@
     },
     {
       "module": "core.prioritization.prioritization_engine",
-      "path": "core/prioritization/prioritization_engine.py",
+      "path": "core\\prioritization\\prioritization_engine.py",
       "imports_core": [
         "core.prioritization.priority_schema",
         "core.prioritization.priority_storage",
@@ -10198,7 +10198,7 @@
     },
     {
       "module": "core.prioritization.priority_manager",
-      "path": "core/prioritization/priority_manager.py",
+      "path": "core\\prioritization\\priority_manager.py",
       "imports_core": [
         "core.prioritization.prioritization_engine"
       ],
@@ -10226,7 +10226,7 @@
     },
     {
       "module": "core.prioritization.priority_schema",
-      "path": "core/prioritization/priority_schema.py",
+      "path": "core\\prioritization\\priority_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.prioritization.__init__",
@@ -10251,7 +10251,7 @@
     },
     {
       "module": "core.prioritization.priority_storage",
-      "path": "core/prioritization/priority_storage.py",
+      "path": "core\\prioritization\\priority_storage.py",
       "imports_core": [
         "core.prioritization.priority_schema"
       ],
@@ -10277,7 +10277,7 @@
     },
     {
       "module": "core.prioritization.scoring_engine",
-      "path": "core/prioritization/scoring_engine.py",
+      "path": "core\\prioritization\\scoring_engine.py",
       "imports_core": [
         "core.prioritization.priority_schema",
         "core.prioritization.scoring_models"
@@ -10307,7 +10307,7 @@
     },
     {
       "module": "core.prioritization.scoring_models",
-      "path": "core/prioritization/scoring_models.py",
+      "path": "core\\prioritization\\scoring_models.py",
       "imports_core": [],
       "imported_by": [
         "core.prioritization.prioritization_engine",
@@ -10325,7 +10325,7 @@
     },
     {
       "module": "core.proposal_evolution.__init__",
-      "path": "core/proposal_evolution/__init__.py",
+      "path": "core\\proposal_evolution\\__init__.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution",
         "core.proposal_evolution.proposal_evolution_manager"
@@ -10342,7 +10342,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution",
-      "path": "core/proposal_evolution/proposal_evolution.py",
+      "path": "core\\proposal_evolution\\proposal_evolution.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution_storage"
       ],
@@ -10376,7 +10376,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution_manager",
-      "path": "core/proposal_evolution/proposal_evolution_manager.py",
+      "path": "core\\proposal_evolution\\proposal_evolution_manager.py",
       "imports_core": [
         "core.proposal_evolution.proposal_evolution"
       ],
@@ -10405,7 +10405,7 @@
     },
     {
       "module": "core.proposal_evolution.proposal_evolution_storage",
-      "path": "core/proposal_evolution/proposal_evolution_storage.py",
+      "path": "core\\proposal_evolution\\proposal_evolution_storage.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_evolution.proposal_evolution"
@@ -10433,7 +10433,7 @@
     },
     {
       "module": "core.proposal_generator.__init__",
-      "path": "core/proposal_generator/__init__.py",
+      "path": "core\\proposal_generator\\__init__.py",
       "imports_core": [
         "core.proposal_generator.proposal_generator",
         "core.proposal_generator.proposal_generator_manager"
@@ -10450,7 +10450,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_generator",
-      "path": "core/proposal_generator/proposal_generator.py",
+      "path": "core\\proposal_generator\\proposal_generator.py",
       "imports_core": [
         "core.llm_runtime",
         "core.models",
@@ -10487,7 +10487,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_generator_manager",
-      "path": "core/proposal_generator/proposal_generator_manager.py",
+      "path": "core\\proposal_generator\\proposal_generator_manager.py",
       "imports_core": [
         "core.proposal_generator.proposal_generator"
       ],
@@ -10513,7 +10513,7 @@
     },
     {
       "module": "core.proposal_generator.proposal_prompt",
-      "path": "core/proposal_generator/proposal_prompt.py",
+      "path": "core\\proposal_generator\\proposal_prompt.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_generator.proposal_generator"
@@ -10530,7 +10530,7 @@
     },
     {
       "module": "core.proposal_queue.__init__",
-      "path": "core/proposal_queue/__init__.py",
+      "path": "core\\proposal_queue\\__init__.py",
       "imports_core": [
         "core.proposal_queue.queue_manager",
         "core.proposal_queue.queue_schema",
@@ -10548,7 +10548,7 @@
     },
     {
       "module": "core.proposal_queue.queue_manager",
-      "path": "core/proposal_queue/queue_manager.py",
+      "path": "core\\proposal_queue\\queue_manager.py",
       "imports_core": [
         "core.proposal_queue.queue_schema",
         "core.proposal_queue.queue_storage"
@@ -10580,7 +10580,7 @@
     },
     {
       "module": "core.proposal_queue.queue_schema",
-      "path": "core/proposal_queue/queue_schema.py",
+      "path": "core\\proposal_queue\\queue_schema.py",
       "imports_core": [],
       "imported_by": [
         "core.proposal_queue.__init__",
@@ -10606,7 +10606,7 @@
     },
     {
       "module": "core.proposal_queue.queue_storage",
-      "path": "core/proposal_queue/queue_storage.py",
+      "path": "core\\proposal_queue\\queue_storage.py",
       "imports_core": [
         "core.proposal_queue.queue_schema"
       ],
@@ -10637,7 +10637,7 @@
     },
     {
       "module": "core.recovery",
-      "path": "core/recovery.py",
+      "path": "core\\recovery.py",
       "imports_core": [
         "core.heartbeat"
       ],
@@ -10658,7 +10658,7 @@
     },
     {
       "module": "core.resource_monitor",
-      "path": "core/resource_monitor.py",
+      "path": "core\\resource_monitor.py",
       "imports_core": [],
       "imported_by": [],
       "reachable_from_entrypoints": false,
@@ -10677,7 +10677,7 @@
     },
     {
       "module": "core.security",
-      "path": "core/security.py",
+      "path": "core\\security.py",
       "imports_core": [
         "core.safety_gate"
       ],
@@ -10694,7 +10694,7 @@
     },
     {
       "module": "core.tool_evolution.__init__",
-      "path": "core/tool_evolution/__init__.py",
+      "path": "core\\tool_evolution\\__init__.py",
       "imports_core": [
         "core.tool_evolution.tool_evolution_manager"
       ],
@@ -10710,7 +10710,7 @@
     },
     {
       "module": "core.tool_evolution.tool_evolution_manager",
-      "path": "core/tool_evolution/tool_evolution_manager.py",
+      "path": "core\\tool_evolution\\tool_evolution_manager.py",
       "imports_core": [
         "core.tool_lifecycle_manager",
         "core.tool_registry"

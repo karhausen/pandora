@@ -1,0 +1,343 @@
+{
+  "kind": "mvp30_10_core_triage_report",
+  "source": "core_runtime_analysis_mvp30_9.json",
+  "rules": [
+    "ANALYZE-MVP: no core runtime files modified.",
+    "No delete, no move.",
+    "Static analysis candidates are triaged conservatively."
+  ],
+  "source_counts": {
+    "python_files_total": 292,
+    "core_modules_total": 266,
+    "reachable_core_modules": 181,
+    "not_reachable_core_modules": 85,
+    "legacy_candidates_static_only": 26
+  },
+  "triage_counts": {
+    "C": 10,
+    "B": 5,
+    "D": 8,
+    "A": 3
+  },
+  "triage": [
+    {
+      "path": "core/action_proposal_engine.py",
+      "module": "core.action_proposal_engine",
+      "category": "C",
+      "reason": "Nicht importiert; Proposal-System ist aktuell deaktiviert, aber viele Proposal-Endpunkte existieren noch.",
+      "recommendation": "Wahrscheinlich Legacy; erst verschieben, wenn Proposal-/Action-Pfade inventarisiert sind.",
+      "classes": [
+        "ActionProposalEngine"
+      ],
+      "functions": [
+        "__init__",
+        "build_actions"
+      ]
+    },
+    {
+      "path": "core/capability_registry.py",
+      "module": "core.capability_registry",
+      "category": "B",
+      "reason": "Capability-Thema ist deaktiviert, aber langfristig geplant.",
+      "recommendation": "Behalten bis Capability-System später wieder aktiviert/neu bewertet wird.",
+      "classes": [
+        "CapabilityRegistry"
+      ],
+      "functions": [
+        "__post_init__",
+        "get",
+        "list"
+      ]
+    },
+    {
+      "path": "core/capability_relationships.py",
+      "module": "core.capability_relationships",
+      "category": "B",
+      "reason": "Capability-Thema ist deaktiviert, aber langfristig geplant.",
+      "recommendation": "Behalten bis Capability-System später wieder aktiviert/neu bewertet wird.",
+      "classes": [
+        "CapabilityRelationshipService"
+      ],
+      "functions": [
+        "__post_init__",
+        "graph_payload",
+        "related"
+      ]
+    },
+    {
+      "path": "core/chat_response_router.py",
+      "module": "core.chat_response_router",
+      "category": "D",
+      "reason": "Alte Chat-Routing-Logik; Router darf nicht fachlich entscheiden.",
+      "recommendation": "Als ersten Legacy-Kandidaten in Quarantäne verschieben, nach kurzem grep.",
+      "classes": [
+        "ChatResponseRouter"
+      ],
+      "functions": [
+        "deterministic_existing_tool",
+        "should_use_tools",
+        "status"
+      ]
+    },
+    {
+      "path": "core/execution_context.py",
+      "module": "core.execution_context",
+      "category": "C",
+      "reason": "Nicht importiert; generische Klasse kann aber dynamisch oder konzeptionell vorgesehen sein.",
+      "recommendation": "Wahrscheinlich generische Altlast; vor Verschieben nach Namensreferenzen suchen.",
+      "classes": [
+        "ExecutionContext"
+      ],
+      "functions": []
+    },
+    {
+      "path": "core/observation/detectors/capability_detector.py",
+      "module": "core.observation.detectors.capability_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Capability_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/gui_detector.py",
+      "module": "core.observation.detectors.gui_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Gui_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/memory_detector.py",
+      "module": "core.observation.detectors.memory_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Memory_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/review_detector.py",
+      "module": "core.observation.detectors.review_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Review_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/runtime_detector.py",
+      "module": "core.observation.detectors.runtime_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Runtime_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/tool_detector.py",
+      "module": "core.observation.detectors.tool_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Tool_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/observation/detectors/workflow_detector.py",
+      "module": "core.observation.detectors.workflow_detector",
+      "category": "D",
+      "reason": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "recommendation": "In Legacy-Quarantäne verschieben, wenn keine dynamische Detector-Registry existiert.",
+      "classes": [
+        "Workflow_detector"
+      ],
+      "functions": [
+        "status"
+      ]
+    },
+    {
+      "path": "core/obsidian_export.py",
+      "module": "core.obsidian_export",
+      "category": "A",
+      "reason": "Obsidian/Vault ist aktuelles Hauptziel; statische Nicht-Erreichbarkeit kann CLI-/Altpfade übersehen.",
+      "recommendation": "Behalten bis Vault-Pfad vollständig verifiziert ist.",
+      "classes": [
+        "ObsidianExportService"
+      ],
+      "functions": []
+    },
+    {
+      "path": "core/obsidian_indexer.py",
+      "module": "core.obsidian_indexer",
+      "category": "A",
+      "reason": "Obsidian/Vault ist aktuelles Hauptziel; statische Nicht-Erreichbarkeit kann CLI-/Altpfade übersehen.",
+      "recommendation": "Behalten bis Vault-Pfad vollständig verifiziert ist.",
+      "classes": [
+        "ObsidianIndexerService"
+      ],
+      "functions": []
+    },
+    {
+      "path": "core/obsidian_search.py",
+      "module": "core.obsidian_search",
+      "category": "A",
+      "reason": "Obsidian/Vault ist aktuelles Hauptziel; statische Nicht-Erreichbarkeit kann CLI-/Altpfade übersehen.",
+      "recommendation": "Behalten bis Vault-Pfad vollständig verifiziert ist.",
+      "classes": [
+        "ObsidianSearchService"
+      ],
+      "functions": []
+    },
+    {
+      "path": "core/operations_issue_workflow.py",
+      "module": "core.operations_issue_workflow",
+      "category": "C",
+      "reason": "Nicht importiert; Operations-Bereich existiert aber teilweise aktiv.",
+      "recommendation": "Wahrscheinlich Legacy; zuerst Operations-Endpunkte gegen aktuelles Modul prüfen.",
+      "classes": [
+        "OperationsIssueWorkflow"
+      ],
+      "functions": [
+        "template"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/benefit.py",
+      "module": "core.prioritization.evaluators.benefit",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/confidence.py",
+      "module": "core.prioritization.evaluators.confidence",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/effort.py",
+      "module": "core.prioritization.evaluators.effort",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/frequency.py",
+      "module": "core.prioritization.evaluators.frequency",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/risk.py",
+      "module": "core.prioritization.evaluators.risk",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/urgency.py",
+      "module": "core.prioritization.evaluators.urgency",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/prioritization/evaluators/user_value.py",
+      "module": "core.prioritization.evaluators.user_value",
+      "category": "C",
+      "reason": "Evaluator-Module sind wahrscheinlich Paketbestandteile; statische Analyse kann dynamische Ladewege übersehen.",
+      "recommendation": "Nicht verschieben; zuerst gesamtes Prioritization-Paket entscheiden.",
+      "classes": [],
+      "functions": [
+        "evaluate"
+      ]
+    },
+    {
+      "path": "core/recovery.py",
+      "module": "core.recovery",
+      "category": "B",
+      "reason": "Nicht importiert, aber potenziell sicherheits- oder betriebsrelevant.",
+      "recommendation": "Behalten oder separat prüfen; Querschnitts-/Sicherheits-/Betriebsmodul.",
+      "classes": [
+        "Recovery"
+      ],
+      "functions": [
+        "diagnose"
+      ]
+    },
+    {
+      "path": "core/resource_monitor.py",
+      "module": "core.resource_monitor",
+      "category": "B",
+      "reason": "Nicht importiert, aber potenziell sicherheits- oder betriebsrelevant.",
+      "recommendation": "Behalten oder separat prüfen; Querschnitts-/Sicherheits-/Betriebsmodul.",
+      "classes": [
+        "ResourceMonitor"
+      ],
+      "functions": [
+        "snapshot"
+      ]
+    },
+    {
+      "path": "core/security.py",
+      "module": "core.security",
+      "category": "B",
+      "reason": "Nicht importiert, aber potenziell sicherheits- oder betriebsrelevant.",
+      "recommendation": "Behalten oder separat prüfen; Querschnitts-/Sicherheits-/Betriebsmodul.",
+      "classes": [],
+      "functions": []
+    }
+  ]
+}
