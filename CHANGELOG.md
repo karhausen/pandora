@@ -51,3 +51,10 @@
 - Neue Maintenance-Seite `/tool-evolution`.
 - Integration in CLI/API/Integration-Selftests und Maintenance Center.
 - Keine automatische Aenderung oder Aktivierung von Tool-Code; alle Verbesserungen laufen ueber Proposal/Review/User-Freigabe.
+
+## MVP 30.9 – Core Runtime Analysis
+
+- Added static core runtime analysis script.
+- Added Markdown and JSON reports under `docs/`.
+- No productive core runtime behavior changed.
+- Tools, Skills, Capability Gap and Evolution remain disabled in the current active chat architecture.
