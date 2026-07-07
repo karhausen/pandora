@@ -1,6 +1,90 @@
 {
   "sessions": [
     {
+      "session_id": "chat_173248d672bc",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-07T08:56:13.898576+00:00",
+      "updated_at": "2026-07-07T08:56:13.898576+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_6cd6158bbb21",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-07T08:56:13.894256+00:00",
+      "updated_at": "2026-07-07T08:56:13.894256+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_e46b4391754b",
+      "title": "Test",
+      "created_at": "2026-07-07T08:56:13.886015+00:00",
+      "updated_at": "2026-07-07T08:56:13.886015+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_349198196c4f",
+      "title": "Was ist die Pandora Roadmap?",
+      "created_at": "2026-07-07T08:56:02.108258+00:00",
+      "updated_at": "2026-07-07T08:56:02.108258+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_dff2163419e2",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-07T08:56:02.104904+00:00",
+      "updated_at": "2026-07-07T08:56:02.104904+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_81feeb8053eb",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-07T08:56:02.099739+00:00",
+      "updated_at": "2026-07-07T08:56:02.099739+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_44fffedcd5f5",
+      "title": "Test",
+      "created_at": "2026-07-07T08:56:02.091617+00:00",
+      "updated_at": "2026-07-07T08:56:02.091617+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_5ed7c519a240",
+      "title": "Was ist die Pandora Roadmap?",
+      "created_at": "2026-07-07T08:55:50.103641+00:00",
+      "updated_at": "2026-07-07T08:55:50.103641+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_2149046768ef",
+      "title": "Was weißt du über Pandora?",
+      "created_at": "2026-07-07T08:55:50.101110+00:00",
+      "updated_at": "2026-07-07T08:55:50.101110+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_369cc27a8990",
+      "title": "Welche Test-Prompts habe ich?",
+      "created_at": "2026-07-07T08:55:50.096474+00:00",
+      "updated_at": "2026-07-07T08:55:50.096474+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_ef4b88369cc6",
+      "title": "Test",
+      "created_at": "2026-07-07T08:55:50.089208+00:00",
+      "updated_at": "2026-07-07T08:55:50.089208+00:00",
+      "message_count": 0
+    },
+    {
+      "session_id": "chat_c969e07e7f1e",
+      "title": "Was ist die Pandora Roadmap?",
+      "created_at": "2026-07-07T07:06:35.523776+00:00",
+      "updated_at": "2026-07-07T07:06:35.523776+00:00",
+      "message_count": 0
+    },
+    {
       "session_id": "chat_834c4fb3b9b9",
       "title": "Was weißt du über Pandora?",
       "created_at": "2026-07-07T07:06:35.521179+00:00",
@@ -225,10 +309,10 @@
       "message_count": 0
     },
     {
-      "session_id": "chat_c969e07e7f1e",
+      "session_id": "chat_675aba7ddc2f",
       "title": "Was ist die Pandora Roadmap?",
-      "created_at": "2026-07-07T07:06:35.523776+00:00",
-      "updated_at": "2026-07-07T07:06:35.523776+00:00",
+      "created_at": "2026-07-07T08:56:13.906613+00:00",
+      "updated_at": "2026-07-07T08:56:13.906613+00:00",
       "message_count": 0
     }
   ]

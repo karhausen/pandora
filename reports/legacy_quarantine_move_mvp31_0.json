@@ -1,0 +1,110 @@
+{
+  "kind": "mvp31_0_legacy_quarantine_move",
+  "source": "mvp30_11_legacy_quarantine_dry_run",
+  "rules": [
+    "Only category D low-risk candidates moved",
+    "No files deleted",
+    "Moved files preserved under legacy/core"
+  ],
+  "moved_count": 8,
+  "missing_count": 0,
+  "moved": [
+    {
+      "path": "core/chat_response_router.py",
+      "module": "core.chat_response_router",
+      "target_path": "legacy/core/chat_response_router.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Alte Chat-Routing-Logik; Router darf nicht fachlich entscheiden.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/capability_detector.py",
+      "module": "core.observation.detectors.capability_detector",
+      "target_path": "legacy/core/observation/detectors/capability_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/gui_detector.py",
+      "module": "core.observation.detectors.gui_detector",
+      "target_path": "legacy/core/observation/detectors/gui_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/memory_detector.py",
+      "module": "core.observation.detectors.memory_detector",
+      "target_path": "legacy/core/observation/detectors/memory_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/review_detector.py",
+      "module": "core.observation.detectors.review_detector",
+      "target_path": "legacy/core/observation/detectors/review_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/runtime_detector.py",
+      "module": "core.observation.detectors.runtime_detector",
+      "target_path": "legacy/core/observation/detectors/runtime_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/tool_detector.py",
+      "module": "core.observation.detectors.tool_detector",
+      "target_path": "legacy/core/observation/detectors/tool_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    },
+    {
+      "path": "core/observation/detectors/workflow_detector.py",
+      "module": "core.observation.detectors.workflow_detector",
+      "target_path": "legacy/core/observation/detectors/workflow_detector.py",
+      "imported_by": [],
+      "imports_core": [],
+      "reachable_from_entrypoints": false,
+      "static_import_break_risk": "low",
+      "would_move": true,
+      "notes": "Einzeldetektor ist statisch ungenutzt; Observation-System ist aktuell deaktiviert/nicht im Hauptpfad.",
+      "moved": true
+    }
+  ],
+  "missing": []
+}

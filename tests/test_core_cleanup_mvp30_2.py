@@ -22,6 +22,11 @@ def test_legacy_keyword_routing_modules_are_disabled_or_structured_only():
         "request.lower()",
     ]
     for path in checked:
+        if not path.exists():
+            # MVP 31.0 may move proven legacy files into legacy/core/.
+            legacy_path = Path("legacy") / path
+            assert legacy_path.exists(), f"{path} is missing and not quarantined at {legacy_path}"
+            continue
         source = path.read_text(encoding="utf-8")
         for pattern in forbidden:
             assert pattern not in source, f"Forbidden legacy routing pattern {pattern!r} found in {path}"
