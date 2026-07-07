@@ -1,0 +1,76 @@
+{
+  "mvp": "31.1",
+  "title": "Legacy Quarantine Validation",
+  "kind": "ANALYZE/VALIDATE-MVP",
+  "rules": [
+    "No feature work.",
+    "No additional legacy moves.",
+    "Router remains dispatcher-only.",
+    "Tools/Skills/Capability-Gap/Evolution remain disabled in the chat main path."
+  ],
+  "before_counts": {
+    "python_files_total": 292,
+    "core_modules_total": 266,
+    "reachable_core_modules": 181,
+    "not_reachable_core_modules": 85,
+    "legacy_candidates_static_only": 26
+  },
+  "after_counts": {
+    "python_files_total": 292,
+    "core_modules_total": 258,
+    "reachable_core_modules": 181,
+    "not_reachable_core_modules": 77,
+    "legacy_candidates_static_only": 18
+  },
+  "deltas": {
+    "python_files_total": 0,
+    "core_modules_total": -8,
+    "reachable_core_modules": 0,
+    "not_reachable_core_modules": -8,
+    "legacy_candidates_static_only": -8
+  },
+  "quarantine_checks": [
+    {
+      "path": "core/chat_response_router.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/capability_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/gui_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/memory_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/review_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/runtime_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/tool_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    },
+    {
+      "path": "core/observation/detectors/workflow_detector.py",
+      "present_in_core": false,
+      "present_in_legacy": true
+    }
+  ],
+  "pytest": "36 passed",
+  "result": "31.0 quarantine move validated; static core-module count and legacy-candidate count decreased by 8."
+}

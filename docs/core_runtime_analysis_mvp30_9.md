@@ -15,11 +15,11 @@ Status: **ANALYZE-MVP**. Dieser Bericht verändert keine Core-Runtime-Dateien.
 
 ## Ergebnisübersicht
 
-- Python-Dateien gesamt: **291**
-- Core-Module gesamt: **266**
+- Python-Dateien gesamt: **292**
+- Core-Module gesamt: **258**
 - Von Entry Points statisch erreichbar: **181**
-- Nicht von Entry Points statisch erreichbar: **85**
-- Legacy-Kandidaten, statisch/konservativ: **26**
+- Nicht von Entry Points statisch erreichbar: **77**
+- Legacy-Kandidaten, statisch/konservativ: **18**
 
 ## Wichtige Einschränkung
 
@@ -30,15 +30,7 @@ Diese Analyse ist statisch. Sie erkennt normale `import`/`from ... import ...`-B
 - `core/action_proposal_engine.py`
 - `core/capability_registry.py`
 - `core/capability_relationships.py`
-- `core/chat_response_router.py`
 - `core/execution_context.py`
-- `core/observation/detectors/capability_detector.py`
-- `core/observation/detectors/gui_detector.py`
-- `core/observation/detectors/memory_detector.py`
-- `core/observation/detectors/review_detector.py`
-- `core/observation/detectors/runtime_detector.py`
-- `core/observation/detectors/tool_detector.py`
-- `core/observation/detectors/workflow_detector.py`
 - `core/obsidian_export.py`
 - `core/obsidian_indexer.py`
 - `core/obsidian_search.py`
@@ -62,7 +54,6 @@ Diese Analyse ist statisch. Sie erkennt normale `import`/`from ... import ...`-B
 - `core/adaptive_goals/adaptive_goal_manager.py` — imported_by: `core.adaptive_goals.__init__`
 - `core/capability_registry.py` — imported_by: —
 - `core/capability_relationships.py` — imported_by: —
-- `core/chat_response_router.py` — imported_by: —
 - `core/core_evolution/__init__.py` — imported_by: —
 - `core/core_evolution/core_evolution_manager.py` — imported_by: `core.core_evolution.__init__`
 - `core/decision_learning/__init__.py` — imported_by: —
@@ -87,13 +78,6 @@ Diese Analyse ist statisch. Sie erkennt normale `import`/`from ... import ...`-B
 - `core/llm_clients/__init__.py` — imported_by: —
 - `core/observation/__init__.py` — imported_by: —
 - `core/observation/detectors/__init__.py` — imported_by: —
-- `core/observation/detectors/capability_detector.py` — imported_by: —
-- `core/observation/detectors/gui_detector.py` — imported_by: —
-- `core/observation/detectors/memory_detector.py` — imported_by: —
-- `core/observation/detectors/review_detector.py` — imported_by: —
-- `core/observation/detectors/runtime_detector.py` — imported_by: —
-- `core/observation/detectors/tool_detector.py` — imported_by: —
-- `core/observation/detectors/workflow_detector.py` — imported_by: —
 - `core/observation/event_bus.py` — imported_by: `core.observation.__init__`, `core.observation.observation_engine`
 - `core/observation/event_logger.py` — imported_by: `core.observation.__init__`, `core.observation.event_bus`
 - `core/observation/observation_engine.py` — imported_by: `core.observation.__init__`, `core.observation.observation_manager`

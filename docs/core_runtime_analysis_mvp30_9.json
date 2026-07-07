@@ -10,11 +10,11 @@
     "core.api"
   ],
   "counts": {
-    "python_files_total": 291,
-    "core_modules_total": 266,
+    "python_files_total": 292,
+    "core_modules_total": 258,
     "reachable_core_modules": 181,
-    "not_reachable_core_modules": 85,
-    "legacy_candidates_static_only": 26
+    "not_reachable_core_modules": 77,
+    "legacy_candidates_static_only": 18
   },
   "modules": [
     {
@@ -1748,27 +1748,6 @@
       ],
       "legacy_candidate": false,
       "notes": []
-    },
-    {
-      "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "ChatResponseRouter"
-      ],
-      "defines_functions": [
-        "deterministic_existing_tool",
-        "should_use_tools",
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
     },
     {
       "module": "core.chat_service",
@@ -4697,139 +4676,6 @@
       "notes": [
         "not_imported_by_static_graph",
         "not_reachable_from_main_or_core_api_static_graph"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Capability_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Gui_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Memory_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Review_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Runtime_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Tool_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Workflow_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
       ]
     },
     {
@@ -8342,27 +8188,6 @@
       ]
     },
     {
-      "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "ChatResponseRouter"
-      ],
-      "defines_functions": [
-        "deterministic_existing_tool",
-        "should_use_tools",
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
       "module": "core.execution_context",
       "path": "core/execution_context.py",
       "imports_core": [],
@@ -8372,139 +8197,6 @@
         "ExecutionContext"
       ],
       "defines_functions": [],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Capability_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Gui_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Memory_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Review_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Runtime_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Tool_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Workflow_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
       "legacy_candidate": true,
       "notes": [
         "not_imported_by_static_graph",
@@ -8888,27 +8580,6 @@
         "__post_init__",
         "graph_payload",
         "related"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.chat_response_router",
-      "path": "core/chat_response_router.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "ChatResponseRouter"
-      ],
-      "defines_functions": [
-        "deterministic_existing_tool",
-        "should_use_tools",
-        "status"
       ],
       "legacy_candidate": true,
       "notes": [
@@ -9504,139 +9175,6 @@
       "notes": [
         "not_imported_by_static_graph",
         "not_reachable_from_main_or_core_api_static_graph"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.capability_detector",
-      "path": "core/observation/detectors/capability_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Capability_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.gui_detector",
-      "path": "core/observation/detectors/gui_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Gui_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.memory_detector",
-      "path": "core/observation/detectors/memory_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Memory_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.review_detector",
-      "path": "core/observation/detectors/review_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Review_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.runtime_detector",
-      "path": "core/observation/detectors/runtime_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Runtime_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.tool_detector",
-      "path": "core/observation/detectors/tool_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Tool_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
-      ]
-    },
-    {
-      "module": "core.observation.detectors.workflow_detector",
-      "path": "core/observation/detectors/workflow_detector.py",
-      "imports_core": [],
-      "imported_by": [],
-      "reachable_from_entrypoints": false,
-      "defines_classes": [
-        "Workflow_detector"
-      ],
-      "defines_functions": [
-        "status"
-      ],
-      "legacy_candidate": true,
-      "notes": [
-        "not_imported_by_static_graph",
-        "not_reachable_from_main_or_core_api_static_graph",
-        "legacy_candidate_static_only"
       ]
     },
     {
